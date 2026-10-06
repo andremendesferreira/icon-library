@@ -1,0 +1,881 @@
+.emoji-card,
+.supported-filter {
+  user-select: none;
+  cursor: pointer;
+}
+#loader,
+#toast,
+.emoji-card,
+.summary,
+.empty,
+header {
+  text-align: center;
+}
+#search-bar:focus,
+.back-to-top:hover,
+.pill-control:focus {
+  border-color: #3498db;
+}
+#loader,
+#toast,
+.emoji-warning,
+.group__title {
+  font-weight: 700;
+}
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fb;
+  color: #333;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.summary strong,
+h1 {
+  color: #2c3e50;
+}
+header {
+  margin-bottom: 30px;
+}
+h1 {
+  margin-bottom: 5px;
+}
+p {
+  color: #7f8c8d;
+}
+.search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7f8c8d;
+  pointer-events: none;
+}
+.search-container {
+  top: 0px;
+  z-index: 100;
+  background: #f5f7fb;
+  padding: 6px 0;
+  margin-top: 25px;
+  bottom: 10px;  
+}
+#toast,
+.back-to-top {
+  position: fixed;
+  z-index: 200;
+  visibility: hidden;
+}
+#search-bar {
+  /* border-box: sem ele, o padding (42px da lupa + 20px) e a borda somam-se
+     ao width:100% e o campo vaza da .search */
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  margin: 0 auto;
+  padding: 12px 20px;
+  font-size: 15px; /* mesma fonte e altura dos botões ao lado */
+  text-overflow: ellipsis; /* placeholder longo termina em "…" em vez de cortado */
+  border: 2px solid #bdc3c7;
+  border-radius: 30px;
+  outline: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s;
+}
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+.emoji-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+.emoji-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  background-color: #eef4ff;
+  box-shadow: 0 6px 14px rgba(42, 127, 255, 0.14);
+}
+.emoji-char {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 8px;
+}
+.emoji-name {
+  font-size: 11px;
+  color: #7f8c8d;
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+#loader {
+  font-size: 18px;
+  color: #3498db;
+  margin: 40px;
+}
+#toast {
+  min-width: 200px;
+  background-color: #2ecc71;
+  color: #fff;
+  border-radius: 25px;
+  padding: 12px 24px;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+#toast.show {
+  visibility: visible;
+  animation:
+    0.3s fadein,
+    0.3s 1.7s fadeout;
+}
+@keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
+}
+@keyframes fadeout {
+  from {
+    bottom: 30px;
+    opacity: 1;
+  }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+.supported-filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #5a6b7b;
+}
+.supported-filter input {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+.summary {
+  font-size: 13px;
+  color: #7f8c8d;
+  margin: 14px 0 0;
+  line-height: 1.6;
+}
+.emoji-card--no-glyph {
+  background: #fff8e6;
+  border: 1px dashed #e0b44a;
+  box-shadow: none;
+}
+.back-to-top,
+.pill-control {
+  background: #fff;
+  cursor: pointer;
+}
+.emoji-card--no-glyph .emoji-char {
+  opacity: 0.45;
+}
+.emoji-warning {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: #a8791a;
+  text-transform: uppercase;
+}
+.empty {
+  grid-column: 1/-1;
+  padding: 40px;
+  color: #95a5a6;
+}
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+  text-align: left;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+/* Os três controles dividem a linha e descem para a seguinte quando não
+   cabem com a largura mínima (flex-basis), em vez de espremer a busca */
+.controls > .icon-set,
+.controls > .groups-menu {
+  flex: 1 1 200px;
+}
+.controls .search {
+  position: relative;
+  flex: 1 1 260px;
+  min-width: 180px;
+  /* Sem max-width: quando a busca desce sozinha para a linha de baixo
+     (entre ~600 e ~700px), ocupa a linha inteira */
+}
+
+.search #search-bar {
+  max-width: none;
+  width: 100% !important;
+}
+
+.controls #search-bar {
+  margin: 0;
+  width: 100%;
+  padding-left: 42px;
+}
+.pill-control {
+  width:100%;
+  max-width:480px;
+  padding: 12px 16px;
+  font-size: 15px;
+  border: 2px solid #bdc3c7;
+  border-radius: 30px;
+  color: #2c3e50;
+  outline: 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+/* ── Seletor de conjunto (Emoji, Lucide…) ──
+   Botão + painel de opções, no mesmo padrão do menu de categorias.
+   Começa em "Select": nada é carregado até o usuário escolher. */
+.icon-set {
+  position: relative;
+  min-width: 180px;
+  max-width: 480px;
+  width: 100%;
+}
+.icon-set__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+  max-width: 480px;
+  width: 100%;
+  justify-content: space-between;
+}
+.icon-set__button--active {
+  border-color: var(--il-blue);
+  color: var(--il-blue-dark);
+  font-weight: 600;
+}
+
+.icon-set__arrow {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.5;
+  transition: transform 0.15s;
+}
+.icon-set__button[aria-expanded="true"] .icon-set__arrow {
+  transform: rotate(180deg);
+}
+
+.icon-set__panel {
+  padding: 6px;
+}
+.icon-set__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: #42505e;
+  text-align: left;
+  cursor: pointer;
+}
+.icon-set__option:hover,
+.icon-set__option:focus-visible {
+  background: #eef4ff;
+  outline: none;
+}
+.icon-set__option[aria-selected="true"] {
+  color: var(--il-blue-dark);
+  font-weight: 600;
+}
+.icon-set__option[aria-selected="true"]::after {
+  content: "✓";
+  color: var(--il-blue);
+}
+
+/* Controles que dependem de um conjunto carregado */
+.groups-menu__button:disabled,
+#search-bar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.svg-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  color: #2c3e50;
+}
+.svg-icon svg {
+  width: 28px;
+  height: 28px;
+}
+.emoji-card:hover .svg-icon {
+  color: #2980b9;
+  color: var(--il-blue-dark);
+}
+[hidden] {
+  display: none !important;
+}
+.sources-note {
+  /* max-width: 720px; */
+  padding-top: 6px;
+  margin: 10px auto 0;
+  font-size: 20px;
+  line-height: 1.7;
+  color: #8a99a8;
+}
+.back-to-top,
+.sources-note strong {
+  color: #5a6b7b;
+}
+.back-to-top {
+  right: 24px;
+  bottom: 24px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid #bdc3c7;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.2s,
+    transform 0.2s,
+    visibility 0.2s,
+    color 0.15s,
+    border-color 0.15s;
+}
+.back-to-top--visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.back-to-top:hover {
+  color: #2980b9;
+}
+.group {
+  margin-top: 28px;
+}
+.group:first-child {
+  margin-top: 8px;
+}
+.group__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e4e9f0;
+  font-size: 15px;
+  color: #2c3e50;
+  position: sticky;
+  top: 0;
+  background: #f5f7fb;
+  z-index: 50;
+}
+.group__count {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7f8c8d;
+  background: #fff;
+  border: 1px solid #dfe6ee;
+  border-radius: 20px;
+  padding: 2px 10px;
+}
+.group .emoji-grid {
+  margin-top: 0;
+}
+:root {
+  --il-blue: #2a7fff;
+  --il-blue-dark: #1558c8;
+  --il-gold: #f5c141;
+  --il-gold-dark: #e09410;
+  --il-purple: #7c4dff;
+  --il-teal: #1ba3b8;
+  --il-green: #2fa14d;
+}
+
+.logo-card{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  text-align: left;
+  margin-bottom: 6px;
+}
+.header__logo {
+  max-height: 180px;  
+  height: 100%;
+  object-fit: contain;
+  flex-shrink: 0;
+  animation: 4s ease-in-out infinite il-float;
+}
+@keyframes il-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-6px) rotate(-2deg);
+  }
+}
+.header__title {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  /* O degradê (background-clip: text) só pinta dentro da caixa; com
+     line-height 1.1 a perna do "y" ficava fora e era cortada */
+  padding-bottom: 0.12em;
+  background: linear-gradient(
+    95deg,
+    var(--il-blue-dark),
+    var(--il-purple) 35%,
+    var(--il-gold-dark) 65%,
+    var(--il-teal)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.header__subtitle {
+  margin: 6px 0 0;
+  max-width: 52ch;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #7f8c8d;
+}
+
+.header__subtitle-list {
+  margin-top: 4px;
+  margin-left: 22px;
+  max-width: 52ch;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #183574;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 56px 20px;
+  color: #7f8c8d;
+}
+.fan {
+  position: relative;
+  width: 120px;
+  height: 76px;
+}
+.fan__card {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 22px;
+  height: 58px;
+  margin-left: -11px;
+  border-radius: 6px;
+  transform-origin: 50% 100%;
+  box-shadow: 0 4px 10px rgba(21, 88, 200, 0.18);
+  animation: 1.6s ease-in-out infinite il-fan;
+}
+.fan__card--1 {
+  background: var(--il-blue);
+  --tilt: -42deg;
+  animation-delay: 0ms;
+}
+.fan__card--2 {
+  background: var(--il-purple);
+  --tilt: -21deg;
+  animation-delay: -0.12s;
+}
+.fan__card--3 {
+  background: var(--il-gold);
+  --tilt: 0deg;
+  animation-delay: -0.24s;
+}
+.fan__card--4 {
+  background: var(--il-teal);
+  --tilt: 21deg;
+  animation-delay: -0.36s;
+}
+.fan__card--5 {
+  background: var(--il-green);
+  --tilt: 42deg;
+  animation-delay: -0.48s;
+}
+@keyframes il-fan {
+  0%,
+  100% {
+    transform: rotate(calc(var(--tilt) * 0.25)) translateY(6px);
+    opacity: 0.55;
+  }
+  50% {
+    transform: rotate(var(--tilt)) translateY(-6px);
+    opacity: 1;
+  }
+}
+.loading__text {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #8a99a8;
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top {
+    transition:
+      opacity 0.2s,
+      visibility 0.2s;
+    transform: none;
+  }
+  .header__logo,
+  .fan__card {
+    animation: none;
+  }
+  .fan__card {
+    transform: rotate(var(--tilt)) translateY(-6px);
+    opacity: 1;
+  }
+}
+#search-bar:focus,
+.pill-control:focus {
+  border-color: var(--il-blue);
+}
+.group__title {
+  border-bottom-color: #dbe4f0;
+}
+.back-to-top:hover {
+  color: var(--il-blue);
+  border-color: var(--il-blue);
+}
+@media (max-width: 600px) {
+  .back-to-top {
+    right: 14px;
+    bottom: 14px;
+    width: 40px;
+    height: 40px;
+  }
+
+}
+.groups-menu {
+  position: relative;
+  min-width: 180px;
+  max-width: 480px;
+  width: 100%;
+}
+.groups-menu__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+  max-width: 480px;
+  width: 100%;
+  justify-content: space-between;
+}
+.groups-menu__button--active {
+  border-color: var(--il-blue);
+  color: var(--il-blue-dark);
+  font-weight: 600;
+}
+.groups-menu__arrow {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.5;
+}
+.groups-menu__panel,
+.icon-set__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 120;
+  /* Mesma largura do botão: o contêiner (.icon-set / .groups-menu) é
+     position:relative e tem a largura do botão */
+  width: 100%;
+  box-sizing: border-box;
+  max-height: 340px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #dfe6ee;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(21, 88, 200, 0.16);
+  overflow: hidden;
+}
+.groups-menu__actions {
+  padding: 10px 14px;
+  border-bottom: 1px solid #eef2f7;
+}
+.groups-menu__clear {
+  background: 0 0;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--il-blue);
+  cursor: pointer;
+}
+.groups-menu__clear:hover {
+  text-decoration: underline;
+}
+.groups-menu__list {
+  overflow-y: auto;
+  padding: 6px;
+}
+.groups-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: #42505e;
+  cursor: pointer;
+}
+.groups-menu__item:hover {
+  background: #eef4ff;
+}
+.groups-menu__item input {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--il-blue);
+}
+.groups-menu__name {
+  flex: 1;
+}
+.groups-menu__count {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #8a99a8;
+  background: #f2f5f9;
+  border-radius: 20px;
+  padding: 1px 8px;
+}
+
+/* ── Controles no celular ──
+   No fim do arquivo de propósito: precisa vencer as regras de .groups-menu e
+   .pill-control acima, que têm a mesma especificidade. */
+@media (max-width: 600px) {
+  /* Cada controle ocupa a linha inteira */
+  .controls > .icon-set,
+  .controls > .groups-menu,
+  .controls .search {
+    flex-basis: 100%;
+    max-width: none;
+  }
+  .pill-control,
+  .groups-menu__button {
+    max-width: none;
+  }
+  #search-bar {
+    padding: 10px 16px 10px 40px;
+    /* 16px: abaixo disso o Safari do iPhone dá zoom na página ao focar o campo */
+    font-size: 16px;
+  }
+  .pill-control {
+    padding: 10px 16px;
+    font-size: 16px; /* acompanha o campo de busca, mesma altura */
+  }
+  .search-icon {
+    left: 16px;
+  }
+  .sources-note {
+    font-size: 17px;
+  }
+}
+
+/* ── Cabeçalho em tela estreita ──
+   Logo e título empilhados e centralizados. O subtítulo vira um info-box de
+   orientação — o mesmo elemento, restilizado, para o texto existir num só lugar. */
+@media (max-width: 590px) {
+  .header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .header > div {
+    width: 100%;
+  }
+  /* Centraliza a caixa do título, não só o texto: com a caixa na largura toda
+     o degradê se estica e o título mostra só as cores do meio */
+  .header__title {
+    width: fit-content;
+    margin-inline: auto;
+    text-align: center;
+  }
+  /* Grid, não flex: o ícone fica na 1ª coluna e todo o conteúdo (parágrafo,
+     lista…) empilha na 2ª. Com flex, cada filho viraria uma coluna. */
+  .header__subtitle {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    column-gap: 10px;
+    align-items: start;
+    max-width: none;
+    margin: 16px 0 0;
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #42505e;
+    background: #eef4ff;
+    border: 1px solid #d6e4ff;
+    border-left: 4px solid var(--il-blue);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(21, 88, 200, 0.08);
+  }
+  /* Ícone "i" no azul da página */
+  .header__subtitle > * {
+    grid-column: 2;
+    margin: 0;
+  }
+  .header__subtitle ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+  }
+  /* O <p> interno traria a margem padrão (texto abaixo do ícone) e o cinza
+     da regra global "p" — no box, o texto segue a cor do próprio box */
+  .header__subtitle p {
+    margin: 0;
+    color: inherit;
+  }
+  .header__subtitle::before {
+    content: "i";
+    grid-column: 1;
+    grid-row: 1;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: var(--il-blue);
+    color: #fff;
+    font: italic 700 12px/20px Georgia, serif;
+    text-align: center;
+  }
+}
+
+/* ── Publicidade (Google AdSense) ──
+   Duas disposições, nunca as duas ao mesmo tempo:
+   · laterais flutuantes de 160×600 (position: fixed, como o botão "voltar ao
+     topo"): ficam paradas na tela enquanto a página rola. O body ganha
+     padding lateral para elas, então o conteúdo encolhe em vez de ficar por
+     baixo — anúncio sobre conteúdo viola as regras do AdSense;
+   · faixa horizontal no fluxo da página, quando as laterais não cabem
+     (janela estreita ou baixa demais). */
+:root {
+  /* Faixa lateral reservada: 16px + 160px do anúncio + 16px */
+  --ad-rail-zone: 192px;
+}
+.ad {
+  text-align: center;
+}
+.ad__label {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a3b0bd;
+}
+.ad--banner {
+  margin: 18px 0 6px;
+}
+/* Altura reservada: a página não pula quando o anúncio chega */
+.ad--banner .ad__unit {
+  min-height: 90px;
+}
+.ad--rail {
+  display: none;
+  position: fixed;
+  /* Centralizada na altura da janela */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 160px;
+  z-index: 10;
+}
+.ad--rail .ad__unit {
+  height: 600px;
+}
+/* Coladas ao conteúdo (600px = metade dele) com 16px de respiro; em janela
+   mais estreita encostam na borda, a 16px */
+.ad--rail-left {
+  left: max(16px, calc(50% - 600px - 176px));
+}
+.ad--rail-right {
+  right: max(16px, calc(50% - 600px - 176px));
+}
+/* Largura: sobra espaço útil para o conteúdo entre as duas laterais.
+   Altura: a lateral (14 + 600px) cabe inteira na janela, com folga. */
+@media (min-width: 1100px) and (min-height: 630px) {
+  body:has(.ad--rail:not([hidden])) {
+    padding-inline: var(--ad-rail-zone);
+  }
+  .ad--rail {
+    display: block;
+  }
+  .ad--banner {
+    display: none;
+  }
+  /* O botão "voltar ao topo" sai da faixa do anúncio e vai para o canto do
+     conteúdo: nada pode encobrir a lateral */
+  body:has(.ad--rail-right:not([hidden])) .back-to-top {
+    right: max(
+      calc(var(--ad-rail-zone) + 8px),
+      calc(50% - 600px + 8px)
+    );
+  }
+}
+/* Prévia em localhost, enquanto o AdSense não está configurado */
+.ad--preview .ad__unit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 2px dashed #c5d0dc;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #a3b0bd;
+}

@@ -1,0 +1,28 @@
+# Production: everything the container serves is inside the image.
+# Development (live edits, no rebuild):
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+services:
+  icon-library:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: icon-library:latest
+    container_name: icon-library
+    restart: unless-stopped
+    # Forwards SIGTERM to Node, so the container stops at once
+    init: true
+    ports:
+      - "3000:3000"
+    # Hardening: the server only reads files and listens on a high port
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    pids_limit: 100
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"

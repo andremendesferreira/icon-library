@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta
+    name="description"
+    content="Browse, filter and copy icons from Emoji, Lucide, Feather and Bootstrap Icons — click to copy, right-click for the SVG."
+  />
+  <title>Icon Library</title>
+  <link rel="icon" type="image/png" href="img/iconlibrary.png" />
+  <link rel="stylesheet" href="css/icon-library.css" />
+  <header class="header">
+    <img src="img/iconlibrary.png" alt="" class="header__logo" />
+    <div>
+      <h1 class="header__title">Icon Library</h1>
+      <div class="header__subtitle">
+        <p>A reference for choosing menu and interface icons:</p>
+        <ul class="header__subtitle-list">
+          <li><strong>Click</strong> to copy;</li>
+          <li><strong>Right-click</strong> copies the alternative (SVG).</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+  <!-- Publicidade (Google AdSense): configurada em js/models/adsConfig.js.
+       Laterais flutuantes; faixa horizontal quando elas não cabem na janela. -->
+  <aside class="ad ad--banner" data-ad="banner" aria-label="Advertisement" hidden>
+    <span class="ad__label">Advertisement</span>
+    <div class="ad__unit"></div>
+  </aside>
+  <aside class="ad ad--rail ad--rail-left" data-ad="railLeft" aria-label="Advertisement" hidden>
+    <span class="ad__label">Advertisement</span>
+    <div class="ad__unit"></div>
+  </aside>
+  <aside class="ad ad--rail ad--rail-right" data-ad="railRight" aria-label="Advertisement" hidden>
+    <span class="ad__label">Advertisement</span>
+    <div class="ad__unit"></div>
+  </aside>
+  <p class="sources-note">
+    The <strong>vector</strong> sets provide copy-and-paste-ready SVG, inherit
+    the text color, and do not rely on installed fonts. The
+    <strong>emojis</strong> depend on the system font — the newest ones do not
+    yet have designs in any of them and appear flagged.
+  </p>
+  <div class="search-container">
+    <div class="controls">
+      <div class="icon-set">
+        <button
+          type="button"
+          id="icon-set-button"
+          class="pill-control icon-set__button"
+          aria-haspopup="listbox"
+          aria-expanded="false"
+          aria-controls="icon-set-panel"
+        >
+          <span id="icon-set-button-text">Select</span>
+          <span class="icon-set__arrow" aria-hidden="true"></span>
+        </button>
+        <div
+          class="icon-set__panel"
+          id="icon-set-panel"
+          role="listbox"
+          aria-label="Icon set"
+          hidden
+        ></div>
+      </div>
+      <div class="groups-menu">
+        <button
+          type="button"
+          id="groups-button"
+          class="pill-control groups-menu__button "
+          aria-expanded="false"
+          aria-controls="groups-panel"
+        >
+          <span id="groups-button-text">All categories</span>
+          <span class="groups-menu__arrow" aria-hidden="true"></span>
+        </button>
+        <div class="groups-menu__panel" id="groups-panel" hidden>
+          <div class="groups-menu__actions">
+            <button
+              type="button"
+              id="groups-clear"
+              class="groups-menu__clear"
+            >
+              Clear selection
+            </button>
+          </div>
+          <div class="groups-menu__list" id="groups-list"></div>
+        </div>
+      </div>
+      <div class="search">
+        <svg
+          class="search-icon"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          id="search-bar"
+          placeholder="Type to filter (e.g., home, book, heart)..."
+        />
+      </div>
+    </div>
+    <label class="supported-filter" id="supported-filter-field"
+      ><input type="checkbox" id="only-supported" checked /> Only those with
+      a design on this machine</label
+    >
+  </div>
+  <p id="summary" class="summary"></p>
+  <div id="loader" class="loading" style="display: none">
+    <div class="fan" aria-hidden="true">
+      <span class="fan__card fan__card--1"></span>
+      <span class="fan__card fan__card--2"></span>
+      <span class="fan__card fan__card--3"></span>
+      <span class="fan__card fan__card--4"></span>
+      <span class="fan__card fan__card--5"></span>
+    </div>
+    <p class="loading__text" id="loader-text">Loading icons…</p>
+  </div>
+  <div id="emoji-container"></div>
+  <div id="toast">Copied!</div>
+  <script type="module" src="js/app.js"></script>
+  <script src="js/views/goTop.js" defer></script>
+</html>

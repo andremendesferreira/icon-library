@@ -1,0 +1,9 @@
+# Development override: serves the local files, so edits show up without a
+# rebuild (changes to server.js need `docker compose restart`).
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+services:
+  icon-library:
+    restart: "no"
+    volumes:
+      - ./scripts/server.js:/app/scripts/server.js:ro
+      - ./public:/app/public:ro

@@ -1,0 +1,21 @@
+{
+  "name": "icon-library",
+  "version": "1.0.0",
+  "description": "Browse, filter and copy icons from Emoji, Lucide, Feather and Bootstrap Icons — click to copy, right-click for the SVG.",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/server.js",
+    "generate": "node scripts/generate-icon-categories.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "icons",
+    "emoji",
+    "lucide",
+    "feather",
+    "bootstrap-icons",
+    "svg"
+  ]
+}
