@@ -1,6 +1,16 @@
 // Conjuntos de ícones disponíveis: de onde vêm os dados e como viram itens.
 // Para adicionar um conjunto, basta declarar uma nova entrada em FONTES.
 
+// Versões fixas dos pacotes: uma versão nova só entra quando for trocada aqui
+// (e testada), em vez de chegar sozinha e quebrar a página. Mantenha iguais às
+// de scripts/generate-icon-categories.js.
+export const VERSOES = {
+  emoji: "0.9.0", // unicode-emoji-json
+  lucide: "1.59.0", // lucide-static
+  feather: "4.29.2", // feather-icons
+  bootstrap: "1.13.2", // bootstrap-icons
+};
+
 const porLetra = (nome) => {
   const letra = nome.trim()[0]?.toUpperCase() || "#";
   return /[A-Z]/.test(letra) ? letra : "#";
@@ -18,7 +28,7 @@ export const FONTES = {
   emoji: {
     rotulo: "Emoji (Unicode)",
     rotuloGrupo: "All categories",
-    url: "https://unpkg.com/unicode-emoji-json/data-by-emoji.json",
+    url: `https://unpkg.com/unicode-emoji-json@${VERSOES.emoji}/data-by-emoji.json`,
     detectaGlifo: true,
     montar: (dados) =>
       Object.entries(dados).map(([char, info]) => ({
@@ -31,16 +41,20 @@ export const FONTES = {
   },
   lucide: {
     rotulo: "Lucide",
+    // Ícones de traço que herdam a cor do texto: espessura e cor ajustáveis
+    temTraco: true,
+    temCor: true,
     rotuloGrupo: "All categories",
     rotuloGrupoAlternativo: "All letters",
     url: [
-      "https://unpkg.com/lucide-static/icon-nodes.json",
+      `https://unpkg.com/lucide-static@${VERSOES.lucide}/icon-nodes.json`,
       { endereco: "https://lucide.dev/api/categories", opcional: true },
     ],
     montar: ([icones, categorias]) =>
       Object.entries(icones).map(([nome, nos]) => ({
         nome: nome.replace(/-/g, " "),
         tipo: "svg",
+        editavel: true,
         grupo: categorias
           ? categorias[nome]?.[0] || "without category"
           : porLetra(nome),
@@ -58,16 +72,19 @@ export const FONTES = {
   },
   feather: {
     rotulo: "Feather",
+    temTraco: true,
+    temCor: true,
     rotuloGrupo: "All categories",
     rotuloGrupoAlternativo: "All letters",
     url: [
-      "https://unpkg.com/feather-icons/dist/icons.json",
+      `https://unpkg.com/feather-icons@${VERSOES.feather}/dist/icons.json`,
       { endereco: "json/icons-categories.json", opcional: true },
     ],
     montar: ([icones, categorias]) =>
       Object.entries(icones).map(([nome, conteudo]) => ({
         nome: nome.replace(/-/g, " "),
         tipo: "svg",
+        editavel: true,
         grupo:
           categorias?.feather?.[nome]?.[0] ||
           (categorias ? "others" : porLetra(nome)),
@@ -76,11 +93,13 @@ export const FONTES = {
   },
   bootstrap: {
     rotulo: "Bootstrap",
+    // Preenchidos: só a cor é ajustável
+    temCor: true,
     rotuloGrupo: "All categories",
     rotuloGrupoAlternativo: "All letters",
     url: [
       {
-        endereco: "https://unpkg.com/bootstrap-icons/bootstrap-icons.svg",
+        endereco: `https://unpkg.com/bootstrap-icons@${VERSOES.bootstrap}/bootstrap-icons.svg`,
         resposta: "texto",
       },
       { endereco: "json/icons-categories.json", opcional: true },

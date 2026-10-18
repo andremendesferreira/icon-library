@@ -182,11 +182,11 @@ function criarClassificador(catLucide) {
   ).json();
   const feather = Object.keys(
     await (
-      await fetch("https://unpkg.com/feather-icons/dist/icons.json")
+      await fetch("https://unpkg.com/feather-icons@4.29.2/dist/icons.json")
     ).json(),
   );
   const sprite = await (
-    await fetch("https://unpkg.com/bootstrap-icons/bootstrap-icons.svg")
+    await fetch("https://unpkg.com/bootstrap-icons@1.13.2/bootstrap-icons.svg")
   ).text();
   const bootstrap = [...sprite.matchAll(/<symbol[^>]*id="([^"]+)"/g)].map(
     (m) => m[1],

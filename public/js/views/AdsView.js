@@ -31,6 +31,10 @@ export class AdsView {
     this.preencherVisiveis();
     // Ao cruzar o ponto de troca entre laterais e faixa, preenche as que surgiram
     window.addEventListener("resize", () => this.preencherVisiveis());
+    // O anúncio da gaveta só é pedido quando ela abre
+    document.addEventListener("scratchpad:toggle", () =>
+      this.preencherVisiveis(),
+    );
   }
 
   mostrarPrevia(area) {
@@ -42,6 +46,8 @@ export class AdsView {
   preencherVisiveis() {
     for (const area of this.areas) {
       if (area.dataset.adFilled || !area.offsetWidth) continue;
+      // Gaveta fechada: o bloco tem largura, mas está fora da tela
+      if (area.closest(".scratchpad:not(.scratchpad--open)")) continue;
       area.dataset.adFilled = "true";
       area.querySelector(".ad__unit").appendChild(this.criarBloco(area));
       (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -53,7 +59,7 @@ export class AdsView {
     bloco.className = "adsbygoogle";
     bloco.dataset.adClient = this.config.cliente;
     bloco.dataset.adSlot = this.config.slots[area.dataset.ad];
-    if (area.classList.contains("ad--rail")) {
+    if (!area.classList.contains("ad--banner")) {
       // Tamanho fixo: o mesmo reservado pelo CSS
       bloco.style.cssText = "display:inline-block;width:160px;height:600px";
     } else {

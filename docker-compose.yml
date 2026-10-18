@@ -13,6 +13,11 @@ services:
     init: true
     ports:
       - "3000:3000"
+    environment:
+      # Public address, used in sitemap.xml and robots.txt
+      SITE_URL: "https://iconlibrary.io"
+      # Google AdSense publisher ID (pub-…); enables /ads.txt
+      ADSENSE_PUBLISHER_ID: ""
     # Hardening: the server only reads files and listens on a high port
     read_only: true
     cap_drop:

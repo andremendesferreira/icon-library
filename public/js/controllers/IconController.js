@@ -1,35 +1,84 @@
+import { linkDoStudio } from "../models/IconModel.js";
+import { nomeDeArquivo, paraReact } from "../models/svgTools.js";
+import { copiarTexto } from "./clipboard.js";
+import { baixarPngDeEmoji, baixarPngDeSvg, baixarSvg } from "./download.js";
+
+// Cor de "currentColor" num PNG solto, onde não há texto para herdar a cor
+const COR_PNG = "#2c3e50";
+
 // Liga a view ao model: recebe as ações do usuário, atualiza o estado e manda
 // redesenhar.
 export class IconController {
-  constructor(model, view) {
+  // aoAdicionar(item, svg): botão "+" de um card (envia o ícone ao scratchpad)
+  constructor(model, view, { aoAdicionar }) {
     this.model = model;
     this.view = view;
+    this.aoAdicionar = aoAdicionar;
   }
 
   iniciar() {
-    const { view } = this;
-    view.aoFiltrar(() => this.aplicarFiltros());
+    const { model, view } = this;
+    view.aoFiltrar(() => {
+      this.aplicarFiltros();
+      this.salvarNoEndereco();
+    });
     view.aoEscolherFonte((chave) => this.escolherFonte(chave));
     view.aoAlternarGrupo((grupo, marcado) => {
-      this.model.alternarGrupo(grupo, marcado);
+      model.alternarGrupo(grupo, marcado);
       this.atualizarGrupos();
     });
     view.aoLimparGrupos(() => {
-      this.model.limparGrupos();
+      model.limparGrupos();
       view.desmarcarGrupos();
       this.atualizarGrupos();
     });
-    view.estadoInicial(this.model.fontes);
+    view.aoMudarEstilo((mudancas) => {
+      model.definirEstilo(mudancas);
+      view.mostrarEstilo(model.estilo);
+    });
+    view.aoRestaurarEstilo(() => {
+      model.restaurarEstilo();
+      view.mostrarEstilo(model.estilo);
+    });
+    view.estadoInicial(model.fontes);
+    view.mostrarEstilo(model.estilo);
+    view.habilitarEstilo({ traco: false, cor: false });
+    this.lerDoEndereco();
   }
 
-  escolherFonte(chave) {
-    this.view.marcarFonte(chave, this.model.fontes[chave].rotulo);
+  // ── Estado no endereço (?set=lucide&q=heart) ───────────────────────────────
+  // Uma busca pode ser compartilhada ou salva nos favoritos
+  lerDoEndereco() {
+    const parametros = new URLSearchParams(location.search);
+    const chave = parametros.get("set");
+    if (!chave || !Object.hasOwn(this.model.fontes, chave)) return;
+    this.view.busca = parametros.get("q") || "";
+    this.escolherFonte(chave, { focar: false });
+  }
+
+  salvarNoEndereco() {
+    const parametros = new URLSearchParams();
+    if (this.model.fonteAtual) parametros.set("set", this.model.fonteAtual);
+    const busca = this.view.busca.trim();
+    if (busca) parametros.set("q", busca);
+    const consulta = parametros.toString();
+    // replaceState: digitar não enche o histórico do navegador
+    history.replaceState(
+      null,
+      "",
+      consulta ? `?${consulta}` : location.pathname,
+    );
+  }
+
+  escolherFonte(chave, { focar = true } = {}) {
+    this.view.marcarFonte(chave, this.model.fontes[chave].rotulo, { focar });
     if (chave !== this.model.fonteAtual) this.trocarFonte(chave);
   }
 
   async trocarFonte(chave) {
     const { model, view } = this;
     model.fonteAtual = chave;
+    this.salvarNoEndereco();
     try {
       if (!model.emCache(chave))
         view.mostrarCarregando(model.fontes[chave].rotulo);
@@ -39,6 +88,7 @@ export class IconController {
 
       model.exibir(chave, dados);
       view.mostrarFiltroSuporte(model.detectaGlifo);
+      view.habilitarEstilo(model.personalizavel);
       view.renderGrupos(model.contarGrupos());
       view.renderResumo(model.resumo());
       view.esconderCarregando();
@@ -65,11 +115,14 @@ export class IconController {
     this.view.renderGrid(grupos, {
       aoClicar: (item) => this.copiarPrincipal(item),
       aoClicarDireito: (item) => this.copiarAlternativa(item),
+      aoAdicionar: (item) => this.aoAdicionar(item, this.model.svgFinal(item)),
+      aoMenu: (acao, item) => this.executarMenu(acao, item),
+      linkDeEdicao: linkDoStudio,
     });
   }
 
   copiarPrincipal(item) {
-    if (item.tipo === "svg") this.copiar(item.svg, "SVG copied");
+    if (item.tipo === "svg") this.copiar(this.model.svgFinal(item), "SVG copied");
     else
       this.copiar(
         item.char,
@@ -84,14 +137,37 @@ export class IconController {
       this.copiar(item.nome, `Name copied: ${item.nome}`);
     else
       this.copiar(
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="24" height="24"><text y=".9em" font-size="90">${item.char}</text></svg>`,
+        this.model.svgFinal(item),
         "SVG copied (still relies on the font to render)",
       );
   }
 
+  // Opções do menu "⋯" de um card
+  executarMenu(acao, item) {
+    const svg = this.model.svgFinal(item);
+    const arquivo = nomeDeArquivo(item.nome);
+    const { tamanho, cor } = this.model.estilo;
+    if (acao === "svg") {
+      baixarSvg(svg, arquivo);
+      this.view.mostrarToast(`Downloading ${arquivo}.svg`);
+    } else if (acao === "png") {
+      const baixando =
+        item.tipo === "emoji"
+          ? baixarPngDeEmoji(item.char, tamanho, arquivo)
+          : baixarPngDeSvg(svg, tamanho, cor || COR_PNG, arquivo);
+      baixando.then(
+        () => this.view.mostrarToast(`Downloading ${arquivo}.png (${tamanho}px)`),
+        () => this.view.mostrarToast("Could not create the PNG"),
+      );
+    } else if (acao === "react") {
+      this.copiar(paraReact(svg, item.nome), "React component copied");
+    }
+  }
+
   copiar(texto, mensagem) {
-    navigator.clipboard
-      .writeText(texto)
-      .then(() => this.view.mostrarToast(mensagem));
+    copiarTexto(texto).then(
+      () => this.view.mostrarToast(mensagem),
+      () => this.view.mostrarToast("Copy blocked: the page needs https or localhost"),
+    );
   }
 }

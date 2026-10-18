@@ -703,7 +703,8 @@ p {
   /* Cada controle ocupa a linha inteira */
   .controls > .icon-set,
   .controls > .groups-menu,
-  .controls .search {
+  .controls .search,
+  .controls > .scratchpad-open {
     flex-basis: 100%;
     max-width: none;
   }
@@ -805,8 +806,11 @@ p {
    · faixa horizontal no fluxo da página, quando as laterais não cabem
      (janela estreita ou baixa demais). */
 :root {
-  /* Faixa lateral reservada: 16px + 160px do anúncio + 16px */
-  --ad-rail-zone: 192px;
+  /* Aba do scratchpad, sempre encostada na borda direita */
+  --tab-width: 28px;
+  /* Faixa lateral reservada (simétrica, para o conteúdo seguir centrado):
+     aba + 16px + 160px do anúncio + 16px */
+  --ad-rail-zone: calc(var(--tab-width) + 192px);
 }
 .ad {
   text-align: center;
@@ -840,12 +844,13 @@ p {
   height: 600px;
 }
 /* Coladas ao conteúdo (600px = metade dele) com 16px de respiro; em janela
-   mais estreita encostam na borda, a 16px */
+   mais estreita ficam a 16px da borda — a direita, a 16px da aba do
+   scratchpad, que nunca pode cobrir o anúncio */
 .ad--rail-left {
-  left: max(16px, calc(50% - 600px - 176px));
+  left: max(calc(var(--tab-width) + 16px), calc(50% - 600px - 176px));
 }
 .ad--rail-right {
-  right: max(16px, calc(50% - 600px - 176px));
+  right: max(calc(var(--tab-width) + 16px), calc(50% - 600px - 176px));
 }
 /* Largura: sobra espaço útil para o conteúdo entre as duas laterais.
    Altura: a lateral (14 + 600px) cabe inteira na janela, com folga. */
@@ -878,4 +883,598 @@ p {
   border-radius: 8px;
   font-size: 12px;
   color: #a3b0bd;
+}
+
+/* ── Scratchpad ──
+   Gaveta fixa no canto direito. Fechada, sai da tela e deixa só a aba à
+   vista; aberta, fica por cima da página, que continua utilizável. */
+.controls > .scratchpad-open {
+  flex: 0 0 auto;
+  width: auto;
+  white-space: nowrap;
+}
+.scratchpad {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(420px, calc(100vw - var(--tab-width)));
+  z-index: 150;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+}
+.scratchpad--open {
+  transform: none;
+}
+.scratchpad__tab {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: var(--tab-width);
+  padding: 14px 0;
+  border: none;
+  border-radius: 10px 0 0 10px;
+  background: var(--il-blue);
+  color: #fff;
+  font: 600 13px/1 "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: 0.03em;
+  writing-mode: vertical-rl;
+  cursor: pointer;
+  box-shadow: -4px 4px 14px rgba(21, 88, 200, 0.25);
+}
+.scratchpad__tab:hover,
+.scratchpad__tab:focus-visible {
+  background: var(--il-blue-dark);
+  outline: none;
+}
+.scratchpad__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  background: #fff;
+  border-left: 1px solid #dfe6ee;
+}
+.scratchpad--open .scratchpad__body {
+  box-shadow: -12px 0 30px rgba(21, 88, 200, 0.14);
+}
+.scratchpad__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.scratchpad__title {
+  margin: 0;
+  font-size: 17px;
+  color: #2c3e50;
+}
+.scratchpad__close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  font-size: 22px;
+  line-height: 1;
+  color: #7f8c8d;
+  cursor: pointer;
+}
+.scratchpad__close:hover,
+.scratchpad__close:focus-visible {
+  background: #eef4ff;
+  color: var(--il-blue-dark);
+  outline: none;
+}
+.scratchpad__main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 16px;
+}
+.scratchpad__text {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 2px solid #dfe6ee;
+  border-radius: 10px;
+  font: 12.5px/1.5 Consolas, "Cascadia Mono", Menlo, monospace;
+  color: #2c3e50;
+  background: #fbfcfe;
+  resize: none;
+  outline: 0;
+}
+.scratchpad__text:focus {
+  border-color: var(--il-blue);
+}
+.scratchpad__actions {
+  display: flex;
+  gap: 10px;
+}
+.scratchpad__button {
+  flex: 1;
+  padding: 11px 16px;
+  border: 2px solid #bdc3c7;
+  border-radius: 30px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #42505e;
+  cursor: pointer;
+}
+.scratchpad__button:hover,
+.scratchpad__button:focus-visible {
+  border-color: var(--il-blue);
+  color: var(--il-blue-dark);
+  outline: none;
+}
+.scratchpad__button--primary {
+  border-color: var(--il-blue);
+  background: var(--il-blue);
+  color: #fff;
+}
+.scratchpad__button--primary:hover,
+.scratchpad__button--primary:focus-visible {
+  background: var(--il-blue-dark);
+  border-color: var(--il-blue-dark);
+  color: #fff;
+}
+/* Aberta, a gaveta cobriria o anúncio direito e o botão "voltar ao topo":
+   os dois saem de cena enquanto ela estiver aberta */
+body:has(.scratchpad--open) .ad--rail-right,
+body:has(.scratchpad--open) .back-to-top {
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Botões do card: lápis (abre no Lucide Studio) e "+" (envia ao scratchpad) */
+.emoji-card {
+  position: relative;
+}
+.emoji-card__actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+}
+.emoji-card__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid #dfe6ee;
+  border-radius: 50%;
+  background: #fff;
+  color: #7f8c8d;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+.emoji-card:hover .emoji-card__action,
+.emoji-card__action:focus-visible {
+  opacity: 1;
+}
+.emoji-card__action:hover,
+.emoji-card__action:focus-visible {
+  border-color: var(--il-blue);
+  color: var(--il-blue);
+  outline: none;
+}
+/* Telas de toque não têm hover: o botão fica sempre à vista */
+@media (hover: none) {
+  .emoji-card__action {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scratchpad {
+    transition: none;
+  }
+}
+
+/* Anúncio dentro da gaveta, ao lado do texto (160×600). Só aparece quando a
+   janela tem altura para o anúncio inteiro mais o cabeçalho e os botões da
+   gaveta, e largura para ele não espremer o texto; aí a gaveta alarga. */
+.ad--drawer {
+  display: none;
+  flex: 0 0 160px;
+}
+.ad--drawer .ad__unit {
+  width: 160px;
+  height: 600px;
+}
+@media (min-width: 640px) and (min-height: 750px) {
+  .ad--drawer {
+    display: block;
+  }
+  .scratchpad:has(.ad--drawer:not([hidden])) {
+    width: min(540px, calc(100vw - var(--tab-width)));
+  }
+}
+
+/* ── Cards: botões nos cantos ──
+   Lápis à esquerda; "+" e "⋯" à direita. O padding de cima abre espaço para
+   eles, para não ficarem por cima do ícone. */
+.emoji-card {
+  padding-top: 34px;
+}
+.emoji-card__actions--start {
+  right: auto;
+  left: 6px;
+}
+.svg-icon {
+  color: var(--icon-color, #2c3e50);
+}
+.svg-icon svg {
+  stroke-width: var(--icon-stroke, 2);
+}
+.emoji-card:hover .svg-icon {
+  color: var(--icon-color, var(--il-blue-dark));
+}
+
+/* Menu "⋯" do card */
+.card-menu {
+  position: fixed;
+  z-index: 140;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid #dfe6ee;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(21, 88, 200, 0.16);
+}
+.card-menu button {
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: #42505e;
+  text-align: left;
+  cursor: pointer;
+}
+.card-menu button:hover,
+.card-menu button:focus-visible {
+  background: #eef4ff;
+  color: var(--il-blue-dark);
+  outline: none;
+}
+
+/* ── Personalização (tamanho, traço, cor) ── */
+.customize {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 22px;
+  margin-top: 12px;
+  font-size: 13.5px;
+  color: #5a6b7b;
+}
+.customize__field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.customize__field span {
+  font-weight: 600;
+}
+.customize__field input[type="range"] {
+  width: 110px;
+  accent-color: var(--il-blue);
+}
+.customize__field input[type="color"] {
+  width: 32px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid #c5d0dc;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+.customize__field input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.customize__field:has(input:disabled) {
+  opacity: 0.55;
+}
+.customize__field output {
+  min-width: 3.5em;
+  font-variant-numeric: tabular-nums;
+  color: #8a99a8;
+}
+.customize__reset {
+  padding: 4px 12px;
+  border: 1px solid #c5d0dc;
+  border-radius: 20px;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  color: #42505e;
+  cursor: pointer;
+}
+.customize__reset:hover,
+.customize__reset:focus-visible {
+  border-color: var(--il-blue);
+  color: var(--il-blue-dark);
+  outline: none;
+}
+
+/* ── Botão de tema (canto do cabeçalho, dentro da coluna de conteúdo) ── */
+.header {
+  position: relative;
+}
+.theme-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 2px solid #c5d0dc;
+  border-radius: 50%;
+  background: #fff;
+  color: #5a6b7b;
+  cursor: pointer;
+}
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  border-color: var(--il-blue);
+  color: var(--il-blue);
+  outline: none;
+}
+.theme-toggle__sun,
+[data-theme="dark"] .theme-toggle__moon {
+  display: none;
+}
+[data-theme="dark"] .theme-toggle__sun {
+  display: block;
+}
+
+/* ── Rodapé ── */
+.site-footer {
+  margin-top: 60px;
+  padding: 24px 0 8px;
+  border-top: 1px solid #dfe6ee;
+  text-align: center;
+  font-size: 13px;
+  color: #8a99a8;
+}
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 22px;
+}
+.site-footer a {
+  color: var(--il-blue-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+.site-footer a:hover {
+  text-decoration: underline;
+}
+.site-footer p {
+  margin: 12px 0 0;
+  font-size: 12px;
+}
+
+/* ── Páginas de texto (Sobre, Privacidade) ── */
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #3d4a57;
+}
+.page p {
+  color: inherit;
+}
+.page__back {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--il-blue-dark);
+  text-decoration: none;
+}
+.page__title {
+  margin: 18px 0 4px;
+  font-size: 32px;
+  color: #2c3e50;
+}
+.page__lead {
+  font-size: 18px;
+}
+.page__meta {
+  margin: 0;
+  font-size: 13px;
+  color: #8a99a8 !important;
+}
+.page h2 {
+  margin: 36px 0 8px;
+  font-size: 21px;
+  color: #2c3e50;
+}
+.page h3 {
+  margin: 22px 0 4px;
+  font-size: 16.5px;
+  color: #2c3e50;
+}
+.page a {
+  color: var(--il-blue-dark);
+}
+.page code {
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: #e9eef5;
+  font-size: 0.88em;
+}
+.page__list dt {
+  margin-top: 14px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+.page__list dd {
+  margin: 2px 0 0;
+}
+.page__steps li {
+  margin-bottom: 10px;
+}
+
+/* ── Tema escuro ──
+   O tema é marcado em <html data-theme> por js/views/theme.js (escolha salva
+   ou a do sistema). Só as superfícies e textos mudam; os azuis da marca ficam. */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --dk-bg: #0f1520;
+  --dk-surface: #172031;
+  --dk-surface-2: #1f2a3e;
+  --dk-border: #2c3a52;
+  --dk-text: #d7deea;
+  --dk-muted: #8d9bb0;
+  --dk-heading: #eef2f8;
+  --il-blue-dark: #7fb0ff;
+}
+[data-theme="dark"] body,
+[data-theme="dark"] .search-container,
+[data-theme="dark"] .group__title {
+  background: var(--dk-bg);
+}
+[data-theme="dark"] body {
+  color: var(--dk-text);
+}
+[data-theme="dark"] h1:not(.header__title),
+[data-theme="dark"] .summary strong,
+[data-theme="dark"] .group__title,
+[data-theme="dark"] .scratchpad__title,
+[data-theme="dark"] .page__title,
+[data-theme="dark"] .page h2,
+[data-theme="dark"] .page h3,
+[data-theme="dark"] .page__list dt {
+  color: var(--dk-heading);
+}
+[data-theme="dark"] p,
+[data-theme="dark"] .summary,
+[data-theme="dark"] .sources-note,
+[data-theme="dark"] .header__subtitle,
+[data-theme="dark"] .emoji-name,
+[data-theme="dark"] .customize,
+[data-theme="dark"] .supported-filter,
+[data-theme="dark"] .site-footer,
+[data-theme="dark"] .loading__text {
+  color: var(--dk-muted);
+}
+[data-theme="dark"] .sources-note strong,
+[data-theme="dark"] .page {
+  color: var(--dk-text);
+}
+[data-theme="dark"] .header__subtitle-list {
+  color: #a9c4ff;
+}
+[data-theme="dark"] .group__title {
+  border-bottom-color: var(--dk-border);
+}
+[data-theme="dark"] .emoji-card {
+  background: var(--dk-surface);
+  box-shadow: none;
+}
+[data-theme="dark"] .emoji-card:hover {
+  background: var(--dk-surface-2);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+[data-theme="dark"] .emoji-card--no-glyph {
+  background: #2a2414;
+  border-color: #7a6224;
+}
+[data-theme="dark"] .svg-icon {
+  color: var(--icon-color, var(--dk-text));
+}
+[data-theme="dark"] .pill-control,
+[data-theme="dark"] #search-bar,
+[data-theme="dark"] .back-to-top,
+[data-theme="dark"] .theme-toggle,
+[data-theme="dark"] .customize__reset,
+[data-theme="dark"] .scratchpad__button:not(.scratchpad__button--primary),
+[data-theme="dark"] .emoji-card__action {
+  background: var(--dk-surface);
+  border-color: var(--dk-border);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .groups-menu__panel,
+[data-theme="dark"] .icon-set__panel,
+[data-theme="dark"] .card-menu,
+[data-theme="dark"] .scratchpad__body {
+  background: var(--dk-surface);
+  border-color: var(--dk-border);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+[data-theme="dark"] .groups-menu__actions {
+  border-bottom-color: var(--dk-border);
+}
+[data-theme="dark"] .icon-set__option,
+[data-theme="dark"] .groups-menu__item,
+[data-theme="dark"] .card-menu button {
+  color: var(--dk-text);
+}
+[data-theme="dark"] .icon-set__option:hover,
+[data-theme="dark"] .icon-set__option:focus-visible,
+[data-theme="dark"] .groups-menu__item:hover,
+[data-theme="dark"] .card-menu button:hover,
+[data-theme="dark"] .card-menu button:focus-visible,
+[data-theme="dark"] .scratchpad__close:hover {
+  background: var(--dk-surface-2);
+}
+[data-theme="dark"] .groups-menu__count,
+[data-theme="dark"] .group__count,
+[data-theme="dark"] .page code {
+  background: var(--dk-surface-2);
+  border-color: var(--dk-border);
+  color: var(--dk-muted);
+}
+[data-theme="dark"] .scratchpad__text {
+  background: var(--dk-bg);
+  border-color: var(--dk-border);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .customize__field input[type="color"] {
+  border-color: var(--dk-border);
+}
+[data-theme="dark"] .ad--preview .ad__unit {
+  border-color: var(--dk-border);
+}
+[data-theme="dark"] .site-footer {
+  border-top-color: var(--dk-border);
+}
+@media (max-width: 590px) {
+  [data-theme="dark"] .header__subtitle {
+    background: #16213a;
+    border-color: #26375a;
+    border-left-color: var(--il-blue);
+    color: var(--dk-text);
+  }
+}
+[data-theme="dark"] .page p {
+  color: var(--dk-text);
 }

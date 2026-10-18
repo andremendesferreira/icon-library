@@ -1,7 +1,42 @@
 import { FONTES } from "./iconSets.js";
 import { criarDetector } from "./glyphDetector.js";
+import { ESTILO_PADRAO, aplicarEstilo } from "./svgTools.js";
+
+const CHAVE_ESTILO = "icon-library:style";
+
+function lerEstilo() {
+  try {
+    const salvo = JSON.parse(localStorage.getItem(CHAVE_ESTILO));
+    return { ...ESTILO_PADRAO, ...salvo };
+  } catch {
+    return { ...ESTILO_PADRAO };
+  }
+}
 
 const OUTROS = "others";
+
+// SVG de um item. O emoji vira um <text> dentro do SVG — ainda depende da
+// fonte do sistema para aparecer.
+export function svgDoItem(item) {
+  return item.tipo === "svg"
+    ? item.svg
+    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="24" height="24"><text y=".9em" font-size="90">${item.char}</text></svg>`;
+}
+
+const STUDIO = "https://studio.lucide.dev/edit";
+
+// Link que abre o ícone no Lucide Studio, o editor de SVG do Lucide. O Studio
+// recebe pela URL só o conteúdo interno do <svg> (24×24, traço), por isso
+// serve apenas aos conjuntos marcados como editáveis (Lucide e Feather).
+export function linkDoStudio(item) {
+  if (!item.editavel) return null;
+  const interno = item.svg
+    .replace(/^<svg[^>]*>|<\/svg>$/g, "")
+    .replace(/>\s+</g, "><")
+    .trim();
+  const nome = item.nome.replace(/ /g, "-");
+  return `${STUDIO}?value=${encodeURIComponent(interno)}&name=${encodeURIComponent(nome)}`;
+}
 
 // Ordem alfabética, com "others" sempre por último
 function ordenarGrupos(mapa) {
@@ -40,6 +75,26 @@ export class IconModel {
   itens = [];
   usouAlternativa = false;
   gruposEscolhidos = new Set();
+  // Tamanho, traço e cor aplicados ao que é copiado/baixado; lembrados
+  // entre visitas
+  estilo = lerEstilo();
+
+  definirEstilo(mudancas) {
+    this.estilo = { ...this.estilo, ...mudancas };
+    try {
+      localStorage.setItem(CHAVE_ESTILO, JSON.stringify(this.estilo));
+    } catch {}
+  }
+
+  restaurarEstilo() {
+    this.definirEstilo(ESTILO_PADRAO);
+  }
+
+  // SVG do item com o estilo escolhido: o que vai para a cópia, o download
+  // e o scratchpad
+  svgFinal(item) {
+    return aplicarEstilo(svgDoItem(item), this.estilo);
+  }
 
   emCache(chave) {
     return this.cache.has(chave);
@@ -75,6 +130,12 @@ export class IconModel {
     this.itens = itens;
     this.usouAlternativa = usouAlternativa;
     this.gruposEscolhidos.clear();
+  }
+
+  // O que o conjunto exibido permite personalizar
+  get personalizavel() {
+    const fonte = this.fonteExibida;
+    return { traco: Boolean(fonte?.temTraco), cor: Boolean(fonte?.temCor) };
   }
 
   get detectaGlifo() {

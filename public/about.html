@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta
+    name="description"
+    content="How to use Icon Library: browse Emoji, Lucide, Feather and Bootstrap Icons, customize size, stroke and color, copy SVG or React, download SVG and PNG."
+  />
+  <title>About &amp; guide — Icon Library</title>
+  <meta name="theme-color" content="#f5f7fb" />
+  <link rel="canonical" href="https://iconlibrary.io/about.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Icon Library" />
+  <meta property="og:url" content="https://iconlibrary.io/about.html" />
+  <meta property="og:title" content="About &amp; guide — Icon Library" />
+  <meta property="og:image" content="https://iconlibrary.io/img/iconlibrary.png" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" type="image/png" href="img/iconlibrary.png" />
+  <link rel="stylesheet" href="css/icon-library.css" />
+  <script src="js/views/theme.js"></script>
+  <main class="page">
+    <a class="page__back" href="./">← Back to the icons</a>
+    <h1 class="page__title">About Icon Library</h1>
+    <p class="page__lead">
+      Icon Library is a free tool for picking icons for menus, buttons and
+      interfaces. It gathers four popular sets in one searchable page, so you
+      can compare styles side by side and copy exactly what you need — an SVG
+      ready to paste into HTML, a React component, a PNG, or an emoji.
+    </p>
+
+    <h2>The icon sets</h2>
+    <dl class="page__list">
+      <dt>Lucide</dt>
+      <dd>
+        Around 1,900 clean outline icons on a 24×24 grid, drawn with a 2px
+        stroke. A community-maintained fork of Feather, and today the most
+        complete of the outline sets. License: ISC.
+      </dd>
+      <dt>Feather</dt>
+      <dd>
+        The original minimalist outline set, with about 290 icons. Lucide
+        started from it, so the two match in style and most names. License:
+        MIT.
+      </dd>
+      <dt>Bootstrap Icons</dt>
+      <dd>
+        Over 2,000 icons from the Bootstrap team, many with outline and filled
+        variants (the <code>-fill</code> names). They are drawn as filled shapes
+        on a 16×16 grid. License: MIT.
+      </dd>
+      <dt>Emoji (Unicode)</dt>
+      <dd>
+        All standard emojis, grouped as in the Unicode standard. Unlike the
+        others, emojis are text: how they look depends on the fonts installed
+        on each device.
+      </dd>
+    </dl>
+
+    <h2>How to use it</h2>
+    <ol class="page__steps">
+      <li>
+        <strong>Choose a set</strong> in the <em>Select</em> button. Nothing is
+        downloaded until you do, and each set stays cached while the page is
+        open.
+      </li>
+      <li>
+        <strong>Narrow it down</strong> with <em>All categories</em> (you can
+        tick several) and the search field, which matches icon names.
+      </li>
+      <li>
+        <strong>Set the style</strong> in the Size, Stroke and Color controls.
+        They apply to everything you copy, download or send to the
+        scratchpad, and the preview follows the stroke and color. Stroke only
+        exists in Lucide and Feather; emojis keep their own colors.
+      </li>
+      <li>
+        <strong>Click an icon</strong> to copy its SVG (or the emoji
+        character). <strong>Right-click</strong> copies the alternative: the
+        icon name for vector sets, or the emoji wrapped in an SVG.
+      </li>
+      <li>
+        Use the buttons on each card:
+        <ul>
+          <li><strong>+</strong> adds the icon to the scratchpad;</li>
+          <li>
+            <strong>⋯</strong> opens downloads (SVG, PNG at the chosen size) and
+            <em>Copy as React component</em>;
+          </li>
+          <li>
+            the <strong>pencil</strong> (Lucide and Feather) opens the icon in
+            <a href="https://studio.lucide.dev" rel="noopener">Lucide Studio</a>,
+            an online editor for icons in this style.
+          </li>
+        </ul>
+      </li>
+    </ol>
+
+    <h2>The scratchpad</h2>
+    <p>
+      The <em>Scratchpad</em> tab on the right edge opens a drawer where you
+      can collect icons while you browse. Each icon is added as an HTML comment
+      with its name followed by its SVG, so the result is ready to paste into
+      a project. You can also type freely. <em>Copy all</em> copies everything
+      and <em>Clear</em> empties it. The text is kept in your browser, so it is
+      still there next time.
+    </p>
+
+    <h2>Sharing a search</h2>
+    <p>
+      The address bar follows what you are looking at — for example
+      <code>?set=lucide&amp;q=arrow</code>. Copy the address to share a search
+      or bookmark it.
+    </p>
+
+    <h2>Frequently asked questions</h2>
+    <h3>Why are some emojis flagged “without a design”?</h3>
+    <p>
+      The newest emojis are added to the Unicode standard before operating
+      systems ship fonts that draw them. The page checks whether your system
+      font can draw each emoji and flags the ones it cannot. Avoid those in a
+      menu: your visitors would likely see an empty box. Tick
+      <em>Only those with a design on this machine</em> to hide them.
+    </p>
+    <h3>Should I use emojis or vector icons in my interface?</h3>
+    <p>
+      Vector icons look the same everywhere, inherit the text color and scale
+      cleanly. Emojis are quicker to add but change appearance between
+      Windows, macOS, Android and iOS. For product interfaces, vector icons are
+      usually the safer choice.
+    </p>
+    <h3>Why does copying fail?</h3>
+    <p>
+      Browsers only allow copying to the clipboard on secure pages
+      (<code>https://</code>) or on <code>localhost</code>. If you run your own
+      copy of the site, serve it over HTTPS.
+    </p>
+    <h3>Can I use these icons in commercial projects?</h3>
+    <p>
+      Lucide (ISC), Feather (MIT) and Bootstrap Icons (MIT) allow commercial
+      use; keep their license notice in your project. Emoji designs belong to
+      the font vendors (Microsoft, Apple, Google and others) — copying the
+      emoji character is fine, but check the vendor's terms before using their
+      artwork as images.
+    </p>
+
+    <h2>Credits</h2>
+    <p>
+      Icons belong to their authors and are used under their licenses:
+      <a href="https://github.com/lucide-icons/lucide/blob/main/LICENSE" rel="noopener">Lucide</a>,
+      <a href="https://github.com/feathericons/feather/blob/main/LICENSE" rel="noopener">Feather</a>,
+      <a href="https://github.com/twbs/icons/blob/main/LICENSE" rel="noopener">Bootstrap Icons</a>
+      and
+      <a href="https://github.com/muan/unicode-emoji-json/blob/main/LICENSE" rel="noopener">unicode-emoji-json</a>.
+      Icon Library is created and maintained by
+      <strong>André M. Ferreira</strong>, and is open source:
+      <a href="https://github.com/andremendesferreira/icon-library" rel="noopener">source code on GitHub</a>.
+    </p>
+  </main>
+  <footer class="site-footer">
+    <nav aria-label="Site">
+      <a href="./">Icons</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="https://github.com/andremendesferreira/icon-library" rel="noopener">GitHub</a>
+    </nav>
+    <p class="site-footer__owner">© 2026 André M. Ferreira</p>
+  </footer>
+</html>

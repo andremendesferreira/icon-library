@@ -1,4 +1,19 @@
+import { escapar } from "./html.js";
+
 const porId = (id) => document.getElementById(id);
+
+// Altura estimada de um card e espaço entre eles: reservam o lugar das
+// categorias ainda não desenhadas, para a barra de rolagem já ter o tamanho certo
+const ALTURA_CARD = 106;
+const ESPACO = 15;
+const LARGURA_MIN_CARD = 110;
+
+const ICONE_MAIS =
+  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+const ICONE_LAPIS =
+  '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+const ICONE_MENU =
+  '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
 
 // Tudo o que toca o DOM: desenha a página e avisa o controller das ações do
 // usuário. Não guarda dados nem decide o que fazer com eles.
@@ -19,15 +34,35 @@ export class IconView {
   filtroSup = porId("only-supported");
   campoFiltro = porId("supported-filter-field");
   resumo = porId("summary");
+  tamanho = porId("style-size");
+  tamanhoValor = porId("style-size-value");
+  traco = porId("style-stroke");
+  tracoValor = porId("style-stroke-value");
+  cor = porId("style-color");
+  corValor = porId("style-color-value");
+  estiloRestaurar = porId("style-reset");
   toastTimer = null;
+
+  // Itens da grade atual, na ordem dos cards (data-i aponta para cá)
+  itensGrade = [];
+  acoes = null;
+  observador = null;
+  menu = null;
+  itemDoMenu = null;
 
   constructor() {
     this.ligarPaineis();
+    this.ligarGrade();
+    this.criarMenu();
   }
 
   // ── Leitura dos controles ──────────────────────────────────────────────────
   get busca() {
     return this.searchBar.value;
+  }
+
+  set busca(valor) {
+    this.searchBar.value = valor;
   }
 
   get apenasSuportados() {
@@ -55,6 +90,20 @@ export class IconView {
 
   aoLimparGrupos(acao) {
     this.gruposLimpar.addEventListener("click", acao);
+  }
+
+  aoMudarEstilo(acao) {
+    this.tamanho.addEventListener("input", () =>
+      acao({ tamanho: Number(this.tamanho.value) }),
+    );
+    this.traco.addEventListener("input", () =>
+      acao({ traco: Number(this.traco.value) }),
+    );
+    this.cor.addEventListener("input", () => acao({ cor: this.cor.value }));
+  }
+
+  aoRestaurarEstilo(acao) {
+    this.estiloRestaurar.addEventListener("click", acao);
   }
 
   // ── Painéis (conjunto e categorias) ────────────────────────────────────────
@@ -88,12 +137,14 @@ export class IconView {
     document.addEventListener("click", () => {
       this.abrirPainelGrupos(false);
       this.abrirPainelFontes(false);
+      this.fecharMenu();
     });
     document.addEventListener("keydown", (evento) => {
       if (evento.key !== "Escape") return;
       const fontesAberto = !this.painelFontes.hidden;
       this.abrirPainelGrupos(false);
       this.abrirPainelFontes(false);
+      this.fecharMenu();
       if (fontesAberto) this.seletor.focus();
     });
   }
@@ -130,7 +181,8 @@ export class IconView {
       '<p class="empty">Select an icon set above to start.</p>';
   }
 
-  marcarFonte(chave, rotulo) {
+  // focar: false quando a escolha vem do endereço da página, não de um clique
+  marcarFonte(chave, rotulo, { focar = true } = {}) {
     this.painelFontes.querySelectorAll("[data-icon-set]").forEach((opcao) => {
       opcao.setAttribute(
         "aria-selected",
@@ -142,12 +194,33 @@ export class IconView {
     this.botaoGrupos.disabled = false;
     this.searchBar.disabled = false;
     this.abrirPainelFontes(false);
-    this.seletor.focus();
+    if (focar) this.seletor.focus();
+  }
+
+  // ── Personalização (tamanho, traço, cor) ───────────────────────────────────
+  mostrarEstilo({ tamanho, traco, cor }) {
+    this.tamanho.value = tamanho;
+    this.tamanhoValor.textContent = `${tamanho}px`;
+    this.traco.value = traco;
+    this.tracoValor.textContent = traco;
+    // <input type="color"> não aceita "currentColor": mostra a cor do texto
+    this.cor.value = cor || "#2c3e50";
+    this.corValor.textContent = cor || "text color";
+    // A prévia dos cards acompanha traço e cor (o tamanho fica fixo na grade)
+    this.container.style.setProperty("--icon-stroke", traco);
+    if (cor) this.container.style.setProperty("--icon-color", cor);
+    else this.container.style.removeProperty("--icon-color");
+  }
+
+  // Emoji não tem traço nem cor; Bootstrap (preenchido) não tem traço
+  habilitarEstilo({ traco, cor }) {
+    this.traco.disabled = !traco;
+    this.cor.disabled = !cor;
   }
 
   // ── Carregamento ───────────────────────────────────────────────────────────
   mostrarCarregando(rotulo) {
-    this.container.innerHTML = "";
+    this.limparGrade();
     this.loader.style.display = "";
     this.loaderTexto.style.color = "";
     this.loaderTexto.textContent = `Loading ${rotulo}…`;
@@ -173,8 +246,8 @@ export class IconView {
       .map(
         ([grupo, quantidade]) => `
         <label class="groups-menu__item">
-            <input type="checkbox" value="${grupo}">
-            <span class="groups-menu__name">${grupo}</span>
+            <input type="checkbox" value="${escapar(grupo)}">
+            <span class="groups-menu__name">${escapar(grupo)}</span>
             <span class="groups-menu__count">${quantidade}</span>
         </label>`,
       )
@@ -210,54 +283,188 @@ export class IconView {
     }
     this.resumo.innerHTML = semDesenho
       ? `<strong>${total}</strong> emojis · <strong>${semDesenho}</strong> no design on this
-           machine (Emoji ${versoes.join(" e ")}) — No font available today covers them, not even Noto.`
+           machine (Emoji ${escapar(versoes.join(" e "))}) — No font available today covers them, not even Noto.`
       : `<strong>${total}</strong> emojis, all with designs available.`;
   }
 
   // ── Grade de ícones ────────────────────────────────────────────────────────
-  renderGrid(grupos, { aoClicar, aoClicarDireito }) {
-    this.container.innerHTML = "";
+  // Só os títulos das categorias são criados de imediato; os cards de cada uma
+  // nascem quando ela chega perto da tela. Com ~2000 ícones, criar tudo de uma
+  // vez travava a página por um instante a cada busca.
+  //
+  // acoes: { aoClicar, aoClicarDireito, aoAdicionar, aoMenu, linkDeEdicao }
+  renderGrid(grupos, acoes) {
+    this.limparGrade();
+    this.acoes = acoes;
     if (!grupos.length) {
       this.container.innerHTML =
         '<p class="empty">No icon for this filter.</p>';
       return;
     }
-    for (const [grupo, itens] of grupos) {
-      const secao = document.createElement("section");
-      secao.className = "group";
-      secao.innerHTML = `<h2 class="group__title">${grupo}<span class="group__count">${itens.length}</span></h2><div class="emoji-grid"></div>`;
-      this.container.appendChild(secao);
-      const grade = secao.querySelector(".emoji-grid");
-      for (const item of itens)
-        grade.appendChild(this.criarCard(item, aoClicar, aoClicarDireito));
-    }
+    const colunas = Math.max(
+      1,
+      Math.floor(
+        (this.container.clientWidth + ESPACO) / (LARGURA_MIN_CARD + ESPACO),
+      ),
+    );
+    this.container.innerHTML = grupos
+      .map(([grupo, itens]) => {
+        const inicio = this.itensGrade.length;
+        this.itensGrade.push(...itens);
+        const linhas = Math.ceil(itens.length / colunas);
+        const reserva = linhas * ALTURA_CARD + (linhas - 1) * ESPACO;
+        return `<section class="group" data-inicio="${inicio}" data-fim="${this.itensGrade.length}"><h2 class="group__title">${escapar(grupo)}<span class="group__count">${itens.length}</span></h2><div class="emoji-grid" style="min-height:${reserva}px"></div></section>`;
+      })
+      .join("");
+
+    this.observador = new IntersectionObserver(
+      (entradas) => {
+        for (const entrada of entradas) {
+          if (!entrada.isIntersecting) continue;
+          this.observador.unobserve(entrada.target);
+          this.preencherGrupo(entrada.target);
+        }
+      },
+      // Começa a desenhar um pouco antes de a categoria aparecer
+      { rootMargin: "800px 0px" },
+    );
+    for (const secao of this.container.querySelectorAll(".group"))
+      this.observador.observe(secao);
   }
 
-  criarCard(item, aoClicar, aoClicarDireito) {
-    const card = document.createElement("div");
-    card.className =
-      "emoji-card" + (item.suportado ? "" : " emoji-card--no-glyph");
-    card.title =
+  limparGrade() {
+    this.observador?.disconnect();
+    this.observador = null;
+    this.itensGrade = [];
+    this.container.innerHTML = "";
+    this.fecharMenu();
+  }
+
+  preencherGrupo(secao) {
+    const inicio = Number(secao.dataset.inicio);
+    const fim = Number(secao.dataset.fim);
+    const grade = secao.querySelector(".emoji-grid");
+    let html = "";
+    for (let i = inicio; i < fim; i++)
+      html += this.htmlDoCard(this.itensGrade[i], i);
+    grade.innerHTML = html;
+    grade.style.minHeight = "";
+  }
+
+  htmlDoCard(item, indice) {
+    const nome = escapar(item.nome);
+    const versao = escapar(item.versao ?? "");
+    const titulo =
       item.tipo === "svg"
         ? "Click: copy SVG\nRight-click: copy name"
         : item.suportado
           ? "Click: copy emoji\nRight-click: copy as SVG"
-          : `No design for this machine (Emoji ${item.versao}) — avoid using in the menu`;
+          : `No design for this machine (Emoji ${versao}) — avoid using in the menu`;
     const icone =
       item.tipo === "svg"
         ? `<span class="svg-icon">${item.svg}</span>`
         : `<span class="emoji-char">${item.char}</span>`;
-    card.innerHTML = `
-            ${icone}
-            <span class="emoji-name">${item.nome}</span>
-            ${item.suportado ? "" : `<span class="emoji-warning">without a design · v${item.versao}</span>`}
-        `;
-    card.addEventListener("click", () => aoClicar(item));
-    card.addEventListener("contextmenu", (evento) => {
-      evento.preventDefault();
-      aoClicarDireito(item);
+    // Só para ícones que o Lucide Studio sabe editar
+    const link = this.acoes.linkDeEdicao(item);
+    const editar = link
+      ? `<a class="emoji-card__action emoji-card__edit" href="${escapar(link)}" target="_blank" rel="noopener noreferrer" title="Edit in Lucide Studio" aria-label="Edit ${nome} in Lucide Studio">${ICONE_LAPIS}</a>`
+      : "";
+    return `<div class="emoji-card${item.suportado ? "" : " emoji-card--no-glyph"}" data-i="${indice}" title="${escapar(titulo)}">
+        <div class="emoji-card__actions emoji-card__actions--start">${editar}</div>
+        <div class="emoji-card__actions">
+          <button type="button" class="emoji-card__action emoji-card__add" title="Add to scratchpad" aria-label="Add ${nome} to scratchpad">${ICONE_MAIS}</button>
+          <button type="button" class="emoji-card__action emoji-card__more" title="More: download, React" aria-label="More options for ${nome}" aria-haspopup="menu">${ICONE_MENU}</button>
+        </div>
+        ${icone}
+        <span class="emoji-name">${nome}</span>
+        ${item.suportado ? "" : `<span class="emoji-warning">without a design · v${versao}</span>`}
+      </div>`;
+  }
+
+  // Um ouvinte para a grade inteira, em vez de três por card
+  ligarGrade() {
+    const itemDe = (alvo) => {
+      const card = alvo.closest(".emoji-card");
+      return card ? this.itensGrade[Number(card.dataset.i)] : null;
+    };
+    this.container.addEventListener("click", (evento) => {
+      const item = itemDe(evento.target);
+      if (!item || !this.acoes) return;
+      // O lápis é um link: só abre o Studio, sem copiar
+      if (evento.target.closest(".emoji-card__edit")) return;
+      if (evento.target.closest(".emoji-card__add")) {
+        this.acoes.aoAdicionar(item);
+        return;
+      }
+      const botaoMenu = evento.target.closest(".emoji-card__more");
+      if (botaoMenu) {
+        evento.stopPropagation();
+        this.alternarMenu(botaoMenu, item);
+        return;
+      }
+      this.acoes.aoClicar(item);
     });
-    return card;
+    this.container.addEventListener("contextmenu", (evento) => {
+      const item = itemDe(evento.target);
+      if (!item || !this.acoes) return;
+      // No lápis fica o menu do navegador ("abrir em nova aba")
+      if (evento.target.closest(".emoji-card__edit")) return;
+      evento.preventDefault();
+      this.acoes.aoClicarDireito(item);
+    });
+  }
+
+  // ── Menu "⋯" do card (downloads e React) ──────────────────────────────────
+  criarMenu() {
+    this.menu = document.createElement("div");
+    this.menu.className = "card-menu";
+    this.menu.setAttribute("role", "menu");
+    this.menu.hidden = true;
+    this.menu.innerHTML = `
+      <button type="button" role="menuitem" data-acao="svg">Download SVG</button>
+      <button type="button" role="menuitem" data-acao="png">Download PNG</button>
+      <button type="button" role="menuitem" data-acao="react">Copy as React component</button>`;
+    document.body.appendChild(this.menu);
+    this.menu.addEventListener("click", (evento) => {
+      evento.stopPropagation();
+      const opcao = evento.target.closest("[data-acao]");
+      if (!opcao || !this.itemDoMenu) return;
+      const item = this.itemDoMenu;
+      this.fecharMenu();
+      this.acoes.aoMenu(opcao.dataset.acao, item);
+    });
+    // Menu fixo na tela: some ao rolar, em vez de se descolar do card
+    window.addEventListener("scroll", () => this.fecharMenu(), { passive: true });
+  }
+
+  alternarMenu(botao, item) {
+    if (!this.menu.hidden && this.itemDoMenu === item) {
+      this.fecharMenu();
+      return;
+    }
+    this.itemDoMenu = item;
+    this.menu.hidden = false;
+    const caixa = botao.getBoundingClientRect();
+    const largura = this.menu.offsetWidth;
+    const altura = this.menu.offsetHeight;
+    const esquerda = Math.min(
+      Math.max(8, caixa.right - largura),
+      window.innerWidth - largura - 8,
+    );
+    // Abre para cima quando não cabe abaixo do botão
+    const topo =
+      caixa.bottom + 4 + altura > window.innerHeight
+        ? caixa.top - altura - 4
+        : caixa.bottom + 4;
+    this.menu.style.left = `${esquerda}px`;
+    this.menu.style.top = `${topo}px`;
+    this.menu.querySelector("button").focus({ preventScroll: true });
+  }
+
+  fecharMenu() {
+    if (!this.menu || this.menu.hidden) return;
+    this.menu.hidden = true;
+    this.itemDoMenu = null;
   }
 
   // ── Aviso ──────────────────────────────────────────────────────────────────

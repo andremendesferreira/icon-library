@@ -12,5 +12,8 @@ export const ADS = {
     // Faixa horizontal responsiva abaixo do cabeçalho — quando as laterais não
     // cabem (celulares, janelas estreitas ou baixas)
     banner: "",
+    // Dentro da gaveta do scratchpad, ao lado do texto, 160×600 — só com ela
+    // aberta e em janelas com altura para ele
+    scratchpad: "",
   },
 };
