@@ -141,6 +141,15 @@
       >
         Open Scratchpad
       </button>
+      <!-- Abre um projeto salvo pelo editor (.ile) sem precisar de um card -->
+      <button
+        type="button"
+        id="open-ile"
+        class="pill-control ile-open"
+        title="Open an icon project saved by the editor (.ile)"
+      >
+        Open .ile
+      </button>
     </div>
     <!-- Aplicado ao que é copiado, baixado e enviado ao scratchpad -->
     <div class="customize" role="group" aria-label="Icon style for copy and download">
@@ -235,6 +244,124 @@
       </div>
     </div>
   </aside>
+  <!-- Seletor de arquivo .ile, usado pelos botões "Open .ile" da página e do editor -->
+  <input type="file" id="editor-file" accept=".ile" hidden />
+  <!-- Editor de ícones: aberto pelo lápis dos cards -->
+  <dialog id="editor" class="editor" aria-labelledby="editor-title">
+    <div class="editor__layout">
+      <header class="editor__header">
+        <h2 id="editor-title" class="editor__title">
+          Edit icon <span id="editor-name" class="editor__name"></span>
+        </h2>
+        <button type="button" id="editor-close" class="editor__close" aria-label="Close editor">×</button>
+      </header>
+
+      <aside class="editor__side">
+        <h3 class="editor__heading">Elements</h3>
+        <ul id="editor-elements" class="editor__elements" aria-label="Elements"></ul>
+        <div class="editor__buttons" aria-label="Add a shape">
+          <button type="button" data-add="line">+ Line</button>
+          <button type="button" data-add="circle">+ Circle</button>
+          <button type="button" data-add="rect">+ Rect</button>
+          <button type="button" data-add="path">+ Curve</button>
+          <button
+            type="button"
+            id="editor-add-icon"
+            class="editor__add-icon"
+            aria-expanded="false"
+            aria-controls="editor-picker"
+          >
+            + Icon on top
+          </button>
+        </div>
+
+        <!-- Busca de outro ícone para sobrepor -->
+        <section id="editor-picker" class="editor__picker" aria-label="Add another icon" hidden>
+          <div class="editor__picker-bar">
+            <select id="editor-picker-set" aria-label="Icon set"></select>
+            <button type="button" id="editor-picker-close" class="editor__picker-close" aria-label="Close icon search">×</button>
+          </div>
+          <input
+            type="search"
+            id="editor-picker-search"
+            class="editor__picker-search"
+            placeholder="Search icons…"
+            aria-label="Search icons"
+          />
+          <div id="editor-picker-results" class="editor__picker-results"></div>
+        </section>
+
+        <!-- Cor e espessura da forma (ou do ícone) selecionado -->
+        <section id="editor-style" class="editor__style" aria-label="Selected shape style" hidden>
+          <h3 class="editor__heading">Selected</h3>
+          <div class="editor__style-row">
+            <label for="editor-color">Color</label>
+            <input type="color" id="editor-color" value="#2c3e50" />
+            <output id="editor-color-value" for="editor-color">text color</output>
+            <button type="button" id="editor-color-reset" class="editor__style-reset" title="Back to the text color (currentColor)">Text color</button>
+          </div>
+          <div class="editor__style-row" id="editor-stroke-field">
+            <label for="editor-stroke">Stroke</label>
+            <input type="range" id="editor-stroke" min="0.25" max="4" step="0.25" value="2" />
+            <output id="editor-stroke-value" for="editor-stroke">2</output>
+          </div>
+        </section>
+
+        <h3 class="editor__heading">Transform</h3>
+        <p class="editor__note">Applies to the selected shape, or to the whole icon when nothing is selected.</p>
+        <div class="editor__buttons editor__buttons--grid">
+          <button type="button" data-op="girar" title="Rotate 90°">↻ 90°</button>
+          <button type="button" data-op="espelharH" title="Flip horizontally">⇋ Flip</button>
+          <button type="button" data-op="espelharV" title="Flip vertically">⇅ Flip</button>
+          <button type="button" data-op="esquerda" title="Move left">←</button>
+          <button type="button" data-op="cima" title="Move up">↑</button>
+          <button type="button" data-op="direita" title="Move right">→</button>
+          <button type="button" data-op="diminuir" title="Shrink 10%">− Size</button>
+          <button type="button" data-op="baixo" title="Move down">↓</button>
+          <button type="button" data-op="aumentar" title="Grow 10%">+ Size</button>
+        </div>
+
+        <label class="editor__snap">
+          Snap to grid
+          <select id="editor-snap">
+            <option value="1">1 unit</option>
+            <option value="0.5" selected>½ unit</option>
+            <option value="0.25">¼ unit</option>
+            <option value="0">Off</option>
+          </select>
+        </label>
+      </aside>
+
+      <div class="editor__stage">
+        <svg id="editor-canvas" class="editor__canvas" tabindex="0" role="img" aria-label="Icon being edited"></svg>
+        <p class="editor__hint">
+          Drag the points to reshape · drag a shape to move it · arrows move ·
+          Delete removes · Ctrl+Z undoes
+        </p>
+      </div>
+
+      <div class="editor__code">
+        <div id="editor-previews" class="editor__previews" aria-label="Preview at real sizes"></div>
+        <label class="editor__heading" for="editor-code">SVG code</label>
+        <textarea id="editor-code" class="editor__textarea" spellcheck="false" wrap="soft"></textarea>
+        <p id="editor-error" class="editor__error" role="status"></p>
+      </div>
+
+      <footer class="editor__footer">
+        <button type="button" id="editor-undo">Undo</button>
+        <button type="button" id="editor-redo">Redo</button>
+        <button type="button" id="editor-open" title="Open a project saved as .ile (or drop the file here)">Open .ile</button>
+        <button type="button" id="editor-save" title="Save this project as a .ile file, to keep editing later">Save .ile</button>
+        <button type="button" id="editor-share" title="Copy a link that opens this project in the editor">Share link</button>
+        <span class="editor__spacer"></span>
+        <a id="editor-studio" class="editor__studio" target="_blank" rel="noopener noreferrer" hidden>Open in Lucide Studio ↗</a>
+        <button type="button" id="editor-scratchpad">Add to scratchpad</button>
+        <button type="button" id="editor-download">Download SVG</button>
+        <button type="button" id="editor-png">Download PNG</button>
+        <button type="button" id="editor-copy" class="editor__primary">Copy SVG</button>
+      </footer>
+    </div>
+  </dialog>
   <footer class="site-footer">
     <nav aria-label="Site">
       <a href="about.html">About &amp; guide</a>

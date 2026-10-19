@@ -1,4 +1,3 @@
-import { linkDoStudio } from "../models/IconModel.js";
 import { nomeDeArquivo, paraReact } from "../models/svgTools.js";
 import { copiarTexto } from "./clipboard.js";
 import { baixarPngDeEmoji, baixarPngDeSvg, baixarSvg } from "./download.js";
@@ -10,10 +9,12 @@ const COR_PNG = "#2c3e50";
 // redesenhar.
 export class IconController {
   // aoAdicionar(item, svg): botão "+" de um card (envia o ícone ao scratchpad)
-  constructor(model, view, { aoAdicionar }) {
+  // aoEditar(item, svg): lápis de um card (abre o editor)
+  constructor(model, view, { aoAdicionar, aoEditar }) {
     this.model = model;
     this.view = view;
     this.aoAdicionar = aoAdicionar;
+    this.aoEditar = aoEditar;
   }
 
   iniciar() {
@@ -62,11 +63,12 @@ export class IconController {
     const busca = this.view.busca.trim();
     if (busca) parametros.set("q", busca);
     const consulta = parametros.toString();
-    // replaceState: digitar não enche o histórico do navegador
+    // replaceState: digitar não enche o histórico do navegador. O "#…"
+    // fica: pode ser um ícone aberto no editor por link (#svg=…)
     history.replaceState(
       null,
       "",
-      consulta ? `?${consulta}` : location.pathname,
+      (consulta ? `?${consulta}` : location.pathname) + location.hash,
     );
   }
 
@@ -117,7 +119,7 @@ export class IconController {
       aoClicarDireito: (item) => this.copiarAlternativa(item),
       aoAdicionar: (item) => this.aoAdicionar(item, this.model.svgFinal(item)),
       aoMenu: (acao, item) => this.executarMenu(acao, item),
-      linkDeEdicao: linkDoStudio,
+      aoEditar: (item) => this.aoEditar(item, this.model.svgFinal(item)),
     });
   }
 

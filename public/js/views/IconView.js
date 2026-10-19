@@ -292,7 +292,7 @@ export class IconView {
   // nascem quando ela chega perto da tela. Com ~2000 ícones, criar tudo de uma
   // vez travava a página por um instante a cada busca.
   //
-  // acoes: { aoClicar, aoClicarDireito, aoAdicionar, aoMenu, linkDeEdicao }
+  // acoes: { aoClicar, aoClicarDireito, aoAdicionar, aoMenu, aoEditar }
   renderGrid(grupos, acoes) {
     this.limparGrade();
     this.acoes = acoes;
@@ -364,11 +364,11 @@ export class IconView {
       item.tipo === "svg"
         ? `<span class="svg-icon">${item.svg}</span>`
         : `<span class="emoji-char">${item.char}</span>`;
-    // Só para ícones que o Lucide Studio sabe editar
-    const link = this.acoes.linkDeEdicao(item);
-    const editar = link
-      ? `<a class="emoji-card__action emoji-card__edit" href="${escapar(link)}" target="_blank" rel="noopener noreferrer" title="Edit in Lucide Studio" aria-label="Edit ${nome} in Lucide Studio">${ICONE_LAPIS}</a>`
-      : "";
+    // Ícones vetoriais abrem no editor; emoji é texto, não tem o que editar
+    const editar =
+      item.tipo === "svg"
+        ? `<button type="button" class="emoji-card__action emoji-card__edit" title="Edit icon" aria-label="Edit ${nome}">${ICONE_LAPIS}</button>`
+        : "";
     return `<div class="emoji-card${item.suportado ? "" : " emoji-card--no-glyph"}" data-i="${indice}" title="${escapar(titulo)}">
         <div class="emoji-card__actions emoji-card__actions--start">${editar}</div>
         <div class="emoji-card__actions">
@@ -390,8 +390,10 @@ export class IconView {
     this.container.addEventListener("click", (evento) => {
       const item = itemDe(evento.target);
       if (!item || !this.acoes) return;
-      // O lápis é um link: só abre o Studio, sem copiar
-      if (evento.target.closest(".emoji-card__edit")) return;
+      if (evento.target.closest(".emoji-card__edit")) {
+        this.acoes.aoEditar(item);
+        return;
+      }
       if (evento.target.closest(".emoji-card__add")) {
         this.acoes.aoAdicionar(item);
         return;
@@ -407,8 +409,6 @@ export class IconView {
     this.container.addEventListener("contextmenu", (evento) => {
       const item = itemDe(evento.target);
       if (!item || !this.acoes) return;
-      // No lápis fica o menu do navegador ("abrir em nova aba")
-      if (evento.target.closest(".emoji-card__edit")) return;
       evento.preventDefault();
       this.acoes.aoClicarDireito(item);
     });
@@ -470,6 +470,10 @@ export class IconView {
   // ── Aviso ──────────────────────────────────────────────────────────────────
   mostrarToast(mensagem) {
     clearTimeout(this.toastTimer);
+    // Uma janela modal (o editor) fica por cima de tudo: o aviso vai para
+    // dentro dela enquanto estiver aberta
+    const dono = document.querySelector("dialog[open]") || document.body;
+    if (this.toast.parentElement !== dono) dono.appendChild(this.toast);
     this.toast.innerText = mensagem;
     this.toast.className = "show";
     this.toastTimer = setTimeout(() => {

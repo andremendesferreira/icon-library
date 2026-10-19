@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://iconlibrary.io/schema/ile.schema.json",
+  "title": "Icon Library Editor project (.ile)",
+  "description": "An icon project for the Icon Library editor (https://iconlibrary.io). Open it with the editor's \"Open .ile\" button or with a link: https://iconlibrary.io/#ile=<base64url or URL-encoded JSON>. See https://iconlibrary.io/llms.txt.",
+  "type": "object",
+  "required": ["formato", "versao", "raiz", "elementos"],
+  "properties": {
+    "formato": {
+      "const": "icon-library-editor",
+      "description": "Always \"icon-library-editor\"."
+    },
+    "versao": {
+      "const": 1,
+      "description": "Format version. Files with a higher version are refused."
+    },
+    "nome": {
+      "type": "string",
+      "description": "Project name, shown in the editor and used as the file name."
+    },
+    "editavel": {
+      "type": "boolean",
+      "description": "true shows \"Open in Lucide Studio\" (only for single-style 24×24 stroke icons)."
+    },
+    "salvo": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the file was saved (informative)."
+    },
+    "raiz": {
+      "$ref": "#/$defs/atributos",
+      "description": "Attributes of the <svg> tag. Lucide style: {\"xmlns\": \"http://www.w3.org/2000/svg\", \"width\": \"24\", \"height\": \"24\", \"viewBox\": \"0 0 24 24\", \"fill\": \"none\", \"stroke\": \"currentColor\", \"stroke-width\": \"2\", \"stroke-linecap\": \"round\", \"stroke-linejoin\": \"round\"}."
+    },
+    "grupos": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One entry per icon when several icons are layered. Optional: without it, every shape belongs to one icon.",
+      "items": {
+        "type": "object",
+        "required": ["nome"],
+        "properties": { "nome": { "type": "string" } }
+      }
+    },
+    "elementos": {
+      "type": "array",
+      "description": "The shapes, drawn in order (later ones on top).",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "A shape the editor can draw and reshape.",
+            "required": ["tag", "attrs"],
+            "properties": {
+              "tag": {
+                "enum": ["path", "line", "circle", "ellipse", "rect", "polyline", "polygon"]
+              },
+              "attrs": {
+                "$ref": "#/$defs/atributos",
+                "description": "SVG attributes as strings, e.g. {\"d\": \"M12 2v20\"} or {\"cx\": \"12\", \"cy\": \"12\", \"r\": \"4\"}. Own fill/stroke/stroke-width override the <svg> ones."
+              },
+              "grupo": { "$ref": "#/$defs/grupo" },
+              "oculto": { "$ref": "#/$defs/oculto" }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "Any other element (g, text…), kept as markup and editable only in the code. Scripts, event attributes, javascript: links and foreignObject are removed on opening.",
+            "required": ["tag", "html"],
+            "properties": {
+              "tag": { "type": "string", "pattern": "^[a-zA-Z][\\w-]*$" },
+              "html": { "type": "string" },
+              "grupo": { "$ref": "#/$defs/grupo" },
+              "oculto": { "$ref": "#/$defs/oculto" }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "atributos": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-zA-Z_:][\\w:.-]*$" },
+      "additionalProperties": { "type": "string" }
+    },
+    "grupo": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Index in \"grupos\" of the icon this shape belongs to. Default 0."
+    },
+    "oculto": {
+      "type": "boolean",
+      "description": "Hidden shapes stay in the project but are left out of the SVG. Default false."
+    }
+  }
+}

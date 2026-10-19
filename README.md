@@ -24,9 +24,11 @@ No framework, no build step, no runtime dependencies: plain HTML, CSS and JavaSc
 - **Card buttons:**
   - **+** adds the icon to the scratchpad;
   - **⋯** opens *Download SVG*, *Download PNG* (at the chosen size) and *Copy as React component*;
-  - the **pencil** (Lucide and Feather) opens the icon in [Lucide Studio](https://studio.lucide.dev), the online editor for Lucide-style icons.
+  - the **pencil** (all vector sets) opens the icon editor.
+- **Icon editor:** the icon on a grid, with draggable points for every shape — line, circle, ellipse, rect, polyline/polygon and path, including the control points of curves. Move shapes, rotate 90°, flip, grow/shrink (one shape or the whole icon), add and delete shapes, hide a shape to compare, snap to the grid (1, ½, ¼ unit or off), undo/redo, live SVG code (editable both ways) and previews at 16–48 px. **Icons on top of each other:** *+ Icon on top* searches the vector sets and adds another icon, resized to the same grid and keeping its style (stroke or fill), selectable as a whole. **Per-shape color and stroke width** for a shape or a whole icon. **Projects in `.ile` files:** *Save .ile* downloads the project and *Open .ile* (editor, main page, or drag and drop) brings it back — see [The .ile format](#the-ile-format). Copy, download SVG/PNG or send to the scratchpad; single-style Lucide and Feather icons can also go to [Lucide Studio](https://studio.lucide.dev).
 - **Scratchpad:** a drawer on the right edge (tab or *Open Scratchpad*) that collects icons as `<!-- name -->` followed by the SVG. *Copy all* and *Clear* at the bottom; the text is kept in the browser.
 - **Shareable searches:** the address follows the set and search (`?set=lucide&q=arrow`).
+- **Links that open the editor** — made by people (*Share link* in the editor) or by AI assistants: see [For AI assistants](#for-ai-assistants).
 - **Light and dark themes:** follows the system, with a toggle in the header.
 - **Emoji glyph detection:** emojis your system font cannot draw are flagged and can be hidden.
 - **Fast with large sets:** only categories near the screen are drawn; the rest are drawn as you scroll.
@@ -132,13 +134,50 @@ Sets are declared in `FONTES`, in `public/js/models/iconSets.js`. Each entry has
 | `rotuloGrupo` | Label of the category button when nothing is selected |
 | `rotuloGrupoAlternativo` | Label used when the categories source is unavailable (grouped by letter) |
 | `url` | One URL, or a list; each item is a string or `{ endereco, opcional, resposta: "texto" }` (`opcional`: failure is tolerated; `resposta: "texto"`: read as text) |
-| `montar(data)` | Turns the downloaded data into items: `{ nome, tipo: "svg" \| "emoji", grupo, svg \| char, versao?, editavel? }` — `editavel: true` shows the Lucide Studio pencil (24×24 stroke icons only) |
+| `montar(data)` | Turns the downloaded data into items: `{ nome, tipo: "svg" \| "emoji", grupo, svg \| char, versao?, editavel? }` — `editavel: true` adds *Open in Lucide Studio* to the editor (24×24 stroke icons only) |
 | `temTraco`, `temCor` | `true` enables the stroke and color controls for the set |
 | `detectaGlifo` | `true` to check whether the system font can draw each item (emoji only) |
 
+### For AI assistants
+
+An AI can create an icon and hand it to the user as a link that opens it in the editor:
+
+- `https://iconlibrary.io/#name=rocket&svg=<URL-encoded or base64url SVG>`
+- `https://iconlibrary.io/#ile=<base64url or URL-encoded .ile JSON>` — several layered icons, groups, hidden shapes
+
+The icon goes after `#`, so it never reaches the server. `svg=`/`ile=` must be the last parameter. Opening applies the same cleaning as pasted code; closing the editor removes the icon from the address.
+
+[`public/llms.txt`](public/llms.txt) (served at `/llms.txt`) explains this to AIs, with the style rules and where to fetch real icons; [`public/schema/ile.schema.json`](public/schema/ile.schema.json) is the JSON Schema of the `.ile` format. Tests check that the examples in `llms.txt` open and are valid.
+
+The next steps — an MCP server and an HTTP API, as a low-cost paid plan — are planned in [BACKLOG.md](BACKLOG.md).
+
+### The .ile format
+
+A `.ile` file is UTF-8 JSON text:
+
+```json
+{
+  "formato": "icon-library-editor",
+  "versao": 1,
+  "nome": "heart",
+  "editavel": true,
+  "salvo": "2026-10-18T21:30:00.000Z",
+  "raiz": { "xmlns": "http://www.w3.org/2000/svg", "viewBox": "0 0 24 24", "fill": "none", "stroke": "currentColor" },
+  "grupos": [{ "nome": "heart" }, { "nome": "star fill" }],
+  "elementos": [
+    { "tag": "path", "attrs": { "d": "M2 9.5a5.5 5.5 0 0 1 …" }, "grupo": 0, "oculto": false },
+    { "tag": "path", "attrs": { "d": "M8.113 18.593…", "fill": "#dc2626", "stroke": "none" }, "grupo": 1, "oculto": false }
+  ]
+}
+```
+
+- `raiz` holds the attributes of the `<svg>` tag; each element has its own attributes, the icon it belongs to (`grupo`, an index into `grupos`) and whether it is hidden. Elements the editor cannot draw (`<g>`, `<text>`…) are kept as `html`.
+- `editavel` keeps the *Open in Lucide Studio* button for Lucide and Feather icons.
+- Opening validates the structure and passes everything through the same cleaning as pasted code: no `<script>`, `<foreignObject>`, event attributes or `javascript:` links. Files over 2 MB, or saved by a newer version (`versao` above 1), are refused with a message.
+
 ### Tests and CI
 
-`npm test` runs the tests in `tests/` with Node's built-in runner — SVG transformations, filters, HTML escaping, the scratchpad, pinned versions, and the server (malformed addresses, path traversal, headers, gzip, ETag, generated routes). On GitHub, `.github/workflows/ci.yml` runs them on every push and pull request, checks the syntax of every script, and builds the Docker image and waits for its healthcheck.
+`npm test` runs the tests in `tests/` with Node's built-in runner — SVG transformations, the editor's geometry (path parsing for every command, points, rotations, flips, undo/redo), filters, HTML escaping, the scratchpad, pinned versions, and the server (malformed addresses, path traversal, headers, gzip, ETag, generated routes). On GitHub, `.github/workflows/ci.yml` runs them on every push and pull request, checks the syntax of every script, and builds the Docker image and waits for its healthcheck.
 
 ### Project structure
 
@@ -147,17 +186,23 @@ icon-library/
 ├── public/                             the site
 │   ├── index.html                      main page
 │   ├── about.html, privacy.html        guide and privacy policy
+│   ├── llms.txt                        instructions for AI assistants
+│   ├── schema/ile.schema.json          JSON Schema of the .ile format
 │   ├── css/icon-library.css            styles (light and dark)
 │   ├── js/app.js                       entry point — wires models, views, controllers
 │   ├── js/models/                      data and rules, no DOM
 │   │   ├── iconSets.js                 the icon sets (FONTES) and pinned versions
 │   │   ├── IconModel.js                loading, cache, filters, style, Studio link
 │   │   ├── svgTools.js                 size/stroke/color, React, file names
+│   │   ├── linkCodec.js                #svg= / #ile= links
+│   │   ├── svgGeometry.js              editor geometry: paths, points, transforms
+│   │   ├── EditorModel.js              icons being edited, groups, colors, undo/redo
 │   │   ├── ScratchpadModel.js          scratchpad text, saved in the browser
 │   │   ├── adsConfig.js                AdSense publisher and slot IDs
 │   │   └── glyphDetector.js            can the system font draw this emoji?
 │   ├── js/views/                       everything that touches the DOM
 │   │   ├── IconView.js                 grid, panels, card menu, style controls
+│   │   ├── EditorView.js               editor window, grid and draggable points
 │   │   ├── ScratchpadView.js           scratchpad drawer
 │   │   ├── AdsView.js                  ad areas
 │   │   ├── html.js                     HTML escaping
@@ -165,6 +210,7 @@ icon-library/
 │   │   └── goTop.js                    "back to top" button
 │   ├── js/controllers/
 │   │   ├── IconController.js           user actions → model → view, address state
+│   │   ├── EditorController.js         editor actions → model → view
 │   │   ├── ScratchpadController.js     open/close, add, copy, clear
 │   │   ├── clipboard.js                copy to the clipboard
 │   │   └── download.js                 SVG and PNG downloads
@@ -173,6 +219,7 @@ icon-library/
 ├── scripts/server.js                   server (npm start)
 ├── scripts/generate-icon-categories.js category generator
 ├── tests/                              npm test
+├── BACKLOG.md                          AI service and paid plan (next steps)
 ├── .github/workflows/ci.yml            continuous integration
 ├── Dockerfile, docker-compose*.yml     container
 └── package.json
@@ -202,9 +249,11 @@ Sem framework, sem build, sem dependências em produção: HTML, CSS e JavaScrip
 - **Botões do card:**
   - **+** envia o ícone ao scratchpad;
   - **⋯** abre *Download SVG*, *Download PNG* (no tamanho escolhido) e *Copy as React component*;
-  - o **lápis** (Lucide e Feather) abre o ícone no [Lucide Studio](https://studio.lucide.dev), o editor online de ícones no estilo Lucide.
+  - o **lápis** (todos os conjuntos vetoriais) abre o editor de ícones.
+- **Editor de ícones:** o ícone sobre uma grade, com pontos arrastáveis em todas as formas — line, circle, ellipse, rect, polyline/polygon e path, incluindo os pontos de controle das curvas. Mover formas, girar 90°, espelhar, aumentar/diminuir (uma forma ou o ícone inteiro), adicionar e apagar formas, ocultar uma forma para comparar, encaixe na grade (1, ½, ¼ de unidade ou livre), desfazer/refazer, código SVG ao vivo (editável nos dois sentidos) e prévias de 16 a 48 px. **Ícones sobrepostos:** *+ Icon on top* busca nos conjuntos vetoriais e acrescenta outro ícone, ajustado à mesma grade e com o próprio estilo (traço ou preenchimento), selecionável inteiro. **Cor e espessura por forma**, numa forma ou num ícone inteiro. **Projetos em arquivos `.ile`:** *Save .ile* baixa o projeto e *Open .ile* (no editor, na página principal ou arrastando o arquivo) o traz de volta — veja [O formato .ile](#o-formato-ile). Copiar, baixar SVG/PNG ou enviar ao scratchpad; ícones do Lucide e do Feather de um estilo só também podem ir para o [Lucide Studio](https://studio.lucide.dev).
 - **Scratchpad:** uma gaveta na borda direita (aba ou *Open Scratchpad*) que junta ícones como `<!-- nome -->` seguido do SVG. *Copy all* e *Clear* na base; o texto fica guardado no navegador.
 - **Buscas compartilháveis:** o endereço acompanha o conjunto e a busca (`?set=lucide&q=arrow`).
+- **Links que abrem o editor** — feitos por pessoas (*Share link* no editor) ou por assistentes de IA: veja [Para assistentes de IA](#para-assistentes-de-ia).
 - **Tema claro e escuro:** segue o sistema, com um botão no cabeçalho.
 - **Detecção de glifo nos emojis:** emojis que a fonte do sistema não desenha são sinalizados e podem ser ocultados.
 - **Rápida com conjuntos grandes:** só as categorias perto da tela são desenhadas; as demais, conforme a rolagem.
@@ -310,13 +359,34 @@ Os conjuntos ficam em `FONTES`, em `public/js/models/iconSets.js`. Cada entrada 
 | `rotuloGrupo` | Rótulo do botão de categorias quando nada está selecionado |
 | `rotuloGrupoAlternativo` | Rótulo usado quando a fonte de categorias está indisponível (agrupado por letra) |
 | `url` | Uma URL ou uma lista; cada item é uma string ou `{ endereco, opcional, resposta: "texto" }` (`opcional`: a falha é tolerada; `resposta: "texto"`: lê como texto) |
-| `montar(dados)` | Converte os dados baixados em itens: `{ nome, tipo: "svg" \| "emoji", grupo, svg \| char, versao?, editavel? }` — `editavel: true` mostra o lápis do Lucide Studio (só ícones de traço 24×24) |
+| `montar(dados)` | Converte os dados baixados em itens: `{ nome, tipo: "svg" \| "emoji", grupo, svg \| char, versao?, editavel? }` — `editavel: true` adiciona *Open in Lucide Studio* ao editor (só ícones de traço 24×24) |
 | `temTraco`, `temCor` | `true` liga os controles de traço e de cor para o conjunto |
 | `detectaGlifo` | `true` para verificar se a fonte do sistema desenha cada item (só emoji) |
 
+### Para assistentes de IA
+
+Uma IA pode criar um ícone e entregá-lo como um link que abre o editor:
+
+- `https://iconlibrary.io/#name=rocket&svg=<SVG codificado para URL ou em base64url>`
+- `https://iconlibrary.io/#ile=<JSON do .ile em base64url ou codificado para URL>` — vários ícones sobrepostos, grupos, formas ocultas
+
+O ícone vai depois do `#`, então nunca chega ao servidor. `svg=`/`ile=` deve ser o último parâmetro. Ao abrir, passa pela mesma limpeza do código colado; ao fechar o editor, o ícone sai do endereço.
+
+O [`public/llms.txt`](public/llms.txt) (servido em `/llms.txt`) explica isso às IAs, com as regras de estilo e de onde buscar ícones reais; o [`public/schema/ile.schema.json`](public/schema/ile.schema.json) é o JSON Schema do formato `.ile`. Os testes conferem que os exemplos do `llms.txt` abrem e são válidos.
+
+Os próximos passos — servidor MCP e API HTTP, num plano pago de baixo custo — estão no [BACKLOG.md](BACKLOG.md).
+
+### O formato .ile
+
+Um arquivo `.ile` é texto JSON em UTF-8, com a estrutura do exemplo em [The .ile format](#the-ile-format):
+
+- `raiz` guarda os atributos da tag `<svg>`; cada elemento tem seus atributos, o ícone a que pertence (`grupo`, posição em `grupos`) e se está oculto. Elementos que o editor não desenha (`<g>`, `<text>`…) ficam em `html`.
+- `editavel` mantém o botão *Open in Lucide Studio* para ícones do Lucide e do Feather.
+- Ao abrir, a estrutura é validada e tudo passa pela mesma limpeza do código colado: sem `<script>`, `<foreignObject>`, atributos de evento ou links `javascript:`. Arquivos acima de 2 MB, ou salvos por uma versão mais nova (`versao` acima de 1), são recusados com uma mensagem.
+
 ### Testes e CI
 
-`npm test` roda os testes de `tests/` com o executor nativo do Node — transformações de SVG, filtros, escape de HTML, scratchpad, versões fixas e o servidor (endereços malformados, fuga de pasta, cabeçalhos, gzip, ETag, rotas geradas). No GitHub, `.github/workflows/ci.yml` roda os testes a cada push e pull request, confere a sintaxe de todos os scripts, faz o build da imagem Docker e espera o healthcheck.
+`npm test` roda os testes de `tests/` com o executor nativo do Node — transformações de SVG, a geometria do editor (leitura de paths com todos os comandos, pontos, giros, espelhos, desfazer/refazer), filtros, escape de HTML, scratchpad, versões fixas e o servidor (endereços malformados, fuga de pasta, cabeçalhos, gzip, ETag, rotas geradas). No GitHub, `.github/workflows/ci.yml` roda os testes a cada push e pull request, confere a sintaxe de todos os scripts, faz o build da imagem Docker e espera o healthcheck.
 
 ### Estrutura
 
@@ -325,17 +395,23 @@ icon-library/
 ├── public/                             o site
 │   ├── index.html                      página principal
 │   ├── about.html, privacy.html        guia e política de privacidade
+│   ├── llms.txt                        instruções para assistentes de IA
+│   ├── schema/ile.schema.json          JSON Schema do formato .ile
 │   ├── css/icon-library.css            estilos (claro e escuro)
 │   ├── js/app.js                       ponto de entrada — liga models, views e controllers
 │   ├── js/models/                      dados e regras, sem DOM
 │   │   ├── iconSets.js                 os conjuntos (FONTES) e as versões fixas
 │   │   ├── IconModel.js                carga, cache, filtros, estilo, link do Studio
 │   │   ├── svgTools.js                 tamanho/traço/cor, React, nomes de arquivo
+│   │   ├── linkCodec.js                links #svg= / #ile=
+│   │   ├── svgGeometry.js              geometria do editor: paths, pontos, transformações
+│   │   ├── EditorModel.js              ícones em edição, grupos, cores, desfazer/refazer
 │   │   ├── ScratchpadModel.js          texto do scratchpad, guardado no navegador
 │   │   ├── adsConfig.js                IDs de editor e de blocos do AdSense
 │   │   └── glyphDetector.js            a fonte do sistema desenha este emoji?
 │   ├── js/views/                       tudo o que toca o DOM
 │   │   ├── IconView.js                 grade, painéis, menu do card, controles de estilo
+│   │   ├── EditorView.js               janela do editor, grade e pontos arrastáveis
 │   │   ├── ScratchpadView.js           gaveta do scratchpad
 │   │   ├── AdsView.js                  áreas de publicidade
 │   │   ├── html.js                     escape de HTML
@@ -343,6 +419,7 @@ icon-library/
 │   │   └── goTop.js                    botão "voltar ao topo"
 │   ├── js/controllers/
 │   │   ├── IconController.js           ações do usuário → model → view, estado no endereço
+│   │   ├── EditorController.js         ações do editor → model → view
 │   │   ├── ScratchpadController.js     abrir/fechar, adicionar, copiar, limpar
 │   │   ├── clipboard.js                cópia para a área de transferência
 │   │   └── download.js                 downloads de SVG e PNG
@@ -351,6 +428,7 @@ icon-library/
 ├── scripts/server.js                   servidor (npm start)
 ├── scripts/generate-icon-categories.js gerador de categorias
 ├── tests/                              npm test
+├── BACKLOG.md                          serviço para IAs e plano pago (próximos passos)
 ├── .github/workflows/ci.yml            integração contínua
 ├── Dockerfile, docker-compose*.yml     container
 └── package.json

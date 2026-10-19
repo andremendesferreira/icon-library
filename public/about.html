@@ -87,13 +87,71 @@
             <em>Copy as React component</em>;
           </li>
           <li>
-            the <strong>pencil</strong> (Lucide and Feather) opens the icon in
-            <a href="https://studio.lucide.dev" rel="noopener">Lucide Studio</a>,
-            an online editor for icons in this style.
+            the <strong>pencil</strong> (all vector sets) opens the icon
+            editor.
           </li>
         </ul>
       </li>
     </ol>
+
+    <h2>The icon editor</h2>
+    <p>
+      The pencil on a card opens the icon on a grid, ready to change. The icon
+      arrives with the size, stroke and color you chose.
+    </p>
+    <ul>
+      <li>
+        <strong>Reshape:</strong> select a shape in the list or on the grid and
+        drag its points. Curves show their control points, linked by dashed
+        lines; moving a point of the curve brings its controls along.
+      </li>
+      <li>
+        <strong>Move:</strong> drag a shape, or use the arrow keys or buttons.
+        Points snap to the grid (1, ½ or ¼ unit, or off).
+      </li>
+      <li>
+        <strong>Transform:</strong> rotate 90°, flip, and grow or shrink — the
+        selected shape, or the whole icon when nothing is selected.
+      </li>
+      <li>
+        <strong>Add and remove:</strong> new lines, circles, rectangles and
+        curves; hide a shape to see the icon without it, or delete it.
+      </li>
+      <li>
+        <strong>Combine icons:</strong> <em>+ Icon on top</em> searches
+        Lucide, Feather and Bootstrap and lays another icon over the current
+        one, resized to the same grid and keeping its own style — a filled
+        Bootstrap star can sit inside an outline Lucide heart. Each icon gets a
+        heading in the list that selects it whole, to move, rotate or resize
+        it.
+      </li>
+      <li>
+        <strong>Colors:</strong> give each shape, or each icon, its own color
+        and stroke width in the <em>Selected</em> panel. <em>Text color</em>
+        goes back to inheriting the color of the surrounding text; shapes with
+        their own color keep it wherever the icon is pasted.
+      </li>
+      <li>
+        <strong>Save and continue later:</strong> <em>Save .ile</em> downloads
+        the project as a <code>.ile</code> file — a small text file that keeps
+        what plain SVG loses: which icon each shape came from, hidden shapes
+        and the name. Open it again with <em>Open .ile</em>, in the editor or
+        next to the search on the main page, or drop the file on the editor.
+        Opening a file while editing can be undone.
+      </li>
+      <li>
+        <strong>Code:</strong> the SVG code beside the grid follows every
+        change, and you can also type in it. Previews show the result at 16,
+        24, 32 and 48 pixels.
+      </li>
+      <li>
+        <strong>Undo</strong> and <strong>Redo</strong> (Ctrl+Z, Ctrl+Y), then
+        copy, download or send the edited icon to the scratchpad. Lucide and
+        Feather icons can also be opened in
+        <a href="https://studio.lucide.dev" rel="noopener">Lucide Studio</a>,
+        an independent online editor with more advanced tools.
+      </li>
+    </ul>
 
     <h2>The scratchpad</h2>
     <p>
@@ -103,6 +161,16 @@
       a project. You can also type freely. <em>Copy all</em> copies everything
       and <em>Clear</em> empties it. The text is kept in your browser, so it is
       still there next time.
+    </p>
+
+    <h2>For AI assistants</h2>
+    <p>
+      AI assistants can create an icon and give it to you as a link that opens
+      it here, in the editor, ready to adjust. The icon travels inside the link
+      itself, after the <code>#</code>, so it is never sent to our server. In
+      the editor, <em>Share link</em> makes the same kind of link for your own
+      project. Instructions for AIs:
+      <a href="llms.txt">llms.txt</a>.
     </p>
 
     <h2>Sharing a search</h2>

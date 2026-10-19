@@ -4,18 +4,53 @@ import { IconController } from "./controllers/IconController.js";
 import { ScratchpadModel } from "./models/ScratchpadModel.js";
 import { ScratchpadView } from "./views/ScratchpadView.js";
 import { ScratchpadController } from "./controllers/ScratchpadController.js";
+import { EditorModel } from "./models/EditorModel.js";
+import { EditorView } from "./views/EditorView.js";
+import { EditorController } from "./controllers/EditorController.js";
 import { ADS } from "./models/adsConfig.js";
 import { AdsView } from "./views/AdsView.js";
 
+const iconModel = new IconModel();
 const iconView = new IconView();
+const avisar = (mensagem) => iconView.mostrarToast(mensagem);
+
+// Os ícones da página, para o editor pôr um segundo ícone por cima.
+// Só os conjuntos vetoriais (emoji é texto, não tem formas para editar).
+const LIMITE_BUSCA = 60;
+const catalogo = {
+  conjuntos: () =>
+    Object.entries(iconModel.fontes)
+      .filter(([, fonte]) => !fonte.detectaGlifo)
+      .map(([chave, fonte]) => ({ chave, rotulo: fonte.rotulo })),
+  atual: () =>
+    iconModel.fontes[iconModel.fonteAtual]?.detectaGlifo ? null : iconModel.fonteAtual,
+  rotulo: (chave) => iconModel.fontes[chave]?.rotulo ?? chave,
+  async buscar(chave, termo) {
+    const { itens } = await iconModel.carregar(chave);
+    const busca = termo.trim().toLowerCase();
+    return itens
+      .filter((item) => !busca || item.nome.toLowerCase().includes(busca))
+      .slice(0, LIMITE_BUSCA);
+  },
+  svg: (item) => iconModel.svgFinal(item),
+};
+
 const scratchpad = new ScratchpadController(
   new ScratchpadModel(),
   new ScratchpadView(),
-  (mensagem) => iconView.mostrarToast(mensagem),
+  avisar,
 );
 scratchpad.iniciar();
 
-new IconController(new IconModel(), iconView, {
+const editor = new EditorController(new EditorModel(), new EditorView(), {
+  avisar,
   aoAdicionar: (item, svg) => scratchpad.adicionar(item, svg),
+  catalogo,
+});
+editor.iniciar();
+
+new IconController(iconModel, iconView, {
+  aoAdicionar: (item, svg) => scratchpad.adicionar(item, svg),
+  aoEditar: (item, svg) => editor.abrir(item, svg),
 }).iniciar();
 new AdsView(ADS).iniciar();

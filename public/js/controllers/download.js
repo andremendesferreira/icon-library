@@ -11,6 +11,11 @@ function baixar(blob, nomeArquivo) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+// Arquivo de texto com nome e extensão completos (ex.: "heart.ile")
+export function baixarTexto(conteudo, nomeCompleto, tipo = "text/plain") {
+  baixar(new Blob([conteudo], { type: `${tipo};charset=utf-8` }), nomeCompleto);
+}
+
 export function baixarSvg(svg, nomeArquivo) {
   baixar(new Blob([svg], { type: "image/svg+xml" }), `${nomeArquivo}.svg`);
 }
