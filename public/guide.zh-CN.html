@@ -1,0 +1,199 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de pages/guide/zh-CN.html — edite lá e rode npm run pages -->
+<html
+  lang="zh-CN"
+  data-page="guide"
+  data-label-to-dark="切换到深色主题"
+  data-label-to-light="切换到浅色主题"
+>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Icon Library 分步指南：搜索与筛选、图标样式、复制与下载、Scratchpad、图标编辑器、.ile 项目、AI 链接和键盘快捷键。" />
+  <title>指南 — Icon Library</title>
+  <meta name="theme-color" content="#f5f7fb" />
+  <link rel="canonical" href="https://iconlibrary.io/guide.zh-CN.html" />
+  <link rel="alternate" hreflang="en" href="https://iconlibrary.io/guide.html" />
+  <link rel="alternate" hreflang="es" href="https://iconlibrary.io/guide.es.html" />
+  <link rel="alternate" hreflang="fr" href="https://iconlibrary.io/guide.fr.html" />
+  <link rel="alternate" hreflang="de" href="https://iconlibrary.io/guide.de.html" />
+  <link rel="alternate" hreflang="ru" href="https://iconlibrary.io/guide.ru.html" />
+  <link rel="alternate" hreflang="zh-CN" href="https://iconlibrary.io/guide.zh-CN.html" />
+  <link rel="alternate" hreflang="pt-BR" href="https://iconlibrary.io/guide.pt-BR.html" />
+  <link rel="alternate" hreflang="ja" href="https://iconlibrary.io/guide.ja.html" />
+  <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/guide.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Icon Library" />
+  <meta property="og:url" content="https://iconlibrary.io/guide.zh-CN.html" />
+  <meta property="og:title" content="指南 — Icon Library" />
+  <meta property="og:description" content="Icon Library 分步指南：搜索与筛选、图标样式、复制与下载、Scratchpad、图标编辑器、.ile 项目、AI 链接和键盘快捷键。" />
+  <meta property="og:image" content="https://iconlibrary.io/img/og-image.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="stylesheet" href="css/icon-library.css" />
+  <script src="js/i18n/detect.js"></script>
+  <script src="js/views/theme.js"></script>
+  <main class="page">
+    <div class="page__top">
+      <a class="page__back" href="./?lang=zh-CN">← 返回图标</a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="语言"></select>
+      </label>
+    </div>
+    <h1 class="page__title">指南</h1>
+    <p class="page__lead">Icon Library 的全部功能，一步一步说明。可以通过目录直接跳到某个主题。</p>
+
+    <nav class="page__toc" aria-label="目录">
+      <strong>目录</strong>
+      <ol>
+        <li><a href="#start">使用方法</a></li>
+        <li><a href="#editor">图标编辑器</a></li>
+        <li><a href="#scratchpad">Scratchpad</a></li>
+        <li><a href="#ai">面向 AI 助手</a></li>
+        <li><a href="#share">分享搜索</a></li>
+        <li><a href="#shortcuts">键盘快捷键</a></li>
+        <li><a href="#preferences">主题、语言和偏好设置</a></li>
+        <li><a href="#coffee">请我喝杯咖啡</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="start">使用方法</h2>
+    <ol class="page__steps">
+      <li>
+        点击<em>选择</em>按钮<strong>选择一个图标集</strong>。在此之前不会下载任何内容，页面打开期间每个图标集都会保留在缓存中。
+      </li>
+      <li>
+        使用<em>全部类别</em>（可多选）和按图标名称搜索的搜索框来<strong>缩小范围</strong>。
+      </li>
+      <li>
+        在“大小”“描边”“颜色”控件中<strong>设置样式</strong>。它们作用于你复制、下载或发送到 Scratchpad 的所有内容，预览也会跟随描边和颜色变化。只有 Lucide 和 Feather 有描边；表情符号保留自己的颜色。
+      </li>
+      <li>
+        <strong>单击图标</strong>复制其 SVG（或表情字符）。<strong>右键</strong>复制备选内容：矢量图标集复制图标名称，表情符号则复制包裹在 SVG 中的表情。
+      </li>
+      <li>
+        使用每张卡片上的按钮：
+        <ul>
+          <li><strong>+</strong> 将图标添加到 Scratchpad；</li>
+          <li>
+            <strong>⋯</strong> 打开下载（SVG、按所选大小导出的 PNG）以及<em>复制为 React 组件</em>；
+          </li>
+          <li>
+            <strong>铅笔</strong>（所有矢量图标集）打开图标编辑器。
+          </li>
+        </ul>
+      </li>
+    </ol>
+    <figure class="page__figure">
+      <img src="img/guide/controls.webp" width="1000" height="333" alt="图标集、类别、搜索和样式控件。" loading="lazy" />
+      <figcaption>图标集、类别、搜索和样式控件。</figcaption>
+    </figure>
+    <figure class="page__figure">
+      <img src="img/guide/cards.webp" width="770" height="194" alt="卡片按钮：铅笔（编辑）、+（Scratchpad）和 ⋯（下载和 React）。" loading="lazy" />
+      <figcaption>卡片按钮：铅笔（编辑）、+（Scratchpad）和 ⋯（下载和 React）。</figcaption>
+    </figure>
+
+    <h2 id="editor">图标编辑器</h2>
+    <p>
+      点击卡片上的铅笔，图标会在网格上打开，随时可以修改。图标会带着你选择的大小、描边和颜色。
+    </p>
+    <figure class="page__figure">
+      <img src="img/guide/editor.webp" width="1000" height="695" alt="编辑器：左侧是形状，网格上是控制点，右侧是代码和预览。" loading="lazy" />
+      <figcaption>编辑器：左侧是形状，网格上是控制点，右侧是代码和预览。</figcaption>
+    </figure>
+    <ul>
+      <li>
+        <strong>修改形状：</strong>在列表或网格中选择一个形状并拖动它的点。曲线会显示控制点，并以虚线相连；移动曲线上的点时，它的控制点会一起移动。
+      </li>
+      <li>
+        <strong>移动：</strong>拖动形状，或使用键盘方向键或按钮。点会对齐到网格（1、½ 或 ¼ 单位，或不对齐）。
+      </li>
+      <li>
+        <strong>变换：</strong>旋转 90°、翻转、放大或缩小——作用于所选形状；未选择任何内容时作用于整个图标。
+      </li>
+      <li>
+        <strong>添加和删除：</strong>添加直线、圆形、矩形和曲线；隐藏某个形状以查看去掉它后的效果，或将其删除。
+      </li>
+      <li>
+        <strong>组合图标：</strong><em>+ 叠加图标</em>会在 Lucide、Feather 和 Bootstrap 中搜索，并把另一个图标叠放在当前图标上，自动适配到同一网格并保留其原有样式——比如把 Bootstrap 的填充星形放进 Lucide 的线框爱心里。每个图标在列表中都有一个标题，点击即可整体选中，以便移动、旋转或缩放。
+      </li>
+      <li>
+        <strong>颜色：</strong>在<em>已选</em>面板中为每个形状或每个图标设置独立的颜色和描边宽度。<em>文字颜色</em>会恢复为继承周围文字的颜色；拥有独立颜色的形状无论粘贴到哪里都会保持该颜色。
+      </li>
+      <li>
+        <strong>保存后继续编辑：</strong><em>保存 .ile</em> 会把项目下载为 <code>.ile</code> 文件——一个小型文本文件，保存纯 SVG 会丢失的信息：每个形状来自哪个图标、被隐藏的形状以及名称。之后可以在编辑器中或主页搜索框旁用<em>打开 .ile</em> 再次打开，也可以把文件拖到编辑器上。编辑过程中打开文件的操作可以撤销。
+      </li>
+      <li>
+        <strong>代码：</strong>网格旁的 SVG 代码会随每次修改同步更新，你也可以直接在其中输入。预览会以 16、24、32 和 48 像素显示结果。
+      </li>
+      <li>
+        <strong>撤销</strong>和<strong>重做</strong>（Ctrl+Z、Ctrl+Y），然后复制、下载编辑后的图标或将其发送到 Scratchpad。Lucide 和 Feather 图标也可以在 <a href="https://studio.lucide.dev" rel="noopener">Lucide Studio</a> 中打开，这是一个功能更高级的独立在线编辑器。
+      </li>
+    </ul>
+    <figure class="page__figure">
+      <img src="img/guide/overlay.webp" width="1000" height="695" alt="一个 Bootstrap 填充星形叠放在 Lucide 线框爱心上，并使用了独立颜色。" loading="lazy" />
+      <figcaption>一个 Bootstrap 填充星形叠放在 Lucide 线框爱心上，并使用了独立颜色。</figcaption>
+    </figure>
+
+    <h2 id="scratchpad">Scratchpad</h2>
+    <p>
+      右侧边缘的 <em>Scratchpad</em> 标签会打开一个抽屉，方便你边浏览边收集图标。每个图标都会以带名称的 HTML 注释加入，后面紧跟它的 SVG，结果可以直接粘贴到项目中。你也可以自由输入。<em>全部复制</em>复制全部内容，<em>清空</em>则清除内容。文本保存在你的浏览器中，下次访问时仍然在。
+    </p>
+    <figure class="page__figure page__figure--narrow">
+      <img src="img/guide/scratchpad.webp" width="505" height="820" alt="Scratchpad 以 HTML 注释加 SVG 的形式收集图标。" loading="lazy" />
+      <figcaption>Scratchpad 以 HTML 注释加 SVG 的形式收集图标。</figcaption>
+    </figure>
+
+    <h2 id="ai">面向 AI 助手</h2>
+    <p>
+      AI 助手可以创建图标，并以链接的形式交给你，链接会在这里的编辑器中打开图标，供你继续调整。图标就保存在链接本身中（<code>#</code> 之后），因此永远不会发送到我们的服务器。在编辑器中，<em>分享链接</em>可以为你自己的项目生成同样的链接。面向 AI 的说明：<a href="llms.txt">llms.txt</a>。
+    </p>
+
+    <h2 id="share">分享搜索</h2>
+    <p>
+      地址栏会跟随你正在查看的内容——例如 <code>?set=lucide&amp;q=arrow</code>。复制地址即可分享搜索或将其加入书签。
+    </p>
+
+    <h2 id="shortcuts">键盘快捷键</h2>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>按键</th><th>作用</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>单击</kbd></td><td>复制图标（SVG 或表情符号）</td></tr>
+          <tr><td><kbd>右键</kbd></td><td>复制备选内容（名称，或作为 SVG 的表情符号）</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>关闭面板、菜单、Scratchpad 和编辑器</td></tr>
+          <tr><td><kbd>↑ ↓</kbd></td><td>在图标集列表中切换图标集</td></tr>
+          <tr><td><kbd>← → ↑ ↓</kbd></td><td>编辑器：移动所选形状、图标或整个图形</td></tr>
+          <tr><td><kbd>Delete / Backspace</kbd></td><td>编辑器：删除所选形状或图标</td></tr>
+          <tr><td><kbd>Ctrl+Z</kbd></td><td>编辑器：撤销</td></tr>
+          <tr><td><kbd>Ctrl+Y / Ctrl+Shift+Z</kbd></td><td>编辑器：重做</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="preferences">主题、语言和偏好设置</h2>
+    <p>
+      页面会跟随系统的浅色或深色主题；页眉中的按钮可以切换。语言根据浏览器自动识别，也可以在旁边的选择框中更改。这两项选择、所选的大小、描边和颜色以及 Scratchpad 中的文本都会保存在你的浏览器中，下次访问时仍然在。
+    </p>
+
+    <h2 id="coffee">请我喝杯咖啡</h2>
+    <p>
+      Icon Library 是免费的。如果它对你有帮助，<em>请我喝杯咖啡</em>按钮（约 3 美元，通过 Stripe 安全支付）可以帮忙支付服务器、域名和维持网站运行的工具费用。作为感谢，自付款起 30 天内网站不会向你展示广告。
+    </p>
+    <p>
+      付款后你会得到一个<strong>支持者代码</strong>。如需在其他设备上也去除广告（最多 3 台），请在那台设备上打开同一个按钮并输入代码。只有在可以付款时才会显示该按钮。
+    </p>
+  </main>
+  <footer class="site-footer">
+    <nav aria-label="网站">
+      <a href="./?lang=zh-CN">图标</a>
+      <a href="about.zh-CN.html">关于</a>
+      <a href="privacy.zh-CN.html">隐私</a>
+    </nav>
+    <p class="site-footer__owner">© 2026 André M. Ferreira</p>
+  </footer>
+</html>

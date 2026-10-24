@@ -1,6 +1,6 @@
 # =============================================================================
 # ICON-LIBRARY
-# Static page served by a dependency-free Node.js server
+# Static site + small API (buy me a coffee) served by Node.js
 # =============================================================================
 
 FROM node:24-slim
@@ -12,9 +12,12 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Copy application source code
-COPY --chown=node:node package.json ./
-COPY --chown=node:node scripts/server.js ./scripts/server.js
+# Production dependencies (only the PostgreSQL driver), from the lock file
+COPY --chown=node:node package.json package-lock.json ./
+RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
+
+# Application source code
+COPY --chown=node:node scripts/server.js scripts/coffee.js ./scripts/
 COPY --chown=node:node public/ ./public/
 
 # Switch to non-root user

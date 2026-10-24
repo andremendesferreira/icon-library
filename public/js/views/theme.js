@@ -21,12 +21,18 @@
     if (botao) {
       var escuro = tema === "dark";
       botao.setAttribute("aria-pressed", String(escuro));
-      botao.title = escuro ? "Switch to light theme" : "Switch to dark theme";
+      // Rótulos no idioma da página (gravados por js/i18n/i18n.js ou, nas
+      // páginas de texto, já no HTML); inglês enquanto não chegam
+      var rotulos = document.documentElement.dataset;
+      botao.title = escuro
+        ? rotulos.labelToLight || "Switch to light theme"
+        : rotulos.labelToDark || "Switch to dark theme";
     }
   }
 
   aplicar();
   sistema.addEventListener("change", aplicar);
+  document.addEventListener("i18n:pronto", aplicar);
 
   document.addEventListener("DOMContentLoaded", function () {
     aplicar();

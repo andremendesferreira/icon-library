@@ -2,6 +2,8 @@
 // arrastáveis de cada forma e aplicar transformações. Funções puras, sem DOM
 // (testadas em tests/).
 //
+import { erro } from "./erros.js";
+
 // Um elemento é { tag, attrs } — attrs com os valores em texto, como no SVG.
 
 // Número curto e estável: até 3 casas, sem "-0"
@@ -30,10 +32,14 @@ export function lerPath(d) {
   const espaco = () => {
     while (i < s.length && /[\s,]/.test(s[i])) i++;
   };
+  const erroDeDados = () => {
+    const near = s.slice(i, i + 12);
+    return erro("error.pathData", `Invalid path data near "${near}"`, { near });
+  };
   const numero = () => {
     espaco();
     const m = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/.exec(s.slice(i));
-    if (!m) throw new Error(`Invalid path data near "${s.slice(i, i + 12)}"`);
+    if (!m) throw erroDeDados();
     i += m[0].length;
     return parseFloat(m[0]);
   };
@@ -42,7 +48,7 @@ export function lerPath(d) {
     espaco();
     const c = s[i];
     if (c !== "0" && c !== "1")
-      throw new Error(`Invalid arc flag near "${s.slice(i, i + 12)}"`);
+      throw erro("error.arcFlag", `Invalid arc flag near "${s.slice(i, i + 12)}"`, { near: s.slice(i, i + 12) });
     i++;
     return c === "1" ? 1 : 0;
   };
@@ -58,7 +64,7 @@ export function lerPath(d) {
     espaco();
     if (i >= s.length) break;
     if (/[a-zA-Z]/.test(s[i])) cmd = s[i++];
-    else if (!cmd) throw new Error(`Invalid path data near "${s.slice(i, i + 12)}"`);
+    else if (!cmd) throw erroDeDados();
 
     const rel = cmd !== cmd.toUpperCase();
     const X = (v) => (rel ? x + v : v);
@@ -169,7 +175,7 @@ export function lerPath(d) {
         break;
       }
       default:
-        throw new Error(`Unknown path command "${cmd}"`);
+        throw erro("error.pathCommand", `Unknown path command "${cmd}"`, { command: cmd });
     }
   }
   return cmds;

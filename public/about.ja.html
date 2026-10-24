@@ -1,0 +1,113 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de pages/about/ja.html — edite lá e rode npm run pages -->
+<html
+  lang="ja"
+  data-page="about"
+  data-label-to-dark="ダークテーマに切り替え"
+  data-label-to-light="ライトテーマに切り替え"
+>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Icon Library の使い方：Emoji、Lucide、Feather、Bootstrap Icons を探し、サイズ・線・色を調整し、SVG や React でコピー、SVG と PNG をダウンロード。" />
+  <title>概要とガイド — Icon Library</title>
+  <meta name="theme-color" content="#f5f7fb" />
+  <link rel="canonical" href="https://iconlibrary.io/about.ja.html" />
+  <link rel="alternate" hreflang="en" href="https://iconlibrary.io/about.html" />
+  <link rel="alternate" hreflang="es" href="https://iconlibrary.io/about.es.html" />
+  <link rel="alternate" hreflang="fr" href="https://iconlibrary.io/about.fr.html" />
+  <link rel="alternate" hreflang="de" href="https://iconlibrary.io/about.de.html" />
+  <link rel="alternate" hreflang="ru" href="https://iconlibrary.io/about.ru.html" />
+  <link rel="alternate" hreflang="zh-CN" href="https://iconlibrary.io/about.zh-CN.html" />
+  <link rel="alternate" hreflang="pt-BR" href="https://iconlibrary.io/about.pt-BR.html" />
+  <link rel="alternate" hreflang="ja" href="https://iconlibrary.io/about.ja.html" />
+  <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/about.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Icon Library" />
+  <meta property="og:url" content="https://iconlibrary.io/about.ja.html" />
+  <meta property="og:title" content="概要とガイド — Icon Library" />
+  <meta property="og:description" content="Icon Library の使い方：Emoji、Lucide、Feather、Bootstrap Icons を探し、サイズ・線・色を調整し、SVG や React でコピー、SVG と PNG をダウンロード。" />
+  <meta property="og:image" content="https://iconlibrary.io/img/og-image.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="stylesheet" href="css/icon-library.css" />
+  <script src="js/i18n/detect.js"></script>
+  <script src="js/views/theme.js"></script>
+  <main class="page">
+    <div class="page__top">
+      <a class="page__back" href="./?lang=ja">← アイコン一覧へ戻る</a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="言語"></select>
+      </label>
+    </div>
+    <h1 class="page__title">Icon Library について</h1>
+    <p class="page__lead">
+      Icon Library は、メニューやボタン、UI に使うアイコンを選ぶための無料ツールです。人気の 4 つのセットを検索できる 1 つのページにまとめているので、スタイルを並べて比べ、必要なものをそのままコピーできます——HTML に貼れる SVG、React コンポーネント、PNG、絵文字。
+    </p>
+
+    <h2>アイコンセット</h2>
+    <dl class="page__list">
+      <dt>Lucide</dt>
+      <dd>
+        24×24 のグリッドに 2px の線で描かれた、すっきりした線画アイコン約 1,900 個。コミュニティが管理する Feather のフォークで、現在もっとも充実した線画セットです。ライセンス：ISC。
+      </dd>
+      <dt>Feather</dt>
+      <dd>
+        約 290 個のアイコンからなる、元祖ミニマルな線画セット。Lucide はここから生まれたため、スタイルも多くの名前も共通しています。ライセンス：MIT。
+      </dd>
+      <dt>Bootstrap Icons</dt>
+      <dd>
+        Bootstrap チームによる 2,000 個以上のアイコン。多くは線画版と塗りつぶし版（名前に <code>-fill</code>）があります。16×16 のグリッドに塗りつぶしの図形で描かれています。ライセンス：MIT。
+      </dd>
+      <dt>Emoji (Unicode)</dt>
+      <dd>
+        標準の絵文字すべてを、Unicode 規格のとおりにグループ分けしています。ほかのセットと違って絵文字は文字なので、見た目は各端末にインストールされたフォントによって変わります。
+      </dd>
+    </dl>
+
+    <p class="page__callout">
+      検索、スタイル、Scratchpad、アイコンエディター、.ile プロジェクト、キーボードショートカットなど、各機能のステップごとの説明は<a href="guide.ja.html">ガイド</a>にあります。
+    </p>
+
+    <h2>よくある質問</h2>
+    <h3>一部の絵文字に「デザインなし」と表示されるのはなぜですか？</h3>
+    <p>
+      最新の絵文字は、OS がそれを描画できるフォントを提供する前に Unicode 規格に追加されます。このページはシステムフォントが各絵文字を描画できるかを確認し、できないものに印を付けます。メニューでは使わないでください：訪問者には空の四角が表示される可能性が高いです。<em>この端末で表示できるものだけ</em>にチェックを入れると非表示になります。
+    </p>
+    <h3>UI には絵文字とベクターアイコンのどちらを使うべきですか？</h3>
+    <p>
+      ベクターアイコンはどこでも同じ見た目で、文字色を引き継ぎ、きれいに拡大縮小できます。絵文字は手軽に追加できますが、Windows、macOS、Android、iOS で見た目が変わります。製品の UI には、たいていベクターアイコンのほうが安全です。
+    </p>
+    <h3>コピーできないのはなぜですか？</h3>
+    <p>
+      ブラウザーは、安全なページ（<code>https://</code>）または <code>localhost</code> でしかクリップボードへのコピーを許可しません。サイトを自分で運用している場合は HTTPS で配信してください。
+    </p>
+    <h3>これらのアイコンは商用プロジェクトで使えますか？</h3>
+    <p>
+      Lucide（ISC）、Feather（MIT）、Bootstrap Icons（MIT）は商用利用が可能です。プロジェクトにはライセンス表記を残してください。絵文字のデザインはフォントのベンダー（Microsoft、Apple、Google など）に帰属します。絵文字の文字をコピーするのは問題ありませんが、そのデザインを画像として使う前にベンダーの規約を確認してください。
+    </p>
+
+    <h2>クレジット</h2>
+    <p>
+      アイコンの権利は各作者に帰属し、それぞれのライセンスに従って使用しています：
+      <a href="https://github.com/lucide-icons/lucide/blob/main/LICENSE" rel="noopener">Lucide</a>、
+      <a href="https://github.com/feathericons/feather/blob/main/LICENSE" rel="noopener">Feather</a>、
+      <a href="https://github.com/twbs/icons/blob/main/LICENSE" rel="noopener">Bootstrap Icons</a>、
+      <a href="https://github.com/muan/unicode-emoji-json/blob/main/LICENSE" rel="noopener">unicode-emoji-json</a>。
+      Icon Library は <strong>André M. Ferreira</strong> が制作・運営しており、オープンソースです：
+      <a href="https://github.com/andremendesferreira/icon-library" rel="noopener">GitHub のソースコード</a>。
+    </p>
+  </main>
+  <footer class="site-footer">
+    <nav aria-label="サイト">
+      <a href="./?lang=ja">アイコン</a>
+      <a href="guide.ja.html">ガイド</a>
+      <a href="privacy.ja.html">プライバシー</a>
+    </nav>
+    <p class="site-footer__owner">© 2026 André M. Ferreira</p>
+  </footer>
+</html>

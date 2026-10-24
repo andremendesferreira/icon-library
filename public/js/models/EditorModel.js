@@ -9,6 +9,7 @@ import {
   pontosDoElemento,
   transformarElemento,
 } from "./svgGeometry.js";
+import { erro as erroCom } from "./erros.js";
 
 const LIMITE_HISTORICO = 100;
 
@@ -46,12 +47,13 @@ export function viewBoxDe(raiz) {
 export function lerSvg(texto) {
   const doc = new DOMParser().parseFromString(texto, "image/svg+xml");
   const erro = doc.querySelector("parsererror");
-  if (erro)
-    throw new Error(
-      "Invalid SVG: " + (erro.textContent.split("\n").find((l) => l.trim()) || ""),
-    );
+  if (erro) {
+    const detail = erro.textContent.split("\n").find((l) => l.trim()) || "";
+    throw erroCom("error.svgInvalid", "Invalid SVG: " + detail, { detail });
+  }
   const raiz = doc.documentElement;
-  if (raiz.localName !== "svg") throw new Error("The code must start with <svg>");
+  if (raiz.localName !== "svg")
+    throw erroCom("error.svgRoot", "The code must start with <svg>");
   // Nada que execute código: atributos de evento (onload, onclick…), links
   // javascript:, <script> e <foreignObject> (que embute HTML). A prévia
   // mostra o código como HTML de verdade, o código pode ter sido colado e um
@@ -103,30 +105,34 @@ const objetoDeTextos = (valor) =>
 // conhecidos. Erros viram mensagens para o usuário. Não interpreta o SVG —
 // isso fica para carregarProjeto, que passa tudo pela limpeza de lerSvg.
 export function validarProjeto(dados) {
-  const invalido = (motivo) => new Error(`Not a valid .ile file: ${motivo}`);
+  const invalido = (codigo, motivo, valores) =>
+    erroCom("error.ileInvalid", `Not a valid .ile file: ${motivo}`, {
+      reason: erroCom(codigo, motivo, valores),
+    });
   if (!dados || typeof dados !== "object" || dados.formato !== FORMATO_ILE)
-    throw invalido("it was not saved by Icon Library");
+    throw invalido("ile.notIconLibrary", "it was not saved by Icon Library");
   if (!Number.isInteger(dados.versao) || dados.versao < 1)
-    throw invalido("unknown version");
+    throw invalido("ile.version", "unknown version");
   if (dados.versao > VERSAO_ILE)
-    throw new Error("This .ile file was saved by a newer version of Icon Library");
-  if (!objetoDeTextos(dados.raiz)) throw invalido("bad <svg> attributes");
+    throw erroCom("error.ileNewer", "This .ile file was saved by a newer version of Icon Library");
+  if (!objetoDeTextos(dados.raiz)) throw invalido("ile.root", "bad <svg> attributes");
   const nome = texto(dados.nome) && dados.nome.trim() ? dados.nome.trim() : "icon";
   // Projetos escritos à mão (ou por uma IA) podem omitir os grupos: tudo
   // fica num ícone só. Os salvos pelo editor sempre os trazem.
   const grupos = dados.grupos === undefined ? [{ nome }] : dados.grupos;
   if (!Array.isArray(grupos) || !grupos.length || !grupos.every((g) => texto(g?.nome)))
-    throw invalido("bad icon list");
-  if (!Array.isArray(dados.elementos)) throw invalido("bad shape list");
+    throw invalido("ile.icons", "bad icon list");
+  if (!Array.isArray(dados.elementos)) throw invalido("ile.shapes", "bad shape list");
   const elementos = dados.elementos.map((el, i) => {
     const forma = `shape ${i + 1}`;
-    if (!el || !texto(el.tag) || !/^[a-zA-Z][\w-]*$/.test(el.tag)) throw invalido(`${forma} has no valid tag`);
+    const n = i + 1;
+    if (!el || !texto(el.tag) || !/^[a-zA-Z][\w-]*$/.test(el.tag)) throw invalido("ile.shapeTag", `${forma} has no valid tag`, { n });
     const grupo = el.grupo ?? 0;
     if (!Number.isInteger(grupo) || grupo < 0 || grupo >= grupos.length)
-      throw invalido(`${forma} belongs to no icon`);
+      throw invalido("ile.shapeGroup", `${forma} belongs to no icon`, { n });
     const base = { tag: el.tag, grupo, oculto: el.oculto === true };
     if (texto(el.html)) return { ...base, html: el.html };
-    if (!FORMAS.has(el.tag) || !objetoDeTextos(el.attrs)) throw invalido(`${forma} has bad attributes`);
+    if (!FORMAS.has(el.tag) || !objetoDeTextos(el.attrs)) throw invalido("ile.shapeAttrs", `${forma} has bad attributes`, { n });
     return { ...base, attrs: el.attrs };
   });
   return {
@@ -188,7 +194,7 @@ export class EditorModel {
       try {
         lerPath(el.attrs.d ?? "");
       } catch (erro) {
-        throw new Error(`Path ${i + 1}: ${erro.message}`);
+        throw erroCom("error.path", `Path ${i + 1}: ${erro.message}`, { n: i + 1, detail: erro });
       }
     });
     this.registrar();
@@ -560,7 +566,9 @@ export class EditorModel {
     try {
       dados = JSON.parse(textoDoArquivo);
     } catch {
-      throw new Error("Not a valid .ile file: it is not JSON text");
+      throw erroCom("error.ileInvalid", "Not a valid .ile file: it is not JSON text", {
+        reason: erroCom("ile.notJson", "it is not JSON text"),
+      });
     }
     const projeto = validarProjeto(dados);
     // Inclui as formas ocultas, que svg() deixaria de fora

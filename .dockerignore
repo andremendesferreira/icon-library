@@ -10,3 +10,7 @@ docker-compose.dev.yml
 tests
 .github
 BACKLOG.md
+assets
+pages
+.env
+.env.example

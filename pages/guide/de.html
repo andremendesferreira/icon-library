@@ -1,0 +1,205 @@
+<!-- {"title":"Anleitung — Icon Library","description":"Schritt-für-Schritt-Anleitung für Icon Library: Suche und Filter, Icon-Stil, Kopieren und Herunterladen, Scratchpad, Icon-Editor, .ile-Projekte, KI-Links und Tastenkürzel."} -->
+<h1 class="page__title">Anleitung</h1>
+<p class="page__lead">Alles, was Icon Library kann, Schritt für Schritt. Über das Inhaltsverzeichnis springst du direkt zu einem Thema.</p>
+
+<nav class="page__toc" aria-label="Inhalt">
+  <strong>Inhalt</strong>
+  <ol>
+    <li><a href="#start">So funktioniert es</a></li>
+    <li><a href="#editor">Der Icon-Editor</a></li>
+    <li><a href="#scratchpad">Das Scratchpad</a></li>
+    <li><a href="#ai">Für KI-Assistenten</a></li>
+    <li><a href="#share">Eine Suche teilen</a></li>
+    <li><a href="#shortcuts">Tastenkürzel</a></li>
+    <li><a href="#preferences">Design, Sprache und Einstellungen</a></li>
+    <li><a href="#coffee">Spendier mir einen Kaffee</a></li>
+  </ol>
+</nav>
+
+<h2 id="start">So funktioniert es</h2>
+<ol class="page__steps">
+  <li>
+    <strong>Wähle ein Set</strong> über die Schaltfläche <em>Auswählen</em>.
+    Vorher wird nichts heruntergeladen, und jedes Set bleibt im Cache, solange
+    die Seite offen ist.
+  </li>
+  <li>
+    <strong>Grenze ein</strong> mit <em>Alle Kategorien</em> (mehrere sind
+    möglich) und dem Suchfeld, das die Icon-Namen durchsucht.
+  </li>
+  <li>
+    <strong>Lege den Stil fest</strong> mit Größe, Strich und Farbe. Sie
+    gelten für alles, was du kopierst, herunterlädst oder ins Scratchpad
+    schickst, und die Vorschau folgt Strich und Farbe. Einen Strich haben nur
+    Lucide und Feather; Emojis behalten ihre eigenen Farben.
+  </li>
+  <li>
+    <strong>Klicke auf ein Icon</strong>, um sein SVG (oder das
+    Emoji-Zeichen) zu kopieren. Ein <strong>Rechtsklick</strong> kopiert die
+    Alternative: den Icon-Namen bei Vektor-Sets oder das Emoji in einem SVG.
+  </li>
+  <li>
+    Nutze die Schaltflächen auf jeder Karte:
+    <ul>
+      <li><strong>+</strong> fügt das Icon zum Scratchpad hinzu;</li>
+      <li>
+        <strong>⋯</strong> öffnet die Downloads (SVG, PNG in der gewählten
+        Größe) und <em>Als React-Komponente kopieren</em>;
+      </li>
+      <li>
+        der <strong>Stift</strong> (alle Vektor-Sets) öffnet den Icon-Editor.
+      </li>
+    </ul>
+  </li>
+</ol>
+<figure class="page__figure">
+  <img src="img/guide/controls.webp" width="1000" height="333" alt="Icon-Set, Kategorien, Suche und Stil-Einstellungen." loading="lazy" />
+  <figcaption>Icon-Set, Kategorien, Suche und Stil-Einstellungen.</figcaption>
+</figure>
+<figure class="page__figure">
+  <img src="img/guide/cards.webp" width="770" height="194" alt="Schaltflächen der Karte: Stift (bearbeiten), + (Scratchpad) und ⋯ (Downloads und React)." loading="lazy" />
+  <figcaption>Schaltflächen der Karte: Stift (bearbeiten), + (Scratchpad) und ⋯ (Downloads und React).</figcaption>
+</figure>
+
+<h2 id="editor">Der Icon-Editor</h2>
+<p>
+  Der Stift auf einer Karte öffnet das Icon auf einem Raster, bereit zum
+  Ändern. Das Icon kommt mit der Größe, dem Strich und der Farbe, die du
+  gewählt hast.
+</p>
+<figure class="page__figure">
+  <img src="img/guide/editor.webp" width="1000" height="695" alt="Der Editor: Formen links, Punkte auf dem Raster, Code und Vorschauen rechts." loading="lazy" />
+  <figcaption>Der Editor: Formen links, Punkte auf dem Raster, Code und Vorschauen rechts.</figcaption>
+</figure>
+<ul>
+  <li>
+    <strong>Form ändern:</strong> Wähle eine Form in der Liste oder auf dem
+    Raster und ziehe ihre Punkte. Kurven zeigen ihre Kontrollpunkte, verbunden
+    durch gestrichelte Linien; wird ein Kurvenpunkt verschoben, wandern seine
+    Kontrollpunkte mit.
+  </li>
+  <li>
+    <strong>Verschieben:</strong> Ziehe eine Form oder nutze die Pfeiltasten
+    bzw. die Schaltflächen. Punkte rasten am Raster ein (1, ½ oder ¼ Einheit
+    oder frei).
+  </li>
+  <li>
+    <strong>Transformieren:</strong> um 90° drehen, spiegeln, vergrößern oder
+    verkleinern — die ausgewählte Form oder, wenn nichts ausgewählt ist, das
+    ganze Icon.
+  </li>
+  <li>
+    <strong>Hinzufügen und entfernen:</strong> neue Linien, Kreise, Rechtecke
+    und Kurven; blende eine Form aus, um das Icon ohne sie zu sehen, oder
+    lösche sie.
+  </li>
+  <li>
+    <strong>Icons kombinieren:</strong> <em>+ Icon darüber</em> durchsucht
+    Lucide, Feather und Bootstrap und legt ein weiteres Icon über das aktuelle,
+    angepasst an dasselbe Raster und mit seinem eigenen Stil — ein gefüllter
+    Bootstrap-Stern kann in einem Lucide-Herz mit Umriss sitzen. Jedes Icon
+    erhält in der Liste eine Überschrift, die es als Ganzes auswählt, um es zu
+    verschieben, zu drehen oder zu skalieren.
+  </li>
+  <li>
+    <strong>Farben:</strong> Gib jeder Form oder jedem Icon eine eigene Farbe
+    und Strichstärke im Bereich <em>Auswahl</em>. <em>Textfarbe</em> übernimmt
+    wieder die Farbe des umgebenden Textes; Formen mit eigener Farbe behalten
+    sie, wo immer das Icon eingefügt wird.
+  </li>
+  <li>
+    <strong>Speichern und später weitermachen:</strong> <em>.ile
+    speichern</em> lädt das Projekt als <code>.ile</code>-Datei herunter —
+    eine kleine Textdatei, die bewahrt, was reines SVG verliert: aus welchem
+    Icon jede Form stammt, ausgeblendete Formen und den Namen. Öffne sie
+    wieder mit <em>.ile öffnen</em>, im Editor oder neben der Suche auf der
+    Hauptseite, oder lege die Datei auf dem Editor ab. Das Öffnen einer Datei
+    während der Bearbeitung lässt sich rückgängig machen.
+  </li>
+  <li>
+    <strong>Code:</strong> Der SVG-Code neben dem Raster folgt jeder Änderung,
+    und du kannst auch direkt darin schreiben. Die Vorschauen zeigen das
+    Ergebnis in 16, 24, 32 und 48 Pixeln.
+  </li>
+  <li>
+    <strong>Rückgängig</strong> und <strong>Wiederholen</strong> (Strg+Z,
+    Strg+Y); danach das bearbeitete Icon kopieren, herunterladen oder ins
+    Scratchpad schicken. Lucide- und Feather-Icons lassen sich auch in
+    <a href="https://studio.lucide.dev" rel="noopener">Lucide Studio</a>
+    öffnen, einem unabhängigen Online-Editor mit fortgeschritteneren Werkzeugen.
+  </li>
+</ul>
+<figure class="page__figure">
+  <img src="img/guide/overlay.webp" width="1000" height="695" alt="Ein gefüllter Bootstrap-Stern über einem Lucide-Herz mit Umriss, in eigener Farbe." loading="lazy" />
+  <figcaption>Ein gefüllter Bootstrap-Stern über einem Lucide-Herz mit Umriss, in eigener Farbe.</figcaption>
+</figure>
+
+<h2 id="scratchpad">Das Scratchpad</h2>
+<p>
+  Der Reiter <em>Scratchpad</em> am rechten Rand öffnet eine Schublade, in der
+  du beim Stöbern Icons sammelst. Jedes Icon wird als HTML-Kommentar mit
+  seinem Namen und darunter dem SVG eingefügt, sodass das Ergebnis direkt in
+  ein Projekt passt. Du kannst auch frei schreiben. <em>Alles kopieren</em>
+  kopiert den Inhalt, <em>Leeren</em> leert ihn. Der Text bleibt in deinem
+  Browser gespeichert und ist beim nächsten Mal noch da.
+</p>
+<figure class="page__figure page__figure--narrow">
+  <img src="img/guide/scratchpad.webp" width="505" height="820" alt="Das Scratchpad sammelt Icons als HTML-Kommentar mit dem SVG darunter." loading="lazy" />
+  <figcaption>Das Scratchpad sammelt Icons als HTML-Kommentar mit dem SVG darunter.</figcaption>
+</figure>
+
+<h2 id="ai">Für KI-Assistenten</h2>
+<p>
+  KI-Assistenten können ein Icon erstellen und es dir als Link geben, der es
+  hier im Editor öffnet, bereit zum Anpassen. Das Icon steckt im Link selbst,
+  hinter dem <code>#</code>, und wird daher nie an unseren Server gesendet. Im
+  Editor erzeugt <em>Link teilen</em> denselben Link-Typ für dein eigenes
+  Projekt. Anleitung für KIs: <a href="llms.txt">llms.txt</a>.
+</p>
+
+<h2 id="share">Eine Suche teilen</h2>
+<p>
+  Die Adressleiste folgt dem, was du gerade ansiehst — zum Beispiel
+  <code>?set=lucide&amp;q=arrow</code>. Kopiere die Adresse, um eine Suche zu
+  teilen oder als Lesezeichen zu speichern.
+</p>
+
+<h2 id="shortcuts">Tastenkürzel</h2>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Tasten</th><th>Funktion</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Klick</kbd></td><td>Icon kopieren (SVG oder Emoji)</td></tr>
+      <tr><td><kbd>Rechtsklick</kbd></td><td>Alternative kopieren (Name oder Emoji als SVG)</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Schließt Bereiche, Menüs, das Scratchpad und den Editor</td></tr>
+      <tr><td><kbd>↑ ↓</kbd></td><td>Wechselt in der Set-Liste zwischen den Sets</td></tr>
+      <tr><td><kbd>← → ↑ ↓</kbd></td><td>Editor: verschiebt die Form, das Icon oder die ganze Zeichnung</td></tr>
+      <tr><td><kbd>Delete / Backspace</kbd></td><td>Editor: löscht die ausgewählte Form oder das Icon</td></tr>
+      <tr><td><kbd>Ctrl+Z</kbd></td><td>Editor: rückgängig</td></tr>
+      <tr><td><kbd>Ctrl+Y / Ctrl+Shift+Z</kbd></td><td>Editor: wiederholen</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="preferences">Design, Sprache und Einstellungen</h2>
+<p>
+  Die Seite folgt dem hellen oder dunklen Design deines Systems; die
+  Schaltfläche im Kopfbereich wechselt es. Die Sprache wird aus deinem Browser
+  erkannt und lässt sich im Auswahlfeld daneben ändern. Beide Einstellungen,
+  Größe, Strich und Farbe sowie der Text des Scratchpads bleiben in deinem
+  Browser gespeichert und sind beim nächsten Mal noch da.
+</p>
+
+<h2 id="coffee">Spendier mir einen Kaffee</h2>
+<p>
+  Icon Library ist kostenlos. Wenn es dir hilft, unterstützt die Schaltfläche
+  <em>Spendier mir einen Kaffee</em> (etwa 3 US$, sicher über Stripe bezahlt)
+  die Kosten für Server, Domain und Werkzeuge. Als Dankeschön zeigt dir die
+  Seite ab der Zahlung 30 Tage lang keine Werbung.
+</p>
+<p>
+  Nach der Zahlung erhältst du einen <strong>Unterstützer-Code</strong>. Um die
+  Werbung auch auf einem anderen Gerät zu entfernen — bis zu 3 —, öffne dort
+  dieselbe Schaltfläche und gib den Code ein. Die Schaltfläche erscheint nur,
+  wenn Zahlungen verfügbar sind.
+</p>

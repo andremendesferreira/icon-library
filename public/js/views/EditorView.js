@@ -1,4 +1,5 @@
 import { escapar } from "./html.js";
+import { t } from "../i18n/i18n.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const porId = (id) => document.getElementById(id);
@@ -264,7 +265,7 @@ export class EditorView {
     this.buscaResultados.innerHTML = resultados
       .map(
         (r, k) =>
-          `<button type="button" class="editor__picker-icon" data-k="${k}" title="${escapar(r.nome)}" aria-label="Add ${escapar(r.nome)}">${r.svg}</button>`,
+          `<button type="button" class="editor__picker-icon" data-k="${k}" title="${escapar(r.nome)}" aria-label="${escapar(t("editor.pickerAdd", { name: r.nome }))}">${r.svg}</button>`,
       )
       .join("");
   }
@@ -368,7 +369,7 @@ export class EditorView {
     this.painelEstilo.hidden = !estilo;
     if (!estilo) return;
     this.cor.value = paraHex(estilo.cor) || "#2c3e50";
-    this.corValor.textContent = estilo.cor ? estilo.cor : "text color";
+    this.corValor.textContent = estilo.cor ? estilo.cor : t("style.textColor");
     this.campoTraco.hidden = estilo.traco === null;
     if (estilo.traco !== null) {
       this.traco.value = estilo.traco;
@@ -482,7 +483,7 @@ export class EditorView {
   // seleciona o ícone inteiro (para mover, girar, colorir…)
   desenharLista({ elementos, selecionado, grupos, grupoSelecionado }) {
     if (!elementos.length) {
-      this.lista.innerHTML = '<li class="editor__empty">No elements — add one below.</li>';
+      this.lista.innerHTML = `<li class="editor__empty">${escapar(t("editor.noElements"))}</li>`;
       return;
     }
     const linha = (el, i) => {
@@ -490,7 +491,7 @@ export class EditorView {
         ? null
         : Object.entries(el.attrs).filter(([k]) => !ATRIBUTOS_DE_DESENHO.has(k));
       const resumo = el.html
-        ? "code only"
+        ? t("editor.codeOnly")
         : el.tag === "path"
           ? el.attrs.d
           : geometria.map(([k, v]) => `${k} ${v}`).join(" · ");
@@ -504,8 +505,8 @@ export class EditorView {
       const marcada = i === selecionado;
       return `<li class="editor__element${marcada ? " editor__element--selected" : ""}${el.oculto ? " editor__element--hidden" : ""}" data-i="${i}">
           <button type="button" class="editor__element-name" aria-pressed="${marcada}">${amostra}<strong>${escapar(el.tag)}</strong><span>${escapar(resumo || "")}</span></button>
-          <button type="button" class="editor__element-action" data-acao="ocultar" title="${el.oculto ? "Show" : "Hide"}" aria-label="${el.oculto ? "Show" : "Hide"} ${escapar(el.tag)}">${el.oculto ? "◌" : "●"}</button>
-          <button type="button" class="editor__element-action" data-acao="remover" title="Delete" aria-label="Delete ${escapar(el.tag)}">×</button>
+          <button type="button" class="editor__element-action" data-acao="ocultar" title="${escapar(t(el.oculto ? "editor.show" : "editor.hide"))}" aria-label="${escapar(t(el.oculto ? "editor.showLabel" : "editor.hideLabel", { tag: el.tag }))}">${el.oculto ? "◌" : "●"}</button>
+          <button type="button" class="editor__element-action" data-acao="remover" title="${escapar(t("editor.delete"))}" aria-label="${escapar(t("editor.deleteLabel", { tag: el.tag }))}">×</button>
         </li>`;
     };
     if (grupos.length < 2) {
@@ -516,7 +517,7 @@ export class EditorView {
       .map(({ grupo, nome, indices }) => {
         const marcado = grupo === grupoSelecionado;
         return `<li class="editor__group${marcado ? " editor__group--selected" : ""}">
-          <button type="button" class="editor__group-name" data-grupo="${grupo}" aria-pressed="${marcado}" title="Select the whole icon">${escapar(nome)}<span>${indices.length} shape${indices.length > 1 ? "s" : ""}</span></button>
+          <button type="button" class="editor__group-name" data-grupo="${grupo}" aria-pressed="${marcado}" title="${escapar(t("editor.selectGroup"))}">${escapar(nome)}<span>${escapar(t("editor.shapes", { n: indices.length }))}</span></button>
         </li>${indices.map((i) => linha(elementos[i], i)).join("")}`;
       })
       .join("");

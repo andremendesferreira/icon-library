@@ -27,7 +27,7 @@ function envelopePreenchido(conteudo, viewBox) {
 export const FONTES = {
   emoji: {
     rotulo: "Emoji (Unicode)",
-    rotuloGrupo: "All categories",
+    rotuloGrupo: "categories.all",
     url: `https://unpkg.com/unicode-emoji-json@${VERSOES.emoji}/data-by-emoji.json`,
     detectaGlifo: true,
     montar: (dados) =>
@@ -44,8 +44,8 @@ export const FONTES = {
     // Ícones de traço que herdam a cor do texto: espessura e cor ajustáveis
     temTraco: true,
     temCor: true,
-    rotuloGrupo: "All categories",
-    rotuloGrupoAlternativo: "All letters",
+    rotuloGrupo: "categories.all",
+    rotuloGrupoAlternativo: "letters.all",
     url: [
       `https://unpkg.com/lucide-static@${VERSOES.lucide}/icon-nodes.json`,
       { endereco: "https://lucide.dev/api/categories", opcional: true },
@@ -74,8 +74,8 @@ export const FONTES = {
     rotulo: "Feather",
     temTraco: true,
     temCor: true,
-    rotuloGrupo: "All categories",
-    rotuloGrupoAlternativo: "All letters",
+    rotuloGrupo: "categories.all",
+    rotuloGrupoAlternativo: "letters.all",
     url: [
       `https://unpkg.com/feather-icons@${VERSOES.feather}/dist/icons.json`,
       { endereco: "json/icons-categories.json", opcional: true },
@@ -95,8 +95,8 @@ export const FONTES = {
     rotulo: "Bootstrap",
     // Preenchidos: só a cor é ajustável
     temCor: true,
-    rotuloGrupo: "All categories",
-    rotuloGrupoAlternativo: "All letters",
+    rotuloGrupo: "categories.all",
+    rotuloGrupoAlternativo: "letters.all",
     url: [
       {
         endereco: `https://unpkg.com/bootstrap-icons@${VERSOES.bootstrap}/bootstrap-icons.svg`,

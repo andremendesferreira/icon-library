@@ -1,0 +1,200 @@
+<!-- {"title":"Guide — Icon Library","description":"Step-by-step guide to Icon Library: searching and filtering, styling icons, copying and downloading, the scratchpad, the icon editor, .ile projects, AI links and keyboard shortcuts."} -->
+<h1 class="page__title">Guide</h1>
+<p class="page__lead">Everything Icon Library can do, step by step. Use the contents to jump to a topic.</p>
+
+<nav class="page__toc" aria-label="Contents">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#start">How to use</a></li>
+    <li><a href="#editor">The icon editor</a></li>
+    <li><a href="#scratchpad">The scratchpad</a></li>
+    <li><a href="#ai">For AI assistants</a></li>
+    <li><a href="#share">Sharing a search</a></li>
+    <li><a href="#shortcuts">Keyboard shortcuts</a></li>
+    <li><a href="#preferences">Theme, language and preferences</a></li>
+    <li><a href="#coffee">Buy me a coffee</a></li>
+  </ol>
+</nav>
+
+<h2 id="start">How to use it</h2>
+<ol class="page__steps">
+  <li>
+    <strong>Choose a set</strong> in the <em>Select</em> button. Nothing is
+    downloaded until you do, and each set stays cached while the page is
+    open.
+  </li>
+  <li>
+    <strong>Narrow it down</strong> with <em>All categories</em> (you can
+    tick several) and the search field, which matches icon names.
+  </li>
+  <li>
+    <strong>Set the style</strong> in the Size, Stroke and Color controls.
+    They apply to everything you copy, download or send to the
+    scratchpad, and the preview follows the stroke and color. Stroke only
+    exists in Lucide and Feather; emojis keep their own colors.
+  </li>
+  <li>
+    <strong>Click an icon</strong> to copy its SVG (or the emoji
+    character). <strong>Right-click</strong> copies the alternative: the
+    icon name for vector sets, or the emoji wrapped in an SVG.
+  </li>
+  <li>
+    Use the buttons on each card:
+    <ul>
+      <li><strong>+</strong> adds the icon to the scratchpad;</li>
+      <li>
+        <strong>⋯</strong> opens downloads (SVG, PNG at the chosen size) and
+        <em>Copy as React component</em>;
+      </li>
+      <li>
+        the <strong>pencil</strong> (all vector sets) opens the icon
+        editor.
+      </li>
+    </ul>
+  </li>
+</ol>
+<figure class="page__figure">
+  <img src="img/guide/controls.webp" width="1000" height="333" alt="The icon set, categories, search and style controls." loading="lazy" />
+  <figcaption>The icon set, categories, search and style controls.</figcaption>
+</figure>
+<figure class="page__figure">
+  <img src="img/guide/cards.webp" width="770" height="194" alt="Card buttons: pencil (edit), + (scratchpad) and ⋯ (downloads and React)." loading="lazy" />
+  <figcaption>Card buttons: pencil (edit), + (scratchpad) and ⋯ (downloads and React).</figcaption>
+</figure>
+
+<h2 id="editor">The icon editor</h2>
+<p>
+  The pencil on a card opens the icon on a grid, ready to change. The icon
+  arrives with the size, stroke and color you chose.
+</p>
+<figure class="page__figure">
+  <img src="img/guide/editor.webp" width="1000" height="695" alt="The editor: shapes on the left, points on the grid, code and previews on the right." loading="lazy" />
+  <figcaption>The editor: shapes on the left, points on the grid, code and previews on the right.</figcaption>
+</figure>
+<ul>
+  <li>
+    <strong>Reshape:</strong> select a shape in the list or on the grid and
+    drag its points. Curves show their control points, linked by dashed
+    lines; moving a point of the curve brings its controls along.
+  </li>
+  <li>
+    <strong>Move:</strong> drag a shape, or use the arrow keys or buttons.
+    Points snap to the grid (1, ½ or ¼ unit, or off).
+  </li>
+  <li>
+    <strong>Transform:</strong> rotate 90°, flip, and grow or shrink — the
+    selected shape, or the whole icon when nothing is selected.
+  </li>
+  <li>
+    <strong>Add and remove:</strong> new lines, circles, rectangles and
+    curves; hide a shape to see the icon without it, or delete it.
+  </li>
+  <li>
+    <strong>Combine icons:</strong> <em>+ Icon on top</em> searches
+    Lucide, Feather and Bootstrap and lays another icon over the current
+    one, resized to the same grid and keeping its own style — a filled
+    Bootstrap star can sit inside an outline Lucide heart. Each icon gets a
+    heading in the list that selects it whole, to move, rotate or resize
+    it.
+  </li>
+  <li>
+    <strong>Colors:</strong> give each shape, or each icon, its own color
+    and stroke width in the <em>Selected</em> panel. <em>Text color</em>
+    goes back to inheriting the color of the surrounding text; shapes with
+    their own color keep it wherever the icon is pasted.
+  </li>
+  <li>
+    <strong>Save and continue later:</strong> <em>Save .ile</em> downloads
+    the project as a <code>.ile</code> file — a small text file that keeps
+    what plain SVG loses: which icon each shape came from, hidden shapes
+    and the name. Open it again with <em>Open .ile</em>, in the editor or
+    next to the search on the main page, or drop the file on the editor.
+    Opening a file while editing can be undone.
+  </li>
+  <li>
+    <strong>Code:</strong> the SVG code beside the grid follows every
+    change, and you can also type in it. Previews show the result at 16,
+    24, 32 and 48 pixels.
+  </li>
+  <li>
+    <strong>Undo</strong> and <strong>Redo</strong> (Ctrl+Z, Ctrl+Y), then
+    copy, download or send the edited icon to the scratchpad. Lucide and
+    Feather icons can also be opened in
+    <a href="https://studio.lucide.dev" rel="noopener">Lucide Studio</a>,
+    an independent online editor with more advanced tools.
+  </li>
+</ul>
+<figure class="page__figure">
+  <img src="img/guide/overlay.webp" width="1000" height="695" alt="A filled Bootstrap star placed over an outline Lucide heart, with its own color." loading="lazy" />
+  <figcaption>A filled Bootstrap star placed over an outline Lucide heart, with its own color.</figcaption>
+</figure>
+
+<h2 id="scratchpad">The scratchpad</h2>
+<p>
+  The <em>Scratchpad</em> tab on the right edge opens a drawer where you
+  can collect icons while you browse. Each icon is added as an HTML comment
+  with its name followed by its SVG, so the result is ready to paste into
+  a project. You can also type freely. <em>Copy all</em> copies everything
+  and <em>Clear</em> empties it. The text is kept in your browser, so it is
+  still there next time.
+</p>
+<figure class="page__figure page__figure--narrow">
+  <img src="img/guide/scratchpad.webp" width="505" height="820" alt="The scratchpad collects icons as an HTML comment followed by the SVG." loading="lazy" />
+  <figcaption>The scratchpad collects icons as an HTML comment followed by the SVG.</figcaption>
+</figure>
+
+<h2 id="ai">For AI assistants</h2>
+<p>
+  AI assistants can create an icon and give it to you as a link that opens
+  it here, in the editor, ready to adjust. The icon travels inside the link
+  itself, after the <code>#</code>, so it is never sent to our server. In
+  the editor, <em>Share link</em> makes the same kind of link for your own
+  project. Instructions for AIs:
+  <a href="llms.txt">llms.txt</a>.
+</p>
+
+<h2 id="share">Sharing a search</h2>
+<p>
+  The address bar follows what you are looking at — for example
+  <code>?set=lucide&amp;q=arrow</code>. Copy the address to share a search
+  or bookmark it.
+</p>
+
+<h2 id="shortcuts">Keyboard shortcuts</h2>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Keys</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Click</kbd></td><td>Copy the icon (SVG or emoji)</td></tr>
+      <tr><td><kbd>Right-click</kbd></td><td>Copy the alternative (name, or the emoji as SVG)</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Close panels, menus, the scratchpad and the editor</td></tr>
+      <tr><td><kbd>↑ ↓</kbd></td><td>Move through the icon sets in the set list</td></tr>
+      <tr><td><kbd>← → ↑ ↓</kbd></td><td>Editor: move the selected shape, icon or the whole drawing</td></tr>
+      <tr><td><kbd>Delete / Backspace</kbd></td><td>Editor: delete the selected shape or icon</td></tr>
+      <tr><td><kbd>Ctrl+Z</kbd></td><td>Editor: undo</td></tr>
+      <tr><td><kbd>Ctrl+Y / Ctrl+Shift+Z</kbd></td><td>Editor: redo</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 id="preferences">Theme, language and preferences</h2>
+<p>
+  The page follows your system's light or dark theme; the button in the
+  header switches it. The language is detected from your browser and can be
+  changed in the selector next to it. Both choices, the size, stroke and color
+  settings and the scratchpad text are kept in your browser, so they are still
+  there next time.
+</p>
+
+<h2 id="coffee">Buy me a coffee</h2>
+<p>
+  Icon Library is free. If it helps you, the <em>Buy me a coffee</em> button
+  (about US$ 3, paid securely through Stripe) helps pay for the server, the
+  domain and the tools that keep it running. As a thank-you, the site shows you
+  no ads for 30 days from the payment.
+</p>
+<p>
+  After paying you get a <strong>supporter code</strong>. To remove the ads on
+  another device too — up to 3 — open the same button there and enter the
+  code. The button only appears when payments are available.
+</p>

@@ -1,5 +1,6 @@
 import { nomeDeArquivo, paraReact } from "../models/svgTools.js";
 import { copiarTexto } from "./clipboard.js";
+import { t, tErro } from "../i18n/i18n.js";
 import { baixarPngDeEmoji, baixarPngDeSvg, baixarSvg } from "./download.js";
 
 // Cor de "currentColor" num PNG solto, onde não há texto para herdar a cor
@@ -59,6 +60,9 @@ export class IconController {
 
   salvarNoEndereco() {
     const parametros = new URLSearchParams();
+    // Um ?lang= de quem chegou por link (ou buscador) fica no endereço
+    const idioma = new URLSearchParams(location.search).get("lang");
+    if (idioma) parametros.set("lang", idioma);
     if (this.model.fonteAtual) parametros.set("set", this.model.fonteAtual);
     const busca = this.view.busca.trim();
     if (busca) parametros.set("q", busca);
@@ -97,14 +101,14 @@ export class IconController {
       this.atualizarGrupos();
     } catch (erro) {
       if (chave !== model.fonteAtual) return;
-      view.mostrarErro(erro.message);
+      view.mostrarErro(tErro(erro));
     }
   }
 
   atualizarGrupos() {
     this.view.atualizarRotuloGrupos(
       this.model.gruposEscolhidos,
-      this.model.rotuloTodos,
+      t(this.model.rotuloTodos),
     );
     this.aplicarFiltros();
   }
@@ -124,23 +128,23 @@ export class IconController {
   }
 
   copiarPrincipal(item) {
-    if (item.tipo === "svg") this.copiar(this.model.svgFinal(item), "SVG copied");
+    if (item.tipo === "svg") this.copiar(this.model.svgFinal(item), t("toast.svgCopied"));
     else
       this.copiar(
         item.char,
         item.suportado
-          ? `Copied: ${item.char}`
-          : `Copied, but no image in this font (Emoji ${item.versao})`,
+          ? t("toast.emojiCopied", { char: item.char })
+          : t("toast.emojiNoGlyph", { version: item.versao }),
       );
   }
 
   copiarAlternativa(item) {
     if (item.tipo === "svg")
-      this.copiar(item.nome, `Name copied: ${item.nome}`);
+      this.copiar(item.nome, t("toast.nameCopied", { name: item.nome }));
     else
       this.copiar(
         this.model.svgFinal(item),
-        "SVG copied (still relies on the font to render)",
+        t("toast.emojiSvgCopied"),
       );
   }
 
@@ -151,25 +155,25 @@ export class IconController {
     const { tamanho, cor } = this.model.estilo;
     if (acao === "svg") {
       baixarSvg(svg, arquivo);
-      this.view.mostrarToast(`Downloading ${arquivo}.svg`);
+      this.view.mostrarToast(t("toast.downloading", { file: `${arquivo}.svg` }));
     } else if (acao === "png") {
       const baixando =
         item.tipo === "emoji"
           ? baixarPngDeEmoji(item.char, tamanho, arquivo)
           : baixarPngDeSvg(svg, tamanho, cor || COR_PNG, arquivo);
       baixando.then(
-        () => this.view.mostrarToast(`Downloading ${arquivo}.png (${tamanho}px)`),
-        () => this.view.mostrarToast("Could not create the PNG"),
+        () => this.view.mostrarToast(t("toast.downloadingPng", { file: `${arquivo}.png`, size: tamanho })),
+        () => this.view.mostrarToast(t("toast.pngFailed")),
       );
     } else if (acao === "react") {
-      this.copiar(paraReact(svg, item.nome), "React component copied");
+      this.copiar(paraReact(svg, item.nome), t("toast.reactCopied"));
     }
   }
 
   copiar(texto, mensagem) {
     copiarTexto(texto).then(
       () => this.view.mostrarToast(mensagem),
-      () => this.view.mostrarToast("Copy blocked: the page needs https or localhost"),
+      () => this.view.mostrarToast(t("toast.copyBlocked")),
     );
   }
 }

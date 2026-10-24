@@ -1,4 +1,5 @@
 import { escapar } from "./html.js";
+import { lista, numero, t } from "../i18n/i18n.js";
 
 const porId = (id) => document.getElementById(id);
 
@@ -178,7 +179,7 @@ export class IconView {
     this.searchBar.disabled = true;
     this.campoFiltro.hidden = true;
     this.container.innerHTML =
-      '<p class="empty">Select an icon set above to start.</p>';
+      `<p class="empty">${escapar(t("grid.start"))}</p>`;
   }
 
   // focar: false quando a escolha vem do endereço da página, não de um clique
@@ -205,7 +206,7 @@ export class IconView {
     this.tracoValor.textContent = traco;
     // <input type="color"> não aceita "currentColor": mostra a cor do texto
     this.cor.value = cor || "#2c3e50";
-    this.corValor.textContent = cor || "text color";
+    this.corValor.textContent = cor || t("style.textColor");
     // A prévia dos cards acompanha traço e cor (o tamanho fica fixo na grade)
     this.container.style.setProperty("--icon-stroke", traco);
     if (cor) this.container.style.setProperty("--icon-color", cor);
@@ -223,7 +224,7 @@ export class IconView {
     this.limparGrade();
     this.loader.style.display = "";
     this.loaderTexto.style.color = "";
-    this.loaderTexto.textContent = `Loading ${rotulo}…`;
+    this.loaderTexto.textContent = t("loading.set", { set: rotulo });
   }
 
   esconderCarregando() {
@@ -232,7 +233,7 @@ export class IconView {
 
   mostrarErro(mensagem) {
     this.loader.style.display = "";
-    this.loaderTexto.textContent = "Error loading icon set: " + mensagem;
+    this.loaderTexto.textContent = t("loading.error", { message: mensagem });
     this.loaderTexto.style.color = "#e74c3c";
   }
 
@@ -267,7 +268,7 @@ export class IconView {
         ? rotuloTodos
         : quantidade === 1
           ? [...escolhidos][0]
-          : `${quantidade} categories`;
+          : t("categories.count", { n: quantidade });
     this.botaoGrupos.classList.toggle(
       "groups-menu__button--active",
       quantidade > 0,
@@ -277,14 +278,16 @@ export class IconView {
   // ── Resumo ─────────────────────────────────────────────────────────────────
   renderResumo({ total, emoji, semDesenho, versoes }) {
     if (!emoji) {
-      this.resumo.innerHTML = `<strong>${total}</strong> Vector icons — they do not depend on the system font
-            and inherit the text color. Clicking copies the SVG, ready to paste.`;
+      this.resumo.innerHTML = t("summary.vectorHtml", { total: numero(total) });
       return;
     }
     this.resumo.innerHTML = semDesenho
-      ? `<strong>${total}</strong> emojis · <strong>${semDesenho}</strong> no design on this
-           machine (Emoji ${escapar(versoes.join(" e "))}) — No font available today covers them, not even Noto.`
-      : `<strong>${total}</strong> emojis, all with designs available.`;
+      ? t("summary.emojiMissingHtml", {
+          total: numero(total),
+          missing: numero(semDesenho),
+          versions: escapar(lista(versoes)),
+        })
+      : t("summary.emojiAllHtml", { total: numero(total) });
   }
 
   // ── Grade de ícones ────────────────────────────────────────────────────────
@@ -298,7 +301,7 @@ export class IconView {
     this.acoes = acoes;
     if (!grupos.length) {
       this.container.innerHTML =
-        '<p class="empty">No icon for this filter.</p>';
+        `<p class="empty">${escapar(t("grid.empty"))}</p>`;
       return;
     }
     const colunas = Math.max(
@@ -356,10 +359,10 @@ export class IconView {
     const versao = escapar(item.versao ?? "");
     const titulo =
       item.tipo === "svg"
-        ? "Click: copy SVG\nRight-click: copy name"
+        ? t("card.titleSvg")
         : item.suportado
-          ? "Click: copy emoji\nRight-click: copy as SVG"
-          : `No design for this machine (Emoji ${versao}) — avoid using in the menu`;
+          ? t("card.titleEmoji")
+          : t("card.titleNoGlyph", { version: item.versao ?? "" });
     const icone =
       item.tipo === "svg"
         ? `<span class="svg-icon">${item.svg}</span>`
@@ -367,17 +370,17 @@ export class IconView {
     // Ícones vetoriais abrem no editor; emoji é texto, não tem o que editar
     const editar =
       item.tipo === "svg"
-        ? `<button type="button" class="emoji-card__action emoji-card__edit" title="Edit icon" aria-label="Edit ${nome}">${ICONE_LAPIS}</button>`
+        ? `<button type="button" class="emoji-card__action emoji-card__edit" title="${escapar(t("card.edit"))}" aria-label="${escapar(t("card.editLabel", { name: item.nome }))}">${ICONE_LAPIS}</button>`
         : "";
     return `<div class="emoji-card${item.suportado ? "" : " emoji-card--no-glyph"}" data-i="${indice}" title="${escapar(titulo)}">
         <div class="emoji-card__actions emoji-card__actions--start">${editar}</div>
         <div class="emoji-card__actions">
-          <button type="button" class="emoji-card__action emoji-card__add" title="Add to scratchpad" aria-label="Add ${nome} to scratchpad">${ICONE_MAIS}</button>
-          <button type="button" class="emoji-card__action emoji-card__more" title="More: download, React" aria-label="More options for ${nome}" aria-haspopup="menu">${ICONE_MENU}</button>
+          <button type="button" class="emoji-card__action emoji-card__add" title="${escapar(t("card.add"))}" aria-label="${escapar(t("card.addLabel", { name: item.nome }))}">${ICONE_MAIS}</button>
+          <button type="button" class="emoji-card__action emoji-card__more" title="${escapar(t("card.more"))}" aria-label="${escapar(t("card.moreLabel", { name: item.nome }))}" aria-haspopup="menu">${ICONE_MENU}</button>
         </div>
         ${icone}
         <span class="emoji-name">${nome}</span>
-        ${item.suportado ? "" : `<span class="emoji-warning">without a design · v${versao}</span>`}
+        ${item.suportado ? "" : `<span class="emoji-warning">${escapar(t("card.noGlyph", { version: item.versao ?? "" }))}</span>`}
       </div>`;
   }
 
@@ -421,9 +424,9 @@ export class IconView {
     this.menu.setAttribute("role", "menu");
     this.menu.hidden = true;
     this.menu.innerHTML = `
-      <button type="button" role="menuitem" data-acao="svg">Download SVG</button>
-      <button type="button" role="menuitem" data-acao="png">Download PNG</button>
-      <button type="button" role="menuitem" data-acao="react">Copy as React component</button>`;
+      <button type="button" role="menuitem" data-acao="svg">${escapar(t("menu.svg"))}</button>
+      <button type="button" role="menuitem" data-acao="png">${escapar(t("menu.png"))}</button>
+      <button type="button" role="menuitem" data-acao="react">${escapar(t("menu.react"))}</button>`;
     document.body.appendChild(this.menu);
     this.menu.addEventListener("click", (evento) => {
       evento.stopPropagation();

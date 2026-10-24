@@ -1,3 +1,5 @@
+import { t } from "../i18n/i18n.js";
+
 const porId = (id) => document.getElementById(id);
 
 // Gaveta do scratchpad no canto direito: a aba e o botão "Open Scratchpad"
@@ -36,8 +38,8 @@ export class ScratchpadView {
     for (const botao of [this.aba, this.botaoAbrir])
       botao.setAttribute("aria-expanded", String(aberto));
     this.botaoAbrir.textContent = aberto
-      ? "Close Scratchpad"
-      : "Open Scratchpad";
+      ? t("scratchpad.close")
+      : t("scratchpad.open");
     if (aberto && focar) this.area.focus();
     // Avisa quem depende da gaveta visível (o anúncio dentro dela)
     this.gaveta.dispatchEvent(

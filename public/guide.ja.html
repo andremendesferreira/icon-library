@@ -1,0 +1,199 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de pages/guide/ja.html — edite lá e rode npm run pages -->
+<html
+  lang="ja"
+  data-page="guide"
+  data-label-to-dark="ダークテーマに切り替え"
+  data-label-to-light="ライトテーマに切り替え"
+>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Icon Library のステップごとのガイド：検索と絞り込み、アイコンのスタイル、コピーとダウンロード、Scratchpad、アイコンエディター、.ile プロジェクト、AI 向けリンク、キーボードショートカット。" />
+  <title>ガイド — Icon Library</title>
+  <meta name="theme-color" content="#f5f7fb" />
+  <link rel="canonical" href="https://iconlibrary.io/guide.ja.html" />
+  <link rel="alternate" hreflang="en" href="https://iconlibrary.io/guide.html" />
+  <link rel="alternate" hreflang="es" href="https://iconlibrary.io/guide.es.html" />
+  <link rel="alternate" hreflang="fr" href="https://iconlibrary.io/guide.fr.html" />
+  <link rel="alternate" hreflang="de" href="https://iconlibrary.io/guide.de.html" />
+  <link rel="alternate" hreflang="ru" href="https://iconlibrary.io/guide.ru.html" />
+  <link rel="alternate" hreflang="zh-CN" href="https://iconlibrary.io/guide.zh-CN.html" />
+  <link rel="alternate" hreflang="pt-BR" href="https://iconlibrary.io/guide.pt-BR.html" />
+  <link rel="alternate" hreflang="ja" href="https://iconlibrary.io/guide.ja.html" />
+  <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/guide.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Icon Library" />
+  <meta property="og:url" content="https://iconlibrary.io/guide.ja.html" />
+  <meta property="og:title" content="ガイド — Icon Library" />
+  <meta property="og:description" content="Icon Library のステップごとのガイド：検索と絞り込み、アイコンのスタイル、コピーとダウンロード、Scratchpad、アイコンエディター、.ile プロジェクト、AI 向けリンク、キーボードショートカット。" />
+  <meta property="og:image" content="https://iconlibrary.io/img/og-image.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="stylesheet" href="css/icon-library.css" />
+  <script src="js/i18n/detect.js"></script>
+  <script src="js/views/theme.js"></script>
+  <main class="page">
+    <div class="page__top">
+      <a class="page__back" href="./?lang=ja">← アイコン一覧へ戻る</a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="言語"></select>
+      </label>
+    </div>
+    <h1 class="page__title">ガイド</h1>
+    <p class="page__lead">Icon Library でできることを、ステップごとに説明します。目次から目的の項目へ移動できます。</p>
+
+    <nav class="page__toc" aria-label="目次">
+      <strong>目次</strong>
+      <ol>
+        <li><a href="#start">使い方</a></li>
+        <li><a href="#editor">アイコンエディター</a></li>
+        <li><a href="#scratchpad">Scratchpad</a></li>
+        <li><a href="#ai">AI アシスタント向け</a></li>
+        <li><a href="#share">検索を共有する</a></li>
+        <li><a href="#shortcuts">キーボードショートカット</a></li>
+        <li><a href="#preferences">テーマ、言語、設定</a></li>
+        <li><a href="#coffee">コーヒーをおごる</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="start">使い方</h2>
+    <ol class="page__steps">
+      <li>
+        <em>選択</em>ボタンで<strong>セットを選びます</strong>。選ぶまでは何もダウンロードされず、各セットはページを開いている間キャッシュされます。
+      </li>
+      <li>
+        <em>すべてのカテゴリ</em>（複数選択可）と、アイコン名で検索する検索欄で<strong>絞り込みます</strong>。
+      </li>
+      <li>
+        サイズ・線の太さ・色で<strong>スタイルを設定します</strong>。コピー、ダウンロード、Scratchpad への送信すべてに適用され、プレビューも線と色に合わせて変わります。線があるのは Lucide と Feather だけで、絵文字は元の色のままです。
+      </li>
+      <li>
+        <strong>アイコンをクリック</strong>すると SVG（または絵文字の文字）をコピーします。<strong>右クリック</strong>は別の形式をコピーします：ベクターのセットではアイコン名、絵文字では SVG で包んだ絵文字です。
+      </li>
+      <li>
+        各カードのボタン：
+        <ul>
+          <li><strong>+</strong> アイコンを Scratchpad に追加；</li>
+          <li>
+            <strong>⋯</strong> ダウンロード（SVG、選んだサイズの PNG）と<em>React コンポーネントとしてコピー</em>；
+          </li>
+          <li>
+            <strong>鉛筆</strong>（すべてのベクターセット）でアイコンエディターを開きます。
+          </li>
+        </ul>
+      </li>
+    </ol>
+    <figure class="page__figure">
+      <img src="img/guide/controls.webp" width="1000" height="333" alt="アイコンセット、カテゴリ、検索、スタイルの設定。" loading="lazy" />
+      <figcaption>アイコンセット、カテゴリ、検索、スタイルの設定。</figcaption>
+    </figure>
+    <figure class="page__figure">
+      <img src="img/guide/cards.webp" width="770" height="194" alt="カードのボタン：鉛筆（編集）、+（Scratchpad）、⋯（ダウンロードと React）。" loading="lazy" />
+      <figcaption>カードのボタン：鉛筆（編集）、+（Scratchpad）、⋯（ダウンロードと React）。</figcaption>
+    </figure>
+
+    <h2 id="editor">アイコンエディター</h2>
+    <p>
+      カードの鉛筆を押すと、アイコンがグリッド上に開き、すぐに編集できます。アイコンには選んだサイズ・線・色が反映されています。
+    </p>
+    <figure class="page__figure">
+      <img src="img/guide/editor.webp" width="1000" height="695" alt="エディター：左に図形、グリッド上に点、右にコードとプレビュー。" loading="lazy" />
+      <figcaption>エディター：左に図形、グリッド上に点、右にコードとプレビュー。</figcaption>
+    </figure>
+    <ul>
+      <li>
+        <strong>形を変える：</strong>リストまたはグリッドで図形を選び、点をドラッグします。曲線には破線でつながった制御点が表示され、曲線上の点を動かすと制御点も一緒に動きます。
+      </li>
+      <li>
+        <strong>移動：</strong>図形をドラッグするか、矢印キーやボタンを使います。点はグリッドにスナップします（1、½、¼ 単位、またはオフ）。
+      </li>
+      <li>
+        <strong>変形：</strong>90° 回転、反転、拡大・縮小——選んだ図形に、何も選んでいなければアイコン全体に適用されます。
+      </li>
+      <li>
+        <strong>追加と削除：</strong>線・円・四角形・曲線を追加できます。図形を非表示にしてそれがない状態を確認したり、削除したりできます。
+      </li>
+      <li>
+        <strong>アイコンを組み合わせる：</strong><em>+ アイコンを重ねる</em>で Lucide、Feather、Bootstrap を検索し、別のアイコンを今のアイコンの上に重ねます。同じグリッドに合わせて調整され、元のスタイルも保たれます——Bootstrap の塗りつぶしの星を Lucide の線画のハートの中に置くこともできます。各アイコンにはリストに見出しがあり、クリックするとアイコン全体を選択して移動・回転・拡大縮小できます。
+      </li>
+      <li>
+        <strong>色：</strong><em>選択中</em>パネルで、図形ごと・アイコンごとに色と線の太さを設定できます。<em>文字色</em>を押すと周囲の文字色を引き継ぐ状態に戻ります。独自の色を持つ図形は、どこに貼り付けてもその色を保ちます。
+      </li>
+      <li>
+        <strong>保存して後で続ける：</strong><em>.ile を保存</em>でプロジェクトを <code>.ile</code> ファイルとしてダウンロードします。素の SVG では失われる情報——各図形がどのアイコンから来たか、非表示の図形、名前——を保存する小さなテキストファイルです。エディターやメインページの検索欄の横にある<em>.ile を開く</em>で再び開くか、ファイルをエディターにドロップします。編集中にファイルを開いても元に戻せます。
+      </li>
+      <li>
+        <strong>コード：</strong>グリッドの横の SVG コードはすべての変更に追従し、直接入力することもできます。プレビューでは 16、24、32、48 ピクセルでの見え方を確認できます。
+      </li>
+      <li>
+        <strong>元に戻す</strong>と<strong>やり直す</strong>（Ctrl+Z、Ctrl+Y）を使い、編集したアイコンをコピー、ダウンロード、または Scratchpad に送れます。Lucide と Feather のアイコンは、より高度なツールを備えた独立のオンラインエディター <a href="https://studio.lucide.dev" rel="noopener">Lucide Studio</a> でも開けます。
+      </li>
+    </ul>
+    <figure class="page__figure">
+      <img src="img/guide/overlay.webp" width="1000" height="695" alt="Lucide の線画のハートに、独自の色を付けた Bootstrap の塗りつぶしの星を重ねた例。" loading="lazy" />
+      <figcaption>Lucide の線画のハートに、独自の色を付けた Bootstrap の塗りつぶしの星を重ねた例。</figcaption>
+    </figure>
+
+    <h2 id="scratchpad">Scratchpad</h2>
+    <p>
+      右端の <em>Scratchpad</em> タブを押すと引き出しが開き、閲覧しながらアイコンを集められます。各アイコンは名前入りの HTML コメントと、その下の SVG として追加されるので、そのままプロジェクトに貼り付けられます。自由に書き込むこともできます。<em>すべてコピー</em>で内容をコピーし、<em>クリア</em>で空にします。テキストはブラウザーに保存されるので、次回もそのまま残っています。
+    </p>
+    <figure class="page__figure page__figure--narrow">
+      <img src="img/guide/scratchpad.webp" width="505" height="820" alt="Scratchpad は、HTML コメントとその下の SVG としてアイコンを集めます。" loading="lazy" />
+      <figcaption>Scratchpad は、HTML コメントとその下の SVG としてアイコンを集めます。</figcaption>
+    </figure>
+
+    <h2 id="ai">AI アシスタント向け</h2>
+    <p>
+      AI アシスタントはアイコンを作り、ここエディターでそのアイコンを開くリンクとして渡すことができます。アイコンはリンクそのもの（<code>#</code> の後ろ）に含まれているため、当サーバーに送られることはありません。エディターの<em>リンクを共有</em>で、自分のプロジェクトにも同じ種類のリンクを作れます。AI 向けの説明：<a href="llms.txt">llms.txt</a>。
+    </p>
+
+    <h2 id="share">検索を共有する</h2>
+    <p>
+      アドレスバーは表示中の内容に合わせて変わります——たとえば <code>?set=lucide&amp;q=arrow</code>。アドレスをコピーすれば、検索を共有したりブックマークしたりできます。
+    </p>
+
+    <h2 id="shortcuts">キーボードショートカット</h2>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>キー</th><th>動作</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>クリック</kbd></td><td>アイコンをコピー（SVG または絵文字）</td></tr>
+          <tr><td><kbd>右クリック</kbd></td><td>別の形式をコピー（名前、または SVG にした絵文字）</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>パネル、メニュー、Scratchpad、エディターを閉じる</td></tr>
+          <tr><td><kbd>↑ ↓</kbd></td><td>セット一覧でアイコンセットを切り替える</td></tr>
+          <tr><td><kbd>← → ↑ ↓</kbd></td><td>エディター：選択した図形、アイコン、または全体を移動</td></tr>
+          <tr><td><kbd>Delete / Backspace</kbd></td><td>エディター：選択した図形またはアイコンを削除</td></tr>
+          <tr><td><kbd>Ctrl+Z</kbd></td><td>エディター：元に戻す</td></tr>
+          <tr><td><kbd>Ctrl+Y / Ctrl+Shift+Z</kbd></td><td>エディター：やり直す</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="preferences">テーマ、言語、設定</h2>
+    <p>
+      ページはシステムのライト／ダークテーマに従い、ヘッダーのボタンで切り替えられます。言語はブラウザーから自動判定され、隣の選択欄で変更できます。これらの選択、サイズ・線の太さ・色の設定、Scratchpad のテキストはブラウザーに保存され、次回もそのまま残ります。
+    </p>
+
+    <h2 id="coffee">コーヒーをおごる</h2>
+    <p>
+      Icon Library は無料です。役に立ったら、<em>コーヒーをおごる</em>ボタン（約 3 米ドル、Stripe で安全に支払い）でサーバーやドメイン、運営に使うツールの費用を支援できます。お礼として、支払いから 30 日間このサイトの広告を表示しません。
+    </p>
+    <p>
+      支払い後に<strong>サポーターコード</strong>が届きます。別の端末でも広告を消すには（最大 3 台）、その端末で同じボタンを開いてコードを入力してください。このボタンは支払いが利用できるときだけ表示されます。
+    </p>
+  </main>
+  <footer class="site-footer">
+    <nav aria-label="サイト">
+      <a href="./?lang=ja">アイコン</a>
+      <a href="about.ja.html">概要</a>
+      <a href="privacy.ja.html">プライバシー</a>
+    </nav>
+    <p class="site-footer__owner">© 2026 André M. Ferreira</p>
+  </footer>
+</html>

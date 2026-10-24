@@ -44,6 +44,7 @@ export class AdsView {
   }
 
   preencherVisiveis() {
+    if (this.desligado) return;
     for (const area of this.areas) {
       if (area.dataset.adFilled || !area.offsetWidth) continue;
       // Gaveta fechada: o bloco tem largura, mas está fora da tela
@@ -68,5 +69,14 @@ export class AdsView {
       bloco.dataset.fullWidthResponsive = "true";
     }
     return bloco;
+  }
+
+  // Apoiador (pagou um café): nenhuma área de anúncio fica visível. Os blocos
+  // já pedidos nesta visita somem com elas; na próxima, o script do Google
+  // nem é carregado (veja app.js).
+  desligar() {
+    this.desligado = true;
+    for (const area of this.areas) area.hidden = true;
+    document.documentElement.classList.add("sem-anuncios");
   }
 }

@@ -18,6 +18,17 @@ services:
       SITE_URL: "https://iconlibrary.io"
       # Google AdSense publisher ID (pub-…); enables /ads.txt
       ADSENSE_PUBLISHER_ID: ""
+      # Behind the reverse proxy: client IP (rate limits) from X-Forwarded-For
+      TRUST_PROXY: "true"
+    # Secrets (Stripe, PostgreSQL) stay out of this file: copy .env.example to
+    # .env and fill it in. Without it the site runs, just without the coffee.
+    env_file:
+      - path: .env
+        required: false
+    # PostgreSQL running on the same server, outside Docker: use
+    # PG_HOST=host.docker.internal in .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     # Hardening: the server only reads files and listens on a high port
     read_only: true
     cap_drop:

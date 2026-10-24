@@ -1,3 +1,4 @@
+import { carregarIdioma, traduzirPagina } from "./i18n/i18n.js";
 import { IconModel } from "./models/IconModel.js";
 import { IconView } from "./views/IconView.js";
 import { IconController } from "./controllers/IconController.js";
@@ -9,6 +10,13 @@ import { EditorView } from "./views/EditorView.js";
 import { EditorController } from "./controllers/EditorController.js";
 import { ADS } from "./models/adsConfig.js";
 import { AdsView } from "./views/AdsView.js";
+import { SupporterModel } from "./models/SupporterModel.js";
+import { CoffeeView } from "./views/CoffeeView.js";
+import { CoffeeController } from "./controllers/CoffeeController.js";
+
+// O idioma vem antes de tudo: as views já nascem com os textos traduzidos
+await carregarIdioma();
+traduzirPagina();
 
 const iconModel = new IconModel();
 const iconView = new IconView();
@@ -49,8 +57,18 @@ const editor = new EditorController(new EditorModel(), new EditorView(), {
 });
 editor.iniciar();
 
+// Café antes dos anúncios: quem acabou de pagar (volta do Stripe com
+// ?coffee=…) já não os vê, e o endereço fica limpo para a busca
+const apoiador = new SupporterModel();
+const anuncios = new AdsView(ADS);
+await new CoffeeController(apoiador, new CoffeeView(), {
+  avisar,
+  aoApoiar: () => anuncios.desligar(),
+}).iniciar();
+
 new IconController(iconModel, iconView, {
   aoAdicionar: (item, svg) => scratchpad.adicionar(item, svg),
   aoEditar: (item, svg) => editor.abrir(item, svg),
 }).iniciar();
-new AdsView(ADS).iniciar();
+if (apoiador.ativo()) anuncios.desligar();
+else anuncios.iniciar();

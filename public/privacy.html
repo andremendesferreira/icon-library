@@ -1,27 +1,51 @@
 <!doctype html>
-<html lang="en">
+<!-- Gerado por scripts/build-pages.mjs a partir de pages/privacy/en.html — edite lá e rode npm run pages -->
+<html
+  lang="en"
+  data-page="privacy"
+  data-label-to-dark="Switch to dark theme"
+  data-label-to-light="Switch to light theme"
+>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta
-    name="description"
-    content="Privacy policy of Icon Library: what is stored in your browser, which third-party services are used, advertising cookies and your choices."
-  />
+  <meta name="description" content="Privacy policy of Icon Library: what is stored in your browser, which third-party services are used, advertising cookies and your choices." />
   <title>Privacy policy — Icon Library</title>
   <meta name="theme-color" content="#f5f7fb" />
   <link rel="canonical" href="https://iconlibrary.io/privacy.html" />
+  <link rel="alternate" hreflang="en" href="https://iconlibrary.io/privacy.html" />
+  <link rel="alternate" hreflang="es" href="https://iconlibrary.io/privacy.es.html" />
+  <link rel="alternate" hreflang="fr" href="https://iconlibrary.io/privacy.fr.html" />
+  <link rel="alternate" hreflang="de" href="https://iconlibrary.io/privacy.de.html" />
+  <link rel="alternate" hreflang="ru" href="https://iconlibrary.io/privacy.ru.html" />
+  <link rel="alternate" hreflang="zh-CN" href="https://iconlibrary.io/privacy.zh-CN.html" />
+  <link rel="alternate" hreflang="pt-BR" href="https://iconlibrary.io/privacy.pt-BR.html" />
+  <link rel="alternate" hreflang="ja" href="https://iconlibrary.io/privacy.ja.html" />
+  <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/privacy.html" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Icon Library" />
   <meta property="og:url" content="https://iconlibrary.io/privacy.html" />
   <meta property="og:title" content="Privacy policy — Icon Library" />
-  <meta property="og:image" content="https://iconlibrary.io/img/iconlibrary.png" />
+  <meta property="og:description" content="Privacy policy of Icon Library: what is stored in your browser, which third-party services are used, advertising cookies and your choices." />
+  <meta property="og:image" content="https://iconlibrary.io/img/og-image.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
   <meta name="twitter:card" content="summary" />
-  <link rel="icon" type="image/png" href="img/iconlibrary.png" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
   <link rel="stylesheet" href="css/icon-library.css" />
+  <script src="js/i18n/detect.js"></script>
   <script src="js/views/theme.js"></script>
   <main class="page">
-    <a class="page__back" href="./">← Back to the icons</a>
+    <div class="page__top">
+      <a class="page__back" href="./">← Back to the icons</a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="Language"></select>
+      </label>
+    </div>
     <h1 class="page__title">Privacy policy</h1>
-    <p class="page__meta">Last updated: October 18, 2026</p>
+    <p class="page__meta">Last updated: October 24, 2026</p>
     <p class="page__lead">
       Icon Library has no user accounts and does not ask for personal data.
       This page explains what is stored on your device, which outside services
@@ -43,7 +67,9 @@
     <ul>
       <li>the scratchpad text (<code>icon-library:scratchpad</code>);</li>
       <li>the chosen size, stroke and color (<code>icon-library:style</code>);</li>
-      <li>the light or dark theme (<code>icon-library:theme</code>).</li>
+      <li>the light or dark theme (<code>icon-library:theme</code>);</li>
+      <li>your supporter code and its end date, if you bought a coffee (<code>icon-library:supporter</code>);</li>
+      <li>the language you chose (<code>icon-library:lang</code>).</li>
     </ul>
     <p>
       You can erase them at any time by clearing this site's data in your
@@ -82,6 +108,18 @@
       <a href="https://studio.lucide.dev" rel="noopener">Lucide Studio</a>, an
       independent site with its own privacy policy, and sends it the icon you
       are editing.
+    </p>
+
+    <h2>Buying a coffee (Stripe)</h2>
+    <p>
+      Payments for “Buy me a coffee” are processed by
+      <a href="https://stripe.com/privacy" rel="noopener">Stripe</a>, which
+      receives your payment details under its own privacy policy; they never pass
+      through this site. To give you the ad-free period, the server keeps only the
+      Stripe payment session ID, the amount, the payment date, the generated
+      supporter code, its end date and how many devices used it — no name, e-mail
+      or card data. These records are kept as long as needed to honor the benefit
+      and for the developer's financial records.
     </p>
 
     <h2>Advertising (Google AdSense)</h2>
@@ -137,8 +175,8 @@
   <footer class="site-footer">
     <nav aria-label="Site">
       <a href="./">Icons</a>
-      <a href="about.html">About &amp; guide</a>
-      <a href="https://github.com/andremendesferreira/icon-library" rel="noopener">GitHub</a>
+      <a href="guide.html">Guide</a>
+      <a href="about.html">About</a>
     </nav>
     <p class="site-footer__owner">© 2026 André M. Ferreira</p>
   </footer>

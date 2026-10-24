@@ -1,0 +1,144 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de pages/about/fr.html — edite lá e rode npm run pages -->
+<html
+  lang="fr"
+  data-page="about"
+  data-label-to-dark="Passer au thème sombre"
+  data-label-to-light="Passer au thème clair"
+>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Comment utiliser Icon Library : parcourez Emoji, Lucide, Feather et Bootstrap Icons, réglez taille, trait et couleur, copiez en SVG ou React, téléchargez en SVG et PNG." />
+  <title>À propos et guide — Icon Library</title>
+  <meta name="theme-color" content="#f5f7fb" />
+  <link rel="canonical" href="https://iconlibrary.io/about.fr.html" />
+  <link rel="alternate" hreflang="en" href="https://iconlibrary.io/about.html" />
+  <link rel="alternate" hreflang="es" href="https://iconlibrary.io/about.es.html" />
+  <link rel="alternate" hreflang="fr" href="https://iconlibrary.io/about.fr.html" />
+  <link rel="alternate" hreflang="de" href="https://iconlibrary.io/about.de.html" />
+  <link rel="alternate" hreflang="ru" href="https://iconlibrary.io/about.ru.html" />
+  <link rel="alternate" hreflang="zh-CN" href="https://iconlibrary.io/about.zh-CN.html" />
+  <link rel="alternate" hreflang="pt-BR" href="https://iconlibrary.io/about.pt-BR.html" />
+  <link rel="alternate" hreflang="ja" href="https://iconlibrary.io/about.ja.html" />
+  <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/about.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Icon Library" />
+  <meta property="og:url" content="https://iconlibrary.io/about.fr.html" />
+  <meta property="og:title" content="À propos et guide — Icon Library" />
+  <meta property="og:description" content="Comment utiliser Icon Library : parcourez Emoji, Lucide, Feather et Bootstrap Icons, réglez taille, trait et couleur, copiez en SVG ou React, téléchargez en SVG et PNG." />
+  <meta property="og:image" content="https://iconlibrary.io/img/og-image.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="stylesheet" href="css/icon-library.css" />
+  <script src="js/i18n/detect.js"></script>
+  <script src="js/views/theme.js"></script>
+  <main class="page">
+    <div class="page__top">
+      <a class="page__back" href="./?lang=fr">← Retour aux icônes</a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="Langue"></select>
+      </label>
+    </div>
+    <h1 class="page__title">À propos d’Icon Library</h1>
+    <p class="page__lead">
+      Icon Library est un outil gratuit pour choisir des icônes de menus, de
+      boutons et d’interfaces. Il réunit quatre jeux populaires sur une seule page
+      avec recherche, pour comparer les styles côte à côte et copier exactement ce
+      dont vous avez besoin : un SVG prêt à coller dans du HTML, un composant
+      React, un PNG ou un emoji.
+    </p>
+
+    <h2>Les jeux d’icônes</h2>
+    <dl class="page__list">
+      <dt>Lucide</dt>
+      <dd>
+        Environ 1 900 icônes au contour net, sur une grille de 24×24, tracées avec
+        un trait de 2 px. C’est un fork de Feather maintenu par la communauté, et
+        aujourd’hui le plus complet des jeux au contour. Licence : ISC.
+      </dd>
+      <dt>Feather</dt>
+      <dd>
+        Le jeu minimaliste au contour d’origine, avec environ 290 icônes. Lucide en
+        est issu : les deux ont le même style et la plupart des noms en commun.
+        Licence : MIT.
+      </dd>
+      <dt>Bootstrap Icons</dt>
+      <dd>
+        Plus de 2 000 icônes de l’équipe Bootstrap, souvent en variantes contour et
+        pleine (les noms en <code>-fill</code>). Elles sont dessinées en formes
+        pleines sur une grille de 16×16. Licence : MIT.
+      </dd>
+      <dt>Emoji (Unicode)</dt>
+      <dd>
+        Tous les emojis standard, regroupés comme dans la norme Unicode.
+        Contrairement aux autres, les emojis sont du texte : leur apparence dépend
+        des polices installées sur chaque appareil.
+      </dd>
+    </dl>
+
+    <p class="page__callout">
+      Les instructions pas à pas de chaque fonction — recherche, style, scratchpad, éditeur d’icônes, projets .ile et raccourcis clavier — sont dans le <a href="guide.fr.html">Guide</a>.
+    </p>
+
+    <h2>Questions fréquentes</h2>
+    <h3>Pourquoi certains emojis sont-ils signalés « sans dessin » ?</h3>
+    <p>
+      Les emojis les plus récents entrent dans la norme Unicode avant que les
+      systèmes d’exploitation ne livrent des polices qui les dessinent. La page
+      vérifie si la police de votre système dessine chaque emoji et signale ceux
+      qu’elle ne dessine pas. Évitez-les dans un menu : vos visiteurs verraient
+      probablement un carré vide. Cochez <em>Seulement celles qui ont un dessin
+      sur cet appareil</em> pour les masquer.
+    </p>
+    <h3>Faut-il utiliser des emojis ou des icônes vectorielles dans une interface ?</h3>
+    <p>
+      Les icônes vectorielles sont identiques partout, héritent de la couleur du
+      texte et s’agrandissent sans perte. Les emojis s’ajoutent plus vite mais
+      changent d’apparence entre Windows, macOS, Android et iOS. Pour une
+      interface de produit, les icônes vectorielles sont généralement le choix le
+      plus sûr.
+    </p>
+    <h3>Pourquoi la copie échoue-t-elle ?</h3>
+    <p>
+      Les navigateurs n’autorisent la copie dans le presse-papiers que sur des
+      pages sécurisées (<code>https://</code>) ou sur <code>localhost</code>. Si
+      vous hébergez votre propre copie du site, servez-la en HTTPS.
+    </p>
+    <h3>Puis-je utiliser ces icônes dans des projets commerciaux ?</h3>
+    <p>
+      Lucide (ISC), Feather (MIT) et Bootstrap Icons (MIT) autorisent l’usage
+      commercial ; conservez leur mention de licence dans votre projet. Les
+      dessins des emojis appartiennent aux éditeurs des polices (Microsoft, Apple,
+      Google et d’autres) : copier le caractère de l’emoji ne pose pas de
+      problème, mais vérifiez les conditions de l’éditeur avant d’utiliser son
+      dessin comme image.
+    </p>
+
+    <h2>Crédits</h2>
+    <p>
+      Les icônes appartiennent à leurs auteurs et sont utilisées selon leurs
+      licences :
+      <a href="https://github.com/lucide-icons/lucide/blob/main/LICENSE" rel="noopener">Lucide</a>,
+      <a href="https://github.com/feathericons/feather/blob/main/LICENSE" rel="noopener">Feather</a>,
+      <a href="https://github.com/twbs/icons/blob/main/LICENSE" rel="noopener">Bootstrap Icons</a>
+      et
+      <a href="https://github.com/muan/unicode-emoji-json/blob/main/LICENSE" rel="noopener">unicode-emoji-json</a>.
+      Icon Library est créé et maintenu par <strong>André M. Ferreira</strong> et
+      son code est ouvert :
+      <a href="https://github.com/andremendesferreira/icon-library" rel="noopener">code source sur GitHub</a>.
+    </p>
+  </main>
+  <footer class="site-footer">
+    <nav aria-label="Site">
+      <a href="./?lang=fr">Icônes</a>
+      <a href="guide.fr.html">Guide</a>
+      <a href="privacy.fr.html">Confidentialité</a>
+    </nav>
+    <p class="site-footer__owner">© 2026 André M. Ferreira</p>
+  </footer>
+</html>

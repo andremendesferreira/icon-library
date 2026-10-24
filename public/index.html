@@ -19,49 +19,76 @@
     property="og:description"
     content="Browse, filter and copy icons from Emoji, Lucide, Feather and Bootstrap Icons — click to copy, right-click for the SVG."
   />
-  <meta property="og:image" content="https://iconlibrary.io/img/iconlibrary.png" />
+  <meta property="og:image" content="https://iconlibrary.io/img/og-image.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
   <meta name="twitter:card" content="summary" />
-  <link rel="icon" type="image/png" href="img/iconlibrary.png" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <!-- Versões por idioma, para os buscadores (a página se traduz pelo ?lang=) -->
+  <link rel="alternate" hreflang="en" href="https://iconlibrary.io/" />
+  <link rel="alternate" hreflang="es" href="https://iconlibrary.io/?lang=es" />
+  <link rel="alternate" hreflang="fr" href="https://iconlibrary.io/?lang=fr" />
+  <link rel="alternate" hreflang="de" href="https://iconlibrary.io/?lang=de" />
+  <link rel="alternate" hreflang="ru" href="https://iconlibrary.io/?lang=ru" />
+  <link rel="alternate" hreflang="zh-CN" href="https://iconlibrary.io/?lang=zh-CN" />
+  <link rel="alternate" hreflang="pt-BR" href="https://iconlibrary.io/?lang=pt-BR" />
+  <link rel="alternate" hreflang="ja" href="https://iconlibrary.io/?lang=ja" />
+  <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/" />
   <link rel="stylesheet" href="css/icon-library.css" />
+  <script src="js/i18n/detect.js"></script>
   <script src="js/views/theme.js"></script>
   <header class="header">
+    <div class="header__tools">
+    <!-- "Pague um café": aparece só com o Stripe configurado no servidor -->
+    <button type="button" id="coffee-open" class="coffee-button" data-coffee-open hidden>
+      <span aria-hidden="true">☕</span>
+      <span id="coffee-open-text" class="coffee-button__text" data-i18n="coffee.button">Buy me a coffee</span>
+    </button>
+    <label class="lang-select">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+      <select id="lang-select" aria-label="Language" data-i18n-attr="aria-label:lang.label"></select>
+    </label>
     <button
       type="button"
       id="theme-toggle"
       class="theme-toggle"
       aria-label="Dark theme"
+      data-i18n-attr="aria-label:theme.label"
       aria-pressed="false"
     >
       <svg class="theme-toggle__moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
       <svg class="theme-toggle__sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" /></svg>
     </button>
-    <img src="img/iconlibrary.png" alt="" class="header__logo" />
+    </div>
+    <img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="180" height="180" alt="" class="header__logo" />
     <div>
       <h1 class="header__title">Icon Library</h1>
       <div class="header__subtitle">
-        <p>A reference for choosing menu and interface icons:</p>
+        <p data-i18n="header.intro">A reference for choosing menu and interface icons:</p>
         <ul class="header__subtitle-list">
-          <li><strong>Click</strong> to copy;</li>
-          <li><strong>Right-click</strong> copies the alternative (SVG).</li>
+          <li data-i18n-html="header.clickHtml"><strong>Click</strong> to copy;</li>
+          <li data-i18n-html="header.rightClickHtml"><strong>Right-click</strong> copies the alternative (SVG).</li>
         </ul>
       </div>
     </div>
   </header>
   <!-- Publicidade (Google AdSense): configurada em js/models/adsConfig.js.
        Laterais flutuantes; faixa horizontal quando elas não cabem na janela. -->
-  <aside class="ad ad--banner" data-ad="banner" aria-label="Advertisement" hidden>
-    <span class="ad__label">Advertisement</span>
+  <aside class="ad ad--banner" data-ad="banner" aria-label="Advertisement" data-i18n-attr="aria-label:ad.label" hidden>
+    <span class="ad__label" data-i18n="ad.label">Advertisement</span>
     <div class="ad__unit"></div>
   </aside>
-  <aside class="ad ad--rail ad--rail-left" data-ad="railLeft" aria-label="Advertisement" hidden>
-    <span class="ad__label">Advertisement</span>
+  <aside class="ad ad--rail ad--rail-left" data-ad="railLeft" aria-label="Advertisement" data-i18n-attr="aria-label:ad.label" hidden>
+    <span class="ad__label" data-i18n="ad.label">Advertisement</span>
     <div class="ad__unit"></div>
   </aside>
-  <aside class="ad ad--rail ad--rail-right" data-ad="railRight" aria-label="Advertisement" hidden>
-    <span class="ad__label">Advertisement</span>
+  <aside class="ad ad--rail ad--rail-right" data-ad="railRight" aria-label="Advertisement" data-i18n-attr="aria-label:ad.label" hidden>
+    <span class="ad__label" data-i18n="ad.label">Advertisement</span>
     <div class="ad__unit"></div>
   </aside>
-  <p class="sources-note">
+  <p class="sources-note" data-i18n-html="sources.noteHtml">
     The <strong>vector</strong> sets provide copy-and-paste-ready SVG, inherit
     the text color, and do not rely on installed fonts. The
     <strong>emojis</strong> depend on the system font — the newest ones do not
@@ -78,7 +105,7 @@
           aria-expanded="false"
           aria-controls="icon-set-panel"
         >
-          <span id="icon-set-button-text">Select</span>
+          <span id="icon-set-button-text" data-i18n="set.select">Select</span>
           <span class="icon-set__arrow" aria-hidden="true"></span>
         </button>
         <div
@@ -86,6 +113,7 @@
           id="icon-set-panel"
           role="listbox"
           aria-label="Icon set"
+          data-i18n-attr="aria-label:set.label"
           hidden
         ></div>
       </div>
@@ -97,7 +125,7 @@
           aria-expanded="false"
           aria-controls="groups-panel"
         >
-          <span id="groups-button-text">All categories</span>
+          <span id="groups-button-text" data-i18n="categories.all">All categories</span>
           <span class="groups-menu__arrow" aria-hidden="true"></span>
         </button>
         <div class="groups-menu__panel" id="groups-panel" hidden>
@@ -106,6 +134,7 @@
               type="button"
               id="groups-clear"
               class="groups-menu__clear"
+              data-i18n="categories.clear"
             >
               Clear selection
             </button>
@@ -130,6 +159,8 @@
         <input
           id="search-bar"
           placeholder="Type to filter (e.g., home, book, heart)..."
+          aria-label="Search icons by name"
+          data-i18n-attr="placeholder:search.placeholder;aria-label:search.label"
         />
       </div>
       <button
@@ -138,6 +169,7 @@
         class="pill-control scratchpad-open"
         aria-expanded="false"
         aria-controls="scratchpad-body"
+        data-i18n="scratchpad.open"
       >
         Open Scratchpad
       </button>
@@ -147,32 +179,34 @@
         id="open-ile"
         class="pill-control ile-open"
         title="Open an icon project saved by the editor (.ile)"
+        data-i18n="ile.open"
+        data-i18n-attr="title:ile.openTitle"
       >
         Open .ile
       </button>
     </div>
     <!-- Aplicado ao que é copiado, baixado e enviado ao scratchpad -->
-    <div class="customize" role="group" aria-label="Icon style for copy and download">
+    <div class="customize" role="group" aria-label="Icon style for copy and download" data-i18n-attr="aria-label:style.group">
       <label class="customize__field">
-        <span>Size</span>
+        <span data-i18n="style.size">Size</span>
         <input type="range" id="style-size" min="12" max="128" step="4" value="24" />
         <output id="style-size-value" for="style-size">24px</output>
       </label>
       <label class="customize__field">
-        <span>Stroke</span>
+        <span data-i18n="style.stroke">Stroke</span>
         <input type="range" id="style-stroke" min="0.5" max="3" step="0.25" value="2" />
         <output id="style-stroke-value" for="style-stroke">2</output>
       </label>
       <label class="customize__field">
-        <span>Color</span>
+        <span data-i18n="style.color">Color</span>
         <input type="color" id="style-color" value="#2c3e50" />
         <output id="style-color-value" for="style-color">text color</output>
       </label>
-      <button type="button" id="style-reset" class="customize__reset">Reset</button>
+      <button type="button" id="style-reset" class="customize__reset" data-i18n="style.reset">Reset</button>
     </div>
     <label class="supported-filter" id="supported-filter-field"
-      ><input type="checkbox" id="only-supported" checked /> Only those with
-      a design on this machine</label
+      ><input type="checkbox" id="only-supported" checked />
+      <span data-i18n="filter.supported">Only those with a design on this machine</span></label
     >
   </div>
   <p id="summary" class="summary"></p>
@@ -184,11 +218,11 @@
       <span class="fan__card fan__card--4"></span>
       <span class="fan__card fan__card--5"></span>
     </div>
-    <p class="loading__text" id="loader-text">Loading icons…</p>
+    <p class="loading__text" id="loader-text" data-i18n="loading.icons">Loading icons…</p>
   </div>
   <div id="emoji-container"></div>
   <!-- Scratchpad: gaveta no canto direito; a aba fica sempre à vista -->
-  <aside class="scratchpad" id="scratchpad" aria-label="Scratchpad">
+  <aside class="scratchpad" id="scratchpad" aria-label="Scratchpad" data-i18n-attr="aria-label:scratchpad.title">
     <button
       type="button"
       id="scratchpad-tab"
@@ -196,21 +230,23 @@
       aria-expanded="false"
       aria-controls="scratchpad-body"
       title="Open or close the scratchpad"
+      data-i18n-attr="title:scratchpad.tabTitle"
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M12 20h9" />
         <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
       </svg>
-      <span>Scratchpad</span>
+      <span data-i18n="scratchpad.title">Scratchpad</span>
     </button>
     <div class="scratchpad__body" id="scratchpad-body" inert>
       <div class="scratchpad__header">
-        <h2 class="scratchpad__title">Scratchpad</h2>
+        <h2 class="scratchpad__title" data-i18n="scratchpad.title">Scratchpad</h2>
         <button
           type="button"
           id="scratchpad-close"
           class="scratchpad__close"
           aria-label="Close scratchpad"
+          data-i18n-attr="aria-label:scratchpad.closeLabel"
         >
           ×
         </button>
@@ -223,21 +259,23 @@
           spellcheck="false"
           aria-label="Scratchpad content"
           placeholder="Click + on an icon to add its SVG here, or type freely."
+          data-i18n-attr="aria-label:scratchpad.content;placeholder:scratchpad.placeholder"
         ></textarea>
         <!-- Anúncio da gaveta: só é pedido ao AdSense com ela aberta -->
-        <aside class="ad ad--drawer" data-ad="scratchpad" aria-label="Advertisement" hidden>
-          <span class="ad__label">Advertisement</span>
+        <aside class="ad ad--drawer" data-ad="scratchpad" aria-label="Advertisement" data-i18n-attr="aria-label:ad.label" hidden>
+          <span class="ad__label" data-i18n="ad.label">Advertisement</span>
           <div class="ad__unit"></div>
         </aside>
       </div>
       <div class="scratchpad__actions">
-        <button type="button" id="scratchpad-clear" class="scratchpad__button">
+        <button type="button" id="scratchpad-clear" class="scratchpad__button" data-i18n="scratchpad.clear">
           Clear
         </button>
         <button
           type="button"
           id="scratchpad-copy"
           class="scratchpad__button scratchpad__button--primary"
+          data-i18n="scratchpad.copyAll"
         >
           Copy all
         </button>
@@ -251,35 +289,36 @@
     <div class="editor__layout">
       <header class="editor__header">
         <h2 id="editor-title" class="editor__title">
-          Edit icon <span id="editor-name" class="editor__name"></span>
+          <span data-i18n="editor.title">Edit icon</span> <span id="editor-name" class="editor__name"></span>
         </h2>
-        <button type="button" id="editor-close" class="editor__close" aria-label="Close editor">×</button>
+        <button type="button" id="editor-close" class="editor__close" aria-label="Close editor" data-i18n-attr="aria-label:editor.close">×</button>
       </header>
 
       <aside class="editor__side">
-        <h3 class="editor__heading">Elements</h3>
-        <ul id="editor-elements" class="editor__elements" aria-label="Elements"></ul>
-        <div class="editor__buttons" aria-label="Add a shape">
-          <button type="button" data-add="line">+ Line</button>
-          <button type="button" data-add="circle">+ Circle</button>
-          <button type="button" data-add="rect">+ Rect</button>
-          <button type="button" data-add="path">+ Curve</button>
+        <h3 class="editor__heading" data-i18n="editor.elements">Elements</h3>
+        <ul id="editor-elements" class="editor__elements" aria-label="Elements" data-i18n-attr="aria-label:editor.elements"></ul>
+        <div class="editor__buttons" aria-label="Add a shape" data-i18n-attr="aria-label:editor.addShape">
+          <button type="button" data-add="line" data-i18n="editor.addLine">+ Line</button>
+          <button type="button" data-add="circle" data-i18n="editor.addCircle">+ Circle</button>
+          <button type="button" data-add="rect" data-i18n="editor.addRect">+ Rect</button>
+          <button type="button" data-add="path" data-i18n="editor.addCurve">+ Curve</button>
           <button
             type="button"
             id="editor-add-icon"
             class="editor__add-icon"
             aria-expanded="false"
             aria-controls="editor-picker"
+            data-i18n="editor.iconOnTop"
           >
             + Icon on top
           </button>
         </div>
 
         <!-- Busca de outro ícone para sobrepor -->
-        <section id="editor-picker" class="editor__picker" aria-label="Add another icon" hidden>
+        <section id="editor-picker" class="editor__picker" aria-label="Add another icon" data-i18n-attr="aria-label:editor.pickerLabel" hidden>
           <div class="editor__picker-bar">
-            <select id="editor-picker-set" aria-label="Icon set"></select>
-            <button type="button" id="editor-picker-close" class="editor__picker-close" aria-label="Close icon search">×</button>
+            <select id="editor-picker-set" aria-label="Icon set" data-i18n-attr="aria-label:set.label"></select>
+            <button type="button" id="editor-picker-close" class="editor__picker-close" aria-label="Close icon search" data-i18n-attr="aria-label:editor.pickerClose">×</button>
           </div>
           <input
             type="search"
@@ -287,87 +326,118 @@
             class="editor__picker-search"
             placeholder="Search icons…"
             aria-label="Search icons"
+            data-i18n-attr="placeholder:editor.pickerSearch;aria-label:editor.pickerSearch"
           />
           <div id="editor-picker-results" class="editor__picker-results"></div>
         </section>
 
         <!-- Cor e espessura da forma (ou do ícone) selecionado -->
-        <section id="editor-style" class="editor__style" aria-label="Selected shape style" hidden>
-          <h3 class="editor__heading">Selected</h3>
+        <section id="editor-style" class="editor__style" aria-label="Selected shape style" data-i18n-attr="aria-label:editor.selectedStyle" hidden>
+          <h3 class="editor__heading" data-i18n="editor.selected">Selected</h3>
           <div class="editor__style-row">
-            <label for="editor-color">Color</label>
+            <label for="editor-color" data-i18n="editor.color">Color</label>
             <input type="color" id="editor-color" value="#2c3e50" />
-            <output id="editor-color-value" for="editor-color">text color</output>
-            <button type="button" id="editor-color-reset" class="editor__style-reset" title="Back to the text color (currentColor)">Text color</button>
+            <output id="editor-color-value" for="editor-color" data-i18n="style.textColor">text color</output>
+            <button type="button" id="editor-color-reset" class="editor__style-reset" title="Back to the text color (currentColor)" data-i18n="editor.textColor" data-i18n-attr="title:editor.textColorTitle">Text color</button>
           </div>
           <div class="editor__style-row" id="editor-stroke-field">
-            <label for="editor-stroke">Stroke</label>
+            <label for="editor-stroke" data-i18n="editor.stroke">Stroke</label>
             <input type="range" id="editor-stroke" min="0.25" max="4" step="0.25" value="2" />
             <output id="editor-stroke-value" for="editor-stroke">2</output>
           </div>
         </section>
 
-        <h3 class="editor__heading">Transform</h3>
-        <p class="editor__note">Applies to the selected shape, or to the whole icon when nothing is selected.</p>
+        <h3 class="editor__heading" data-i18n="editor.transform">Transform</h3>
+        <p class="editor__note" data-i18n="editor.transformNote">Applies to the selected shape, or to the whole icon when nothing is selected.</p>
         <div class="editor__buttons editor__buttons--grid">
-          <button type="button" data-op="girar" title="Rotate 90°">↻ 90°</button>
-          <button type="button" data-op="espelharH" title="Flip horizontally">⇋ Flip</button>
-          <button type="button" data-op="espelharV" title="Flip vertically">⇅ Flip</button>
-          <button type="button" data-op="esquerda" title="Move left">←</button>
-          <button type="button" data-op="cima" title="Move up">↑</button>
-          <button type="button" data-op="direita" title="Move right">→</button>
-          <button type="button" data-op="diminuir" title="Shrink 10%">− Size</button>
-          <button type="button" data-op="baixo" title="Move down">↓</button>
-          <button type="button" data-op="aumentar" title="Grow 10%">+ Size</button>
+          <button type="button" data-op="girar" title="Rotate 90°" data-i18n-attr="title:editor.rotate">↻ 90°</button>
+          <button type="button" data-op="espelharH" title="Flip horizontally" data-i18n-attr="title:editor.flipH">⇋ <span data-i18n="editor.flip">Flip</span></button>
+          <button type="button" data-op="espelharV" title="Flip vertically" data-i18n-attr="title:editor.flipV">⇅ <span data-i18n="editor.flip">Flip</span></button>
+          <button type="button" data-op="esquerda" title="Move left" data-i18n-attr="title:editor.moveLeft;aria-label:editor.moveLeft">←</button>
+          <button type="button" data-op="cima" title="Move up" data-i18n-attr="title:editor.moveUp;aria-label:editor.moveUp">↑</button>
+          <button type="button" data-op="direita" title="Move right" data-i18n-attr="title:editor.moveRight;aria-label:editor.moveRight">→</button>
+          <button type="button" data-op="diminuir" title="Shrink 10%" data-i18n-attr="title:editor.shrink">− <span data-i18n="editor.size">Size</span></button>
+          <button type="button" data-op="baixo" title="Move down" data-i18n-attr="title:editor.moveDown;aria-label:editor.moveDown">↓</button>
+          <button type="button" data-op="aumentar" title="Grow 10%" data-i18n-attr="title:editor.grow">+ <span data-i18n="editor.size">Size</span></button>
         </div>
 
         <label class="editor__snap">
-          Snap to grid
+          <span data-i18n="editor.snap">Snap to grid</span>
           <select id="editor-snap">
-            <option value="1">1 unit</option>
-            <option value="0.5" selected>½ unit</option>
-            <option value="0.25">¼ unit</option>
-            <option value="0">Off</option>
+            <option value="1" data-i18n="editor.snap1">1 unit</option>
+            <option value="0.5" selected data-i18n="editor.snapHalf">½ unit</option>
+            <option value="0.25" data-i18n="editor.snapQuarter">¼ unit</option>
+            <option value="0" data-i18n="editor.snapOff">Off</option>
           </select>
         </label>
       </aside>
 
       <div class="editor__stage">
-        <svg id="editor-canvas" class="editor__canvas" tabindex="0" role="img" aria-label="Icon being edited"></svg>
-        <p class="editor__hint">
+        <svg id="editor-canvas" class="editor__canvas" tabindex="0" role="img" aria-label="Icon being edited" data-i18n-attr="aria-label:editor.canvas"></svg>
+        <p class="editor__hint" data-i18n="editor.hint">
           Drag the points to reshape · drag a shape to move it · arrows move ·
           Delete removes · Ctrl+Z undoes
         </p>
       </div>
 
       <div class="editor__code">
-        <div id="editor-previews" class="editor__previews" aria-label="Preview at real sizes"></div>
-        <label class="editor__heading" for="editor-code">SVG code</label>
+        <div id="editor-previews" class="editor__previews" aria-label="Preview at real sizes" data-i18n-attr="aria-label:editor.previews"></div>
+        <label class="editor__heading" for="editor-code" data-i18n="editor.code">SVG code</label>
         <textarea id="editor-code" class="editor__textarea" spellcheck="false" wrap="soft"></textarea>
         <p id="editor-error" class="editor__error" role="status"></p>
       </div>
 
       <footer class="editor__footer">
-        <button type="button" id="editor-undo">Undo</button>
-        <button type="button" id="editor-redo">Redo</button>
-        <button type="button" id="editor-open" title="Open a project saved as .ile (or drop the file here)">Open .ile</button>
-        <button type="button" id="editor-save" title="Save this project as a .ile file, to keep editing later">Save .ile</button>
-        <button type="button" id="editor-share" title="Copy a link that opens this project in the editor">Share link</button>
+        <button type="button" id="editor-undo" data-i18n="editor.undo">Undo</button>
+        <button type="button" id="editor-redo" data-i18n="editor.redo">Redo</button>
+        <button type="button" id="editor-open" title="Open a project saved as .ile (or drop the file here)" data-i18n="editor.openIle" data-i18n-attr="title:editor.openIleTitle">Open .ile</button>
+        <button type="button" id="editor-save" title="Save this project as a .ile file, to keep editing later" data-i18n="editor.saveIle" data-i18n-attr="title:editor.saveIleTitle">Save .ile</button>
+        <button type="button" id="editor-share" title="Copy a link that opens this project in the editor" data-i18n="editor.share" data-i18n-attr="title:editor.shareTitle">Share link</button>
         <span class="editor__spacer"></span>
-        <a id="editor-studio" class="editor__studio" target="_blank" rel="noopener noreferrer" hidden>Open in Lucide Studio ↗</a>
-        <button type="button" id="editor-scratchpad">Add to scratchpad</button>
-        <button type="button" id="editor-download">Download SVG</button>
-        <button type="button" id="editor-png">Download PNG</button>
-        <button type="button" id="editor-copy" class="editor__primary">Copy SVG</button>
+        <a id="editor-studio" class="editor__studio" target="_blank" rel="noopener noreferrer" data-i18n="editor.studio" hidden>Open in Lucide Studio ↗</a>
+        <button type="button" id="editor-scratchpad" data-i18n="editor.toScratchpad">Add to scratchpad</button>
+        <button type="button" id="editor-download" data-i18n="editor.downloadSvg">Download SVG</button>
+        <button type="button" id="editor-png" data-i18n="editor.downloadPng">Download PNG</button>
+        <button type="button" id="editor-copy" class="editor__primary" data-i18n="editor.copySvg">Copy SVG</button>
       </footer>
     </div>
   </dialog>
+  <!-- Pague um café: pagamento no Stripe, código de apoiador, 30 dias sem anúncios -->
+  <dialog id="coffee" class="coffee" aria-labelledby="coffee-title">
+    <button type="button" id="coffee-close" class="coffee__close" aria-label="Close" data-i18n-attr="aria-label:coffee.close">×</button>
+    <div class="coffee__cup" aria-hidden="true">☕</div>
+    <section id="coffee-invite">
+      <h2 id="coffee-title" class="coffee__title" data-i18n="coffee.title">Buy the developer a coffee</h2>
+      <p id="coffee-text" class="coffee__text"></p>
+      <a id="coffee-pay" class="coffee__pay" href="#" rel="noopener">Buy a coffee</a>
+      <p class="coffee__note" data-i18n="coffee.secure">Secure payment by Stripe — your card details never reach this site.</p>
+    </section>
+    <section id="coffee-thanks" hidden>
+      <h2 class="coffee__title" data-i18n="coffee.thanksTitle">Thank you for the coffee!</h2>
+      <p id="coffee-thanks-text" class="coffee__text"></p>
+      <p id="coffee-code-help" class="coffee__note"></p>
+      <div class="coffee__code">
+        <code id="coffee-code-value"></code>
+        <button type="button" id="coffee-copy" data-i18n="coffee.copyCode">Copy code</button>
+      </div>
+    </section>
+    <form id="coffee-form" class="coffee__form">
+      <label for="coffee-code" data-i18n="coffee.haveCode">Already bought a coffee? Use your supporter code on this device:</label>
+      <div class="coffee__form-row">
+        <input id="coffee-code" autocomplete="off" spellcheck="false" placeholder="CAFE-XXXX-XXXX" aria-label="Supporter code" data-i18n-attr="aria-label:coffee.codeLabel" />
+        <button type="submit" data-i18n="coffee.apply">Apply</button>
+      </div>
+    </form>
+    <p id="coffee-status" class="coffee__status" role="status"></p>
+  </dialog>
   <footer class="site-footer">
-    <nav aria-label="Site">
-      <a href="about.html">About &amp; guide</a>
-      <a href="privacy.html">Privacy</a>
+    <nav aria-label="Site" data-i18n-attr="aria-label:nav.label">
+      <a href="guide.html" data-i18n-page="guide" data-i18n="footer.guide">Guide</a>
+      <a href="about.html" data-i18n-page="about" data-i18n="footer.about">About &amp; guide</a>
+      <a href="privacy.html" data-i18n-page="privacy" data-i18n="footer.privacy">Privacy</a>
+      <button type="button" class="site-footer__coffee" data-coffee-open hidden>☕ <span data-i18n="coffee.button">Buy me a coffee</span></button>
     </nav>
-    <p>
+    <p data-i18n="footer.credits">
       Icons belong to their authors: Lucide (ISC), Feather (MIT), Bootstrap
       Icons (MIT), emoji data from unicode-emoji-json (MIT).
     </p>

@@ -3,6 +3,7 @@ import { linkDoStudio } from "../models/IconModel.js";
 import { lerFragmento, linkDoProjeto } from "../models/linkCodec.js";
 import { nomeDeArquivo } from "../models/svgTools.js";
 import { copiarTexto } from "./clipboard.js";
+import { t, tErro } from "../i18n/i18n.js";
 import { baixarPngDeSvg, baixarSvg, baixarTexto } from "./download.js";
 
 // Cor de "currentColor" num PNG solto, onde não há texto para herdar a cor
@@ -59,7 +60,7 @@ export class EditorController {
         const fixos = model.transformar(operacao);
         this.desenhar();
         if (fixos)
-          this.avisar(`${fixos} element(s) can only be changed in the code`);
+          this.avisar(t("editor.codeOnlyChanged", { n: fixos }));
       },
       aoEncaixe: (passo) => {
         model.passo = passo;
@@ -84,18 +85,18 @@ export class EditorController {
       aoRefazer: mudar(() => model.refazerUltimo()),
       aoCopiar: () =>
         copiarTexto(model.svg()).then(
-          () => this.avisar("Edited SVG copied"),
-          () => this.avisar("Copy blocked: the page needs https or localhost"),
+          () => this.avisar(t("editor.copied")),
+          () => this.avisar(t("toast.copyBlocked")),
         ),
       aoBaixarSvg: () => {
         baixarSvg(model.svg(), this.arquivo);
-        this.avisar(`Downloading ${this.arquivo}.svg`);
+        this.avisar(t("toast.downloading", { file: `${this.arquivo}.svg` }));
       },
       aoBaixarPng: () => {
         const tamanho = parseInt(model.raiz.width, 10) || 24;
         baixarPngDeSvg(model.svg(), tamanho, COR_PNG, this.arquivo).then(
-          () => this.avisar(`Downloading ${this.arquivo}.png (${tamanho}px)`),
-          () => this.avisar("Could not create the PNG"),
+          () => this.avisar(t("toast.downloadingPng", { file: `${this.arquivo}.png`, size: tamanho })),
+          () => this.avisar(t("toast.pngFailed")),
         );
       },
       aoScratchpad: () => this.aoAdicionar(this.item, model.svg()),
@@ -115,12 +116,12 @@ export class EditorController {
     try {
       pedido = lerFragmento(location.hash);
     } catch (erro) {
-      this.avisar(erro.message);
+      this.avisar(tErro(erro));
       return;
     }
     if (!pedido) return;
     if (pedido.conteudo.length > TAMANHO_MAXIMO_ILE) {
-      this.avisar("The icon in this link is too large");
+      this.avisar(t("editor.linkTooLarge"));
       return;
     }
     try {
@@ -136,9 +137,9 @@ export class EditorController {
       }
       this.view.abrir(this.item.nome);
       this.desenhar();
-      this.avisar("Icon opened from the link");
+      this.avisar(t("editor.openedLink"));
     } catch (erro) {
-      this.avisar(erro.message);
+      this.avisar(tErro(erro));
     }
   }
 
@@ -155,8 +156,8 @@ export class EditorController {
     });
     const link = linkDoProjeto(location.origin + location.pathname, projeto);
     copiarTexto(link).then(
-      () => this.avisar("Link copied — it opens this project in the editor"),
-      () => this.avisar("Copy blocked: the page needs https or localhost"),
+      () => this.avisar(t("editor.linkCopied")),
+      () => this.avisar(t("toast.copyBlocked")),
     );
   }
 
@@ -169,16 +170,16 @@ export class EditorController {
     });
     const arquivo = `${nomeDeArquivo(nome)}.ile`;
     baixarTexto(JSON.stringify(projeto, null, 2), arquivo, "application/json");
-    this.avisar(`Saving ${arquivo}`);
+    this.avisar(t("editor.saving", { file: arquivo }));
   }
 
   async abrirArquivo(arquivo) {
     if (!/\.ile$/i.test(arquivo.name)) {
-      this.avisar("Choose a .ile file saved by the editor");
+      this.avisar(t("editor.chooseIle"));
       return;
     }
     if (arquivo.size > TAMANHO_MAXIMO_ILE) {
-      this.avisar("This file is too large to be an icon project");
+      this.avisar(t("editor.ileTooLarge"));
       return;
     }
     try {
@@ -189,9 +190,9 @@ export class EditorController {
       this.item = { nome, editavel };
       this.view.abrir(nome);
       this.desenhar();
-      this.avisar(`Opened ${arquivo.name}`);
+      this.avisar(t("editor.opened", { file: arquivo.name }));
     } catch (erro) {
-      this.avisar(erro.message);
+      this.avisar(tErro(erro));
     }
   }
 
@@ -205,7 +206,7 @@ export class EditorController {
     try {
       this.model.carregar(svg, item.nome);
     } catch (erro) {
-      this.avisar(erro.message);
+      this.avisar(tErro(erro));
       return;
     }
     this.view.abrir(item.nome);
@@ -216,7 +217,7 @@ export class EditorController {
   async buscar(chave, termo) {
     // Só a busca mais recente vai para a tela
     const minha = ++this.buscaAtual;
-    this.view.mostrarResultados(`Loading ${this.catalogo.rotulo(chave)}…`);
+    this.view.mostrarResultados(t("loading.set", { set: this.catalogo.rotulo(chave) }));
     try {
       const itens = await this.catalogo.buscar(chave, termo);
       if (minha !== this.buscaAtual) return;
@@ -224,11 +225,11 @@ export class EditorController {
       this.view.mostrarResultados(
         itens.length
           ? itens.map((item) => ({ nome: item.nome, svg: item.svg }))
-          : "No icon found.",
+          : t("editor.noIcon"),
       );
     } catch (erro) {
       if (minha === this.buscaAtual)
-        this.view.mostrarResultados(`Could not load the icons: ${erro.message}`);
+        this.view.mostrarResultados(t("editor.loadFailed", { message: tErro(erro) }));
     }
   }
 
@@ -240,11 +241,11 @@ export class EditorController {
       this.desenhar();
       this.avisar(
         fixos
-          ? `${item.nome} added — ${fixos} element(s) could not be resized`
-          : `${item.nome} added — drag it, or use Transform to place it`,
+          ? t("editor.addedFixed", { name: item.nome, n: fixos })
+          : t("editor.added", { name: item.nome }),
       );
     } catch (erro) {
-      this.avisar(erro.message);
+      this.avisar(tErro(erro));
     }
   }
 
@@ -255,7 +256,7 @@ export class EditorController {
       this.desenhar({ atualizarCodigo: false });
       this.view.mostrarErro("");
     } catch (erro) {
-      this.view.mostrarErro(erro.message);
+      this.view.mostrarErro(tErro(erro));
     }
   }
 

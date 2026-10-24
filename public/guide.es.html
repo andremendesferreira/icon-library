@@ -1,0 +1,258 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de pages/guide/es.html — edite lá e rode npm run pages -->
+<html
+  lang="es"
+  data-page="guide"
+  data-label-to-dark="Cambiar al tema oscuro"
+  data-label-to-light="Cambiar al tema claro"
+>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Guía paso a paso de Icon Library: búsqueda y filtros, estilo de los iconos, copia y descargas, scratchpad, editor de iconos, proyectos .ile, enlaces para IA y atajos de teclado." />
+  <title>Guía — Icon Library</title>
+  <meta name="theme-color" content="#f5f7fb" />
+  <link rel="canonical" href="https://iconlibrary.io/guide.es.html" />
+  <link rel="alternate" hreflang="en" href="https://iconlibrary.io/guide.html" />
+  <link rel="alternate" hreflang="es" href="https://iconlibrary.io/guide.es.html" />
+  <link rel="alternate" hreflang="fr" href="https://iconlibrary.io/guide.fr.html" />
+  <link rel="alternate" hreflang="de" href="https://iconlibrary.io/guide.de.html" />
+  <link rel="alternate" hreflang="ru" href="https://iconlibrary.io/guide.ru.html" />
+  <link rel="alternate" hreflang="zh-CN" href="https://iconlibrary.io/guide.zh-CN.html" />
+  <link rel="alternate" hreflang="pt-BR" href="https://iconlibrary.io/guide.pt-BR.html" />
+  <link rel="alternate" hreflang="ja" href="https://iconlibrary.io/guide.ja.html" />
+  <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/guide.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Icon Library" />
+  <meta property="og:url" content="https://iconlibrary.io/guide.es.html" />
+  <meta property="og:title" content="Guía — Icon Library" />
+  <meta property="og:description" content="Guía paso a paso de Icon Library: búsqueda y filtros, estilo de los iconos, copia y descargas, scratchpad, editor de iconos, proyectos .ile, enlaces para IA y atajos de teclado." />
+  <meta property="og:image" content="https://iconlibrary.io/img/og-image.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="stylesheet" href="css/icon-library.css" />
+  <script src="js/i18n/detect.js"></script>
+  <script src="js/views/theme.js"></script>
+  <main class="page">
+    <div class="page__top">
+      <a class="page__back" href="./?lang=es">← Volver a los iconos</a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="Idioma"></select>
+      </label>
+    </div>
+    <h1 class="page__title">Guía</h1>
+    <p class="page__lead">Todo lo que hace Icon Library, paso a paso. Usa el índice para ir directo a un tema.</p>
+
+    <nav class="page__toc" aria-label="Contenido">
+      <strong>Contenido</strong>
+      <ol>
+        <li><a href="#start">Cómo se usa</a></li>
+        <li><a href="#editor">El editor de iconos</a></li>
+        <li><a href="#scratchpad">El scratchpad</a></li>
+        <li><a href="#ai">Para asistentes de IA</a></li>
+        <li><a href="#share">Compartir una búsqueda</a></li>
+        <li><a href="#shortcuts">Atajos de teclado</a></li>
+        <li><a href="#preferences">Tema, idioma y preferencias</a></li>
+        <li><a href="#coffee">Invítame a un café</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="start">Cómo se usa</h2>
+    <ol class="page__steps">
+      <li>
+        <strong>Elige un conjunto</strong> en el botón <em>Elegir</em>. No se
+        descarga nada hasta entonces, y cada conjunto queda en caché mientras la
+        página esté abierta.
+      </li>
+      <li>
+        <strong>Acota</strong> con <em>Todas las categorías</em> (puedes marcar
+        varias) y con el campo de búsqueda, que busca por el nombre de los iconos.
+      </li>
+      <li>
+        <strong>Define el estilo</strong> en los controles Tamaño, Trazo y Color.
+        Se aplican a todo lo que copias, descargas o envías al scratchpad, y la
+        vista previa sigue el trazo y el color. Solo Lucide y Feather tienen trazo;
+        los emojis conservan sus propios colores.
+      </li>
+      <li>
+        <strong>Haz clic en un icono</strong> para copiar su SVG (o el carácter
+        del emoji). El <strong>clic derecho</strong> copia la alternativa: el
+        nombre del icono en los conjuntos vectoriales, o el emoji dentro de un SVG.
+      </li>
+      <li>
+        Usa los botones de cada tarjeta:
+        <ul>
+          <li><strong>+</strong> añade el icono al scratchpad;</li>
+          <li>
+            <strong>⋯</strong> abre las descargas (SVG, PNG al tamaño elegido) y
+            <em>Copiar como componente React</em>;
+          </li>
+          <li>
+            el <strong>lápiz</strong> (todos los conjuntos vectoriales) abre el
+            editor de iconos.
+          </li>
+        </ul>
+      </li>
+    </ol>
+    <figure class="page__figure">
+      <img src="img/guide/controls.webp" width="1000" height="333" alt="Conjunto de iconos, categorías, búsqueda y controles de estilo." loading="lazy" />
+      <figcaption>Conjunto de iconos, categorías, búsqueda y controles de estilo.</figcaption>
+    </figure>
+    <figure class="page__figure">
+      <img src="img/guide/cards.webp" width="770" height="194" alt="Botones de la tarjeta: lápiz (editar), + (scratchpad) y ⋯ (descargas y React)." loading="lazy" />
+      <figcaption>Botones de la tarjeta: lápiz (editar), + (scratchpad) y ⋯ (descargas y React).</figcaption>
+    </figure>
+
+    <h2 id="editor">El editor de iconos</h2>
+    <p>
+      El lápiz de una tarjeta abre el icono sobre una cuadrícula, listo para
+      cambiarlo. El icono llega con el tamaño, el trazo y el color que elegiste.
+    </p>
+    <figure class="page__figure">
+      <img src="img/guide/editor.webp" width="1000" height="695" alt="El editor: formas a la izquierda, puntos en la cuadrícula, código y vistas previas a la derecha." loading="lazy" />
+      <figcaption>El editor: formas a la izquierda, puntos en la cuadrícula, código y vistas previas a la derecha.</figcaption>
+    </figure>
+    <ul>
+      <li>
+        <strong>Cambiar la forma:</strong> selecciona una forma en la lista o en la
+        cuadrícula y arrastra sus puntos. Las curvas muestran sus puntos de
+        control, unidos por líneas discontinuas; al mover un punto de la curva, sus
+        controles lo acompañan.
+      </li>
+      <li>
+        <strong>Mover:</strong> arrastra una forma, o usa las flechas del teclado o
+        los botones. Los puntos se ajustan a la cuadrícula (1, ½ o ¼ de unidad, o
+        libre).
+      </li>
+      <li>
+        <strong>Transformar:</strong> girar 90°, voltear y ampliar o reducir — la
+        forma seleccionada, o todo el icono si no hay nada seleccionado.
+      </li>
+      <li>
+        <strong>Añadir y quitar:</strong> nuevas líneas, círculos, rectángulos y
+        curvas; oculta una forma para ver el icono sin ella, o elimínala.
+      </li>
+      <li>
+        <strong>Combinar iconos:</strong> <em>+ Icono encima</em> busca en Lucide,
+        Feather y Bootstrap y coloca otro icono sobre el actual, ajustado a la
+        misma cuadrícula y con su propio estilo: una estrella rellena de Bootstrap
+        puede ir dentro de un corazón de contorno de Lucide. Cada icono tiene un
+        título en la lista que lo selecciona entero, para moverlo, girarlo o
+        redimensionarlo.
+      </li>
+      <li>
+        <strong>Colores:</strong> da a cada forma, o a cada icono, su propio color
+        y grosor de trazo en el panel <em>Selección</em>. <em>Color del texto</em>
+        vuelve a heredar el color del texto que lo rodea; las formas con color
+        propio lo conservan dondequiera que se pegue el icono.
+      </li>
+      <li>
+        <strong>Guardar y seguir después:</strong> <em>Guardar .ile</em> descarga
+        el proyecto como archivo <code>.ile</code>, un pequeño archivo de texto que
+        conserva lo que el SVG solo pierde: de qué icono viene cada forma, las
+        formas ocultas y el nombre. Ábrelo de nuevo con <em>Abrir .ile</em>, en el
+        editor o junto a la búsqueda de la página principal, o suelta el archivo
+        sobre el editor. Abrir un archivo mientras editas se puede deshacer.
+      </li>
+      <li>
+        <strong>Código:</strong> el código SVG junto a la cuadrícula sigue cada
+        cambio, y también puedes escribir en él. Las vistas previas muestran el
+        resultado a 16, 24, 32 y 48 píxeles.
+      </li>
+      <li>
+        <strong>Deshacer</strong> y <strong>Rehacer</strong> (Ctrl+Z, Ctrl+Y);
+        después copia, descarga o envía el icono editado al scratchpad. Los iconos
+        de Lucide y Feather también se pueden abrir en
+        <a href="https://studio.lucide.dev" rel="noopener">Lucide Studio</a>, un
+        editor en línea independiente con herramientas más avanzadas.
+      </li>
+    </ul>
+    <figure class="page__figure">
+      <img src="img/guide/overlay.webp" width="1000" height="695" alt="Una estrella rellena de Bootstrap sobre un corazón de contorno de Lucide, con su propio color." loading="lazy" />
+      <figcaption>Una estrella rellena de Bootstrap sobre un corazón de contorno de Lucide, con su propio color.</figcaption>
+    </figure>
+
+    <h2 id="scratchpad">El scratchpad</h2>
+    <p>
+      La pestaña <em>Scratchpad</em> del borde derecho abre un panel donde reúnes
+      iconos mientras navegas. Cada icono se añade como un comentario HTML con su
+      nombre seguido de su SVG, así que el resultado está listo para pegar en un
+      proyecto. También puedes escribir libremente. <em>Copiar todo</em> copia el
+      contenido y <em>Borrar</em> lo vacía. El texto se guarda en tu navegador, así
+      que sigue ahí la próxima vez.
+    </p>
+    <figure class="page__figure page__figure--narrow">
+      <img src="img/guide/scratchpad.webp" width="505" height="820" alt="El scratchpad reúne iconos como un comentario HTML seguido del SVG." loading="lazy" />
+      <figcaption>El scratchpad reúne iconos como un comentario HTML seguido del SVG.</figcaption>
+    </figure>
+
+    <h2 id="ai">Para asistentes de IA</h2>
+    <p>
+      Los asistentes de IA pueden crear un icono y dártelo como un enlace que lo
+      abre aquí, en el editor, listo para ajustar. El icono viaja dentro del
+      propio enlace, después del <code>#</code>, así que nunca se envía a nuestro
+      servidor. En el editor, <em>Compartir enlace</em> crea el mismo tipo de
+      enlace para tu propio proyecto. Instrucciones para IA:
+      <a href="llms.txt">llms.txt</a>.
+    </p>
+
+    <h2 id="share">Compartir una búsqueda</h2>
+    <p>
+      La barra de direcciones sigue lo que estás viendo, por ejemplo
+      <code>?set=lucide&amp;q=arrow</code>. Copia la dirección para compartir una
+      búsqueda o guardarla en marcadores.
+    </p>
+
+    <h2 id="shortcuts">Atajos de teclado</h2>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Teclas</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Clic</kbd></td><td>Copia el icono (SVG o emoji)</td></tr>
+          <tr><td><kbd>Clic derecho</kbd></td><td>Copia la alternativa (el nombre, o el emoji como SVG)</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Cierra paneles, menús, el scratchpad y el editor</td></tr>
+          <tr><td><kbd>↑ ↓</kbd></td><td>Recorre los conjuntos en la lista de conjuntos</td></tr>
+          <tr><td><kbd>← → ↑ ↓</kbd></td><td>Editor: mueve la forma, el icono o todo el dibujo</td></tr>
+          <tr><td><kbd>Delete / Backspace</kbd></td><td>Editor: elimina la forma o el icono seleccionado</td></tr>
+          <tr><td><kbd>Ctrl+Z</kbd></td><td>Editor: deshacer</td></tr>
+          <tr><td><kbd>Ctrl+Y / Ctrl+Shift+Z</kbd></td><td>Editor: rehacer</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="preferences">Tema, idioma y preferencias</h2>
+    <p>
+      La página sigue el tema claro u oscuro de tu sistema; el botón de la
+      cabecera lo cambia. El idioma se detecta según tu navegador y se puede
+      cambiar en el selector de al lado. Ambas elecciones, el tamaño, el trazo y el
+      color elegidos y el texto del scratchpad se guardan en tu navegador, así que
+      siguen ahí la próxima vez.
+    </p>
+
+    <h2 id="coffee">Invítame a un café</h2>
+    <p>
+      Icon Library es gratis. Si te resulta útil, el botón <em>Invítame a un
+      café</em> (unos 3 US$, pagados de forma segura con Stripe) ayuda a pagar el
+      servidor, el dominio y las herramientas que lo mantienen en marcha. Como
+      agradecimiento, el sitio no te muestra anuncios durante 30 días desde el pago.
+    </p>
+    <p>
+      Después de pagar recibes un <strong>código de colaborador</strong>. Para
+      quitar los anuncios también en otro dispositivo —hasta 3—, abre allí el mismo
+      botón e introduce el código. El botón solo aparece cuando los pagos están
+      disponibles.
+    </p>
+  </main>
+  <footer class="site-footer">
+    <nav aria-label="Sitio">
+      <a href="./?lang=es">Iconos</a>
+      <a href="about.es.html">Acerca de</a>
+      <a href="privacy.es.html">Privacidad</a>
+    </nav>
+    <p class="site-footer__owner">© 2026 André M. Ferreira</p>
+  </footer>
+</html>

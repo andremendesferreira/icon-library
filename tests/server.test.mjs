@@ -95,6 +95,10 @@ test("robots.txt e sitemap.xml com o endereço do site", async () => {
     assert.match(robots, /Sitemap: https:\/\/icons\.example\.com\/sitemap\.xml/);
     const sitemap = (await pedir("/sitemap.xml")).corpo.toString();
     assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/privacy\.html<\/loc>/);
+    // Cada idioma: a página principal (?lang=) e as páginas de texto
+    assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/\?lang=pt-BR<\/loc>/);
+    assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/about\.ja\.html<\/loc>/);
+    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 24);
   } finally {
     delete process.env.SITE_URL;
   }

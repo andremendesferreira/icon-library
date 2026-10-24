@@ -1,4 +1,5 @@
 import { copiarTexto } from "./clipboard.js";
+import { t } from "../i18n/i18n.js";
 
 export class ScratchpadController {
   constructor(model, view, avisar) {
@@ -19,8 +20,11 @@ export class ScratchpadController {
       view.focar();
     });
     view.aoCopiar(() => {
-      if (!model.texto.trim()) return this.avisar("Scratchpad is empty");
-      copiarTexto(model.texto).then(() => this.avisar("Scratchpad copied"));
+      if (!model.texto.trim()) return this.avisar(t("scratchpad.empty"));
+      copiarTexto(model.texto).then(
+        () => this.avisar(t("scratchpad.copied")),
+        () => this.avisar(t("toast.copyBlocked")),
+      );
     });
   }
 
@@ -30,6 +34,6 @@ export class ScratchpadController {
     this.model.adicionar(item.nome, svg);
     this.view.mostrarTexto(this.model.texto, { rolarAoFim: true });
     if (!this.view.aberto) this.view.abrir(true);
-    this.avisar(`Added to scratchpad: ${item.nome}`);
+    this.avisar(t("scratchpad.added", { name: item.nome }));
   }
 }

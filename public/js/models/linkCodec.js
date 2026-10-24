@@ -7,6 +7,7 @@
 //   https://iconlibrary.io/#ile=eyJmb3JtYXRvIjoi…
 //
 // O conteúdo vai depois do "#": não é enviado ao servidor nem fica em logs.
+import { erro } from "./erros.js";
 
 // "%" solto (de "50%", por exemplo) quebraria decodeURIComponent: vira %25
 function decodificarUrl(valor) {
@@ -57,11 +58,9 @@ export function lerFragmento(hash) {
   try {
     return { tipo, conteudo: deBase64(texto).trim(), nome };
   } catch {
-    throw new Error(
-      tipo === "svg"
-        ? "The link has no valid SVG (expected <svg…> or base64)"
-        : "The link has no valid .ile project (expected JSON or base64)",
-    );
+    throw tipo === "svg"
+      ? erro("error.linkSvg", "The link has no valid SVG (expected <svg…> or base64)")
+      : erro("error.linkIle", "The link has no valid .ile project (expected JSON or base64)");
   }
 }
 

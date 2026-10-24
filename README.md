@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/img/iconlibrary.png" alt="Icon Library" width="160">
+  <img src="public/img/logo-360.webp" alt="Icon Library" width="160">
 </p>
 
 <h1 align="center">Icon Library</h1>
@@ -14,7 +14,7 @@
 
 A page for browsing, filtering and copying icons from four sets — **Emoji (Unicode)**, **Lucide**, **Feather** and **Bootstrap Icons** — to use in menus and interfaces. Click an icon to copy its SVG; right-click to copy the alternative.
 
-No framework, no build step, no runtime dependencies: plain HTML, CSS and JavaScript (ES modules, organized as MVC), served by a small Node.js server.
+No framework, no build step and a single runtime dependency (the PostgreSQL driver, used only by the coffee feature): plain HTML, CSS and JavaScript (ES modules, organized as MVC), served by a small Node.js server.
 
 ### Features
 
@@ -30,9 +30,10 @@ No framework, no build step, no runtime dependencies: plain HTML, CSS and JavaSc
 - **Shareable searches:** the address follows the set and search (`?set=lucide&q=arrow`).
 - **Links that open the editor** — made by people (*Share link* in the editor) or by AI assistants: see [For AI assistants](#for-ai-assistants).
 - **Light and dark themes:** follows the system, with a toggle in the header.
+- **8 languages** — English, Español, Français, Deutsch, Русский, 中文（简体）, Português (Brasil), 日本語 — detected from the browser, with a selector in the header (see [Languages](#languages)).
 - **Emoji glyph detection:** emojis your system font cannot draw are flagged and can be hidden.
 - **Fast with large sets:** only categories near the screen are drawn; the rest are drawn as you scroll.
-- **About & guide** and **Privacy** pages, linked in the footer.
+- **Guide**, **About** and **Privacy** pages, linked in the footer — the Guide explains every feature step by step, with screenshots and a table of keyboard shortcuts.
 - **Responsive** from 360 px phones to wide desktops; keyboard support (arrows in the set list, `Esc` closes panels).
 
 ### Icon sets
@@ -95,6 +96,17 @@ They stay off until configured. To turn them on:
 
 With `cliente` empty no Google script is loaded; on `localhost` the areas show as dashed previews.
 
+### Buy me a coffee (no ads for 30 days)
+
+Visitors can buy the developer a coffee (about US$ 3) through Stripe; in return the site shows them no ads for 30 days. The button only appears when Stripe and the database are configured.
+
+1. **Payment:** the button opens a Stripe **Payment Link**. In its settings, *After payment* → redirect to `https://iconlibrary.io/?coffee={CHECKOUT_SESSION_ID}`.
+2. **Confirmation:** back on the site, the page sends the session ID to `POST /api/coffee/redeem`. The server (`scripts/coffee.js`) asks Stripe whether it was paid and stores a row in PostgreSQL (table `coffee_supporters`, created automatically) with a **supporter code** valid until 30 days after the payment.
+3. **No ads:** the browser keeps the code and the end date; while it is valid the AdSense script is not even loaded. The code can be used on up to 3 devices (`POST /api/coffee/claim`), with a limit of 10 attempts per 15 minutes per IP.
+4. **Stored:** only the Stripe session ID, amount, dates, code and device count — no name, e-mail or card data. The privacy policy describes this.
+
+Setup: copy `.env.example` to `.env` and fill in `STRIPE_SECRET_KEY` (a restricted key with *Checkout Sessions: Read* is enough), `STRIPE_PAYMENT_LINK`, `COFFEE_PRICE` and the `PG_*` variables. `docker-compose.yml` reads `.env` and reaches a PostgreSQL on the same server through `host.docker.internal`. Test first with Stripe test-mode keys and a test Payment Link.
+
 ### Icon versions
 
 The packages are pinned in `VERSOES` at the top of `public/js/models/iconSets.js`, so a new release cannot break the page on its own. To upgrade:
@@ -131,12 +143,25 @@ Sets are declared in `FONTES`, in `public/js/models/iconSets.js`. Each entry has
 | Field | Description |
 |---|---|
 | `rotulo` | Name shown in the set list |
-| `rotuloGrupo` | Label of the category button when nothing is selected |
-| `rotuloGrupoAlternativo` | Label used when the categories source is unavailable (grouped by letter) |
+| `rotuloGrupo` | Translation key of the category button label when nothing is selected (`categories.all`) |
+| `rotuloGrupoAlternativo` | Translation key used when the categories source is unavailable, grouped by letter (`letters.all`) |
 | `url` | One URL, or a list; each item is a string or `{ endereco, opcional, resposta: "texto" }` (`opcional`: failure is tolerated; `resposta: "texto"`: read as text) |
 | `montar(data)` | Turns the downloaded data into items: `{ nome, tipo: "svg" \| "emoji", grupo, svg \| char, versao?, editavel? }` — `editavel: true` adds *Open in Lucide Studio* to the editor (24×24 stroke icons only) |
 | `temTraco`, `temCor` | `true` enables the stroke and color controls for the set |
 | `detectaGlifo` | `true` to check whether the system font can draw each item (emoji only) |
+
+### Languages
+
+The language is chosen, in this order, from `?lang=xx` in the address, the choice saved by the selector, the browser's languages (`pt-PT` → Português (Brasil), `zh-TW` → 中文（简体）) and finally English.
+
+- **Main page:** translated in place. `public/js/i18n/detect.js` (in the `<head>`) picks the language and hides the page until `public/js/i18n/i18n.js` has loaded that language's dictionary (`public/js/i18n/<lang>.js`) and applied it to every element marked `data-i18n`, `data-i18n-html` or `data-i18n-attr`. Messages in the JavaScript use `t("key", { values })`; plurals follow `Intl.PluralRules`. Errors thrown by the models carry a code (`models/erros.js`) and are translated where they are shown. For search engines, `?lang=xx` versions are declared with `hreflang`.
+- **Guide, About and Privacy:** one HTML file per language (`guide.pt-BR.html`…), generated by `npm run pages` from `pages/<page>/<lang>.html` plus the dictionaries. Edit the files in `pages/` and run the command; a test fails if the generated pages are out of date. The English page is the default: someone arriving there who prefers another language is sent to that version.
+- **Not translated:** icon and category names (they come from the packages and are what the search matches), SVG code and `llms.txt`.
+- **Adding a language:** add it to `IDIOMAS` in `detect.js`, `scripts/build-pages.mjs` and `tests/i18n.test.mjs`, create `public/js/i18n/<lang>.js` (same keys as `en.js` — the test checks keys, placeholders and HTML tags), `pages/guide/<lang>.html`, `pages/about/<lang>.html` and `pages/privacy/<lang>.html`, add the `hreflang` line to `index.html`, and run `npm run pages`. Right-to-left languages (Arabic, Hebrew) also need `dir="rtl"` and CSS review.
+
+The Guide's screenshots (`public/img/guide/*.webp`) were taken from the site in English and are shared by every language; retake them when the interface changes.
+
+The translations were made by AI and should be reviewed by native speakers — the privacy policy in particular, which is a legal text.
 
 ### For AI assistants
 
@@ -185,7 +210,9 @@ A `.ile` file is UTF-8 JSON text:
 icon-library/
 ├── public/                             the site
 │   ├── index.html                      main page
-│   ├── about.html, privacy.html        guide and privacy policy
+│   ├── guide*.html, about*.html, privacy*.html  guide, about and privacy policy, one per language (generated)
+│   ├── img/guide/                      screenshots used by the guide
+│   ├── js/i18n/                        language detection, translation, one dictionary per language
 │   ├── llms.txt                        instructions for AI assistants
 │   ├── schema/ile.schema.json          JSON Schema of the .ile format
 │   ├── css/icon-library.css            styles (light and dark)
@@ -214,9 +241,13 @@ icon-library/
 │   │   ├── ScratchpadController.js     open/close, add, copy, clear
 │   │   ├── clipboard.js                copy to the clipboard
 │   │   └── download.js                 SVG and PNG downloads
-│   ├── img/iconlibrary.png             logo and favicon
+│   ├── img/                                logo (WebP), favicon, touch and social icons
 │   └── json/icons-categories.json      generated categories (Feather, Bootstrap)
 ├── scripts/server.js                   server (npm start)
+├── scripts/build-pages.mjs             generates the text pages (npm run pages)
+├── scripts/coffee.js                   buy me a coffee: Stripe check, supporter codes
+├── .env.example                        Stripe and PostgreSQL settings (copy to .env)
+├── pages/                              text page content, one file per language
 ├── scripts/generate-icon-categories.js category generator
 ├── tests/                              npm test
 ├── BACKLOG.md                          AI service and paid plan (next steps)
@@ -239,7 +270,7 @@ Icons belong to their authors and are used under their licenses: [Lucide](https:
 
 Uma página para navegar, filtrar e copiar ícones de quatro conjuntos — **Emoji (Unicode)**, **Lucide**, **Feather** e **Bootstrap Icons** — para usar em menus e interfaces. Clique num ícone para copiar o SVG; clique com o botão direito para copiar a alternativa.
 
-Sem framework, sem build, sem dependências em produção: HTML, CSS e JavaScript puros (módulos ES, organizados em MVC), servidos por um pequeno servidor Node.js.
+Sem framework, sem build e com uma única dependência em produção (o driver do PostgreSQL, usado só pelo café): HTML, CSS e JavaScript puros (módulos ES, organizados em MVC), servidos por um pequeno servidor Node.js.
 
 ### Recursos
 
@@ -255,9 +286,10 @@ Sem framework, sem build, sem dependências em produção: HTML, CSS e JavaScrip
 - **Buscas compartilháveis:** o endereço acompanha o conjunto e a busca (`?set=lucide&q=arrow`).
 - **Links que abrem o editor** — feitos por pessoas (*Share link* no editor) ou por assistentes de IA: veja [Para assistentes de IA](#para-assistentes-de-ia).
 - **Tema claro e escuro:** segue o sistema, com um botão no cabeçalho.
+- **8 idiomas** — inglês, espanhol, francês, alemão, russo, chinês simplificado, português do Brasil e japonês — detectados pelo navegador, com um seletor no cabeçalho (veja [Idiomas](#idiomas)).
 - **Detecção de glifo nos emojis:** emojis que a fonte do sistema não desenha são sinalizados e podem ser ocultados.
 - **Rápida com conjuntos grandes:** só as categorias perto da tela são desenhadas; as demais, conforme a rolagem.
-- Páginas **Sobre e guia** e **Privacidade**, com links no rodapé.
+- Páginas **Guia**, **Sobre** e **Privacidade**, com links no rodapé — o Guia explica cada recurso passo a passo, com capturas de tela e uma tabela de atalhos de teclado.
 - **Responsiva** de celulares de 360 px a monitores largos; teclado (setas na lista de conjuntos, `Esc` fecha painéis).
 
 ### Conjuntos de ícones
@@ -320,6 +352,17 @@ Elas ficam desligadas até serem configuradas. Para ligar:
 
 Com `cliente` vazio nenhum script do Google é carregado; em `localhost` as áreas aparecem como prévias tracejadas.
 
+### Pague um café (30 dias sem anúncios)
+
+Quem visita pode pagar um café ao desenvolvedor (cerca de US$ 3) pelo Stripe e, em troca, fica 30 dias sem anúncios no site. O botão só aparece com o Stripe e o banco configurados.
+
+1. **Pagamento:** o botão abre um **Payment Link** do Stripe. Nas configurações dele, *Após o pagamento* → redirecionar para `https://iconlibrary.io/?coffee={CHECKOUT_SESSION_ID}`.
+2. **Confirmação:** de volta ao site, a página envia o ID da sessão para `POST /api/coffee/redeem`. O servidor (`scripts/coffee.js`) pergunta ao Stripe se foi pago e grava no PostgreSQL (tabela `coffee_supporters`, criada automaticamente) um **código de apoiador** válido até 30 dias depois do pagamento.
+3. **Sem anúncios:** o navegador guarda o código e a data de fim; enquanto vale, o script do AdSense nem é carregado. O código serve em até 3 aparelhos (`POST /api/coffee/claim`), com limite de 10 tentativas a cada 15 minutos por IP.
+4. **O que é guardado:** só o ID da sessão no Stripe, valor, datas, código e número de aparelhos — sem nome, e-mail ou dados do cartão. A política de privacidade descreve isso.
+
+Configuração: copie o `.env.example` para `.env` e preencha `STRIPE_SECRET_KEY` (basta uma chave restrita com *Checkout Sessions: Read*), `STRIPE_PAYMENT_LINK`, `COFFEE_PRICE` e as variáveis `PG_*`. O `docker-compose.yml` lê o `.env` e alcança um PostgreSQL no mesmo servidor por `host.docker.internal`. Teste antes com as chaves e um Payment Link do modo de teste do Stripe.
+
 ### Versões dos ícones
 
 Os pacotes ficam fixos em `VERSOES`, no início de `public/js/models/iconSets.js`, para que uma versão nova não quebre a página sozinha. Para atualizar:
@@ -356,12 +399,25 @@ Os conjuntos ficam em `FONTES`, em `public/js/models/iconSets.js`. Cada entrada 
 | Campo | Descrição |
 |---|---|
 | `rotulo` | Nome exibido na lista de conjuntos |
-| `rotuloGrupo` | Rótulo do botão de categorias quando nada está selecionado |
-| `rotuloGrupoAlternativo` | Rótulo usado quando a fonte de categorias está indisponível (agrupado por letra) |
+| `rotuloGrupo` | Chave de tradução do rótulo do botão de categorias quando nada está selecionado (`categories.all`) |
+| `rotuloGrupoAlternativo` | Chave de tradução usada quando a fonte de categorias está indisponível, agrupado por letra (`letters.all`) |
 | `url` | Uma URL ou uma lista; cada item é uma string ou `{ endereco, opcional, resposta: "texto" }` (`opcional`: a falha é tolerada; `resposta: "texto"`: lê como texto) |
 | `montar(dados)` | Converte os dados baixados em itens: `{ nome, tipo: "svg" \| "emoji", grupo, svg \| char, versao?, editavel? }` — `editavel: true` adiciona *Open in Lucide Studio* ao editor (só ícones de traço 24×24) |
 | `temTraco`, `temCor` | `true` liga os controles de traço e de cor para o conjunto |
 | `detectaGlifo` | `true` para verificar se a fonte do sistema desenha cada item (só emoji) |
+
+### Idiomas
+
+O idioma é escolhido, nesta ordem, por `?lang=xx` no endereço, pela escolha salva no seletor, pelos idiomas do navegador (`pt-PT` → português do Brasil, `zh-TW` → chinês simplificado) e, por fim, inglês.
+
+- **Página principal:** traduzida no lugar. O `public/js/i18n/detect.js` (no `<head>`) escolhe o idioma e esconde a página até o `public/js/i18n/i18n.js` carregar o dicionário (`public/js/i18n/<idioma>.js`) e aplicá-lo aos elementos marcados com `data-i18n`, `data-i18n-html` ou `data-i18n-attr`. As mensagens no JavaScript usam `t("chave", { valores })`; os plurais seguem `Intl.PluralRules`. Os erros lançados pelos models têm um código (`models/erros.js`) e são traduzidos onde aparecem. Para os buscadores, as versões `?lang=xx` são declaradas com `hreflang`.
+- **Guia, Sobre e Privacidade:** um HTML por idioma (`guide.pt-BR.html`…), gerado por `npm run pages` a partir de `pages/<pagina>/<idioma>.html` e dos dicionários. Edite os arquivos em `pages/` e rode o comando; um teste falha se as páginas geradas estiverem desatualizadas. A página em inglês é a padrão: quem chega nela preferindo outro idioma vai para a versão dele.
+- **Não traduzido:** nomes de ícones e de categorias (vêm dos pacotes e são o que a busca procura), código SVG e `llms.txt`.
+- **Adicionar um idioma:** inclua-o em `IDIOMAS` no `detect.js`, no `scripts/build-pages.mjs` e no `tests/i18n.test.mjs`; crie `public/js/i18n/<idioma>.js` (mesmas chaves do `en.js` — o teste confere chaves, marcadores e tags HTML), `pages/guide/<idioma>.html`, `pages/about/<idioma>.html` e `pages/privacy/<idioma>.html`; acrescente a linha `hreflang` no `index.html` e rode `npm run pages`. Idiomas da direita para a esquerda (árabe, hebraico) também precisam de `dir="rtl"` e revisão do CSS.
+
+As capturas de tela do Guia (`public/img/guide/*.webp`) foram feitas do site em inglês e são as mesmas em todos os idiomas; refaça-as quando a interface mudar.
+
+As traduções foram feitas por IA e devem ser revisadas por falantes nativos — principalmente a política de privacidade, que é um texto jurídico.
 
 ### Para assistentes de IA
 
@@ -394,7 +450,9 @@ Um arquivo `.ile` é texto JSON em UTF-8, com a estrutura do exemplo em [The .il
 icon-library/
 ├── public/                             o site
 │   ├── index.html                      página principal
-│   ├── about.html, privacy.html        guia e política de privacidade
+│   ├── guide*.html, about*.html, privacy*.html  guia, sobre e política de privacidade, um por idioma (gerados)
+│   ├── img/guide/                      capturas de tela usadas no guia
+│   ├── js/i18n/                        detecção de idioma, tradução, um dicionário por idioma
 │   ├── llms.txt                        instruções para assistentes de IA
 │   ├── schema/ile.schema.json          JSON Schema do formato .ile
 │   ├── css/icon-library.css            estilos (claro e escuro)
@@ -423,9 +481,13 @@ icon-library/
 │   │   ├── ScratchpadController.js     abrir/fechar, adicionar, copiar, limpar
 │   │   ├── clipboard.js                cópia para a área de transferência
 │   │   └── download.js                 downloads de SVG e PNG
-│   ├── img/iconlibrary.png             logo e favicon
+│   ├── img/                                logo (WebP), favicon, ícones de toque e de redes sociais
 │   └── json/icons-categories.json      categorias geradas (Feather, Bootstrap)
 ├── scripts/server.js                   servidor (npm start)
+├── scripts/build-pages.mjs             gera as páginas de texto (npm run pages)
+├── scripts/coffee.js                   pague um café: confirmação no Stripe, códigos de apoiador
+├── .env.example                        configurações do Stripe e do PostgreSQL (copie para .env)
+├── pages/                              conteúdo das páginas de texto, um arquivo por idioma
 ├── scripts/generate-icon-categories.js gerador de categorias
 ├── tests/                              npm test
 ├── BACKLOG.md                          serviço para IAs e plano pago (próximos passos)
