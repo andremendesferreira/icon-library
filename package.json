@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node scripts/server.js",
     "generate": "node scripts/generate-icon-categories.js",
-    "test": "node --test tests/",
+    "test": "node --test",
     "pages": "node scripts/build-pages.mjs",
     "migrate": "node scripts/db.js"
   },
