@@ -234,6 +234,8 @@ export default {
   "publish.svgInvalid": "アイコンの SVG を読み取れませんでした。エディターのコードを確認してください。",
   "publish.disabled": "現在、公開は利用できません。",
 
+  "iconlibrary.empty": "Iconlibrary にはまだアイコンがありません。サポーターが最初の 1 個を公開できます。エディターでアイコンを開き、「Iconlibrary に公開」を選んでください。",
+
   "nav.label": "サイト",
   "footer.icons": "アイコン",
   "footer.guide": "ガイド",

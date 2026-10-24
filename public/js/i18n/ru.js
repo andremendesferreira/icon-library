@@ -256,6 +256,8 @@ export default {
   "publish.svgInvalid": "Не удалось прочитать SVG иконки. Проверьте код в редакторе.",
   "publish.disabled": "Публикация сейчас недоступна.",
 
+  "iconlibrary.empty": "В Iconlibrary пока нет иконок. Спонсоры могут опубликовать первую: откройте иконку в редакторе и выберите «Опубликовать в Iconlibrary».",
+
   "nav.label": "Сайт",
   "footer.icons": "Иконки",
   "footer.guide": "Руководство",

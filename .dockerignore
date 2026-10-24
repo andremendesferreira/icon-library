@@ -14,3 +14,5 @@ assets
 pages
 .env
 .env.example
+stack.env
+stack.env.example

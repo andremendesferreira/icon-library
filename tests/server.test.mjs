@@ -75,8 +75,11 @@ test("gzip quando o navegador aceita", async () => {
 });
 
 test("ETag: 304 quando o arquivo não mudou", async () => {
+  // Scripts são revalidados a cada visita (um deploy aparece na hora);
+  // imagens podem ficar um dia em cache
   const primeira = await pedir("/js/app.js");
-  assert.match(primeira.headers["cache-control"], /max-age=86400/);
+  assert.equal(primeira.headers["cache-control"], "no-cache");
+  assert.match((await pedir("/img/logo-180.webp")).headers["cache-control"], /max-age=86400/);
   const segunda = await pedir("/js/app.js", {
     headers: { "If-None-Match": primeira.headers.etag },
   });

@@ -124,6 +124,8 @@ export class IconController {
       aoAdicionar: (item) => this.aoAdicionar(item, this.model.svgFinal(item)),
       aoMenu: (acao, item) => this.executarMenu(acao, item),
       aoEditar: (item) => this.aoEditar(item, this.model.svgFinal(item)),
+      // Conjunto sem nenhum ícone (Iconlibrary no começo): mensagem própria
+      vazio: this.model.itens.length ? null : this.model.fonteExibida?.vazio,
     });
   }
 

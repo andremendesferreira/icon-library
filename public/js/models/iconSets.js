@@ -129,6 +129,8 @@ export const FONTES = {
   iconlibrary: {
     rotulo: "Iconlibrary",
     temCor: true,
+    // Mensagem quando o conjunto ainda não tem nenhum ícone aprovado
+    vazio: "iconlibrary.empty",
     rotuloGrupo: "categories.all",
     url: "api/iconlibrary/icons",
     montar: (dados) =>

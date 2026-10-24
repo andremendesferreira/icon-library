@@ -234,6 +234,8 @@ export default {
   "publish.svgInvalid": "无法读取图标的 SVG，请检查编辑器中的代码。",
   "publish.disabled": "暂时无法发布。",
 
+  "iconlibrary.empty": "Iconlibrary 还没有图标。支持者可以发布第一个：在编辑器中打开一个图标，然后选择“发布到 Iconlibrary”。",
+
   "nav.label": "网站",
   "footer.icons": "图标",
   "footer.guide": "指南",

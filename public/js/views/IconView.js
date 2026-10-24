@@ -301,7 +301,7 @@ export class IconView {
     this.acoes = acoes;
     if (!grupos.length) {
       this.container.innerHTML =
-        `<p class="empty">${escapar(t("grid.empty"))}</p>`;
+        `<p class="empty">${escapar(t(acoes.vazio || "grid.empty"))}</p>`;
       return;
     }
     const colunas = Math.max(

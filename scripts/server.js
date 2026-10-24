@@ -33,7 +33,7 @@ const zlib = require("zlib");
 const crypto = require("crypto");
 const { CoffeeError, coffeeFromEnv } = require("./coffee");
 const { IconlibraryError, createIconlibrary, postgresStore: iconlibraryStore } = require("./iconlibrary");
-const { poolFromEnv, migrate } = require("./db");
+const { poolFromEnv, migrate, checkDatabase } = require("./db");
 
 const ROOT = path.resolve(__dirname, "..", "public");
 
@@ -52,6 +52,8 @@ const TYPES = {
 // Worth compressing: text formats above ~1 KB
 const COMPRESSIBLE = new Set([".html", ".css", ".js", ".json", ".svg", ".txt", ".xml"]);
 const MIN_GZIP = 1024;
+// Code and text that change with each deploy (see Cache-Control below)
+const REVALIDATE = new Set([".html", ".js", ".css", ".json", ".txt", ".xml"]);
 
 // Pages listed in the sitemap: the main page in each language (?lang=) and
 // every text page (about.html, about.pt-BR.html…), read from public/
@@ -341,9 +343,11 @@ function handle(req, res, ctx) {
     const headers = {
       "Content-Type": TYPES[ext] || "application/octet-stream",
       ETag: etag,
-      // Pages are revalidated on every visit (new versions show up at once);
-      // the rest may be reused for a day, revalidated by the ETag afterwards
-      "Cache-Control": ext === ".html" ? "no-cache" : "public, max-age=86400",
+      // Pages, scripts, styles and data are revalidated on every visit — a
+      // quick 304 thanks to the ETag — so a deploy shows up at once and the
+      // page never runs with scripts from the previous version. Images may be
+      // reused for a day.
+      "Cache-Control": REVALIDATE.has(ext) ? "no-cache" : "public, max-age=86400",
     };
 
     if (req.headers["if-none-match"] === etag) {
@@ -407,6 +411,18 @@ if (require.main === module) {
     if (pool && process.env.PG_MIGRATE !== "false") {
       try {
         await migrate(pool);
+      } catch (err) {
+        console.error(`[db] ${err.message} — coffee and Iconlibrary are off`);
+        pool = null;
+      }
+    }
+    // Uses the database once now, as the application will: a wrong password,
+    // a missing table or a missing GRANT shows up here, in the log, instead
+    // of as an error 500 on the first visitor
+    if (pool) {
+      try {
+        await checkDatabase(pool);
+        console.log("[db] connected");
       } catch (err) {
         console.error(`[db] ${err.message} — coffee and Iconlibrary are off`);
         pool = null;

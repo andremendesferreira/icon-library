@@ -82,7 +82,20 @@ async function migrate(pool, { dir = MIGRATIONS, log = console.log } = {}) {
   }
 }
 
-module.exports = { poolFromEnv, migrate, migrationFiles };
+// Reads every table the application uses, with the application's user.
+// Throws a clear message on a wrong password, a missing table or a missing
+// GRANT (the pg error message already says which).
+async function checkDatabase(pool) {
+  for (const table of ["coffee_supporters", "iconlibrary_icons"]) {
+    try {
+      await pool.query(`SELECT 1 FROM ${table} LIMIT 1`);
+    } catch (err) {
+      throw new Error(`cannot use the database (table ${table}): ${err.message}`);
+    }
+  }
+}
+
+module.exports = { poolFromEnv, migrate, migrationFiles, checkDatabase };
 
 if (require.main === module) {
   const pool = poolFromEnv();

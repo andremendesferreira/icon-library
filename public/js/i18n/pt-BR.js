@@ -242,6 +242,8 @@ export default {
   "publish.svgInvalid": "Não foi possível ler o SVG do ícone. Confira o código no editor.",
   "publish.disabled": "A publicação não está disponível agora.",
 
+  "iconlibrary.empty": "A Iconlibrary ainda não tem ícones. Apoiadores podem publicar o primeiro: abra um ícone no editor e escolha “Publicar na Iconlibrary”.",
+
   "nav.label": "Site",
   "footer.icons": "Ícones",
   "footer.guide": "Guia",
