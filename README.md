@@ -49,7 +49,7 @@ Icon data is fetched at runtime from [unpkg](https://unpkg.com) (and the Lucide 
 
 ### Getting started
 
-Requires **Node.js 20+**.
+Requires **Node.js 20+** (24 recommended — the version used by Docker and CI).
 
 ```bash
 npm start      # → http://localhost:8080   (another port: PORT=3000 npm start)
@@ -325,7 +325,7 @@ Os dados dos ícones são baixados em tempo de execução pelo [unpkg](https://u
 
 ### Como rodar
 
-Requer **Node.js 20+**.
+Requer **Node.js 20+** (recomendado o 24 — a versão usada no Docker e no CI).
 
 ```bash
 npm start      # → http://localhost:8080   (outra porta: PORT=3000 npm start)
