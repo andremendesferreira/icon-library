@@ -124,4 +124,21 @@ export const FONTES = {
         ),
       })),
   },
+  // Fonte da comunidade: ícones enviados por apoiadores e aprovados (MIT).
+  // Sem banco no servidor, a lista vem vazia.
+  iconlibrary: {
+    rotulo: "Iconlibrary",
+    temCor: true,
+    rotuloGrupo: "categories.all",
+    url: "api/iconlibrary/icons",
+    montar: (dados) =>
+      (dados?.icons ?? []).map((icone) => ({
+        nome: icone.name,
+        tipo: "svg",
+        grupo: icone.categories[0],
+        categorias: icone.categories,
+        autor: icone.author,
+        svg: icone.svg,
+      })),
+  },
 };

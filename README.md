@@ -107,6 +107,21 @@ Visitors can buy the developer a coffee (about US$ 3) through Stripe; in return 
 
 Setup: copy `.env.example` to `.env` and fill in `STRIPE_SECRET_KEY` (a restricted key with *Checkout Sessions: Read* is enough), `STRIPE_PAYMENT_LINK`, `COFFEE_PRICE` and the `PG_*` variables. `docker-compose.yml` reads `.env` and reaches a PostgreSQL on the same server through `host.docker.internal`. Test first with Stripe test-mode keys and a test Payment Link.
 
+### Iconlibrary (community icons)
+
+A fifth set, **Iconlibrary**, holds icons published by supporters from the editor (*Publish to Iconlibrary*). It is on when the database and the coffee are configured.
+
+- **Who publishes:** only supporters — the request carries a valid, unexpired supporter code. Up to 10 icons waiting for review per code; 20 submissions per 15 minutes per IP.
+- **What is accepted:** a name (2–40 characters, unique among pending and approved icons), 1–3 categories from `public/json/iconlibrary-categories.json` (Lucide's categories), an optional public credit, and the acceptance of the **MIT license**. The SVG is checked on the server by `scripts/svgSafe.js`: only basic shapes with known attributes and well-formed values; anything else (text, groups, images, styles, scripts, links, entities) is refused, and the stored SVG is rewritten from scratch.
+- **Review:** every icon starts as *pending*. The owner reviews them at **`/admin`** (HTTP Basic auth with `ADMIN_PASSWORD`; the page lives in `scripts/admin.html`, outside `public/`), approving, rejecting (the name becomes free again) or deleting. Approved icons appear within a minute.
+- **API:** `GET /api/iconlibrary/icons` (approved icons), `POST /api/iconlibrary/icons` (submit), `GET /api/iconlibrary/config`; review: `GET /api/admin/icons?status=`, `POST /api/admin/icons/:id/approve|reject|delete`.
+
+### Database and migrations
+
+The numbered SQL files in `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`…) are applied in order on start-up when `PG_HOST` is set, each in a transaction, under an advisory lock, and recorded in `schema_migrations`; `npm run migrate` applies them by hand. To change the schema, add a new file with the next number — never edit one that already ran. The `PG_USER` needs permission to create tables (on PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). If the migrations fail, the site still runs, with the coffee and Iconlibrary off.
+
+**Owner and application user (recommended):** let the owner role apply the migrations (`PG_USER=<owner> npm run migrate`) and run the site with an application role that only has `USAGE` on the schema, `SELECT, INSERT, UPDATE, DELETE` on the tables and `USAGE, SELECT` on the sequences; set `PG_MIGRATE=false` for it. Even without that flag, the server issues no `CREATE` when nothing is pending.
+
 ### Icon versions
 
 The packages are pinned in `VERSOES` at the top of `public/js/models/iconSets.js`, so a new release cannot break the page on its own. To upgrade:
@@ -246,6 +261,11 @@ icon-library/
 ├── scripts/server.js                   server (npm start)
 ├── scripts/build-pages.mjs             generates the text pages (npm run pages)
 ├── scripts/coffee.js                   buy me a coffee: Stripe check, supporter codes
+├── scripts/iconlibrary.js              community icons: submit, list, review
+├── scripts/svgSafe.js                  strict check of submitted SVG
+├── scripts/db.js                       PostgreSQL pool and migration runner (npm run migrate)
+├── scripts/admin.html                  review page (/admin)
+├── migrations/                         numbered SQL migrations
 ├── .env.example                        Stripe and PostgreSQL settings (copy to .env)
 ├── pages/                              text page content, one file per language
 ├── scripts/generate-icon-categories.js category generator
@@ -362,6 +382,21 @@ Quem visita pode pagar um café ao desenvolvedor (cerca de US$ 3) pelo Stripe e,
 4. **O que é guardado:** só o ID da sessão no Stripe, valor, datas, código e número de aparelhos — sem nome, e-mail ou dados do cartão. A política de privacidade descreve isso.
 
 Configuração: copie o `.env.example` para `.env` e preencha `STRIPE_SECRET_KEY` (basta uma chave restrita com *Checkout Sessions: Read*), `STRIPE_PAYMENT_LINK`, `COFFEE_PRICE` e as variáveis `PG_*`. O `docker-compose.yml` lê o `.env` e alcança um PostgreSQL no mesmo servidor por `host.docker.internal`. Teste antes com as chaves e um Payment Link do modo de teste do Stripe.
+
+### Iconlibrary (ícones da comunidade)
+
+Um quinto conjunto, **Iconlibrary**, reúne ícones publicados por apoiadores a partir do editor (*Publicar na Iconlibrary*). Ele fica ligado quando o banco e o café estão configurados.
+
+- **Quem publica:** só apoiadores — o envio leva um código de apoiador válido e não vencido. Até 10 ícones aguardando revisão por código; 20 envios a cada 15 minutos por IP.
+- **O que é aceito:** um nome (2 a 40 caracteres, único entre pendentes e aprovados), de 1 a 3 categorias de `public/json/iconlibrary-categories.json` (as do Lucide), um crédito público opcional e o aceite da **licença MIT**. O SVG é conferido no servidor pelo `scripts/svgSafe.js`: só formas básicas, com atributos conhecidos e valores bem formados; qualquer outra coisa (texto, grupos, imagens, estilos, scripts, links, entidades) é recusada, e o SVG guardado é reescrito do zero.
+- **Revisão:** todo ícone começa *pendente*. O dono revisa em **`/admin`** (autenticação HTTP Basic com `ADMIN_PASSWORD`; a página fica em `scripts/admin.html`, fora de `public/`), aprovando, recusando (o nome volta a ficar livre) ou excluindo. Os aprovados aparecem em até um minuto.
+- **API:** `GET /api/iconlibrary/icons` (aprovados), `POST /api/iconlibrary/icons` (envio), `GET /api/iconlibrary/config`; revisão: `GET /api/admin/icons?status=`, `POST /api/admin/icons/:id/approve|reject|delete`.
+
+### Banco de dados e migrations
+
+Os arquivos SQL numerados em `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`…) são aplicados em ordem na subida, quando `PG_HOST` está definido — cada um numa transação, sob um lock consultivo, e registrados em `schema_migrations`; `npm run migrate` os aplica manualmente. Para mudar o esquema, crie um arquivo novo com o próximo número — nunca edite um que já rodou. O `PG_USER` precisa de permissão para criar tabelas (no PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). Se as migrations falharem, o site continua no ar, com o café e a Iconlibrary desligados.
+
+**Dono e usuário da aplicação (recomendado):** deixe o papel dono aplicar as migrations (`PG_USER=<dono> npm run migrate`) e rode o site com um papel de aplicação que tenha só `USAGE` no schema, `SELECT, INSERT, UPDATE, DELETE` nas tabelas e `USAGE, SELECT` nas sequências; para ele, defina `PG_MIGRATE=false`. Mesmo sem essa opção, o servidor não executa nenhum `CREATE` quando não há migration pendente.
 
 ### Versões dos ícones
 
@@ -486,6 +521,11 @@ icon-library/
 ├── scripts/server.js                   servidor (npm start)
 ├── scripts/build-pages.mjs             gera as páginas de texto (npm run pages)
 ├── scripts/coffee.js                   pague um café: confirmação no Stripe, códigos de apoiador
+├── scripts/iconlibrary.js              ícones da comunidade: envio, lista, revisão
+├── scripts/svgSafe.js                  conferência estrita do SVG enviado
+├── scripts/db.js                       conexão com o PostgreSQL e migrations (npm run migrate)
+├── scripts/admin.html                  página de moderação (/admin)
+├── migrations/                         migrations SQL numeradas
 ├── .env.example                        configurações do Stripe e do PostgreSQL (copie para .env)
 ├── pages/                              conteúdo das páginas de texto, um arquivo por idioma
 ├── scripts/generate-icon-categories.js gerador de categorias

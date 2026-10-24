@@ -1,0 +1,128 @@
+<!doctype html>
+<!-- Moderação da Iconlibrary. Servida em /admin pelo scripts/server.js, só
+     com ADMIN_PASSWORD (HTTP Basic); fica fora de public/ de propósito. -->
+<html lang="pt-BR">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Moderação — Iconlibrary</title>
+  <style>
+    body { font-family: "Segoe UI", system-ui, sans-serif; margin: 0 auto; max-width: 1100px; padding: 24px; background: #f5f7fb; color: #2c3e50; }
+    h1 { margin: 0 0 4px; }
+    .nota { color: #6b7a89; margin: 0 0 20px; }
+    .abas { display: flex; gap: 8px; margin-bottom: 18px; }
+    .abas button { padding: 8px 16px; border: 2px solid #c5d0dc; border-radius: 20px; background: #fff; font: inherit; cursor: pointer; }
+    .abas button[aria-pressed="true"] { border-color: #2a7fff; color: #1558c8; font-weight: 600; }
+    .lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .icone { display: grid; grid-template-columns: 96px 1fr; gap: 14px; padding: 16px; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .previa { display: grid; place-items: center; gap: 6px; }
+    .previa img { width: 72px; height: 72px; border: 1px solid #e4e9f0; border-radius: 8px; background: repeating-conic-gradient(#f2f5f9 0 25%, #fff 0 50%) 0 0 / 12px 12px; }
+    .previa .pequeno { width: 24px; height: 24px; }
+    .dados h2 { margin: 0 0 4px; font-size: 17px; }
+    .dados p { margin: 2px 0; font-size: 13px; color: #5a6b7b; word-break: break-word; }
+    .acoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .acoes button { padding: 6px 12px; border-radius: 8px; border: 1px solid #c5d0dc; background: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+    .aprovar { border-color: #2fa14d !important; background: #2fa14d !important; color: #fff; }
+    .recusar { border-color: #c0392b !important; color: #c0392b; }
+    .vazio, .erro { padding: 30px; text-align: center; color: #6b7a89; }
+    .erro { color: #c0392b; }
+    code { font-size: 12px; }
+  </style>
+  <h1>Iconlibrary — moderação</h1>
+  <p class="nota">
+    Confira se o ícone é original (não é logo de marca nem cópia), se o nome e
+    as categorias fazem sentido e se não há nada ofensivo. Aprovados aparecem no
+    site em até 1 minuto.
+  </p>
+  <div class="abas" role="group" aria-label="Situação">
+    <button type="button" data-status="pending" aria-pressed="true">Pendentes</button>
+    <button type="button" data-status="approved" aria-pressed="false">Aprovados</button>
+    <button type="button" data-status="rejected" aria-pressed="false">Recusados</button>
+  </div>
+  <div id="lista" class="lista"></div>
+  <script>
+    "use strict";
+    const lista = document.getElementById("lista");
+    let situacao = "pending";
+    // Endereços a partir da origem: se a senha veio no próprio endereço
+    // (admin:senha@…), o navegador recusa caminhos relativos
+    const api = (caminho) => new URL(caminho, location.origin);
+
+    const texto = (valor) => {
+      const el = document.createElement("span");
+      el.textContent = valor ?? "";
+      return el.innerHTML;
+    };
+    // O SVG vira imagem: mesmo já validado no servidor, nada dele roda aqui
+    const imagem = (svg, classe = "") =>
+      `<img class="${classe}" alt="" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" />`;
+
+    async function carregar() {
+      lista.innerHTML = '<p class="vazio">Carregando…</p>';
+      try {
+        const res = await fetch(api(`/api/admin/icons?status=${situacao}`));
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { icons } = await res.json();
+        if (!icons.length) {
+          lista.innerHTML = '<p class="vazio">Nada aqui.</p>';
+          return;
+        }
+        lista.innerHTML = icons
+          .map((i) => `
+            <article class="icone" data-id="${i.id}">
+              <div class="previa">${imagem(i.svg)}${imagem(i.svg, "pequeno")}</div>
+              <div class="dados">
+                <h2>${texto(i.name)}</h2>
+                <p><code>${texto(i.slug)}</code> · ${texto(i.categories.join(", "))}</p>
+                <p>Crédito: ${texto(i.author || "—")}</p>
+                <p>Apoiador: <code>${texto(i.supporterCode)}</code></p>
+                <p>Enviado: ${new Date(i.createdAt).toLocaleString("pt-BR")}</p>
+                ${i.reviewNote ? `<p>Nota: ${texto(i.reviewNote)}</p>` : ""}
+                <div class="acoes">
+                  ${situacao !== "approved" ? '<button type="button" class="aprovar" data-acao="approve">Aprovar</button>' : ""}
+                  ${situacao !== "rejected" ? '<button type="button" class="recusar" data-acao="reject">Recusar</button>' : ""}
+                  <button type="button" data-acao="delete">Excluir</button>
+                </div>
+              </div>
+            </article>`)
+          .join("");
+      } catch (erro) {
+        lista.innerHTML = `<p class="erro">Não foi possível carregar: ${texto(erro.message)}</p>`;
+      }
+    }
+
+    lista.addEventListener("click", async (evento) => {
+      const botao = evento.target.closest("[data-acao]");
+      if (!botao) return;
+      const id = botao.closest("[data-id]").dataset.id;
+      const acao = botao.dataset.acao;
+      let note = null;
+      if (acao === "reject") note = window.prompt("Motivo da recusa (opcional, só para você):") ?? null;
+      if (acao === "delete" && !window.confirm("Excluir de vez este ícone?")) return;
+      botao.disabled = true;
+      const res = await fetch(api(`/api/admin/icons/${id}/${acao}`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ note }),
+      });
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({}));
+        alert(error === "name_taken" ? "Já existe um ícone com esse nome em uso." : `Erro: ${error || res.status}`);
+        botao.disabled = false;
+        return;
+      }
+      carregar();
+    });
+
+    document.querySelector(".abas").addEventListener("click", (evento) => {
+      const botao = evento.target.closest("[data-status]");
+      if (!botao) return;
+      situacao = botao.dataset.status;
+      for (const b of document.querySelectorAll("[data-status]"))
+        b.setAttribute("aria-pressed", String(b === botao));
+      carregar();
+    });
+
+    carregar();
+  </script>
+</html>

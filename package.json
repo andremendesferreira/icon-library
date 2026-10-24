@@ -7,7 +7,8 @@
     "start": "node scripts/server.js",
     "generate": "node scripts/generate-icon-categories.js",
     "test": "node --test tests/",
-    "pages": "node scripts/build-pages.mjs"
+    "pages": "node scripts/build-pages.mjs",
+    "migrate": "node scripts/db.js"
   },
   "engines": {
     "node": ">=20.0.0"

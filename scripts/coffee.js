@@ -94,6 +94,15 @@ function createCoffee({ stripeKey, paymentLink, paymentLinkId, store, fetch = gl
       return reply(await store.insert(row));
     },
 
+    // Valid, unexpired supporter code → its row; otherwise null. Used by
+    // Iconlibrary: publishing icons is a supporters' benefit.
+    async supporter(text) {
+      const code = normalizeCode(text);
+      if (!code || !CODE.test(code)) return null;
+      const row = await store.byCode(code);
+      return row && row.expiresAt.getTime() > now() ? row : null;
+    },
+
     // Supporter code typed on another device
     async claim(text) {
       const code = normalizeCode(text);
@@ -135,19 +144,8 @@ function memoryStore() {
   };
 }
 
-// PostgreSQL — the table is created on first use
+// PostgreSQL — table coffee_supporters, created by migrations/001
 function postgresStore(pool) {
-  const ready = pool.query(`
-    CREATE TABLE IF NOT EXISTS coffee_supporters (
-      session_id  text PRIMARY KEY,
-      code        text UNIQUE NOT NULL,
-      amount      integer,
-      currency    text,
-      paid_at     timestamptz NOT NULL,
-      expires_at  timestamptz NOT NULL,
-      devices     integer NOT NULL DEFAULT 1,
-      created_at  timestamptz NOT NULL DEFAULT now()
-    )`);
   const toRow = (r) =>
     r && {
       session: r.session_id,
@@ -159,7 +157,6 @@ function postgresStore(pool) {
       devices: r.devices,
     };
   const one = async (sql, params) => {
-    await ready;
     const { rows } = await pool.query(sql, params);
     return toRow(rows[0]) || null;
   };
@@ -184,26 +181,15 @@ function postgresStore(pool) {
   };
 }
 
-// Built from the environment; null (feature off) when not configured
-function coffeeFromEnv(env = process.env) {
+// Built from the environment and the shared pool (scripts/db.js); null
+// (feature off) when Stripe or the database is not configured
+function coffeeFromEnv(env, pool) {
   const { STRIPE_SECRET_KEY, STRIPE_PAYMENT_LINK } = env;
   if (!STRIPE_SECRET_KEY || !STRIPE_PAYMENT_LINK) return null;
-  if (!env.PG_HOST) {
+  if (!pool) {
     console.warn("[coffee] Stripe is set but PG_HOST is not: coffee is off");
     return null;
   }
-  // Loaded only when used: the rest of the site has no dependencies
-  const { Pool } = require("pg");
-  const pool = new Pool({
-    host: env.PG_HOST,
-    port: Number(env.PG_PORT) || 5432,
-    user: env.PG_USER,
-    password: env.PG_PASSWORD,
-    database: env.PG_DATABASE,
-    ssl: env.PG_SSL === "true" ? { rejectUnauthorized: false } : undefined,
-    max: 5,
-  });
-  pool.on("error", (err) => console.error("[coffee] database:", err.message));
   return createCoffee({
     stripeKey: STRIPE_SECRET_KEY,
     paymentLink: STRIPE_PAYMENT_LINK,

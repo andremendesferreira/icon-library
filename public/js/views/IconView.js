@@ -363,6 +363,8 @@ export class IconView {
         : item.suportado
           ? t("card.titleEmoji")
           : t("card.titleNoGlyph", { version: item.versao ?? "" });
+    // Ícones da Iconlibrary trazem o crédito de quem publicou
+    const credito = item.autor ? `\n${t("card.by", { author: item.autor })}` : "";
     const icone =
       item.tipo === "svg"
         ? `<span class="svg-icon">${item.svg}</span>`
@@ -372,7 +374,7 @@ export class IconView {
       item.tipo === "svg"
         ? `<button type="button" class="emoji-card__action emoji-card__edit" title="${escapar(t("card.edit"))}" aria-label="${escapar(t("card.editLabel", { name: item.nome }))}">${ICONE_LAPIS}</button>`
         : "";
-    return `<div class="emoji-card${item.suportado ? "" : " emoji-card--no-glyph"}" data-i="${indice}" title="${escapar(titulo)}">
+    return `<div class="emoji-card${item.suportado ? "" : " emoji-card--no-glyph"}" data-i="${indice}" title="${escapar(titulo + credito)}">
         <div class="emoji-card__actions emoji-card__actions--start">${editar}</div>
         <div class="emoji-card__actions">
           <button type="button" class="emoji-card__action emoji-card__add" title="${escapar(t("card.add"))}" aria-label="${escapar(t("card.addLabel", { name: item.nome }))}">${ICONE_MAIS}</button>

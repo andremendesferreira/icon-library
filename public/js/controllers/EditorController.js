@@ -196,6 +196,11 @@ export class EditorController {
     }
   }
 
+  // O que está no editor agora, para publicar na Iconlibrary
+  atual() {
+    return { svg: this.model.svg(), nome: this.item?.nome || "" };
+  }
+
   get arquivo() {
     return `${nomeDeArquivo(this.item?.nome || "icon")}-edited`;
   }

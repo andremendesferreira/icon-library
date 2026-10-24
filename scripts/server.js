@@ -21,12 +21,19 @@
  *                          real price is the one set in the Stripe Payment Link)
  *   TRUST_PROXY            "true" behind a reverse proxy: the client IP for
  *                          rate limiting comes from X-Forwarded-For
+ *   ADMIN_PASSWORD         enables /admin (Iconlibrary review), HTTP Basic auth
+ *
+ * With PG_HOST set, the migrations in migrations/ are applied on start-up
+ * (scripts/db.js) and Iconlibrary is on.
  */
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
+const crypto = require("crypto");
 const { CoffeeError, coffeeFromEnv } = require("./coffee");
+const { IconlibraryError, createIconlibrary, postgresStore: iconlibraryStore } = require("./iconlibrary");
+const { poolFromEnv, migrate } = require("./db");
 
 const ROOT = path.resolve(__dirname, "..", "public");
 
@@ -103,8 +110,16 @@ function sendText(req, res, status, text) {
 
 // ── API ───────────────────────────────────────────────────────────────────
 const MAX_BODY = 4096;
-// Per IP, in a 15-minute window: guessing supporter codes stays impractical
-const LIMITS = { "/api/coffee/claim": 10, "/api/coffee/redeem": 30 };
+// An icon submission carries the SVG (up to 20 KB)
+const MAX_BODY_ICON = 32768;
+// Per IP, in a 15-minute window: guessing supporter codes and the admin
+// password stays impractical
+const LIMITS = {
+  "/api/coffee/claim": 10,
+  "/api/coffee/redeem": 30,
+  "/api/iconlibrary/icons": 20,
+  admin: 30,
+};
 const WINDOW = 15 * 60 * 1000;
 
 function sendJson(req, res, status, body) {
@@ -134,7 +149,7 @@ function createLimiter() {
   };
 }
 
-function readJson(req) {
+function readJson(req, max = MAX_BODY) {
   return new Promise((resolve, reject) => {
     let size = 0;
     const parts = [];
@@ -142,10 +157,10 @@ function readJson(req) {
     // a 413 answer instead of a broken connection
     req.on("data", (part) => {
       size += part.length;
-      if (size <= MAX_BODY) parts.push(part);
+      if (size <= max) parts.push(part);
     });
     req.on("end", () => {
-      if (size > MAX_BODY) return reject(new CoffeeError(413, "too_large"));
+      if (size > max) return reject(new CoffeeError(413, "too_large"));
       try {
         resolve(JSON.parse(Buffer.concat(parts).toString("utf8") || "{}"));
       } catch {
@@ -156,7 +171,100 @@ function readJson(req) {
   });
 }
 
+// ── Admin (/admin and /api/admin/…): HTTP Basic auth with ADMIN_PASSWORD ──
+function isAdmin(req, ctx) {
+  if (!ctx.adminPassword) return false;
+  const [scheme, encoded] = String(req.headers.authorization || "").split(" ");
+  if (scheme !== "Basic" || !encoded) return false;
+  const password = Buffer.from(encoded, "base64").toString("utf8").split(":").slice(1).join(":");
+  // Same-length comparison that does not leak timing
+  const a = crypto.createHash("sha256").update(password).digest();
+  const b = crypto.createHash("sha256").update(ctx.adminPassword).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+
+// Answers 401/404/429 itself and returns false when the request may not go on
+function guardAdmin(req, res, ctx, json) {
+  const fail = (status, body, headers = {}) => {
+    if (json) send(req, res, status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...headers }, JSON.stringify(body));
+    else send(req, res, status, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", ...headers }, body.error);
+    return false;
+  };
+  if (!ctx.adminPassword || !ctx.iconlibrary) return fail(404, { error: "not_found" });
+  if (isAdmin(req, ctx)) return true;
+  if (!ctx.limit(`admin ${clientIp(req)}`, LIMITS.admin)) return fail(429, { error: "too_many" });
+  return fail(401, { error: "unauthorized" }, { "WWW-Authenticate": 'Basic realm="Icon Library admin", charset="UTF-8"' });
+}
+
+function serveAdminPage(req, res, ctx) {
+  if (!guardAdmin(req, res, ctx, false)) return;
+  fs.readFile(path.join(__dirname, "admin.html"), (err, data) => {
+    if (err) return sendText(req, res, 500, "Admin page missing");
+    send(req, res, 200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" }, data);
+  });
+}
+
+async function handleIconlibrary(req, res, url, ctx) {
+  const { iconlibrary } = ctx;
+  const fail = (err, tag) => {
+    if (err instanceof IconlibraryError || err instanceof CoffeeError)
+      return sendJson(req, res, err.status, { error: err.code, ...(err.extra || {}) });
+    console.error(tag, err);
+    sendJson(req, res, 500, { error: "server" });
+  };
+
+  if (url === "/api/iconlibrary/config") {
+    return sendJson(req, res, 200, iconlibrary ? iconlibrary.config() : { enabled: false });
+  }
+  if (url === "/api/iconlibrary/icons") {
+    if (req.method === "GET" || req.method === "HEAD") {
+      if (!iconlibrary) return sendJson(req, res, 200, { enabled: false, icons: [] });
+      try {
+        const icons = await iconlibrary.list();
+        return send(req, res, 200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=60" }, JSON.stringify({ enabled: true, icons }));
+      } catch (err) {
+        return fail(err, "[iconlibrary]");
+      }
+    }
+    if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+    if (!iconlibrary) return sendJson(req, res, 503, { error: "disabled" });
+    if (!ctx.limit(`${url} ${clientIp(req)}`, LIMITS[url])) return sendJson(req, res, 429, { error: "too_many" });
+    try {
+      const result = await iconlibrary.submit(await readJson(req, MAX_BODY_ICON));
+      return sendJson(req, res, 201, result);
+    } catch (err) {
+      return fail(err, "[iconlibrary]");
+    }
+  }
+
+  // Review: GET /api/admin/icons?status=pending
+  //         POST /api/admin/icons/:id/(approve|reject|delete)  { note? }
+  if (url === "/api/admin/icons" || url.startsWith("/api/admin/icons/")) {
+    if (!guardAdmin(req, res, ctx, true)) return;
+    try {
+      if (url === "/api/admin/icons") {
+        if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
+        const status = new URL(req.url, "http://localhost").searchParams.get("status") || "pending";
+        return sendJson(req, res, 200, { icons: await iconlibrary.review(status) });
+      }
+      const m = /^\/api\/admin\/icons\/(\d+)\/(approve|reject|delete)$/.exec(url);
+      if (!m) return sendJson(req, res, 404, { error: "not_found" });
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      const body = await readJson(req);
+      return sendJson(req, res, 200, await iconlibrary.decide(m[1], m[2], body.note));
+    } catch (err) {
+      return fail(err, "[admin]");
+    }
+  }
+  return null;
+}
+
 async function handleApi(req, res, url, ctx) {
+  if (url.startsWith("/api/iconlibrary/") || url.startsWith("/api/admin/")) {
+    const handled = await handleIconlibrary(req, res, url, ctx);
+    if (handled !== null) return;
+    return sendJson(req, res, 404, { error: "not_found" });
+  }
   const { coffee } = ctx;
   if (url === "/api/coffee/config") {
     if (req.method !== "GET" && req.method !== "HEAD") return sendJson(req, res, 405, { error: "method" });
@@ -188,6 +296,10 @@ function handle(req, res, ctx) {
   } catch {}
   if (caminho.startsWith("/api/")) {
     handleApi(req, res, caminho, ctx);
+    return;
+  }
+  if (caminho === "/admin" || caminho === "/admin/") {
+    serveAdminPage(req, res, ctx);
     return;
   }
 
@@ -264,9 +376,10 @@ function handle(req, res, ctx) {
   });
 }
 
-// coffee: the service from scripts/coffee.js, or null (feature off)
-function createServer({ coffee = null } = {}) {
-  const ctx = { coffee, limit: createLimiter() };
+// coffee: scripts/coffee.js service; iconlibrary: scripts/iconlibrary.js
+// service; adminPassword: enables /admin. Each null/empty = feature off.
+function createServer({ coffee = null, iconlibrary = null, adminPassword = "" } = {}) {
+  const ctx = { coffee, iconlibrary, adminPassword, limit: createLimiter() };
   return http.createServer((req, res) => {
     try {
       handle(req, res, ctx);
@@ -285,9 +398,30 @@ if (require.main === module) {
   const PORT = Number(process.env.PORT) || 8080;
   // Inside a container the server must listen on all interfaces (HOST=0.0.0.0)
   const HOST = process.env.HOST || "localhost";
-  const coffee = coffeeFromEnv();
-  createServer({ coffee }).listen(PORT, HOST, () => {
-    console.log(`Icon Library running at http://localhost:${PORT}`);
-    console.log(`Buy me a coffee: ${coffee ? "on" : "off (Stripe or database not configured)"}`);
-  });
+  (async () => {
+    // Database features (coffee, Iconlibrary) need the migrations applied;
+    // if that fails, the site still runs without them
+    let pool = poolFromEnv();
+    // PG_MIGRATE=false: the application user only reads and writes; the
+    // database owner applies the migrations (npm run migrate)
+    if (pool && process.env.PG_MIGRATE !== "false") {
+      try {
+        await migrate(pool);
+      } catch (err) {
+        console.error(`[db] ${err.message} — coffee and Iconlibrary are off`);
+        pool = null;
+      }
+    }
+    const coffee = coffeeFromEnv(process.env, pool);
+    const iconlibrary = pool && coffee
+      ? createIconlibrary({ store: iconlibraryStore(pool), supporter: (code) => coffee.supporter(code) })
+      : null;
+    const adminPassword = process.env.ADMIN_PASSWORD || "";
+    createServer({ coffee, iconlibrary, adminPassword }).listen(PORT, HOST, () => {
+      console.log(`Icon Library running at http://localhost:${PORT}`);
+      console.log(`Buy me a coffee: ${coffee ? "on" : "off (Stripe or database not configured)"}`);
+      console.log(`Iconlibrary: ${iconlibrary ? "on" : "off (needs the database and the coffee)"}`);
+      console.log(`Admin (/admin): ${iconlibrary && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
+    });
+  })();
 }

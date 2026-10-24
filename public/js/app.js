@@ -13,6 +13,8 @@ import { AdsView } from "./views/AdsView.js";
 import { SupporterModel } from "./models/SupporterModel.js";
 import { CoffeeView } from "./views/CoffeeView.js";
 import { CoffeeController } from "./controllers/CoffeeController.js";
+import { PublishView } from "./views/PublishView.js";
+import { PublishController } from "./controllers/PublishController.js";
 
 // O idioma vem antes de tudo: as views já nascem com os textos traduzidos
 await carregarIdioma();
@@ -61,9 +63,17 @@ editor.iniciar();
 // ?coffee=…) já não os vê, e o endereço fica limpo para a busca
 const apoiador = new SupporterModel();
 const anuncios = new AdsView(ADS);
-await new CoffeeController(apoiador, new CoffeeView(), {
+const cafeView = new CoffeeView();
+await new CoffeeController(apoiador, cafeView, {
   avisar,
   aoApoiar: () => anuncios.desligar(),
+}).iniciar();
+
+// Publicar o ícone do editor na Iconlibrary (só apoiadores)
+new PublishController(new PublishView(), {
+  icone: () => editor.atual(),
+  apoiador,
+  abrirCafe: () => cafeView.abrir(),
 }).iniciar();
 
 new IconController(iconModel, iconView, {

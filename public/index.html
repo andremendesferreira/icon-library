@@ -395,12 +395,50 @@
         <button type="button" id="editor-share" title="Copy a link that opens this project in the editor" data-i18n="editor.share" data-i18n-attr="title:editor.shareTitle">Share link</button>
         <span class="editor__spacer"></span>
         <a id="editor-studio" class="editor__studio" target="_blank" rel="noopener noreferrer" data-i18n="editor.studio" hidden>Open in Lucide Studio ↗</a>
+        <button type="button" id="editor-publish" class="editor__publish" data-i18n="publish.button" hidden>Publish to Iconlibrary</button>
         <button type="button" id="editor-scratchpad" data-i18n="editor.toScratchpad">Add to scratchpad</button>
         <button type="button" id="editor-download" data-i18n="editor.downloadSvg">Download SVG</button>
         <button type="button" id="editor-png" data-i18n="editor.downloadPng">Download PNG</button>
         <button type="button" id="editor-copy" class="editor__primary" data-i18n="editor.copySvg">Copy SVG</button>
       </footer>
     </div>
+  </dialog>
+  <!-- Publicar na Iconlibrary (fonte da comunidade): abre por cima do editor -->
+  <dialog id="publish" class="publish" aria-labelledby="publish-title">
+    <button type="button" id="publish-close" class="coffee__close" aria-label="Close" data-i18n-attr="aria-label:coffee.close">×</button>
+    <h2 id="publish-title" class="coffee__title" data-i18n="publish.title">Publish to Iconlibrary</h2>
+    <p class="coffee__note" data-i18n="publish.intro">Share this icon in Iconlibrary, the community set. Every icon is reviewed before it appears.</p>
+    <div id="publish-preview" class="publish__preview" aria-hidden="true"></div>
+    <p id="publish-supporters" class="publish__supporters" hidden>
+      <span data-i18n="publish.supportersOnly">Publishing is a thank-you for supporters: buy a coffee to get a supporter code.</span>
+      <button type="button" id="publish-coffee" class="site-footer__coffee">☕ <span data-i18n="coffee.button">Buy me a coffee</span></button>
+    </p>
+    <form id="publish-form" class="publish__form">
+      <label class="publish__field">
+        <span data-i18n="publish.name">Icon name</span>
+        <input id="publish-name" maxlength="40" required autocomplete="off" />
+        <small data-i18n="publish.nameHelp">2 to 40 characters: letters, numbers, spaces or hyphens.</small>
+      </label>
+      <fieldset class="publish__field">
+        <legend id="publish-categories-label">Categories</legend>
+        <div id="publish-categories" class="publish__categories"></div>
+      </fieldset>
+      <label class="publish__field">
+        <span data-i18n="publish.author">Credit (optional)</span>
+        <input id="publish-author" maxlength="40" autocomplete="off" />
+        <small data-i18n="publish.authorHelp">Shown with the icon — your name, nickname or site.</small>
+      </label>
+      <label class="publish__field">
+        <span data-i18n="coffee.codeLabel">Supporter code</span>
+        <input id="publish-code" placeholder="CAFE-XXXX-XXXX" autocomplete="off" spellcheck="false" />
+      </label>
+      <label class="publish__license">
+        <input type="checkbox" id="publish-license" />
+        <span data-i18n="publish.license">I created this icon, or have the right to share it, and release it under the MIT license.</span>
+      </label>
+      <button type="submit" id="publish-send" class="coffee__pay" data-i18n="publish.send">Send for review</button>
+    </form>
+    <p id="publish-status" class="coffee__status" role="status"></p>
   </dialog>
   <!-- Pague um café: pagamento no Stripe, código de apoiador, 30 dias sem anúncios -->
   <dialog id="coffee" class="coffee" aria-labelledby="coffee-title">

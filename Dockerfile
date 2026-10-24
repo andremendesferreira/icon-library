@@ -17,7 +17,9 @@ COPY --chown=node:node package.json package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
 
 # Application source code
-COPY --chown=node:node scripts/server.js scripts/coffee.js ./scripts/
+COPY --chown=node:node scripts/server.js scripts/coffee.js scripts/db.js scripts/iconlibrary.js scripts/svgSafe.js scripts/admin.html ./scripts/
+# Database migrations, applied on start-up when PG_HOST is set
+COPY --chown=node:node migrations/ ./migrations/
 COPY --chown=node:node public/ ./public/
 
 # Switch to non-root user
