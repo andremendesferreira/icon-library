@@ -107,6 +107,7 @@ export default {
   "editor.transformNote":
     "Gilt für die ausgewählte Form oder, wenn nichts ausgewählt ist, für das ganze Icon.",
   "editor.rotate": "Um 90° drehen",
+  "editor.rotate45": "Um 45° drehen",
   "editor.flip": "Spiegeln",
   "editor.flipH": "Horizontal spiegeln",
   "editor.flipV": "Vertikal spiegeln",
@@ -124,7 +125,7 @@ export default {
   "editor.snapOff": "Aus",
   "editor.canvas": "Icon in Bearbeitung",
   "editor.hint":
-    "Punkte ziehen, um die Form zu ändern · eine Form ziehen, um sie zu verschieben · Pfeiltasten verschieben · Entf löscht · Strg+Z macht rückgängig",
+    "Punkte ziehen, um die Form zu ändern · eine Form ziehen, um sie zu verschieben · Pfeiltasten verschieben · Entf löscht · Strg+Z macht rückgängig · Strg+C / Strg+V kopiert und fügt ein",
   "editor.previews": "Vorschau in echten Größen",
   "editor.code": "SVG-Code",
   "editor.undo": "Rückgängig",
@@ -244,6 +245,8 @@ export default {
 
   "iconlibrary.empty": "Iconlibrary hat noch keine Icons. Unterstützer können das erste veröffentlichen: Öffne ein Icon im Editor und wähle „In Iconlibrary veröffentlichen“.",
 
+  "editor.confirmClose": "Editor schließen? Nicht kopierte, heruntergeladene oder gespeicherte Änderungen gehen verloren.",
+  "editor.shapeCopied": "Kopiert — Strg+V fügt es ein",
   "nav.label": "Website",
   "footer.icons": "Icons",
   "footer.guide": "Anleitung",

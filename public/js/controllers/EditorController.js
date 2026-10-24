@@ -81,6 +81,17 @@ export class EditorController {
       aoBuscar: (chave, termo) => this.buscar(chave, termo),
       aoImportar: (k) => this.importar(k),
       aoCodigo: (texto) => this.aplicarCodigo(texto),
+      // Ctrl+C / Ctrl+V: devolvem se agiram (senão a tecla segue normal)
+      aoCopiarForma: () => {
+        if (!model.copiar()) return false;
+        this.avisar(t("editor.shapeCopied"));
+        return true;
+      },
+      aoColarForma: () => {
+        if (!model.colar()) return false;
+        this.desenhar();
+        return true;
+      },
       aoDesfazer: mudar(() => model.desfazer()),
       aoRefazer: mudar(() => model.refazerUltimo()),
       aoCopiar: () =>
@@ -104,6 +115,8 @@ export class EditorController {
       aoAbrirArquivo: (arquivo) => this.abrirArquivo(arquivo),
       aoCompartilhar: () => this.compartilhar(),
       aoFechar: () => this.limparEndereco(),
+      // Houve mudança desde que o ícone foi aberto (fechar pede confirmação)
+      temAlteracoes: () => model.podeDesfazer,
     });
     // Link com #svg=… ou #ile=… (feito por uma pessoa ou por uma IA)
     this.abrirDoEndereco();

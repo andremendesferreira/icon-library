@@ -351,14 +351,15 @@
         <p class="editor__note" data-i18n="editor.transformNote">Applies to the selected shape, or to the whole icon when nothing is selected.</p>
         <div class="editor__buttons editor__buttons--grid">
           <button type="button" data-op="girar" title="Rotate 90°" data-i18n-attr="title:editor.rotate">↻ 90°</button>
+          <button type="button" data-op="girar45" title="Rotate 45°" data-i18n-attr="title:editor.rotate45">↻ 45°</button>
           <button type="button" data-op="espelharH" title="Flip horizontally" data-i18n-attr="title:editor.flipH">⇋ <span data-i18n="editor.flip">Flip</span></button>
           <button type="button" data-op="espelharV" title="Flip vertically" data-i18n-attr="title:editor.flipV">⇅ <span data-i18n="editor.flip">Flip</span></button>
+          <button type="button" data-op="diminuir" title="Shrink 10%" data-i18n-attr="title:editor.shrink">− <span data-i18n="editor.size">Size</span></button>
+          <button type="button" data-op="aumentar" title="Grow 10%" data-i18n-attr="title:editor.grow">+ <span data-i18n="editor.size">Size</span></button>
           <button type="button" data-op="esquerda" title="Move left" data-i18n-attr="title:editor.moveLeft;aria-label:editor.moveLeft">←</button>
           <button type="button" data-op="cima" title="Move up" data-i18n-attr="title:editor.moveUp;aria-label:editor.moveUp">↑</button>
-          <button type="button" data-op="direita" title="Move right" data-i18n-attr="title:editor.moveRight;aria-label:editor.moveRight">→</button>
-          <button type="button" data-op="diminuir" title="Shrink 10%" data-i18n-attr="title:editor.shrink">− <span data-i18n="editor.size">Size</span></button>
           <button type="button" data-op="baixo" title="Move down" data-i18n-attr="title:editor.moveDown;aria-label:editor.moveDown">↓</button>
-          <button type="button" data-op="aumentar" title="Grow 10%" data-i18n-attr="title:editor.grow">+ <span data-i18n="editor.size">Size</span></button>
+          <button type="button" data-op="direita" title="Move right" data-i18n-attr="title:editor.moveRight;aria-label:editor.moveRight">→</button>
         </div>
 
         <label class="editor__snap">
@@ -376,7 +377,7 @@
         <svg id="editor-canvas" class="editor__canvas" tabindex="0" role="img" aria-label="Icon being edited" data-i18n-attr="aria-label:editor.canvas"></svg>
         <p class="editor__hint" data-i18n="editor.hint">
           Drag the points to reshape · drag a shape to move it · arrows move ·
-          Delete removes · Ctrl+Z undoes
+          Delete removes · Ctrl+Z undoes · Ctrl+C / Ctrl+V copy and paste
         </p>
       </div>
 

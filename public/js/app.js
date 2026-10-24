@@ -74,6 +74,7 @@ new PublishController(new PublishView(), {
   icone: () => editor.atual(),
   apoiador,
   abrirCafe: () => cafeView.abrir(),
+  avisar,
 }).iniciar();
 
 new IconController(iconModel, iconView, {

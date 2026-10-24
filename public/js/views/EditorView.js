@@ -68,10 +68,13 @@ export class EditorView {
   acoes = null;
 
   constructor() {
+    // O editor não fecha com clique no fundo escuro: um clique fora da caixa
+    // (comum ao arrastar pontos perto da borda) perdia o ícone em edição.
+    // Fecha pelo × ou pelo Esc, que pedem confirmação se houver alterações.
     porId("editor-close").addEventListener("click", () => this.fechar());
-    // Clique no fundo escuro (fora da caixa) fecha
-    this.janela.addEventListener("click", (evento) => {
-      if (evento.target === this.janela) this.fechar();
+    this.janela.addEventListener("cancel", (evento) => {
+      evento.preventDefault();
+      this.fechar();
     });
   }
 
@@ -89,6 +92,7 @@ export class EditorView {
 
   fechar() {
     if (!this.janela.open) return;
+    if (this.acoes?.temAlteracoes() && !window.confirm(t("editor.confirmClose"))) return;
     this.janela.close();
     this.acoes?.aoFechar();
   }
@@ -205,11 +209,9 @@ export class EditorView {
   ligarArquivo() {
     porId("editor-save").addEventListener("click", this.acoes.aoSalvarArquivo);
     porId("editor-share").addEventListener("click", this.acoes.aoCompartilhar);
-    // Fechar pelo × e pelo clique fora passa por fechar(); o Esc dispara
-    // "cancel". O "close" fica como garantia — em testes, o Chrome nem
-    // sempre o disparou com um aviso animando na janela. aoFechar pode
-    // rodar mais de uma vez sem problema.
-    this.janela.addEventListener("cancel", this.acoes.aoFechar);
+    // Fechar pelo × e pelo Esc passa por fechar(), que chama aoFechar. O
+    // "close" fica como garantia — em testes, o Chrome nem sempre o disparou
+    // com um aviso animando na janela. aoFechar pode rodar mais de uma vez.
     this.janela.addEventListener("close", this.acoes.aoFechar);
     const escolher = () => {
       this.arquivo.value = "";
@@ -276,7 +278,12 @@ export class EditorView {
     if (evento.target.closest("textarea, select, input")) return;
     const ctrl = evento.ctrlKey || evento.metaKey;
     const tecla = evento.key.toLowerCase();
-    if (ctrl && tecla === "z" && !evento.shiftKey) acoes.aoDesfazer();
+    // Sem forma selecionada (ou nada copiado), Ctrl+C/V ficam com o navegador
+    if (ctrl && tecla === "c" && !evento.shiftKey) {
+      if (!acoes.aoCopiarForma()) return;
+    } else if (ctrl && tecla === "v" && !evento.shiftKey) {
+      if (!acoes.aoColarForma()) return;
+    } else if (ctrl && tecla === "z" && !evento.shiftKey) acoes.aoDesfazer();
     else if (ctrl && (tecla === "y" || (tecla === "z" && evento.shiftKey)))
       acoes.aoRefazer();
     else if (evento.key === "Delete" || evento.key === "Backspace")

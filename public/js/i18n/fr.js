@@ -107,6 +107,7 @@ export default {
   "editor.transformNote":
     "S’applique à la forme sélectionnée, ou à toute l’icône si rien n’est sélectionné.",
   "editor.rotate": "Pivoter de 90°",
+  "editor.rotate45": "Pivoter de 45°",
   "editor.flip": "Retourner",
   "editor.flipH": "Retourner horizontalement",
   "editor.flipV": "Retourner verticalement",
@@ -124,7 +125,7 @@ export default {
   "editor.snapOff": "Désactivé",
   "editor.canvas": "Icône en cours de modification",
   "editor.hint":
-    "Faites glisser les points pour changer la forme · faites glisser une forme pour la déplacer · les flèches déplacent · Suppr efface · Ctrl+Z annule",
+    "Faites glisser les points pour changer la forme · faites glisser une forme pour la déplacer · les flèches déplacent · Suppr efface · Ctrl+Z annule · Ctrl+C / Ctrl+V copie et colle",
   "editor.previews": "Aperçu en tailles réelles",
   "editor.code": "Code SVG",
   "editor.undo": "Annuler",
@@ -244,6 +245,8 @@ export default {
 
   "iconlibrary.empty": "Iconlibrary n’a pas encore d’icônes. Les soutiens peuvent publier la première : ouvrez une icône dans l’éditeur et choisissez « Publier dans Iconlibrary ».",
 
+  "editor.confirmClose": "Fermer l’éditeur ? Les modifications non copiées, téléchargées ou enregistrées seront perdues.",
+  "editor.shapeCopied": "Copié — Ctrl+V pour coller",
   "nav.label": "Site",
   "footer.icons": "Icônes",
   "footer.guide": "Guide",

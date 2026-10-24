@@ -1,4 +1,5 @@
 import { t } from "../i18n/i18n.js";
+import { fecharAoClicarFora } from "./dialogo.js";
 
 const porId = (id) => document.getElementById(id);
 
@@ -22,9 +23,7 @@ export class CoffeeView {
   constructor() {
     for (const botao of this.botoes) botao.addEventListener("click", () => this.abrir());
     porId("coffee-close").addEventListener("click", () => this.janela.close());
-    this.janela.addEventListener("click", (evento) => {
-      if (evento.target === this.janela) this.janela.close();
-    });
+    fecharAoClicarFora(this.janela);
   }
 
   // config: { enabled, link, price, days, devices }
@@ -63,6 +62,10 @@ export class CoffeeView {
     this.obrigadoTexto.textContent = t("coffee.thanksText", { date: dataTexto });
     this.ajudaCodigo.textContent = t("coffee.codeHelp", { devices });
     this.codigoMostrado.textContent = code;
+    // Já é apoiador neste navegador: o campo do código some (antes, cada
+    // novo clique em "Aplicar" gastava mais um aparelho)
+    this.formulario.hidden = true;
+    this.campoCodigo.value = "";
     this.mostrarSituacao("");
   }
 

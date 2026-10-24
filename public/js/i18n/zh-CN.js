@@ -106,6 +106,7 @@ export default {
   "editor.transform": "变换",
   "editor.transformNote": "作用于所选形状；未选择时作用于整个图标。",
   "editor.rotate": "旋转 90°",
+  "editor.rotate45": "旋转 45°",
   "editor.flip": "翻转",
   "editor.flipH": "水平翻转",
   "editor.flipV": "垂直翻转",
@@ -122,7 +123,7 @@ export default {
   "editor.snapQuarter": "¼ 单位",
   "editor.snapOff": "关闭",
   "editor.canvas": "正在编辑的图标",
-  "editor.hint": "拖动点改变形状 · 拖动形状移动它 · 方向键移动 · Delete 删除 · Ctrl+Z 撤销",
+  "editor.hint": "拖动点改变形状 · 拖动形状移动它 · 方向键移动 · Delete 删除 · Ctrl+Z 撤销 · Ctrl+C / Ctrl+V 复制粘贴",
   "editor.previews": "实际尺寸预览",
   "editor.code": "SVG 代码",
   "editor.undo": "撤销",
@@ -236,6 +237,8 @@ export default {
 
   "iconlibrary.empty": "Iconlibrary 还没有图标。支持者可以发布第一个：在编辑器中打开一个图标，然后选择“发布到 Iconlibrary”。",
 
+  "editor.confirmClose": "关闭编辑器？未复制、下载或保存的更改将会丢失。",
+  "editor.shapeCopied": "已复制——按 Ctrl+V 粘贴",
   "nav.label": "网站",
   "footer.icons": "图标",
   "footer.guide": "指南",

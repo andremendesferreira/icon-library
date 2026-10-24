@@ -107,6 +107,7 @@ export default {
   "editor.transformNote":
     "Vale para a forma selecionada, ou para o ícone inteiro quando nada está selecionado.",
   "editor.rotate": "Girar 90°",
+  "editor.rotate45": "Girar 45°",
   "editor.flip": "Espelhar",
   "editor.flipH": "Espelhar na horizontal",
   "editor.flipV": "Espelhar na vertical",
@@ -124,7 +125,7 @@ export default {
   "editor.snapOff": "Desligado",
   "editor.canvas": "Ícone em edição",
   "editor.hint":
-    "Arraste os pontos para mudar a forma · arraste uma forma para movê-la · setas movem · Delete apaga · Ctrl+Z desfaz",
+    "Arraste os pontos para mudar a forma · arraste uma forma para movê-la · setas movem · Delete apaga · Ctrl+Z desfaz · Ctrl+C / Ctrl+V copia e cola",
   "editor.previews": "Prévia nos tamanhos reais",
   "editor.code": "Código SVG",
   "editor.undo": "Desfazer",
@@ -244,6 +245,8 @@ export default {
 
   "iconlibrary.empty": "A Iconlibrary ainda não tem ícones. Apoiadores podem publicar o primeiro: abra um ícone no editor e escolha “Publicar na Iconlibrary”.",
 
+  "editor.confirmClose": "Fechar o editor? As alterações que você não copiou, baixou ou salvou serão perdidas.",
+  "editor.shapeCopied": "Copiado — Ctrl+V cola",
   "nav.label": "Site",
   "footer.icons": "Ícones",
   "footer.guide": "Guia",

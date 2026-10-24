@@ -163,6 +163,9 @@ export class EditorModel {
   // Cópia dos elementos no início de um arraste: cada movimento parte dela,
   // sem acumular arredondamentos
   base = null;
+  // Copiar e colar: { elementos, nome } e quantas vezes já foi colado
+  copiados = null;
+  colagens = 0;
 
   // Com desfazivel, abrir vira um passo do histórico (Undo volta ao ícone
   // anterior); sem, o histórico começa do zero
@@ -444,6 +447,51 @@ export class EditorModel {
     this.limparSelecao();
   }
 
+  // ── Copiar e colar (Ctrl+C / Ctrl+V) ─────────────────────────────────────
+  // A cópia é da forma ou do ícone selecionado e continua valendo ao abrir
+  // outro ícone. Devolve se havia o que copiar.
+  copiar() {
+    if (!this.temSelecao) return false;
+    const indices = this.alvos();
+    this.copiados = {
+      elementos: indices.map((i) => structuredClone(this.elementos[i])),
+      // Ícone inteiro: a cópia vira um ícone novo, com o mesmo nome
+      nome: this.selecionado === null ? this.grupos[this.grupoSelecionado]?.nome : null,
+    };
+    this.colagens = 0;
+    return true;
+  }
+
+  get temCopia() {
+    return Boolean(this.copiados?.elementos.length);
+  }
+
+  // Cada colagem fica um pouco mais para baixo e para a direita, para não
+  // cair exatamente em cima da original. Devolve se colou.
+  colar() {
+    if (!this.temCopia) return false;
+    this.registrar();
+    this.colagens++;
+    const desvio = (this.passo || 1) * 2 * this.colagens;
+    const m = matrizes.mover(desvio, desvio);
+    const { nome } = this.copiados;
+    const grupoNovo = nome != null ? this.grupos.push({ nome }) - 1 : null;
+    const inicio = this.elementos.length;
+    for (const el of this.copiados.elementos) {
+      const copia = structuredClone(el);
+      const grupo = grupoNovo ?? (this.grupos[copia.grupo] ? copia.grupo : 0);
+      // Forma que só existe no código (html, path ilegível): cola no lugar
+      let forma = copia;
+      try {
+        if (!copia.html) forma = transformarElemento(copia, m);
+      } catch {}
+      this.elementos.push({ ...forma, grupo, oculto: false });
+    }
+    if (grupoNovo !== null) this.selecionarGrupo(grupoNovo);
+    else this.selecionar(inicio);
+    return true;
+  }
+
   alternarOculto(indice) {
     const el = this.elementos[indice];
     if (!el) return;
@@ -460,6 +508,7 @@ export class EditorModel {
     const passo = this.passo || 1;
     const m = {
       girar: () => matrizes.girar90(cx, cy),
+      girar45: () => matrizes.girar(45, cx, cy),
       espelharH: () => matrizes.espelharH(cx),
       espelharV: () => matrizes.espelharV(cy),
       esquerda: () => matrizes.mover(-passo, 0),

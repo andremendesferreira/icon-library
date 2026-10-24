@@ -25,8 +25,10 @@ export class PublishController {
   maximo = 3;
 
   // icone(): { svg, nome } do editor; apoiador: SupporterModel; abrirCafe(): janela do café
-  constructor(view, { icone, apoiador, abrirCafe }) {
+  // avisar(mensagem): aviso na tela
+  constructor(view, { icone, apoiador, abrirCafe, avisar }) {
     this.view = view;
+    this.avisar = avisar;
     this.icone = icone;
     this.apoiador = apoiador;
     view.aoAbrir(() => this.abrir());
@@ -72,7 +74,9 @@ export class PublishController {
         view.travar(false);
         return;
       }
-      view.mostrarSituacao(t("publish.sent", { name: dados.name.trim() }), "ok");
+      // Enviado: a janela fecha e o aviso aparece por cima do editor
+      view.fechar();
+      this.avisar(t("publish.sent", { name: dados.name.trim() }));
     } catch {
       view.mostrarSituacao(t("coffee.error"), "erro");
       view.travar(false);

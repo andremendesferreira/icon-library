@@ -113,6 +113,39 @@ test("transformar: giro de 90° em volta do centro", () => {
   assert.deepEqual(ret.attrs, { x: "8", y: "2", width: "8", height: "20", rx: "1", ry: "2" });
 });
 
+test("transformar: giro qualquer — 90° bate com girar90, 45° gira a linha", () => {
+  assert.deepEqual(matrizes.girar(90, 12, 12), matrizes.girar90(12, 12));
+  const linha = transformarElemento(
+    { tag: "line", attrs: { x1: "12", y1: "12", x2: "22", y2: "12" } },
+    matrizes.girar(45, 12, 12),
+  );
+  assert.deepEqual(linha.attrs, { x1: "12", y1: "12", x2: "19.071", y2: "19.071" });
+});
+
+test("transformar: 45° faz rect e ellipse virarem path com o mesmo desenho", () => {
+  const ret = transformarElemento(
+    { tag: "rect", attrs: { x: "2", y: "2", width: "20", height: "20", rx: "2", fill: "red" } },
+    matrizes.girar(45, 12, 12),
+  );
+  assert.equal(ret.tag, "path");
+  assert.equal(ret.attrs.fill, "red");
+  assert.equal(ret.attrs.x, undefined);
+  const cmds = lerPath(ret.attrs.d);
+  // 4 lados + 4 cantos arredondados; o primeiro ponto (4, 2) girado em (12, 12)
+  assert.equal(cmds.filter((c) => c.t === "A").length, 4);
+  // (dx, dy) = (-8, -10) → ((dx - dy)/√2, (dx + dy)/√2) = (1.414, -12.728)
+  assert.deepEqual([fmt(cmds[0].x), fmt(cmds[0].y)], ["13.414", "-0.728"]);
+  const eli = transformarElemento(
+    { tag: "ellipse", attrs: { cx: "12", cy: "12", rx: "6", ry: "3" } },
+    matrizes.girar(45, 12, 12),
+  );
+  assert.equal(eli.tag, "path");
+  const arcos = lerPath(eli.attrs.d).filter((c) => c.t === "A");
+  assert.deepEqual(arcos.map((a) => [a.rx, a.ry, a.rot]), [[6, 3, 45], [6, 3, 45]]);
+  // Giro de 90° continua mantendo o rect como rect
+  assert.equal(transformarElemento({ tag: "rect", attrs: { x: "0", y: "0", width: "4", height: "2" } }, matrizes.girar(90, 12, 12)).tag, "rect");
+});
+
 test("transformar: espelho inverte o sentido dos arcos", () => {
   const [, a] = lerPath(
     transformarElemento(path("M4 12A8 8 0 0 1 20 12"), matrizes.espelharH(12)).attrs.d,
@@ -188,6 +221,43 @@ test("EditorModel: transformar sem seleção vale para o ícone inteiro", () => 
   assert.equal(model.elementos[1].attrs.cx, "12");
   model.desfazer();
   assert.equal(model.elementos[0].attrs.y1, "12");
+});
+
+test("EditorModel: copiar e colar uma forma, deslocada a cada colagem", () => {
+  const model = editor();
+  assert.equal(model.copiar(), false); // sem seleção, nada a copiar
+  assert.equal(model.colar(), false);
+  model.selecionar(1);
+  assert.equal(model.copiar(), true);
+  model.colar();
+  model.colar();
+  assert.equal(model.elementos.length, 4);
+  assert.deepEqual([model.elementos[2].attrs.cx, model.elementos[3].attrs.cx], ["13", "14"]);
+  assert.equal(model.selecionado, 3);
+  // A cópia é independente: mexer na colada não muda a original
+  model.transformar("direita");
+  assert.equal(model.elementos[1].attrs.cx, "12");
+  model.desfazer();
+  model.desfazer();
+  assert.equal(model.elementos.length, 3);
+});
+
+test("EditorModel: colar um ícone inteiro cria um ícone novo", () => {
+  const model = editor();
+  model.selecionarGrupo(0);
+  model.copiar();
+  model.colar();
+  assert.equal(model.elementos.length, 4);
+  assert.equal(model.grupos.length, 2);
+  assert.equal(model.grupoSelecionado, 1);
+  assert.deepEqual(model.indicesDoGrupo(1), [2, 3]);
+});
+
+test("EditorModel: girar 45° a forma selecionada", () => {
+  const model = editor();
+  model.selecionar(0);
+  model.transformar("girar45");
+  assert.deepEqual(model.elementos[0].attrs, { x1: "6.343", y1: "6.343", x2: "17.657", y2: "17.657" });
 });
 
 // Ícone preenchido do Bootstrap (16×16), para sobrepor

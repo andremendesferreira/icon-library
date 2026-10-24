@@ -106,6 +106,7 @@ export default {
   "editor.transform": "変形",
   "editor.transformNote": "選択した図形に適用されます。何も選択していないときはアイコン全体に適用されます。",
   "editor.rotate": "90° 回転",
+  "editor.rotate45": "45° 回転",
   "editor.flip": "反転",
   "editor.flipH": "左右反転",
   "editor.flipV": "上下反転",
@@ -122,7 +123,7 @@ export default {
   "editor.snapQuarter": "¼ 単位",
   "editor.snapOff": "オフ",
   "editor.canvas": "編集中のアイコン",
-  "editor.hint": "点をドラッグして形を変更 · 図形をドラッグして移動 · 矢印キーで移動 · Delete で削除 · Ctrl+Z で元に戻す",
+  "editor.hint": "点をドラッグして形を変更 · 図形をドラッグして移動 · 矢印キーで移動 · Delete で削除 · Ctrl+Z で元に戻す · Ctrl+C / Ctrl+V でコピー・貼り付け",
   "editor.previews": "実寸プレビュー",
   "editor.code": "SVG コード",
   "editor.undo": "元に戻す",
@@ -236,6 +237,8 @@ export default {
 
   "iconlibrary.empty": "Iconlibrary にはまだアイコンがありません。サポーターが最初の 1 個を公開できます。エディターでアイコンを開き、「Iconlibrary に公開」を選んでください。",
 
+  "editor.confirmClose": "エディターを閉じますか？コピー・ダウンロード・保存していない変更は失われます。",
+  "editor.shapeCopied": "コピーしました — Ctrl+V で貼り付け",
   "nav.label": "サイト",
   "footer.icons": "アイコン",
   "footer.guide": "ガイド",

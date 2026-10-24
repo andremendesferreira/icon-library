@@ -386,16 +386,55 @@ export function moverPonto(elemento, id, x, y) {
 
 // ── Transformações ───────────────────────────────────────────────────────────
 // Matriz afim { a, b, c, d, e, f }: x' = a·x + c·y + e, y' = b·x + d·y + f.
-// O editor só usa giros de 90°, espelhos, deslocamentos e escala uniforme —
-// as formas alinhadas aos eixos (rect, ellipse) continuam alinhadas.
+// O editor usa giros, espelhos, deslocamentos e escala uniforme. Num giro que
+// não é múltiplo de 90°, rect e ellipse viram path (deixariam de estar
+// alinhados aos eixos); as outras formas giram como são.
 export const matrizes = {
   mover: (dx, dy) => ({ a: 1, b: 0, c: 0, d: 1, e: dx, f: dy }),
   // 90° no sentido horário, em volta de (cx, cy)
   girar90: (cx, cy) => ({ a: 0, b: 1, c: -1, d: 0, e: cx + cy, f: cy - cx }),
+  // Qualquer ângulo, em graus, no sentido horário, em volta de (cx, cy)
+  girar: (graus, cx, cy) => {
+    const r = (graus * Math.PI) / 180;
+    // Sem resíduo de ponto flutuante nos ângulos retos (cos 90° = 6e-17)
+    const limpo = (v) => (Math.abs(v) < 1e-12 ? 0 : v);
+    const cos = limpo(Math.cos(r));
+    const sen = limpo(Math.sin(r));
+    return { a: cos, b: sen, c: -sen, d: cos, e: cx - cos * cx + sen * cy, f: cy - sen * cx - cos * cy };
+  },
   espelharH: (cx) => ({ a: -1, b: 0, c: 0, d: 1, e: 2 * cx, f: 0 }),
   espelharV: (cy) => ({ a: 1, b: 0, c: 0, d: -1, e: 0, f: 2 * cy }),
   escalar: (k, cx, cy) => ({ a: k, b: 0, c: 0, d: k, e: cx * (1 - k), f: cy * (1 - k) }),
 };
+
+// rect ou ellipse → path com o mesmo desenho (cantos arredondados viram arcos)
+function comoPath(elemento) {
+  const { x, y, width, height, rx, ry, cx, cy, ...resto } = elemento.attrs;
+  const cmds = [];
+  if (elemento.tag === "ellipse") {
+    const [ex, ey, rh, rv] = [num(cx), num(cy), num(rx), num(ry)];
+    const arco = (px) => ({ t: "A", rx: rh, ry: rv, rot: 0, large: 1, sweep: 0, x: px, y: ey });
+    cmds.push({ t: "M", x: ex - rh, y: ey }, arco(ex + rh), arco(ex - rh), { t: "Z" });
+  } else {
+    const [x0, y0, w, h] = [num(x), num(y), num(width), num(height)];
+    // Regra do SVG: falta um dos raios, vale o outro; nunca passa da metade
+    let kx = rx !== undefined ? num(rx) : ry !== undefined ? num(ry) : 0;
+    let ky = ry !== undefined ? num(ry) : kx;
+    kx = Math.min(Math.max(kx, 0), w / 2);
+    ky = Math.min(Math.max(ky, 0), h / 2);
+    const canto = (px, py) =>
+      kx && ky ? [{ t: "A", rx: kx, ry: ky, rot: 0, large: 0, sweep: 1, x: px, y: py }] : [];
+    cmds.push(
+      { t: "M", x: x0 + kx, y: y0 },
+      { t: "L", x: x0 + w - kx, y: y0 }, ...canto(x0 + w, y0 + ky),
+      { t: "L", x: x0 + w, y: y0 + h - ky }, ...canto(x0 + w - kx, y0 + h),
+      { t: "L", x: x0 + kx, y: y0 + h }, ...canto(x0, y0 + h - ky),
+      { t: "L", x: x0, y: y0 + ky }, ...canto(x0 + kx, y0),
+      { t: "Z" },
+    );
+  }
+  return { ...elemento, tag: "path", attrs: { d: escreverPath(cmds), ...resto } };
+}
 
 export function transformarElemento(elemento, m) {
   if (!FORMAS.has(elemento.tag)) return elemento;
@@ -405,6 +444,9 @@ export function transformarElemento(elemento, m) {
   const espelhado = det < 0;
   const giro = (Math.atan2(m.b, m.a) * 180) / Math.PI;
   const quarto = Math.abs(Math.abs(giro) - 90) < 1e-6;
+  const reto = Math.abs(giro / 90 - Math.round(giro / 90)) < 1e-6;
+  if (!reto && (elemento.tag === "rect" || elemento.tag === "ellipse"))
+    return transformarElemento(comoPath(elemento), m);
   const a = { ...elemento.attrs };
   const novo = { ...elemento, attrs: a };
 

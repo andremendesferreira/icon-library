@@ -1,5 +1,6 @@
 import { escapar } from "./html.js";
 import { t } from "../i18n/i18n.js";
+import { fecharAoClicarFora } from "./dialogo.js";
 
 const porId = (id) => document.getElementById(id);
 
@@ -23,9 +24,7 @@ export class PublishView {
 
   constructor() {
     porId("publish-close").addEventListener("click", () => this.janela.close());
-    this.janela.addEventListener("click", (evento) => {
-      if (evento.target === this.janela) this.janela.close();
-    });
+    fecharAoClicarFora(this.janela);
     // No máximo N categorias: as demais caixas ficam desativadas
     this.categorias.addEventListener("change", () => this.limitarCategorias());
   }
@@ -88,6 +87,10 @@ export class PublishView {
     this.travar(false);
     if (!this.janela.open) this.janela.showModal();
     this.nome.focus();
+  }
+
+  fechar() {
+    this.janela.close();
   }
 
   travar(enviando) {

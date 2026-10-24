@@ -91,6 +91,14 @@ export class CoffeeController {
   }
 
   async usarCodigo(codigo) {
+    // O mesmo código que este navegador já usa: nada a fazer — perguntar de
+    // novo ao servidor gastaria mais um dos aparelhos permitidos
+    const atual = this.model.ativo();
+    const digitado = codigo.toUpperCase().replace(/[^A-Z0-9]/g, "").replace(/^CAFE/, "");
+    if (atual && atual.code.replace(/[^A-Z0-9]/g, "").replace(/^CAFE/, "") === digitado) {
+      this.view.mostrarObrigado({ code: atual.code, dataTexto: this.data(atual.expires) });
+      return;
+    }
     this.view.mostrarSituacao(t("coffee.checking"));
     try {
       this.registrar(await api("api/coffee/claim", { code: codigo }));

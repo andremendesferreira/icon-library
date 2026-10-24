@@ -1635,9 +1635,16 @@ body:has(.scratchpad--open) .back-to-top {
   flex-wrap: wrap;
   gap: 6px;
 }
+/* Giros, espelhos e tamanho: dois por linha; as quatro setas numa linha só */
 .editor__buttons--grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.editor__buttons--grid > button {
+  grid-column: span 2;
+}
+.editor__buttons--grid > :is([data-op="esquerda"], [data-op="cima"], [data-op="baixo"], [data-op="direita"]) {
+  grid-column: span 1;
 }
 .editor__buttons button,
 .editor__footer button,

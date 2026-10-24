@@ -110,6 +110,7 @@ export default {
   "editor.transformNote":
     "Applies to the selected shape, or to the whole icon when nothing is selected.",
   "editor.rotate": "Rotate 90°",
+  "editor.rotate45": "Rotate 45°",
   "editor.flip": "Flip",
   "editor.flipH": "Flip horizontally",
   "editor.flipV": "Flip vertically",
@@ -127,7 +128,7 @@ export default {
   "editor.snapOff": "Off",
   "editor.canvas": "Icon being edited",
   "editor.hint":
-    "Drag the points to reshape · drag a shape to move it · arrows move · Delete removes · Ctrl+Z undoes",
+    "Drag the points to reshape · drag a shape to move it · arrows move · Delete removes · Ctrl+Z undoes · Ctrl+C / Ctrl+V copy and paste",
   "editor.previews": "Preview at real sizes",
   "editor.code": "SVG code",
   "editor.undo": "Undo",
@@ -247,6 +248,8 @@ export default {
 
   "iconlibrary.empty": "No icons in Iconlibrary yet. Supporters can publish the first one: open an icon in the editor and choose “Publish to Iconlibrary”.",
 
+  "editor.confirmClose": "Close the editor? Changes you have not copied, downloaded or saved will be lost.",
+  "editor.shapeCopied": "Copied — Ctrl+V pastes it",
   "nav.label": "Site",
   "footer.icons": "Icons",
   "footer.guide": "Guide",
