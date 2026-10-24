@@ -132,6 +132,9 @@ p {
   bottom: 30px;
   transform: translateX(-50%);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  /* Só texto: o clique passa para o botão que estiver embaixo (no editor,
+     o aviso cobre a barra de botões) */
+  pointer-events: none;
 }
 #toast.show {
   visibility: visible;
