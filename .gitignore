@@ -5,3 +5,6 @@ desktop.ini
 *.log
 .env
 stack.env
+
+# Textos e imagens para divulgação (LinkedIn), fora do repositório
+linkedin/

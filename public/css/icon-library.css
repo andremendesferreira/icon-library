@@ -2252,6 +2252,41 @@ html.i18n-pendente body {
 .site-footer__coffee:hover {
   text-decoration: underline;
 }
+/* Sobre a ferramenta, antes do rodapé: texto corrido, discreto */
+.site-about {
+  max-width: 760px;
+  margin: 48px auto 0;
+  padding: 28px 24px 8px;
+  border-top: 1px solid #dfe6ee;
+  color: #5a6b7b;
+  font-size: 15px;
+  line-height: 1.7;
+}
+.site-about h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  color: #2c3e50;
+}
+.site-about h3 {
+  margin: 20px 0 6px;
+  font-size: 16px;
+  color: #2c3e50;
+}
+.site-about p {
+  margin: 0 0 12px;
+}
+.site-about ol {
+  margin: 0;
+  padding-left: 22px;
+}
+[data-theme="dark"] .site-about {
+  border-top-color: var(--dk-border);
+  color: var(--dk-muted, #9aa8b8);
+}
+[data-theme="dark"] .site-about h2,
+[data-theme="dark"] .site-about h3 {
+  color: var(--dk-text);
+}
 .site-footer__report {
   padding: 0;
   border: none;

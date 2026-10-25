@@ -70,6 +70,7 @@
         <ul class="header__subtitle-list">
           <li data-i18n-html="header.clickHtml"><strong>Click</strong> to copy;</li>
           <li data-i18n-html="header.rightClickHtml"><strong>Right-click</strong> copies the alternative (SVG).</li>
+          <li data-i18n-html="header.editHtml"><strong>Pencil</strong> opens the editor: reshape, recolor and combine icons.</li>
         </ul>
       </div>
     </div>
@@ -221,6 +222,20 @@
     <p class="loading__text" id="loader-text" data-i18n="loading.icons">Loading icons…</p>
   </div>
   <div id="emoji-container"></div>
+  <!-- O que é a ferramenta, em texto: está no HTML (sem depender do
+       JavaScript), para quem chega por busca e para os robôs -->
+  <section class="site-about" aria-labelledby="site-about-title">
+    <h2 id="site-about-title" data-i18n="home.title">A free icon toolkit for designers and developers</h2>
+    <p data-i18n="home.p1">Icon Library brings thousands of open-source icons together on one searchable page: Lucide, Feather, Bootstrap Icons and the full Unicode emoji set. Pick a set, filter by category or name, and set the size, stroke width and color before copying, so each icon arrives in your project already styled.</p>
+    <p data-i18n="home.p2">It is a working tool, not just a catalog. One click copies clean SVG, and the card menu exports SVG, PNG or a React component. The built-in editor lets you drag points, rotate, flip and resize shapes, give each part its own color and stack two icons into a new one. Projects can be saved as .ile files and reopened later, and the scratchpad collects several icons to copy at once.</p>
+    <p data-i18n="home.p3">The SVG works anywhere: paste it into HTML, use it in React, Vue or Angular components, or bring it into Figma and other design tools. Vector icons use currentColor, so they follow your text color and theme, and every icon keeps the license of its original project (ISC or MIT).</p>
+    <h3 data-i18n="home.howTitle">How it works</h3>
+    <ol>
+      <li data-i18n="home.how1">Choose a set, then search by name or pick categories.</li>
+      <li data-i18n="home.how2">Adjust size, stroke and color — the preview follows your choices.</li>
+      <li data-i18n="home.how3">Click to copy the SVG, or open the pencil to make the icon your own.</li>
+    </ol>
+  </section>
   <!-- Scratchpad: gaveta no canto direito; a aba fica sempre à vista -->
   <aside class="scratchpad" id="scratchpad" aria-label="Scratchpad" data-i18n-attr="aria-label:scratchpad.title">
     <button
