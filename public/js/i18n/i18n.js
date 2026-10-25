@@ -60,15 +60,20 @@ export function numero(n) {
   return new Intl.NumberFormat(idioma).format(n);
 }
 
+// Texto que nenhum dicionário tem (um dicionário antigo no cache do
+// navegador, por exemplo) fica como está no HTML, em inglês, em vez de
+// mostrar o nome da chave
+const conhecida = (chave) => chave in dicionario || chave in en;
+
 export function traduzirPagina(raiz = document) {
   for (const el of raiz.querySelectorAll("[data-i18n]"))
-    el.textContent = t(el.dataset.i18n);
+    if (conhecida(el.dataset.i18n)) el.textContent = t(el.dataset.i18n);
   for (const el of raiz.querySelectorAll("[data-i18n-html]"))
-    el.innerHTML = t(el.dataset.i18nHtml);
+    if (conhecida(el.dataset.i18nHtml)) el.innerHTML = t(el.dataset.i18nHtml);
   for (const el of raiz.querySelectorAll("[data-i18n-attr]"))
     for (const par of el.dataset.i18nAttr.split(";")) {
       const [atributo, chave] = par.split(":").map((s) => s.trim());
-      if (atributo && chave) el.setAttribute(atributo, t(chave));
+      if (atributo && chave && conhecida(chave)) el.setAttribute(atributo, t(chave));
     }
   if (deteccao)
     for (const el of raiz.querySelectorAll("[data-i18n-page]"))
