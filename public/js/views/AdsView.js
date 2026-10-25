@@ -50,9 +50,23 @@ export class AdsView {
       // Gaveta fechada: o bloco tem largura, mas está fora da tela
       if (area.closest(".scratchpad:not(.scratchpad--open)")) continue;
       area.dataset.adFilled = "true";
-      area.querySelector(".ad__unit").appendChild(this.criarBloco(area));
+      const bloco = this.criarBloco(area);
+      area.querySelector(".ad__unit").appendChild(bloco);
+      this.acompanhar(bloco, area);
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     }
+  }
+
+  // O Google marca o bloco com data-ad-status: "filled" quando chega um
+  // anúncio, "unfilled" quando não há (conta em análise, sem anunciante).
+  // O rótulo "Publicidade" só aparece com anúncio; sem, a área some inteira —
+  // nada de caixa vazia na página (e o espaço das laterais é devolvido)
+  acompanhar(bloco, area) {
+    new MutationObserver(() => {
+      const situacao = bloco.dataset.adStatus;
+      if (situacao === "filled") area.classList.add("ad--filled");
+      else if (situacao === "unfilled") area.hidden = true;
+    }).observe(bloco, { attributes: true, attributeFilter: ["data-ad-status"] });
   }
 
   criarBloco(area) {
