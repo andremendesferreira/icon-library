@@ -1,3 +1,5 @@
+import { t } from "../i18n/i18n.js";
+
 const SCRIPT = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
 const LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
 
@@ -40,6 +42,7 @@ export class AdsView {
   mostrarPrevia(area) {
     area.hidden = false;
     area.classList.add("ad--preview");
+    this.rotular(area);
     area.querySelector(".ad__unit").textContent = `Ad preview · ${area.dataset.ad}`;
   }
 
@@ -64,9 +67,19 @@ export class AdsView {
   acompanhar(bloco, area) {
     new MutationObserver(() => {
       const situacao = bloco.dataset.adStatus;
-      if (situacao === "filled") area.classList.add("ad--filled");
+      if (situacao === "filled") this.rotular(area);
       else if (situacao === "unfilled") area.hidden = true;
     }).observe(bloco, { attributes: true, attributeFilter: ["data-ad-status"] });
+  }
+
+  // O rótulo "Publicidade" não está no HTML: só existe quando há anúncio
+  rotular(area) {
+    if (area.querySelector(".ad__label")) return;
+    const rotulo = document.createElement("span");
+    rotulo.className = "ad__label";
+    rotulo.textContent = t("ad.label");
+    area.prepend(rotulo);
+    area.setAttribute("aria-label", t("ad.label"));
   }
 
   criarBloco(area) {

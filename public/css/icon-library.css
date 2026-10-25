@@ -819,11 +819,7 @@ p {
 .ad {
   text-align: center;
 }
-/* O rótulo só aparece quando o anúncio chega (ad--filled, em AdsView.js):
-   nada de "Publicidade" sobre uma caixa vazia */
-.ad:not(.ad--filled, .ad--preview) .ad__label {
-  visibility: hidden;
-}
+/* O rótulo é criado por AdsView.js só quando o anúncio chega */
 .ad__label {
   display: block;
   margin-bottom: 2px;
