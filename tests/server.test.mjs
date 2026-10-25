@@ -4,6 +4,10 @@ import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
 import zlib from "node:zlib";
+import path from "node:path";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 
 import servidor from "../scripts/server.js";
 
@@ -120,4 +124,20 @@ test("ads.txt só com um ID de editor válido", async () => {
   } finally {
     delete process.env.ADSENSE_PUBLISHER_ID;
   }
+});
+
+// O Dockerfile copia os arquivos do servidor um a um: um arquivo novo que
+// ficasse de fora derrubaria o container ("Cannot find module")
+test("Dockerfile: copia todo arquivo que o servidor carrega", () => {
+  const exigir = createRequire(import.meta.url);
+  exigir("../scripts/server.js");
+  const pasta = fileURLToPath(new URL("../scripts/", import.meta.url));
+  const carregados = Object.keys(exigir.cache)
+    .filter((arquivo) => arquivo.startsWith(pasta))
+    .map((arquivo) => path.basename(arquivo));
+  const dockerfile = readFileSync(new URL("../Dockerfile", import.meta.url), "utf8");
+  // admin.html é lido do disco a cada visita a /admin
+  for (const nome of [...carregados, "admin.html"])
+    assert.ok(dockerfile.includes(` scripts/${nome} `), `falta scripts/${nome} no Dockerfile`);
+  assert.ok(carregados.includes("reports.js"));
 });
