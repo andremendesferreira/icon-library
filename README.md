@@ -116,9 +116,16 @@ A fifth set, **Iconlibrary**, holds icons published by supporters from the edito
 - **Review:** every icon starts as *pending*. The owner reviews them at **`/admin`** (HTTP Basic auth with `ADMIN_PASSWORD`; the page lives in `scripts/admin.html`, outside `public/`), approving, rejecting (the name becomes free again) or deleting. Approved icons appear within a minute.
 - **API:** `GET /api/iconlibrary/icons` (approved icons), `POST /api/iconlibrary/icons` (submit), `GET /api/iconlibrary/config`; review: `GET /api/admin/icons?status=`, `POST /api/admin/icons/:id/approve|reject|delete`.
 
+### Bug reports
+
+- **Report a bug** in the footer (and on the guide, about and privacy pages) opens a form: what happened, an optional e-mail for a reply, and, sent along automatically, the page address, language, browser and window size. The IP is not stored. A hidden field catches bots, and each IP may send 5 reports per 15 minutes.
+- The form also links to **GitHub Issues**, with the issue already filled in from what was typed; without the database, only that link is shown.
+- Reports are read at **`/admin`**, under *Bug reports* (open / resolved), with a link to reply by e-mail.
+- **API:** `GET /api/reports/config`, `POST /api/reports`; admin: `GET /api/admin/reports?status=open|resolved`, `POST /api/admin/reports/:id/resolve|reopen|delete`. Table `bug_reports` (`migrations/003_bug_reports.sql`); if it is missing, only the form is off.
+
 ### Database and migrations
 
-The numbered SQL files in `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`…) are applied in order on start-up when `PG_HOST` is set, each in a transaction, under an advisory lock, and recorded in `schema_migrations`; `npm run migrate` applies them by hand. To change the schema, add a new file with the next number — never edit one that already ran. The `PG_USER` needs permission to create tables (on PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). If the migrations fail, the site still runs, with the coffee and Iconlibrary off.
+The numbered SQL files in `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`, `003_bug_reports.sql`…) are applied in order on start-up when `PG_HOST` is set, each in a transaction, under an advisory lock, and recorded in `schema_migrations`; `npm run migrate` applies them by hand. To change the schema, add a new file with the next number — never edit one that already ran. The `PG_USER` needs permission to create tables (on PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). If the migrations fail, the site still runs, with the coffee and Iconlibrary off.
 
 **Owner and application user (recommended):** let the owner role apply the migrations (`PG_USER=<owner> npm run migrate`) and run the site with an application role that only has `USAGE` on the schema, `SELECT, INSERT, UPDATE, DELETE` on the tables and `USAGE, SELECT` on the sequences; set `PG_MIGRATE=false` for it. Even without that flag, the server issues no `CREATE` when nothing is pending.
 
@@ -262,9 +269,10 @@ icon-library/
 ├── scripts/build-pages.mjs             generates the text pages (npm run pages)
 ├── scripts/coffee.js                   buy me a coffee: Stripe check, supporter codes
 ├── scripts/iconlibrary.js              community icons: submit, list, review
+├── scripts/reports.js                  bug reports from the footer form
 ├── scripts/svgSafe.js                  strict check of submitted SVG
 ├── scripts/db.js                       PostgreSQL pool and migration runner (npm run migrate)
-├── scripts/admin.html                  review page (/admin)
+├── scripts/admin.html                  admin page (/admin): icons and bug reports
 ├── migrations/                         numbered SQL migrations
 ├── .env.example                        Stripe and PostgreSQL settings (copy to .env)
 ├── pages/                              text page content, one file per language
@@ -392,9 +400,16 @@ Um quinto conjunto, **Iconlibrary**, reúne ícones publicados por apoiadores a 
 - **Revisão:** todo ícone começa *pendente*. O dono revisa em **`/admin`** (autenticação HTTP Basic com `ADMIN_PASSWORD`; a página fica em `scripts/admin.html`, fora de `public/`), aprovando, recusando (o nome volta a ficar livre) ou excluindo. Os aprovados aparecem em até um minuto.
 - **API:** `GET /api/iconlibrary/icons` (aprovados), `POST /api/iconlibrary/icons` (envio), `GET /api/iconlibrary/config`; revisão: `GET /api/admin/icons?status=`, `POST /api/admin/icons/:id/approve|reject|delete`.
 
+### Relatos de bug
+
+- **Reportar bug**, no rodapé (e nas páginas de guia, sobre e privacidade), abre um formulário: o que aconteceu, um e-mail opcional para resposta e, enviados automaticamente, o endereço da página, o idioma, o navegador e o tamanho da janela. O IP não é guardado. Um campo escondido barra robôs, e cada IP pode enviar 5 relatos a cada 15 minutos.
+- O formulário também leva ao **GitHub Issues**, com o issue já preenchido com o que foi digitado; sem o banco, só esse link aparece.
+- Os relatos são lidos em **`/admin`**, na aba *Relatos de bug* (abertos / resolvidos), com um link para responder por e-mail.
+- **API:** `GET /api/reports/config`, `POST /api/reports`; admin: `GET /api/admin/reports?status=open|resolved`, `POST /api/admin/reports/:id/resolve|reopen|delete`. Tabela `bug_reports` (`migrations/003_bug_reports.sql`); se ela faltar, só o formulário fica desligado.
+
 ### Banco de dados e migrations
 
-Os arquivos SQL numerados em `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`…) são aplicados em ordem na subida, quando `PG_HOST` está definido — cada um numa transação, sob um lock consultivo, e registrados em `schema_migrations`; `npm run migrate` os aplica manualmente. Para mudar o esquema, crie um arquivo novo com o próximo número — nunca edite um que já rodou. O `PG_USER` precisa de permissão para criar tabelas (no PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). Se as migrations falharem, o site continua no ar, com o café e a Iconlibrary desligados.
+Os arquivos SQL numerados em `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`, `003_bug_reports.sql`…) são aplicados em ordem na subida, quando `PG_HOST` está definido — cada um numa transação, sob um lock consultivo, e registrados em `schema_migrations`; `npm run migrate` os aplica manualmente. Para mudar o esquema, crie um arquivo novo com o próximo número — nunca edite um que já rodou. O `PG_USER` precisa de permissão para criar tabelas (no PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). Se as migrations falharem, o site continua no ar, com o café e a Iconlibrary desligados.
 
 **Dono e usuário da aplicação (recomendado):** deixe o papel dono aplicar as migrations (`PG_USER=<dono> npm run migrate`) e rode o site com um papel de aplicação que tenha só `USAGE` no schema, `SELECT, INSERT, UPDATE, DELETE` nas tabelas e `USAGE, SELECT` nas sequências; para ele, defina `PG_MIGRATE=false`. Mesmo sem essa opção, o servidor não executa nenhum `CREATE` quando não há migration pendente.
 
@@ -522,9 +537,10 @@ icon-library/
 ├── scripts/build-pages.mjs             gera as páginas de texto (npm run pages)
 ├── scripts/coffee.js                   pague um café: confirmação no Stripe, códigos de apoiador
 ├── scripts/iconlibrary.js              ícones da comunidade: envio, lista, revisão
+├── scripts/reports.js                  relatos de bug do formulário do rodapé
 ├── scripts/svgSafe.js                  conferência estrita do SVG enviado
 ├── scripts/db.js                       conexão com o PostgreSQL e migrations (npm run migrate)
-├── scripts/admin.html                  página de moderação (/admin)
+├── scripts/admin.html                  administração (/admin): ícones e relatos de bug
 ├── migrations/                         migrations SQL numeradas
 ├── .env.example                        configurações do Stripe e do PostgreSQL (copie para .env)
 ├── pages/                              conteúdo das páginas de texto, um arquivo por idioma

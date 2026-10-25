@@ -15,6 +15,8 @@ import { CoffeeView } from "./views/CoffeeView.js";
 import { CoffeeController } from "./controllers/CoffeeController.js";
 import { PublishView } from "./views/PublishView.js";
 import { PublishController } from "./controllers/PublishController.js";
+import { ReportView } from "./views/ReportView.js";
+import { ReportController } from "./controllers/ReportController.js";
 
 // O idioma vem antes de tudo: as views já nascem com os textos traduzidos
 await carregarIdioma();
@@ -76,6 +78,9 @@ new PublishController(new PublishView(), {
   abrirCafe: () => cafeView.abrir(),
   avisar,
 }).iniciar();
+
+// "Reportar bug" no rodapé
+new ReportController(new ReportView(), { avisar }).iniciar();
 
 new IconController(iconModel, iconView, {
   aoAdicionar: (item, svg) => scratchpad.adicionar(item, svg),

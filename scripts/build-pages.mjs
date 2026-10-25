@@ -92,6 +92,7 @@ ${conteudo}
 ${PAGINAS.filter((p) => p !== pagina)
   .map((p) => `      <a href="${arquivo(p, idioma)}">${escapar(t(idioma, ROTULO[p]))}</a>`)
   .join("\n")}
+      <a href="${icones}#report">🐞 ${escapar(t(idioma, "footer.report"))}</a>
     </nav>
     <p class="site-footer__owner">© 2026 André M. Ferreira</p>
   </footer>

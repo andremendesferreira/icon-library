@@ -2252,8 +2252,69 @@ html.i18n-pendente body {
 .site-footer__coffee:hover {
   text-decoration: underline;
 }
+.site-footer__report {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.site-footer__report:hover {
+  text-decoration: underline;
+}
+/* Reportar bug: usa a janela e os campos de "publicar" */
+.report .coffee__title {
+  text-align: center;
+}
+.report > .coffee__note {
+  margin: 0 0 16px;
+  text-align: center;
+}
+.report textarea {
+  min-height: 110px;
+  padding: 8px 10px;
+  border: 1px solid #c5d0dc;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 400;
+  resize: vertical;
+}
+.report__trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.report__included {
+  margin: 0;
+  font-size: 12.5px;
+  color: #8a99a8;
+}
+.report .coffee__status {
+  text-align: center;
+}
+.report__github {
+  margin: 8px 0 0;
+  font-size: 13px;
+  text-align: center;
+}
+.report__github a {
+  color: #1558c8;
+}
+[data-theme="dark"] .report textarea {
+  background: var(--dk-surface);
+  border-color: var(--dk-border);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .report__github a {
+  color: #7fb0ff;
+}
+/* A largura inclui o padding: no celular a janela não passa da tela */
 .coffee {
-  width: min(440px, 92vw);
+  box-sizing: border-box;
+  width: min(492px, 92vw);
   padding: 28px 26px 20px;
   border: none;
   border-radius: 16px;
@@ -2511,7 +2572,8 @@ kbd {
 
 /* ── Publicar na Iconlibrary ── */
 .publish {
-  width: min(520px, 94vw);
+  box-sizing: border-box;
+  width: min(572px, 94vw);
   max-height: 92vh;
   padding: 26px 26px 18px;
   border: none;

@@ -469,12 +469,38 @@
     </form>
     <p id="coffee-status" class="coffee__status" role="status"></p>
   </dialog>
+  <!-- Reportar bug (rodapé): vai para o servidor e é lido em /admin; ou vira
+       um issue no GitHub -->
+  <dialog id="report" class="publish report" aria-labelledby="report-title">
+    <button type="button" id="report-close" class="coffee__close" aria-label="Close" data-i18n-attr="aria-label:coffee.close">×</button>
+    <h2 id="report-title" class="coffee__title" data-i18n="report.title">Report a bug</h2>
+    <p class="coffee__note" data-i18n="report.intro">Something not working right? Tell us what happened — every report is read.</p>
+    <form id="report-form" class="publish__form">
+      <label class="publish__field">
+        <span data-i18n="report.message">What happened?</span>
+        <textarea id="report-message" rows="5" maxlength="2000" required></textarea>
+        <small data-i18n="report.messageHelp">What you did, what you expected and what happened instead.</small>
+      </label>
+      <label class="publish__field">
+        <span data-i18n="report.email">E-mail (optional)</span>
+        <input id="report-email" type="email" maxlength="254" autocomplete="email" />
+        <small data-i18n="report.emailHelp">Only if you would like a reply. It is never shown or shared.</small>
+      </label>
+      <!-- Armadilha para robôs: invisível para pessoas -->
+      <label class="report__trap" aria-hidden="true">Website <input id="report-website" tabindex="-1" autocomplete="off" /></label>
+      <p class="report__included" data-i18n="report.included">Sent along so the bug can be reproduced: page address, language, browser and window size.</p>
+      <button type="submit" id="report-send" class="coffee__pay" data-i18n="report.send">Send report</button>
+    </form>
+    <p id="report-status" class="coffee__status" role="status"></p>
+    <p class="report__github"><a id="report-github" href="https://github.com/andremendesferreira/icon-library/issues/new" target="_blank" rel="noopener noreferrer" data-i18n="report.github">Prefer GitHub? Open an issue there ↗</a></p>
+  </dialog>
   <footer class="site-footer">
     <nav aria-label="Site" data-i18n-attr="aria-label:nav.label">
       <a href="guide.html" data-i18n-page="guide" data-i18n="footer.guide">Guide</a>
       <a href="about.html" data-i18n-page="about" data-i18n="footer.about">About &amp; guide</a>
       <a href="privacy.html" data-i18n-page="privacy" data-i18n="footer.privacy">Privacy</a>
       <button type="button" class="site-footer__coffee" data-coffee-open hidden>☕ <span data-i18n="coffee.button">Buy me a coffee</span></button>
+      <button type="button" class="site-footer__report" data-report-open>🐞 <span data-i18n="footer.report">Report a bug</span></button>
     </nav>
     <p data-i18n="footer.credits">
       Icons belong to their authors: Lucide (ISC), Feather (MIT), Bootstrap

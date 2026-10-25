@@ -82,11 +82,11 @@ async function migrate(pool, { dir = MIGRATIONS, log = console.log } = {}) {
   }
 }
 
-// Reads every table the application uses, with the application's user.
-// Throws a clear message on a wrong password, a missing table or a missing
-// GRANT (the pg error message already says which).
-async function checkDatabase(pool) {
-  for (const table of ["coffee_supporters", "iconlibrary_icons"]) {
+// Reads the tables (by default, the ones coffee and Iconlibrary use) with the
+// application's user. Throws a clear message on a wrong password, a missing
+// table or a missing GRANT (the pg error message already says which).
+async function checkDatabase(pool, tables = ["coffee_supporters", "iconlibrary_icons"]) {
+  for (const table of tables) {
     try {
       await pool.query(`SELECT 1 FROM ${table} LIMIT 1`);
     } catch (err) {

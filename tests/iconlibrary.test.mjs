@@ -182,7 +182,7 @@ test("admin: sem senha certa não entra; página fora de public/", async () => {
   assert.equal((await fetch(`${base}/api/admin/icons`, { headers: auth("errada") })).status, 401);
   const pagina = await fetch(`${base}/admin`, { headers: auth(SENHA) });
   assert.equal(pagina.status, 200);
-  assert.match(await pagina.text(), /Iconlibrary — moderação/);
+  assert.match(await pagina.text(), /Icon Library — administração/);
   assert.equal((await fetch(`${base}/admin.html`)).status, 404);
 });
 

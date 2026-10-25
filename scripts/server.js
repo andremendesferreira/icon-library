@@ -21,10 +21,11 @@
  *                          real price is the one set in the Stripe Payment Link)
  *   TRUST_PROXY            "true" behind a reverse proxy: the client IP for
  *                          rate limiting comes from X-Forwarded-For
- *   ADMIN_PASSWORD         enables /admin (Iconlibrary review), HTTP Basic auth
+ *   ADMIN_PASSWORD         enables /admin (Iconlibrary review and bug
+ *                          reports), HTTP Basic auth
  *
  * With PG_HOST set, the migrations in migrations/ are applied on start-up
- * (scripts/db.js) and Iconlibrary is on.
+ * (scripts/db.js), and Iconlibrary and the bug report form are on.
  */
 const http = require("http");
 const fs = require("fs");
@@ -33,6 +34,7 @@ const zlib = require("zlib");
 const crypto = require("crypto");
 const { CoffeeError, coffeeFromEnv } = require("./coffee");
 const { IconlibraryError, createIconlibrary, postgresStore: iconlibraryStore } = require("./iconlibrary");
+const { ReportError, createReports, postgresStore: reportsStore } = require("./reports");
 const { poolFromEnv, migrate, checkDatabase } = require("./db");
 
 const ROOT = path.resolve(__dirname, "..", "public");
@@ -114,12 +116,15 @@ function sendText(req, res, status, text) {
 const MAX_BODY = 4096;
 // An icon submission carries the SVG (up to 20 KB)
 const MAX_BODY_ICON = 32768;
+// A bug report: up to 2000 characters (some take 3 bytes) plus the browser
+const MAX_BODY_REPORT = 16384;
 // Per IP, in a 15-minute window: guessing supporter codes and the admin
 // password stays impractical
 const LIMITS = {
   "/api/coffee/claim": 10,
   "/api/coffee/redeem": 30,
   "/api/iconlibrary/icons": 20,
+  "/api/reports": 5,
   admin: 30,
 };
 const WINDOW = 15 * 60 * 1000;
@@ -192,7 +197,7 @@ function guardAdmin(req, res, ctx, json) {
     else send(req, res, status, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", ...headers }, body.error);
     return false;
   };
-  if (!ctx.adminPassword || !ctx.iconlibrary) return fail(404, { error: "not_found" });
+  if (!ctx.adminPassword || !(ctx.iconlibrary || ctx.reports)) return fail(404, { error: "not_found" });
   if (isAdmin(req, ctx)) return true;
   if (!ctx.limit(`admin ${clientIp(req)}`, LIMITS.admin)) return fail(429, { error: "too_many" });
   return fail(401, { error: "unauthorized" }, { "WWW-Authenticate": 'Basic realm="Icon Library admin", charset="UTF-8"' });
@@ -243,6 +248,7 @@ async function handleIconlibrary(req, res, url, ctx) {
   //         POST /api/admin/icons/:id/(approve|reject|delete)  { note? }
   if (url === "/api/admin/icons" || url.startsWith("/api/admin/icons/")) {
     if (!guardAdmin(req, res, ctx, true)) return;
+    if (!iconlibrary) return sendJson(req, res, 404, { error: "not_found" });
     try {
       if (url === "/api/admin/icons") {
         if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
@@ -261,7 +267,58 @@ async function handleIconlibrary(req, res, url, ctx) {
   return null;
 }
 
+// Bug reports: GET /api/reports/config, POST /api/reports { message, email?, … }
+// Admin:       GET /api/admin/reports?status=open
+//              POST /api/admin/reports/:id/(resolve|reopen|delete)
+async function handleReports(req, res, url, ctx) {
+  const { reports } = ctx;
+  const fail = (err) => {
+    if (err instanceof ReportError || err instanceof CoffeeError)
+      return sendJson(req, res, err.status, { error: err.code });
+    console.error("[reports]", err);
+    sendJson(req, res, 500, { error: "server" });
+  };
+
+  if (url === "/api/reports/config") {
+    if (req.method !== "GET" && req.method !== "HEAD") return sendJson(req, res, 405, { error: "method" });
+    return sendJson(req, res, 200, reports ? reports.config() : { enabled: false });
+  }
+  if (url === "/api/reports") {
+    if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+    if (!reports) return sendJson(req, res, 503, { error: "disabled" });
+    if (!ctx.limit(`${url} ${clientIp(req)}`, LIMITS[url])) return sendJson(req, res, 429, { error: "too_many" });
+    try {
+      return sendJson(req, res, 201, await reports.submit(await readJson(req, MAX_BODY_REPORT)));
+    } catch (err) {
+      return fail(err);
+    }
+  }
+  if (url === "/api/admin/reports" || url.startsWith("/api/admin/reports/")) {
+    if (!guardAdmin(req, res, ctx, true)) return;
+    if (!reports) return sendJson(req, res, 404, { error: "not_found" });
+    try {
+      if (url === "/api/admin/reports") {
+        if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
+        const status = new URL(req.url, "http://localhost").searchParams.get("status") || "open";
+        return sendJson(req, res, 200, { reports: await reports.review(status) });
+      }
+      const m = /^\/api\/admin\/reports\/(\d+)\/(resolve|reopen|delete)$/.exec(url);
+      if (!m) return sendJson(req, res, 404, { error: "not_found" });
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      return sendJson(req, res, 200, await reports.decide(m[1], m[2]));
+    } catch (err) {
+      return fail(err);
+    }
+  }
+  return null;
+}
+
 async function handleApi(req, res, url, ctx) {
+  if (url === "/api/reports" || url.startsWith("/api/reports/") || url.startsWith("/api/admin/reports")) {
+    const handled = await handleReports(req, res, url, ctx);
+    if (handled !== null) return;
+    return sendJson(req, res, 404, { error: "not_found" });
+  }
   if (url.startsWith("/api/iconlibrary/") || url.startsWith("/api/admin/")) {
     const handled = await handleIconlibrary(req, res, url, ctx);
     if (handled !== null) return;
@@ -381,9 +438,10 @@ function handle(req, res, ctx) {
 }
 
 // coffee: scripts/coffee.js service; iconlibrary: scripts/iconlibrary.js
-// service; adminPassword: enables /admin. Each null/empty = feature off.
-function createServer({ coffee = null, iconlibrary = null, adminPassword = "" } = {}) {
-  const ctx = { coffee, iconlibrary, adminPassword, limit: createLimiter() };
+// service; reports: scripts/reports.js service; adminPassword: enables
+// /admin. Each null/empty = feature off.
+function createServer({ coffee = null, iconlibrary = null, reports = null, adminPassword = "" } = {}) {
+  const ctx = { coffee, iconlibrary, reports, adminPassword, limit: createLimiter() };
   return http.createServer((req, res) => {
     try {
       handle(req, res, ctx);
@@ -428,16 +486,28 @@ if (require.main === module) {
         pool = null;
       }
     }
+    // Bug reports need only their own table: if migration 003 was not
+    // applied (or its GRANT is missing), only the form is off
+    let reports = null;
+    if (pool) {
+      try {
+        await checkDatabase(pool, ["bug_reports"]);
+        reports = createReports({ store: reportsStore(pool) });
+      } catch (err) {
+        console.error(`[db] ${err.message} — bug reports are off`);
+      }
+    }
     const coffee = coffeeFromEnv(process.env, pool);
     const iconlibrary = pool && coffee
       ? createIconlibrary({ store: iconlibraryStore(pool), supporter: (code) => coffee.supporter(code) })
       : null;
     const adminPassword = process.env.ADMIN_PASSWORD || "";
-    createServer({ coffee, iconlibrary, adminPassword }).listen(PORT, HOST, () => {
+    createServer({ coffee, iconlibrary, reports, adminPassword }).listen(PORT, HOST, () => {
       console.log(`Icon Library running at http://localhost:${PORT}`);
       console.log(`Buy me a coffee: ${coffee ? "on" : "off (Stripe or database not configured)"}`);
       console.log(`Iconlibrary: ${iconlibrary ? "on" : "off (needs the database and the coffee)"}`);
-      console.log(`Admin (/admin): ${iconlibrary && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
+      console.log(`Bug reports: ${reports ? "on" : "off (needs the database)"}`);
+      console.log(`Admin (/admin): ${(iconlibrary || reports) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
     });
   })();
 }

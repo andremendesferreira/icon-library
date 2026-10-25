@@ -1,15 +1,19 @@
 <!doctype html>
-<!-- Moderação da Iconlibrary. Servida em /admin pelo scripts/server.js, só
-     com ADMIN_PASSWORD (HTTP Basic); fica fora de public/ de propósito. -->
+<!-- Administração: moderação da Iconlibrary e relatos de bug. Servida em
+     /admin pelo scripts/server.js, só com ADMIN_PASSWORD (HTTP Basic); fica
+     fora de public/ de propósito. -->
 <html lang="pt-BR">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="robots" content="noindex" />
-  <title>Moderação — Iconlibrary</title>
+  <title>Administração — Icon Library</title>
   <style>
     body { font-family: "Segoe UI", system-ui, sans-serif; margin: 0 auto; max-width: 1100px; padding: 24px; background: #f5f7fb; color: #2c3e50; }
     h1 { margin: 0 0 4px; }
     .nota { color: #6b7a89; margin: 0 0 20px; }
+    .areas { display: flex; gap: 4px; margin: 0 0 18px; border-bottom: 2px solid #dfe6ee; }
+    .areas button { padding: 10px 18px; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; background: none; font: inherit; font-weight: 600; color: #6b7a89; cursor: pointer; }
+    .areas button[aria-pressed="true"] { border-bottom-color: #2a7fff; color: #1558c8; }
     .abas { display: flex; gap: 8px; margin-bottom: 18px; }
     .abas button { padding: 8px 16px; border: 2px solid #c5d0dc; border-radius: 20px; background: #fff; font: inherit; cursor: pointer; }
     .abas button[aria-pressed="true"] { border-color: #2a7fff; color: #1558c8; font-weight: 600; }
@@ -20,30 +24,30 @@
     .previa .pequeno { width: 24px; height: 24px; }
     .dados h2 { margin: 0 0 4px; font-size: 17px; }
     .dados p { margin: 2px 0; font-size: 13px; color: #5a6b7b; word-break: break-word; }
+    .relato { grid-column: 1 / -1; padding: 16px 18px; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .relato blockquote { margin: 0 0 10px; white-space: pre-wrap; word-break: break-word; font-size: 14.5px; line-height: 1.5; }
+    .relato p { margin: 2px 0; font-size: 12.5px; color: #6b7a89; word-break: break-word; }
     .acoes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-    .acoes button { padding: 6px 12px; border-radius: 8px; border: 1px solid #c5d0dc; background: #fff; font: inherit; font-size: 13px; cursor: pointer; }
-    .aprovar { border-color: #2fa14d !important; background: #2fa14d !important; color: #fff; }
+    .acoes button, .acoes a { padding: 6px 12px; border-radius: 8px; border: 1px solid #c5d0dc; background: #fff; font: inherit; font-size: 13px; color: inherit; text-decoration: none; cursor: pointer; }
+    .aprovar { border-color: #2fa14d !important; background: #2fa14d !important; color: #fff !important; }
     .recusar { border-color: #c0392b !important; color: #c0392b; }
-    .vazio, .erro { padding: 30px; text-align: center; color: #6b7a89; }
+    .vazio, .erro { grid-column: 1 / -1; padding: 30px; text-align: center; color: #6b7a89; }
     .erro { color: #c0392b; }
     code { font-size: 12px; }
   </style>
-  <h1>Iconlibrary — moderação</h1>
-  <p class="nota">
-    Confira se o ícone é original (não é logo de marca nem cópia), se o nome e
-    as categorias fazem sentido e se não há nada ofensivo. Aprovados aparecem no
-    site em até 1 minuto.
-  </p>
-  <div class="abas" role="group" aria-label="Situação">
-    <button type="button" data-status="pending" aria-pressed="true">Pendentes</button>
-    <button type="button" data-status="approved" aria-pressed="false">Aprovados</button>
-    <button type="button" data-status="rejected" aria-pressed="false">Recusados</button>
+  <h1>Icon Library — administração</h1>
+  <div class="areas" role="group" aria-label="Área">
+    <button type="button" data-area="icones" aria-pressed="true">Ícones da Iconlibrary</button>
+    <button type="button" data-area="bugs" aria-pressed="false">Relatos de bug</button>
   </div>
+  <p class="nota" id="nota"></p>
+  <div class="abas" id="abas" role="group" aria-label="Situação"></div>
   <div id="lista" class="lista"></div>
   <script>
     "use strict";
     const lista = document.getElementById("lista");
-    let situacao = "pending";
+    const abas = document.getElementById("abas");
+    const nota = document.getElementById("nota");
     // Endereços a partir da origem: se a senha veio no próprio endereço
     // (admin:senha@…), o navegador recusa caminhos relativos
     const api = (caminho) => new URL(caminho, location.origin);
@@ -53,54 +57,92 @@
       el.textContent = valor ?? "";
       return el.innerHTML;
     };
+    const data = (valor) => (valor ? new Date(valor).toLocaleString("pt-BR") : "—");
     // O SVG vira imagem: mesmo já validado no servidor, nada dele roda aqui
     const imagem = (svg, classe = "") =>
       `<img class="${classe}" alt="" src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" />`;
 
+    const AREAS = {
+      icones: {
+        nota:
+          "Confira se o ícone é original (não é logo de marca nem cópia), se o nome e as categorias fazem sentido e se não há nada ofensivo. Aprovados aparecem no site em até 1 minuto.",
+        abas: [["pending", "Pendentes"], ["approved", "Aprovados"], ["rejected", "Recusados"]],
+        endereco: (situacao) => `/api/admin/icons?status=${situacao}`,
+        acao: (id, acao) => `/api/admin/icons/${id}/${acao}`,
+        itens: (resposta) => resposta.icons,
+        cartao: (i, situacao) => `
+          <article class="icone" data-id="${i.id}">
+            <div class="previa">${imagem(i.svg)}${imagem(i.svg, "pequeno")}</div>
+            <div class="dados">
+              <h2>${texto(i.name)}</h2>
+              <p><code>${texto(i.slug)}</code> · ${texto(i.categories.join(", "))}</p>
+              <p>Crédito: ${texto(i.author || "—")}</p>
+              <p>Apoiador: <code>${texto(i.supporterCode)}</code></p>
+              <p>Enviado: ${data(i.createdAt)}</p>
+              ${i.reviewNote ? `<p>Nota: ${texto(i.reviewNote)}</p>` : ""}
+              <div class="acoes">
+                ${situacao !== "approved" ? '<button type="button" class="aprovar" data-acao="approve">Aprovar</button>' : ""}
+                ${situacao !== "rejected" ? '<button type="button" class="recusar" data-acao="reject">Recusar</button>' : ""}
+                <button type="button" data-acao="delete">Excluir</button>
+              </div>
+            </div>
+          </article>`,
+      },
+      bugs: {
+        nota:
+          "Relatos enviados pelo formulário do rodapé. Quem informou e-mail pode receber resposta; marque como resolvido quando corrigir.",
+        abas: [["open", "Abertos"], ["resolved", "Resolvidos"]],
+        endereco: (situacao) => `/api/admin/reports?status=${situacao}`,
+        acao: (id, acao) => `/api/admin/reports/${id}/${acao}`,
+        itens: (resposta) => resposta.reports,
+        cartao: (r, situacao) => `
+          <article class="relato" data-id="${r.id}">
+            <blockquote>${texto(r.message)}</blockquote>
+            <p>#${r.id} · ${data(r.createdAt)}${r.resolvedAt ? ` · resolvido ${data(r.resolvedAt)}` : ""}</p>
+            <p>Página: ${texto(r.page || "—")} · idioma ${texto(r.lang || "—")} · tela ${texto(r.screen || "—")}</p>
+            <p>Navegador: ${texto(r.browser || "—")}</p>
+            <div class="acoes">
+              ${situacao === "open" ? '<button type="button" class="aprovar" data-acao="resolve">Marcar como resolvido</button>' : '<button type="button" data-acao="reopen">Reabrir</button>'}
+              ${r.email ? `<a href="mailto:${encodeURIComponent(r.email).replace(/%40/g, "@")}?subject=${encodeURIComponent("Icon Library — seu relato de bug #" + r.id)}">Responder (${texto(r.email)})</a>` : ""}
+              <button type="button" data-acao="delete">Excluir</button>
+            </div>
+          </article>`,
+      },
+    };
+    let area = "icones";
+    let situacao = "pending";
+
+    function mostrarAbas() {
+      nota.textContent = AREAS[area].nota;
+      abas.innerHTML = AREAS[area].abas
+        .map(([valor, rotulo]) => `<button type="button" data-status="${valor}" aria-pressed="${valor === situacao}">${rotulo}</button>`)
+        .join("");
+    }
+
     async function carregar() {
+      const config = AREAS[area];
       lista.innerHTML = '<p class="vazio">Carregando…</p>';
       try {
-        const res = await fetch(api(`/api/admin/icons?status=${situacao}`));
+        const res = await fetch(api(config.endereco(situacao)));
+        if (res.status === 404) throw new Error("desligado no servidor (falta o banco ou a migration)");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const { icons } = await res.json();
-        if (!icons.length) {
-          lista.innerHTML = '<p class="vazio">Nada aqui.</p>';
-          return;
-        }
-        lista.innerHTML = icons
-          .map((i) => `
-            <article class="icone" data-id="${i.id}">
-              <div class="previa">${imagem(i.svg)}${imagem(i.svg, "pequeno")}</div>
-              <div class="dados">
-                <h2>${texto(i.name)}</h2>
-                <p><code>${texto(i.slug)}</code> · ${texto(i.categories.join(", "))}</p>
-                <p>Crédito: ${texto(i.author || "—")}</p>
-                <p>Apoiador: <code>${texto(i.supporterCode)}</code></p>
-                <p>Enviado: ${new Date(i.createdAt).toLocaleString("pt-BR")}</p>
-                ${i.reviewNote ? `<p>Nota: ${texto(i.reviewNote)}</p>` : ""}
-                <div class="acoes">
-                  ${situacao !== "approved" ? '<button type="button" class="aprovar" data-acao="approve">Aprovar</button>' : ""}
-                  ${situacao !== "rejected" ? '<button type="button" class="recusar" data-acao="reject">Recusar</button>' : ""}
-                  <button type="button" data-acao="delete">Excluir</button>
-                </div>
-              </div>
-            </article>`)
-          .join("");
+        const itens = config.itens(await res.json());
+        lista.innerHTML = itens.length ? itens.map((i) => config.cartao(i, situacao)).join("") : '<p class="vazio">Nada aqui.</p>';
       } catch (erro) {
         lista.innerHTML = `<p class="erro">Não foi possível carregar: ${texto(erro.message)}</p>`;
       }
     }
 
     lista.addEventListener("click", async (evento) => {
-      const botao = evento.target.closest("[data-acao]");
+      const botao = evento.target.closest("button[data-acao]");
       if (!botao) return;
       const id = botao.closest("[data-id]").dataset.id;
       const acao = botao.dataset.acao;
       let note = null;
       if (acao === "reject") note = window.prompt("Motivo da recusa (opcional, só para você):") ?? null;
-      if (acao === "delete" && !window.confirm("Excluir de vez este ícone?")) return;
+      if (acao === "delete" && !window.confirm("Excluir de vez?")) return;
       botao.disabled = true;
-      const res = await fetch(api(`/api/admin/icons/${id}/${acao}`), {
+      const res = await fetch(api(AREAS[area].acao(id, acao)), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ note }),
@@ -114,15 +156,26 @@
       carregar();
     });
 
-    document.querySelector(".abas").addEventListener("click", (evento) => {
+    abas.addEventListener("click", (evento) => {
       const botao = evento.target.closest("[data-status]");
       if (!botao) return;
       situacao = botao.dataset.status;
-      for (const b of document.querySelectorAll("[data-status]"))
-        b.setAttribute("aria-pressed", String(b === botao));
+      mostrarAbas();
       carregar();
     });
 
+    document.querySelector(".areas").addEventListener("click", (evento) => {
+      const botao = evento.target.closest("[data-area]");
+      if (!botao || botao.dataset.area === area) return;
+      area = botao.dataset.area;
+      situacao = AREAS[area].abas[0][0];
+      for (const b of document.querySelectorAll("[data-area]"))
+        b.setAttribute("aria-pressed", String(b === botao));
+      mostrarAbas();
+      carregar();
+    });
+
+    mostrarAbas();
     carregar();
   </script>
 </html>
