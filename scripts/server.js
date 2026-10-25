@@ -23,6 +23,10 @@
  *                          rate limiting comes from X-Forwarded-For
  *   ADMIN_PASSWORD         enables /admin (Iconlibrary review and bug
  *                          reports), HTTP Basic auth
+ *   MODERATION_TOKEN       enables /api/moderation/… for an automated
+ *                          moderator (n8n): list pending icons, PNG previews,
+ *                          approve or reject — nothing else. At least 32
+ *                          characters (openssl rand -hex 32).
  *
  * With PG_HOST set, the migrations in migrations/ are applied on start-up
  * (scripts/db.js), and Iconlibrary and the bug report form are on.
@@ -35,6 +39,7 @@ const crypto = require("crypto");
 const { CoffeeError, coffeeFromEnv } = require("./coffee");
 const { IconlibraryError, createIconlibrary, postgresStore: iconlibraryStore } = require("./iconlibrary");
 const { ReportError, createReports, postgresStore: reportsStore } = require("./reports");
+const { previewAvailable, previewSize, renderPng } = require("./preview");
 const { poolFromEnv, migrate, checkDatabase } = require("./db");
 
 const ROOT = path.resolve(__dirname, "..", "public");
@@ -203,6 +208,73 @@ function guardAdmin(req, res, ctx, json) {
   return fail(401, { error: "unauthorized" }, { "WWW-Authenticate": 'Basic realm="Icon Library admin", charset="UTF-8"' });
 }
 
+// ── Moderation API (/api/moderation/…): Bearer MODERATION_TOKEN ──────────
+// For an automated moderator. It can only see pending icons, render their
+// previews and approve or reject them — it cannot delete anything or read the
+// bug reports, so a leaked token does limited harm.
+function isModerator(req, ctx) {
+  if (!ctx.moderationToken) return false;
+  const [scheme, token] = String(req.headers.authorization || "").split(" ");
+  if (scheme !== "Bearer" || !token) return false;
+  const a = crypto.createHash("sha256").update(token).digest();
+  const b = crypto.createHash("sha256").update(ctx.moderationToken).digest();
+  return crypto.timingSafeEqual(a, b);
+}
+
+async function handleModeration(req, res, url, ctx) {
+  const { iconlibrary } = ctx;
+  if (!ctx.moderationToken || !iconlibrary) return sendJson(req, res, 404, { error: "not_found" });
+  if (!isModerator(req, ctx)) {
+    if (!ctx.limit(`admin ${clientIp(req)}`, LIMITS.admin)) return sendJson(req, res, 429, { error: "too_many" });
+    res.setHeader("WWW-Authenticate", 'Bearer realm="Icon Library moderation"');
+    return sendJson(req, res, 401, { error: "unauthorized" });
+  }
+  const fail = (err) => {
+    if (err instanceof IconlibraryError || err instanceof CoffeeError)
+      return sendJson(req, res, err.status, { error: err.code, ...(err.extra || {}) });
+    console.error("[moderation]", err);
+    sendJson(req, res, 500, { error: "server" });
+  };
+  try {
+    // Pending icons, oldest first, each with the address of its preview
+    if (url === "/api/moderation/icons") {
+      if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
+      const icons = (await iconlibrary.review("pending")).map((i) => ({
+        id: i.id,
+        name: i.name,
+        slug: i.slug,
+        categories: i.categories,
+        author: i.author,
+        svg: i.svg,
+        createdAt: i.createdAt,
+        preview: `/api/moderation/icons/${i.id}/preview.png`,
+      }));
+      return sendJson(req, res, 200, { icons });
+    }
+    const imagem = /^\/api\/moderation\/icons\/(\d+)\/preview\.png$/.exec(url);
+    if (imagem) {
+      if (req.method !== "GET" && req.method !== "HEAD") return sendJson(req, res, 405, { error: "method" });
+      if (!previewAvailable()) return sendJson(req, res, 503, { error: "preview_unavailable" });
+      const icon = await iconlibrary.get(imagem[1]);
+      const size = previewSize(new URL(req.url, "http://localhost").searchParams.get("size"));
+      const png = renderPng(icon.svg, size);
+      return send(req, res, 200, { "Content-Type": "image/png", "Cache-Control": "no-store", "Content-Length": png.length }, png);
+    }
+    const decisao = /^\/api\/moderation\/icons\/(\d+)\/(approve|reject)$/.exec(url);
+    if (decisao) {
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      const body = await readJson(req);
+      // Only pending icons: an automated moderator never undoes a human decision
+      const icon = await iconlibrary.get(decisao[1]);
+      if (icon.status !== "pending") return sendJson(req, res, 409, { error: "not_pending", status: icon.status });
+      return sendJson(req, res, 200, await iconlibrary.decide(decisao[1], decisao[2], body.note));
+    }
+    return sendJson(req, res, 404, { error: "not_found" });
+  } catch (err) {
+    return fail(err);
+  }
+}
+
 function serveAdminPage(req, res, ctx) {
   if (!guardAdmin(req, res, ctx, false)) return;
   fs.readFile(path.join(__dirname, "admin.html"), (err, data) => {
@@ -314,6 +386,7 @@ async function handleReports(req, res, url, ctx) {
 }
 
 async function handleApi(req, res, url, ctx) {
+  if (url.startsWith("/api/moderation/")) return handleModeration(req, res, url, ctx);
   if (url === "/api/reports" || url.startsWith("/api/reports/") || url.startsWith("/api/admin/reports")) {
     const handled = await handleReports(req, res, url, ctx);
     if (handled !== null) return;
@@ -440,8 +513,8 @@ function handle(req, res, ctx) {
 // coffee: scripts/coffee.js service; iconlibrary: scripts/iconlibrary.js
 // service; reports: scripts/reports.js service; adminPassword: enables
 // /admin. Each null/empty = feature off.
-function createServer({ coffee = null, iconlibrary = null, reports = null, adminPassword = "" } = {}) {
-  const ctx = { coffee, iconlibrary, reports, adminPassword, limit: createLimiter() };
+function createServer({ coffee = null, iconlibrary = null, reports = null, adminPassword = "", moderationToken = "" } = {}) {
+  const ctx = { coffee, iconlibrary, reports, adminPassword, moderationToken, limit: createLimiter() };
   return http.createServer((req, res) => {
     try {
       handle(req, res, ctx);
@@ -502,12 +575,19 @@ if (require.main === module) {
       ? createIconlibrary({ store: iconlibraryStore(pool), supporter: (code) => coffee.supporter(code) })
       : null;
     const adminPassword = process.env.ADMIN_PASSWORD || "";
-    createServer({ coffee, iconlibrary, reports, adminPassword }).listen(PORT, HOST, () => {
+    // A short token would be easy to guess: below 32 characters it is ignored
+    let moderationToken = process.env.MODERATION_TOKEN || "";
+    if (moderationToken && moderationToken.length < 32) {
+      console.error("[moderation] MODERATION_TOKEN must have at least 32 characters (openssl rand -hex 32) — moderation API is off");
+      moderationToken = "";
+    }
+    createServer({ coffee, iconlibrary, reports, adminPassword, moderationToken }).listen(PORT, HOST, () => {
       console.log(`Icon Library running at http://localhost:${PORT}`);
       console.log(`Buy me a coffee: ${coffee ? "on" : "off (Stripe or database not configured)"}`);
       console.log(`Iconlibrary: ${iconlibrary ? "on" : "off (needs the database and the coffee)"}`);
       console.log(`Bug reports: ${reports ? "on" : "off (needs the database)"}`);
       console.log(`Admin (/admin): ${(iconlibrary || reports) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
+      console.log(`Moderation API: ${iconlibrary && moderationToken ? `on${previewAvailable() ? "" : " (no PNG previews: renderer missing)"}` : "off (set MODERATION_TOKEN)"}`);
     });
   })();
 }

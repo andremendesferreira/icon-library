@@ -14,7 +14,7 @@
 
 A page for browsing, filtering and copying icons from four sets — **Emoji (Unicode)**, **Lucide**, **Feather** and **Bootstrap Icons** — to use in menus and interfaces. Click an icon to copy its SVG; right-click to copy the alternative.
 
-No framework, no build step and a single runtime dependency (the PostgreSQL driver, used only by the coffee feature): plain HTML, CSS and JavaScript (ES modules, organized as MVC), served by a small Node.js server.
+No framework, no build step and two runtime dependencies on the server (the PostgreSQL driver, for the coffee, Iconlibrary and bug reports, and an SVG→PNG renderer for moderation previews): plain HTML, CSS and JavaScript (ES modules, organized as MVC), served by a small Node.js server.
 
 ### Features
 
@@ -115,6 +115,10 @@ A fifth set, **Iconlibrary**, holds icons published by supporters from the edito
 - **What is accepted:** a name (2–40 characters, unique among pending and approved icons), 1–3 categories from `public/json/iconlibrary-categories.json` (Lucide's categories), an optional public credit, and the acceptance of the **MIT license**. The SVG is checked on the server by `scripts/svgSafe.js`: only basic shapes with known attributes and well-formed values; anything else (text, groups, images, styles, scripts, links, entities) is refused, and the stored SVG is rewritten from scratch.
 - **Review:** every icon starts as *pending*. The owner reviews them at **`/admin`** (HTTP Basic auth with `ADMIN_PASSWORD`; the page lives in `scripts/admin.html`, outside `public/`), approving, rejecting (the name becomes free again) or deleting. Approved icons appear within a minute.
 - **API:** `GET /api/iconlibrary/icons` (approved icons), `POST /api/iconlibrary/icons` (submit), `GET /api/iconlibrary/config`; review: `GET /api/admin/icons?status=`, `POST /api/admin/icons/:id/approve|reject|delete`.
+
+### Moderation API (n8n)
+
+With `MODERATION_TOKEN` set (at least 32 characters, `openssl rand -hex 32`), an automated moderator can call `/api/moderation/…` with `Authorization: Bearer <token>`: `GET /api/moderation/icons` (pending icons), `GET /api/moderation/icons/:id/preview.png?size=256` (PNG preview, 16–512 px) and `POST /api/moderation/icons/:id/approve|reject` (`{ note }`; pending icons only — a decision already made answers 409). The token cannot open `/admin`, delete icons or read bug reports. [docs/moderacao-n8n.md](docs/moderacao-n8n.md) (Portuguese) describes an n8n + Ollama workflow that describes each icon without its name, compares it with the name and suggests a decision.
 
 ### Bug reports
 
@@ -270,6 +274,7 @@ icon-library/
 ├── scripts/coffee.js                   buy me a coffee: Stripe check, supporter codes
 ├── scripts/iconlibrary.js              community icons: submit, list, review
 ├── scripts/reports.js                  bug reports from the footer form
+├── scripts/preview.js                  PNG previews for moderation
 ├── scripts/svgSafe.js                  strict check of submitted SVG
 ├── scripts/db.js                       PostgreSQL pool and migration runner (npm run migrate)
 ├── scripts/admin.html                  admin page (/admin): icons and bug reports
@@ -298,7 +303,7 @@ Icons belong to their authors and are used under their licenses: [Lucide](https:
 
 Uma página para navegar, filtrar e copiar ícones de quatro conjuntos — **Emoji (Unicode)**, **Lucide**, **Feather** e **Bootstrap Icons** — para usar em menus e interfaces. Clique num ícone para copiar o SVG; clique com o botão direito para copiar a alternativa.
 
-Sem framework, sem build e com uma única dependência em produção (o driver do PostgreSQL, usado só pelo café): HTML, CSS e JavaScript puros (módulos ES, organizados em MVC), servidos por um pequeno servidor Node.js.
+Sem framework, sem build e com duas dependências no servidor (o driver do PostgreSQL, para o café, a Iconlibrary e os relatos de bug, e um renderizador de SVG para PNG, para as prévias da moderação): HTML, CSS e JavaScript puros (módulos ES, organizados em MVC), servidos por um pequeno servidor Node.js.
 
 ### Recursos
 
@@ -399,6 +404,10 @@ Um quinto conjunto, **Iconlibrary**, reúne ícones publicados por apoiadores a 
 - **O que é aceito:** um nome (2 a 40 caracteres, único entre pendentes e aprovados), de 1 a 3 categorias de `public/json/iconlibrary-categories.json` (as do Lucide), um crédito público opcional e o aceite da **licença MIT**. O SVG é conferido no servidor pelo `scripts/svgSafe.js`: só formas básicas, com atributos conhecidos e valores bem formados; qualquer outra coisa (texto, grupos, imagens, estilos, scripts, links, entidades) é recusada, e o SVG guardado é reescrito do zero.
 - **Revisão:** todo ícone começa *pendente*. O dono revisa em **`/admin`** (autenticação HTTP Basic com `ADMIN_PASSWORD`; a página fica em `scripts/admin.html`, fora de `public/`), aprovando, recusando (o nome volta a ficar livre) ou excluindo. Os aprovados aparecem em até um minuto.
 - **API:** `GET /api/iconlibrary/icons` (aprovados), `POST /api/iconlibrary/icons` (envio), `GET /api/iconlibrary/config`; revisão: `GET /api/admin/icons?status=`, `POST /api/admin/icons/:id/approve|reject|delete`.
+
+### API de moderação (n8n)
+
+Com `MODERATION_TOKEN` definido (mínimo de 32 caracteres, `openssl rand -hex 32`), um moderador automático chama `/api/moderation/…` com `Authorization: Bearer <token>`: `GET /api/moderation/icons` (pendentes), `GET /api/moderation/icons/:id/preview.png?size=256` (prévia em PNG, de 16 a 512 px) e `POST /api/moderation/icons/:id/approve|reject` (`{ note }`; só pendentes — uma decisão já tomada responde 409). O token não abre o `/admin`, não exclui ícones e não lê os relatos de bug. O guia [docs/moderacao-n8n.md](docs/moderacao-n8n.md) monta um fluxo n8n + Ollama que descreve cada ícone sem o nome, compara com o nome enviado e sugere a decisão.
 
 ### Relatos de bug
 
@@ -538,6 +547,7 @@ icon-library/
 ├── scripts/coffee.js                   pague um café: confirmação no Stripe, códigos de apoiador
 ├── scripts/iconlibrary.js              ícones da comunidade: envio, lista, revisão
 ├── scripts/reports.js                  relatos de bug do formulário do rodapé
+├── scripts/preview.js                  prévias em PNG para a moderação
 ├── scripts/svgSafe.js                  conferência estrita do SVG enviado
 ├── scripts/db.js                       conexão com o PostgreSQL e migrations (npm run migrate)
 ├── scripts/admin.html                  administração (/admin): ícones e relatos de bug

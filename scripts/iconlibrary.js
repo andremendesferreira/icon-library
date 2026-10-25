@@ -116,7 +116,13 @@ function createIconlibrary({ store, supporter, now = Date.now }) {
       return { id, slug: clean.slug, status: "pending" };
     },
 
-    // ── Review (site owner, /admin) ────────────────────────────────────────
+    // ── Review (site owner, /admin; moderation API) ────────────────────────
+    async get(id) {
+      const icon = await store.byId(id);
+      if (!icon) throw new IconlibraryError(404, "not_found");
+      return icon;
+    },
+
     async review(status = "pending") {
       if (!["pending", "approved", "rejected"].includes(status)) throw new IconlibraryError(400, "bad_status");
       return store.list(status);
@@ -140,6 +146,10 @@ function memoryStore() {
   return {
     async list(status) {
       return rows.filter((r) => r.status === status).map((r) => ({ ...r }));
+    },
+    async byId(id) {
+      const row = rows.find((r) => r.id === Number(id));
+      return row ? { ...row } : null;
     },
     async countPending(code) {
       return rows.filter((r) => r.supporterCode === code && r.status === "pending").length;
@@ -186,6 +196,13 @@ function postgresStore(pool) {
       const order = status === "approved" ? "name" : "created_at";
       const { rows } = await pool.query(`SELECT * FROM iconlibrary_icons WHERE status = $1 ORDER BY ${order}`, [status]);
       return rows.map(toRow);
+    },
+    async byId(id) {
+      const n = Number(id);
+      // The column is a PostgreSQL integer: a bigger id would be an error 500
+      if (!Number.isSafeInteger(n) || n > 2147483647) return null;
+      const { rows } = await pool.query("SELECT * FROM iconlibrary_icons WHERE id = $1", [n]);
+      return rows[0] ? toRow(rows[0]) : null;
     },
     async countPending(code) {
       const { rows } = await pool.query(
