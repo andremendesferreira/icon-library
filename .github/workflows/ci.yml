@@ -16,6 +16,11 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+          cache: npm
+
+      # The moderation previews need the SVG→PNG renderer (@resvg/resvg-js)
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
 
       - name: Tests
         run: npm test
@@ -37,6 +42,16 @@ jobs:
 
       - name: Build image
         run: docker build -t icon-library:ci .
+
+      # The renderer is a native binary: check that it loads inside the image
+      - name: PNG previews work in the image
+        run: |
+          docker run --rm --entrypoint node icon-library:ci -e "
+            const p = require('/app/scripts/preview.js');
+            if (!p.previewAvailable()) throw new Error('renderer missing');
+            const png = p.renderPng('<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"8\"/></svg>', 64);
+            if (png.readUInt32BE(16) !== 64) throw new Error('wrong size');
+            console.log('preview ok');"
 
       - name: Start and wait for the healthcheck
         run: |

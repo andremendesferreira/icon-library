@@ -81,7 +81,8 @@ test("llms.txt: o link de exemplo abre um SVG válido", () => {
 
 test("llms.txt: o projeto de exemplo é válido e os paths são legíveis", () => {
   const texto = ler("llms.txt");
-  const json = texto.match(/```json\n([\s\S]*?)\n```/)?.[1];
+  // \r?\n: num checkout do Windows o arquivo pode vir com CRLF
+  const json = texto.match(/```json\r?\n([\s\S]*?)\r?\n```/)?.[1];
   assert.ok(json, "projeto de exemplo não encontrado");
   const projeto = validarProjeto(JSON.parse(json));
   assert.deepEqual(projeto.grupos.map((g) => g.nome), ["heart", "star"]);
