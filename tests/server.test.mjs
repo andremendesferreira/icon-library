@@ -253,3 +253,20 @@ test("versão: sem .git, pergunta ao GitHub o último commit; falha não quebra 
   assert.equal(await latestCommitOnGitHub("main", async () => { throw new Error("sem rede"); }), null);
   assert.equal(await latestCommitOnGitHub("main", async () => ({ ok: true, json: async () => ({ sha: "<script>" }) })), null);
 });
+
+// Analisadores de SEO (o do Bing, por exemplo) procuram título e descrição
+// dentro de <head>: sem a tag explícita, acusavam "Title tag missing"
+test("páginas: título e descrição dentro de <head>, conteúdo dentro de <body>", async () => {
+  const fsp = await import("node:fs/promises");
+  const pasta = new URL("../public/", import.meta.url);
+  const paginas = (await fsp.readdir(pasta)).filter((f) => f.endsWith(".html"));
+  assert.ok(paginas.length >= 25);
+  for (const arquivo of paginas) {
+    const html = await fsp.readFile(new URL(arquivo, pasta), "utf8");
+    const cabeca = html.match(/<head>([\s\S]*?)<\/head>/)?.[1];
+    assert.ok(cabeca, `${arquivo}: sem <head>`);
+    assert.match(cabeca, /<title>[^<]+<\/title>/, `${arquivo}: título fora do <head>`);
+    assert.match(cabeca, /<meta\s+name="description"\s+content="[^"]+"/, `${arquivo}: descrição fora do <head>`);
+    assert.match(html, /<\/head>\s*<body>[\s\S]+<\/body>\s*<\/html>\s*$/, `${arquivo}: <body>`);
+  }
+});

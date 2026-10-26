@@ -272,6 +272,7 @@ export default {
   "home.how1": "Choisissez un jeu, puis cherchez par nom ou par catégorie.",
   "home.how2": "Réglez la taille, le trait et la couleur : l’aperçu suit vos choix.",
   "home.how3": "Cliquez pour copier le SVG, ou ouvrez le crayon pour personnaliser l’icône.",
+  "header.logoAlt": "Logo d’Icon Library",
   "nav.label": "Site",
   "footer.icons": "Icônes",
   "footer.guide": "Guide",

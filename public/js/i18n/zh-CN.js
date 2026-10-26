@@ -264,6 +264,7 @@ export default {
   "home.how1": "选择图标集，然后按名称搜索或选择分类。",
   "home.how2": "调整大小、线条和颜色——预览会随之变化。",
   "home.how3": "单击复制 SVG，或用铅笔把图标改成你想要的样子。",
+  "header.logoAlt": "Icon Library 标志",
   "nav.label": "网站",
   "footer.icons": "图标",
   "footer.guide": "指南",

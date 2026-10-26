@@ -53,6 +53,7 @@ function montar(pagina, idioma) {
   data-label-to-dark="${escapar(t(idioma, "theme.toDark"))}"
   data-label-to-light="${escapar(t(idioma, "theme.toLight"))}"
 >
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="description" content="${escapar(description)}" />
@@ -76,6 +77,8 @@ ${versoes}
   <link rel="stylesheet" href="css/icon-library.css" />
   <script src="js/i18n/detect.js"></script>
   <script src="js/views/theme.js"></script>
+</head>
+<body>
   <main class="page">
     <div class="page__top">
       <a class="page__back" href="${icones}">${escapar(t(idioma, "page.back"))}</a>
@@ -96,6 +99,7 @@ ${PAGINAS.filter((p) => p !== pagina)
     </nav>
     <p class="site-footer__owner">© 2026 André M. Ferreira<span class="site-footer__version"><!--version--></span></p>
   </footer>
+</body>
 </html>
 `;
 }

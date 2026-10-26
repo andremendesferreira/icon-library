@@ -275,6 +275,7 @@ export default {
   "home.how1": "Choose a set, then search by name or pick categories.",
   "home.how2": "Adjust size, stroke and color — the preview follows your choices.",
   "home.how3": "Click to copy the SVG, or open the pencil to make the icon your own.",
+  "header.logoAlt": "Icon Library logo",
   "nav.label": "Site",
   "footer.icons": "Icons",
   "footer.guide": "Guide",

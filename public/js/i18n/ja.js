@@ -264,6 +264,7 @@ export default {
   "home.how1": "セットを選び、名前やカテゴリーで探します。",
   "home.how2": "サイズ・線・色を調整すると、プレビューもすぐ変わります。",
   "home.how3": "クリックで SVG をコピー。鉛筆を開けば自分好みに編集できます。",
+  "header.logoAlt": "Icon Library のロゴ",
   "nav.label": "サイト",
   "footer.icons": "アイコン",
   "footer.guide": "ガイド",

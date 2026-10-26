@@ -272,6 +272,7 @@ export default {
   "home.how1": "Escolha um conjunto e busque pelo nome ou pelas categorias.",
   "home.how2": "Ajuste tamanho, traço e cor — a prévia acompanha suas escolhas.",
   "home.how3": "Clique para copiar o SVG ou use o lápis para deixar o ícone do seu jeito.",
+  "header.logoAlt": "Logotipo do Icon Library",
   "nav.label": "Site",
   "footer.icons": "Ícones",
   "footer.guide": "Guia",
