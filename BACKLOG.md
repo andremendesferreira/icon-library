@@ -26,7 +26,7 @@ Hoje a lógica roda no navegador. Para servir IAs, ela precisa rodar no Node.
 - [ ] **Índice local de ícones.** Script `npm run build-index` que baixa os pacotes nas versões fixadas e grava nome, categorias e SVG de cada ícone. O serviço não depende do unpkg a cada pedido.
 - [ ] **Busca** por nome, categoria e sinônimos sobre o índice.
 - [ ] **Operações do editor sem interface:** compor camadas (`importarDocumento`), girar, espelhar, escalar, recolorir forma, espessura — já existem no `EditorModel`, falta uma fachada de "lista de operações → resultado".
-- [ ] **Imagem PNG no servidor**, para a IA *ver* o resultado. Exige dependência (ex.: `@resvg/resvg-js`). **Decisão pendente.** Sem ela, a IA trabalha às cegas.
+- [ ] **Imagem PNG no servidor**, para a IA *ver* o resultado. **Decisão tomada:** o `@resvg/resvg-js` já está no projeto (`scripts/preview.js`, usado pelas prévias da moderação); falta expor a renderização para o serviço da IA.
 - [ ] Testes do núcleo rodando no Node (a maior parte já existe em `tests/`).
 
 ## Fase 3 — Servidor MCP (o produto principal da versão paga)
@@ -77,6 +77,13 @@ Sai quase de graça depois da Fase 2.
 - [ ] **Abuso:** bloqueio por chave e por IP, limite de payload, tempo máximo por renderização.
 - [ ] **Jurídico:** Termos de Uso; atualizar a Política de Privacidade — passará a haver dados pessoais (e-mail, pagamento), com base legal e direitos do titular pela LGPD.
 - [ ] **Suporte:** e-mail próprio do projeto (hoje o contato é pelas issues do GitHub).
+
+## Site — melhorias para depois
+
+Pequenas, independentes da versão paga.
+
+- [ ] **IndexNow** (Bing, Yandex e outros): avisar os buscadores sozinho quando sai uma versão nova, em vez de enviar URLs à mão no Bing Webmaster Tools. Um arquivo de chave em `/<chave>.txt` e, na subida do servidor, se o commit do rodapé mudou desde a última subida, um `POST` para `https://api.indexnow.org/indexnow` com os endereços do sitemap. Guardar o último commit avisado (banco ou arquivo) para não repetir a cada reinício. O Google não usa IndexNow; para ele continua o Search Console.
+- [ ] **Sorteio dos códigos de apoiador sem viés.** `newCode` em `scripts/coffee.js` faz `byte % 31`, e algumas letras saem um pouco mais (9/256 contra 8/256). Não muda a segurança na prática (31⁸ ≈ 850 bilhões de combinações e limite de tentativas por IP), mas o certo é descartar os bytes acima de 247 (`crypto.randomInt(31)` já faz isso).
 
 ## Preço — como chegar ao valor
 
