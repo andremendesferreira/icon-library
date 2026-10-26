@@ -194,3 +194,45 @@ test("idioma: ETag por idioma (304) e gzip", async () => {
   assert.equal(comprimida.headers["content-encoding"], "gzip");
   assert.equal(zlib.gunzipSync(comprimida.corpo).toString(), primeira.corpo.toString());
 });
+
+// Versão no rodapé: o commit em produção e a data do build
+test("versão: lê o commit do HEAD solto, de refs/heads e de packed-refs", async () => {
+  const { readCommit, versionHtml } = (await import("../scripts/version.js")).default;
+  const os = await import("node:os");
+  const fsp = await import("node:fs/promises");
+  const sha = "9fb8dba0123456789abcdef0123456789abcdef0";
+  const pasta = await fsp.mkdtemp(path.join(os.tmpdir(), "versao-"));
+  // HEAD com o commit direto (checkout "solto")
+  await fsp.writeFile(path.join(pasta, "HEAD"), sha + "\n");
+  assert.equal(readCommit(pasta), sha);
+  // HEAD apontando para a branch, com o commit em refs/heads/main
+  await fsp.writeFile(path.join(pasta, "HEAD"), "ref: refs/heads/main\n");
+  await fsp.mkdir(path.join(pasta, "refs", "heads"), { recursive: true });
+  await fsp.writeFile(path.join(pasta, "refs", "heads", "main"), sha + "\n");
+  assert.equal(readCommit(pasta), sha);
+  // …ou só em packed-refs
+  await fsp.rm(path.join(pasta, "refs"), { recursive: true });
+  await fsp.writeFile(path.join(pasta, "packed-refs"), `# pack-refs with: peeled\n${sha} refs/heads/main\n`);
+  assert.equal(readCommit(pasta), sha);
+  // Sem .git, ou com um HEAD estranho: versão desconhecida, sem quebrar
+  assert.equal(readCommit(path.join(pasta, "nao-existe")), null);
+  await fsp.writeFile(path.join(pasta, "HEAD"), "ref: ../../etc/passwd\n");
+  assert.equal(readCommit(pasta), null);
+  await fsp.rm(pasta, { recursive: true });
+
+  assert.equal(
+    versionHtml({ commit: sha, built: "2026-10-26T12:00:00.000Z" }),
+    `v <a href="https://github.com/andremendesferreira/icon-library/commit/${sha}" rel="noopener">9fb8dba</a> · 2026-10-26`,
+  );
+  assert.equal(versionHtml({ commit: null, built: null }), "");
+});
+
+test("versão: o rodapé das páginas mostra o commit em uso", async () => {
+  const { readCommit } = (await import("../scripts/version.js")).default;
+  const commit = readCommit(fileURLToPath(new URL("../.git", import.meta.url)));
+  for (const caminho of ["/", "/?lang=pt-BR", "/guide.pt-BR.html"]) {
+    const html = (await pedir(caminho)).corpo.toString();
+    assert.doesNotMatch(html, /<!--version-->/, caminho);
+    if (commit) assert.match(html, new RegExp(`/commit/${commit}" rel="noopener">${commit.slice(0, 7)}</a>`), caminho);
+  }
+});

@@ -1,5 +1,9 @@
 node_modules
 .git
+# …exceto o que diz qual é o commit, para a versão no rodapé (scripts/version.js)
+!.git/HEAD
+!.git/refs/heads
+!.git/packed-refs
 .gitignore
 .dockerignore
 Dockerfile

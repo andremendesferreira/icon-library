@@ -41,6 +41,17 @@ const { IconlibraryError, createIconlibrary, postgresStore: iconlibraryStore } =
 const { ReportError, createReports, postgresStore: reportsStore } = require("./reports");
 const { previewAvailable, previewSize, renderPng } = require("./preview");
 const { DEFAULT: DEFAULT_LANG, dictionary, homeLang, localizeHome } = require("./homeLang");
+const { loadVersion, versionHtml } = require("./version");
+
+// Commit and build date, shown in the footer of every page (<!--version-->)
+const VERSION = loadVersion();
+const VERSION_HTML = versionHtml(VERSION);
+function withVersion(html) {
+  const text = Buffer.isBuffer(html) ? html.toString("utf8") : html;
+  if (!text.includes("<!--version-->")) return html;
+  const out = text.replace("<!--version-->", VERSION_HTML);
+  return Buffer.isBuffer(html) ? Buffer.from(out) : out;
+}
 const { poolFromEnv, migrate, checkDatabase } = require("./db");
 
 const ROOT = path.resolve(__dirname, "..", "public");
@@ -115,7 +126,8 @@ function serveHomeInLanguage(req, res, lang) {
   const file = path.join(ROOT, "index.html");
   fs.stat(file, async (err, stat) => {
     if (err) return sendText(req, res, 404, "Not found");
-    const etag = `W/"${stat.size.toString(16)}-${stat.mtimeMs.toString(16)}-${lang}"`;
+    const versionTag = VERSION.commit ? `-${VERSION.commit.slice(0, 7)}` : "";
+    const etag = `W/"${stat.size.toString(16)}-${stat.mtimeMs.toString(16)}${versionTag}-${lang}"`;
     const headers = {
       "Content-Type": TYPES[".html"],
       "Content-Language": lang,
@@ -128,7 +140,7 @@ function serveHomeInLanguage(req, res, lang) {
       let cached = homeCache.get(lang);
       if (!cached || cached.etag !== etag) {
         const [html, dict] = await Promise.all([fs.promises.readFile(file, "utf8"), dictionary(lang)]);
-        const body = Buffer.from(localizeHome(html, lang, dict));
+        const body = Buffer.from(withVersion(localizeHome(html, lang, dict)));
         cached = { etag, body, gzip: zlib.gzipSync(body) };
         homeCache.set(lang, cached);
       }
@@ -520,7 +532,10 @@ function handle(req, res, ctx) {
       return;
     }
     const ext = path.extname(file);
-    const etag = `W/"${stat.size.toString(16)}-${stat.mtimeMs.toString(16)}"`;
+    // Pages carry the version in the footer: a new commit is a new ETag even
+    // when the file itself did not change
+    const versionTag = ext === ".html" && VERSION.commit ? `-${VERSION.commit.slice(0, 7)}` : "";
+    const etag = `W/"${stat.size.toString(16)}-${stat.mtimeMs.toString(16)}${versionTag}"`;
     const headers = {
       "Content-Type": TYPES[ext] || "application/octet-stream",
       ETag: etag,
@@ -541,6 +556,7 @@ function handle(req, res, ctx) {
         sendText(req, res, 404, "Not found");
         return;
       }
+      if (ext === ".html") data = withVersion(data);
       const gzip =
         COMPRESSIBLE.has(ext) &&
         data.length >= MIN_GZIP &&
@@ -638,6 +654,7 @@ if (require.main === module) {
       console.log(`Iconlibrary: ${iconlibrary ? "on" : "off (needs the database and the coffee)"}`);
       console.log(`Bug reports: ${reports ? "on" : "off (needs the database)"}`);
       console.log(`Admin (/admin): ${(iconlibrary || reports) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
+      console.log(`Version: ${VERSION.commit ? VERSION.commit.slice(0, 7) : "unknown commit"}${VERSION.built ? `, built ${VERSION.built}` : ""}`);
       console.log(`Moderation API: ${iconlibrary && moderationToken ? `on${previewAvailable() ? "" : " (no PNG previews: renderer missing)"}` : "off (set MODERATION_TOKEN)"}`);
     });
   })();

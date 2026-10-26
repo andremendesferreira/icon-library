@@ -67,3 +67,5 @@ jobs:
           # Main page in another language: canonical and lang for search engines
           curl -fsS "http://localhost:3000/?lang=pt-BR" | grep -q 'rel="canonical" href="https://iconlibrary.io/?lang=pt-BR"'
           curl -fsS "http://localhost:3000/?lang=pt-BR" | grep -q '<html lang="pt-BR"'
+          # Footer version: the commit this image was built from
+          curl -fsS http://localhost:3000/ | grep -q "/commit/$GITHUB_SHA"

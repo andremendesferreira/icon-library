@@ -1285,6 +1285,17 @@ body:has(.scratchpad--open) .back-to-top {
   margin: 12px 0 0;
   font-size: 12px;
 }
+/* Versão em produção (commit e data do build), preenchida pelo servidor */
+.site-footer__version:not(:empty)::before {
+  content: " · ";
+}
+.site-footer__version {
+  color: #a3b0bd;
+}
+.site-footer__version a {
+  color: inherit;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
 
 /* ── Páginas de texto (Sobre, Privacidade) ── */
 .page {

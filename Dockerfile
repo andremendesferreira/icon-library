@@ -19,10 +19,16 @@ RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
 
 # Application source code (tests/server.test.mjs checks that every file the
 # server loads is listed here)
-COPY --chown=node:node scripts/server.js scripts/coffee.js scripts/db.js scripts/iconlibrary.js scripts/reports.js scripts/preview.js scripts/homeLang.js scripts/svgSafe.js scripts/admin.html ./scripts/
+COPY --chown=node:node scripts/server.js scripts/coffee.js scripts/db.js scripts/iconlibrary.js scripts/reports.js scripts/preview.js scripts/homeLang.js scripts/version.js scripts/svgSafe.js scripts/admin.html ./scripts/
 # Database migrations, applied on start-up when PG_HOST is set
 COPY --chown=node:node migrations/ ./migrations/
 COPY --chown=node:node public/ ./public/
+
+# Version in the footer: the commit being built (from the few .git files that
+# .dockerignore lets through) and the build date. package.json is there only so
+# the COPY works when the build context has no .git at all.
+COPY package.json .gi[t] /tmp/git/
+RUN node scripts/version.js --write /app/version.json /tmp/git && rm -rf /tmp/git
 
 # Switch to non-root user
 USER node
