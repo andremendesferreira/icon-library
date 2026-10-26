@@ -141,3 +141,56 @@ test("Dockerfile: copia todo arquivo que o servidor carrega", () => {
     assert.ok(dockerfile.includes(` scripts/${nome} `), `falta scripts/${nome} no Dockerfile`);
   assert.ok(carregados.includes("reports.js"));
 });
+
+// Página principal por idioma (/?lang=…): o cabeçalho já sai no idioma, para os
+// buscadores não tratarem cada idioma como cópia da versão em inglês
+const canonica = (html) => html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+const atributo = (html, regex) => html.match(regex)?.[1];
+
+test("idioma: /?lang=pt-BR sai com lang, canonical, título e descrição em português", async () => {
+  const res = await pedir("/?lang=pt-BR");
+  assert.equal(res.status, 200);
+  assert.equal(res.headers["content-language"], "pt-BR");
+  const html = res.corpo.toString();
+  const pt = (await import("../public/js/i18n/pt-BR.js")).default;
+  assert.match(html, /<html lang="pt-BR"/);
+  assert.equal(canonica(html), "https://iconlibrary.io/?lang=pt-BR");
+  assert.equal(atributo(html, /<meta property="og:url" content="([^"]+)"/), "https://iconlibrary.io/?lang=pt-BR");
+  assert.equal(atributo(html, /<title>([^<]+)<\/title>/), pt["meta.title"]);
+  assert.equal(atributo(html, /<meta\s+name="description"\s+content="([^"]+)"/), pt["meta.description"]);
+  assert.equal(atributo(html, /<meta property="og:title" content="([^"]+)"/), pt["meta.title"]);
+  // As versões por idioma (hreflang) continuam todas lá
+  assert.equal((html.match(/hreflang=/g) ?? []).length, 9);
+});
+
+test("idioma: cada hreflang da página aponta para um endereço que se declara canônico", async () => {
+  const html = (await pedir("/")).corpo.toString();
+  const versoes = [...html.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g)];
+  assert.ok(versoes.length >= 8);
+  for (const [, lang, href] of versoes) {
+    const caminho = href.replace("https://iconlibrary.io", "");
+    const pagina = (await pedir(caminho)).corpo.toString();
+    assert.equal(canonica(pagina), href, `${lang}: ${caminho}`);
+    if (lang !== "x-default") assert.match(pagina, new RegExp(`<html lang="${lang}"`), lang);
+  }
+});
+
+test("idioma: inglês, código desconhecido e outros parâmetros", async () => {
+  assert.equal(canonica((await pedir("/?lang=en")).corpo.toString()), "https://iconlibrary.io/");
+  assert.equal(canonica((await pedir("/?lang=xx")).corpo.toString()), "https://iconlibrary.io/");
+  assert.equal(canonica((await pedir("/?lang=%3Cscript%3E")).corpo.toString()), "https://iconlibrary.io/");
+  // Maiúsculas trocadas valem; os outros parâmetros (busca, conjunto) não entram na canonical
+  assert.equal(canonica((await pedir("/?set=lucide&q=arrow&lang=pt-br")).corpo.toString()), "https://iconlibrary.io/?lang=pt-BR");
+  assert.equal(canonica((await pedir("/index.html?lang=de")).corpo.toString()), "https://iconlibrary.io/?lang=de");
+});
+
+test("idioma: ETag por idioma (304) e gzip", async () => {
+  const primeira = await pedir("/?lang=ja");
+  const etag = primeira.headers.etag;
+  assert.match(etag, /-ja"$/);
+  assert.notEqual(etag, (await pedir("/?lang=de")).headers.etag);
+  assert.equal((await pedir("/?lang=ja", { headers: { "If-None-Match": etag } })).status, 304);
+  const comprimida = await pedir("/?lang=ja", { headers: { "Accept-Encoding": "gzip" } });
+  assert.equal(comprimida.headers["content-encoding"], "gzip");
+  assert.equal(zlib.gunzipSync(comprimida.corpo).toString(), primeira.corpo.toString());
+});

@@ -40,6 +40,7 @@ const { CoffeeError, coffeeFromEnv } = require("./coffee");
 const { IconlibraryError, createIconlibrary, postgresStore: iconlibraryStore } = require("./iconlibrary");
 const { ReportError, createReports, postgresStore: reportsStore } = require("./reports");
 const { previewAvailable, previewSize, renderPng } = require("./preview");
+const { DEFAULT: DEFAULT_LANG, dictionary, homeLang, localizeHome } = require("./homeLang");
 const { poolFromEnv, migrate, checkDatabase } = require("./db");
 
 const ROOT = path.resolve(__dirname, "..", "public");
@@ -107,6 +108,46 @@ const DYNAMIC = {
 
 // Compressed copies, kept while the file does not change
 const gzipCache = new Map();
+// Main page per language: { etag, body, gzip }, rebuilt when index.html changes
+const homeCache = new Map();
+
+function serveHomeInLanguage(req, res, lang) {
+  const file = path.join(ROOT, "index.html");
+  fs.stat(file, async (err, stat) => {
+    if (err) return sendText(req, res, 404, "Not found");
+    const etag = `W/"${stat.size.toString(16)}-${stat.mtimeMs.toString(16)}-${lang}"`;
+    const headers = {
+      "Content-Type": TYPES[".html"],
+      "Content-Language": lang,
+      ETag: etag,
+      "Cache-Control": "no-cache",
+      Vary: "Accept-Encoding",
+    };
+    if (req.headers["if-none-match"] === etag) return send(req, res, 304, headers);
+    try {
+      let cached = homeCache.get(lang);
+      if (!cached || cached.etag !== etag) {
+        const [html, dict] = await Promise.all([fs.promises.readFile(file, "utf8"), dictionary(lang)]);
+        const body = Buffer.from(localizeHome(html, lang, dict));
+        cached = { etag, body, gzip: zlib.gzipSync(body) };
+        homeCache.set(lang, cached);
+      }
+      const gzip = /\bgzip\b/.test(req.headers["accept-encoding"] || "");
+      const data = gzip ? cached.gzip : cached.body;
+      if (gzip) headers["Content-Encoding"] = "gzip";
+      headers["Content-Length"] = data.length;
+      send(req, res, 200, headers, data);
+    } catch (error) {
+      // Without the dictionary the page still works: it goes out as is and
+      // the browser translates it, as before
+      console.error("[home]", error);
+      fs.readFile(file, (readError, data) => {
+        if (readError) return sendText(req, res, 500, "Internal server error");
+        send(req, res, 200, { "Content-Type": TYPES[".html"], "Cache-Control": "no-cache" }, data);
+      });
+    }
+  });
+}
 
 function send(req, res, status, headers, body) {
   res.writeHead(status, { ...SECURITY_HEADERS, ...headers });
@@ -447,6 +488,16 @@ function handle(req, res, ctx) {
   } catch {
     sendText(req, res, 400, "Bad request");
     return;
+  }
+
+  // Main page in another language (/?lang=pt-BR): head adjusted for search
+  // engines (scripts/homeLang.js)
+  if (url === "/" || url === "/index.html") {
+    const lang = homeLang(new URL(req.url, "http://localhost").searchParams.get("lang"));
+    if (lang && lang !== DEFAULT_LANG) {
+      serveHomeInLanguage(req, res, lang);
+      return;
+    }
   }
 
   const dynamic = DYNAMIC[url]?.(req);
