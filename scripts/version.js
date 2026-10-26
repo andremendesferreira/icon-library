@@ -60,10 +60,39 @@ function versionHtml(version) {
 
 module.exports = { loadVersion, readCommit, versionHtml };
 
+// Without .git (Portainer builds the image from a copy of the files, without
+// it): the latest commit of the branch on GitHub — the one just pulled for
+// this build. Any failure (no network, rate limit) leaves it unknown; the
+// build never fails because of the version.
+async function latestCommitOnGitHub(branch = "main", fetchImpl = globalThis.fetch) {
+  try {
+    const api = REPOSITORY.replace("https://github.com/", "https://api.github.com/repos/");
+    const res = await fetchImpl(`${api}/commits/${branch}`, {
+      headers: { Accept: "application/vnd.github+json", "User-Agent": "icon-library-build" },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return null;
+    const { sha } = await res.json();
+    return SHA.test(sha) ? sha : null;
+  } catch {
+    return null;
+  }
+}
+
+module.exports.latestCommitOnGitHub = latestCommitOnGitHub;
+
 // Docker build: node scripts/version.js --write /app/version.json /tmp/git
 if (require.main === module && process.argv[2] === "--write") {
   const [, , , output, gitDir] = process.argv;
-  const version = { commit: readCommit(gitDir), built: new Date().toISOString() };
-  fs.writeFileSync(output, JSON.stringify(version) + "\n");
-  console.log(`version: ${version.commit ? version.commit.slice(0, 7) : "unknown commit"} built ${version.built}`);
+  (async () => {
+    let commit = readCommit(gitDir);
+    let source = "git";
+    if (!commit) {
+      commit = await latestCommitOnGitHub();
+      source = commit ? "github" : "unknown";
+    }
+    const version = { commit, built: new Date().toISOString(), source };
+    fs.writeFileSync(output, JSON.stringify(version) + "\n");
+    console.log(`version: ${commit ? commit.slice(0, 7) : "unknown commit"} (from ${source}), built ${version.built}`);
+  })();
 }

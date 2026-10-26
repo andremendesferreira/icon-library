@@ -236,3 +236,20 @@ test("versão: o rodapé das páginas mostra o commit em uso", async () => {
     if (commit) assert.match(html, new RegExp(`/commit/${commit}" rel="noopener">${commit.slice(0, 7)}</a>`), caminho);
   }
 });
+
+test("versão: sem .git, pergunta ao GitHub o último commit; falha não quebra nada", async () => {
+  const { latestCommitOnGitHub } = (await import("../scripts/version.js")).default;
+  const sha = "4438870aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  let pedido;
+  const respondeu = await latestCommitOnGitHub("main", async (url, opcoes) => {
+    pedido = { url, opcoes };
+    return { ok: true, json: async () => ({ sha }) };
+  });
+  assert.equal(respondeu, sha);
+  assert.equal(pedido.url, "https://api.github.com/repos/andremendesferreira/icon-library/commits/main");
+  assert.ok(pedido.opcoes.headers["User-Agent"]);
+  // Erro HTTP, rede fora, resposta estranha: versão desconhecida
+  assert.equal(await latestCommitOnGitHub("main", async () => ({ ok: false, json: async () => ({}) })), null);
+  assert.equal(await latestCommitOnGitHub("main", async () => { throw new Error("sem rede"); }), null);
+  assert.equal(await latestCommitOnGitHub("main", async () => ({ ok: true, json: async () => ({ sha: "<script>" }) })), null);
+});
