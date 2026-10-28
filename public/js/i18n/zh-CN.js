@@ -98,7 +98,7 @@ export default {
   "editor.addRect": "添加矩形",
   "editor.addTriangle": "添加三角形",
   "editor.addCurve": "添加曲线",
-  "editor.iconOnTop": "+ 叠加图标",
+  "editor.iconOnTop": "叠加图标",
   "editor.pickerLabel": "添加另一个图标",
   "editor.pickerClose": "关闭图标搜索",
   "editor.pickerSearch": "搜索图标…",

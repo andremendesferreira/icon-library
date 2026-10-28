@@ -98,7 +98,7 @@ export default {
   "editor.addRect": "Rechteck hinzufügen",
   "editor.addTriangle": "Dreieck hinzufügen",
   "editor.addCurve": "Kurve hinzufügen",
-  "editor.iconOnTop": "+ Icon darüber",
+  "editor.iconOnTop": "Icon darüber",
   "editor.pickerLabel": "Weiteres Icon hinzufügen",
   "editor.pickerClose": "Icon-Suche schließen",
   "editor.pickerSearch": "Icons suchen…",

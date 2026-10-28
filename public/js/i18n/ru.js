@@ -103,7 +103,7 @@ export default {
   "editor.addRect": "Добавить прямоугольник",
   "editor.addTriangle": "Добавить треугольник",
   "editor.addCurve": "Добавить кривую",
-  "editor.iconOnTop": "+ Иконка сверху",
+  "editor.iconOnTop": "Иконка сверху",
   "editor.pickerLabel": "Добавить другую иконку",
   "editor.pickerClose": "Закрыть поиск иконок",
   "editor.pickerSearch": "Поиск иконок…",

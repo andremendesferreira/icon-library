@@ -98,7 +98,7 @@ export default {
   "editor.addRect": "四角形を追加",
   "editor.addTriangle": "三角形を追加",
   "editor.addCurve": "曲線を追加",
-  "editor.iconOnTop": "+ アイコンを重ねる",
+  "editor.iconOnTop": "アイコンを重ねる",
   "editor.pickerLabel": "別のアイコンを追加",
   "editor.pickerClose": "アイコン検索を閉じる",
   "editor.pickerSearch": "アイコンを検索…",

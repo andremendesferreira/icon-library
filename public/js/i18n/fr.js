@@ -98,7 +98,7 @@ export default {
   "editor.addRect": "Ajouter un rectangle",
   "editor.addTriangle": "Ajouter un triangle",
   "editor.addCurve": "Ajouter une courbe",
-  "editor.iconOnTop": "+ Icône par-dessus",
+  "editor.iconOnTop": "Icône par-dessus",
   "editor.pickerLabel": "Ajouter une autre icône",
   "editor.pickerClose": "Fermer la recherche d’icônes",
   "editor.pickerSearch": "Rechercher des icônes…",

@@ -2040,10 +2040,17 @@ body:has(.scratchpad--open) .back-to-top {
   flex-shrink: 0;
 }
 
-/* "+ Icon on top" e a busca */
+/* "Icon on top" (ícone e texto) e a busca */
 .editor__buttons .editor__add-icon {
   flex-basis: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border-style: dashed;
+}
+.editor__add-icon svg {
+  flex-shrink: 0;
 }
 .editor__picker {
   margin-top: 10px;
