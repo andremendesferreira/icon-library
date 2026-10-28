@@ -113,7 +113,6 @@ export default {
   "editor.transformNote": "選択した図形に適用されます。何も選択していないときはアイコン全体に適用されます。",
   "editor.rotate": "90° 回転",
   "editor.rotate45": "45° 回転",
-  "editor.flip": "反転",
   "editor.flipH": "左右反転",
   "editor.flipV": "上下反転",
   "editor.moveLeft": "左へ移動",

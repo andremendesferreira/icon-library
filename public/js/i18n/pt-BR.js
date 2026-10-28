@@ -114,7 +114,6 @@ export default {
     "Vale para a forma selecionada, ou para o ícone inteiro quando nada está selecionado.",
   "editor.rotate": "Girar 90°",
   "editor.rotate45": "Girar 45°",
-  "editor.flip": "Espelhar",
   "editor.flipH": "Espelhar na horizontal",
   "editor.flipV": "Espelhar na vertical",
   "editor.moveLeft": "Mover para a esquerda",

@@ -114,7 +114,6 @@ export default {
     "Gilt für die ausgewählte Form oder, wenn nichts ausgewählt ist, für das ganze Icon.",
   "editor.rotate": "Um 90° drehen",
   "editor.rotate45": "Um 45° drehen",
-  "editor.flip": "Spiegeln",
   "editor.flipH": "Horizontal spiegeln",
   "editor.flipV": "Vertikal spiegeln",
   "editor.moveLeft": "Nach links verschieben",

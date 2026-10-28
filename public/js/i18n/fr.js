@@ -114,7 +114,6 @@ export default {
     "S’applique à la forme sélectionnée, ou à toute l’icône si rien n’est sélectionné.",
   "editor.rotate": "Pivoter de 90°",
   "editor.rotate45": "Pivoter de 45°",
-  "editor.flip": "Retourner",
   "editor.flipH": "Retourner horizontalement",
   "editor.flipV": "Retourner verticalement",
   "editor.moveLeft": "Déplacer à gauche",

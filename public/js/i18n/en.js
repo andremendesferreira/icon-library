@@ -117,7 +117,6 @@ export default {
     "Applies to the selected shape, or to the whole icon when nothing is selected.",
   "editor.rotate": "Rotate 90°",
   "editor.rotate45": "Rotate 45°",
-  "editor.flip": "Flip",
   "editor.flipH": "Flip horizontally",
   "editor.flipV": "Flip vertically",
   "editor.moveLeft": "Move left",

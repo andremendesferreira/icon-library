@@ -113,7 +113,6 @@ export default {
   "editor.transformNote": "作用于所选形状；未选择时作用于整个图标。",
   "editor.rotate": "旋转 90°",
   "editor.rotate45": "旋转 45°",
-  "editor.flip": "翻转",
   "editor.flipH": "水平翻转",
   "editor.flipV": "垂直翻转",
   "editor.moveLeft": "左移",
