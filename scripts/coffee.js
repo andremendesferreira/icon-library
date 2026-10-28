@@ -9,6 +9,11 @@
  *    Stripe whether it was paid and, if so, store a supporter row and return
  *    a supporter code valid until 30 days after the payment.
  * 3. The code can be entered on other devices (claim), up to MAX_DEVICES.
+ * 4. Renewal: a browser that knows its code adds it to the Payment Link as
+ *    client_reference_id. That payment extends the same code by 30 days
+ *    (from the end of the current period, when it has not ended yet), so the
+ *    supporter keeps the icons published with it. The device count starts
+ *    over: the paying device is the first of the new period.
  *
  * Nothing about the person is stored: only the Stripe session id, the code,
  * the amount, the dates and a device counter.
@@ -62,6 +67,24 @@ function createCoffee({ stripeKey, paymentLink, paymentLinkId, store, fetch = gl
     return res.json();
   }
 
+  // Payment with a known code as client_reference_id → that code, extended;
+  // null when the payment is not a renewal (it gets a new code)
+  async function renewal(sessionId, session, paidAt) {
+    const code = normalizeCode(session.client_reference_id);
+    const row = code && CODE.test(code) ? await store.byCode(code) : null;
+    if (!row) return null;
+    const from = Math.max(row.expiresAt.getTime(), paidAt.getTime());
+    if (from + DAYS * 86400000 <= now()) throw new CoffeeError(410, "expired");
+    return store.renew({
+      session: sessionId,
+      code,
+      amount: session.amount_total ?? null,
+      currency: session.currency ?? null,
+      paidAt,
+      days: DAYS,
+    });
+  }
+
   return {
     config() {
       return { enabled: true, link: paymentLink, days: DAYS, devices: MAX_DEVICES };
@@ -81,6 +104,8 @@ function createCoffee({ stripeKey, paymentLink, paymentLinkId, store, fetch = gl
         throw new CoffeeError(403, "other_payment");
 
       const paidAt = new Date((session.created || Math.floor(now() / 1000)) * 1000);
+      const renewed = await renewal(sessionId, session, paidAt);
+      if (renewed) return reply(renewed);
       const row = {
         session: sessionId,
         code: newCode(),
@@ -108,7 +133,9 @@ function createCoffee({ stripeKey, paymentLink, paymentLinkId, store, fetch = gl
       const code = normalizeCode(text);
       if (!code || !CODE.test(code)) throw new CoffeeError(404, "invalid_code");
       const row = await store.byCode(code);
-      if (!row || row.expiresAt.getTime() <= now()) throw new CoffeeError(404, "invalid_code");
+      if (!row) throw new CoffeeError(404, "invalid_code");
+      // Expired: the page offers to renew this same code
+      if (row.expiresAt.getTime() <= now()) throw new CoffeeError(410, "code_expired");
       if (!(await store.addDevice(code, MAX_DEVICES))) throw new CoffeeError(409, "too_many_devices");
       return reply(row);
     },
@@ -122,8 +149,11 @@ function reply(row) {
 // In memory — for tests and local development without a database
 function memoryStore() {
   const rows = new Map();
+  // Renewal session → code
+  const renewals = new Map();
   return {
     async bySession(session) {
+      if (renewals.has(session)) return rows.get(renewals.get(session));
       return [...rows.values()].find((r) => r.session === session) || null;
     },
     async byCode(code) {
@@ -134,6 +164,16 @@ function memoryStore() {
       if (existing) return existing;
       rows.set(row.code, { ...row });
       return rows.get(row.code);
+    },
+    async renew({ session, code, paidAt, days }) {
+      const row = rows.get(code);
+      if (!renewals.has(session)) {
+        renewals.set(session, code);
+        const from = Math.max(row.expiresAt.getTime(), paidAt.getTime());
+        row.expiresAt = new Date(from + days * 86400000);
+        row.devices = 1;
+      }
+      return row;
     },
     async addDevice(code, max) {
       const row = rows.get(code);
@@ -161,7 +201,12 @@ function postgresStore(pool) {
     return toRow(rows[0]) || null;
   };
   return {
-    bySession: (session) => one("SELECT * FROM coffee_supporters WHERE session_id = $1", [session]),
+    bySession: (session) =>
+      one(
+        `SELECT * FROM coffee_supporters
+         WHERE session_id = $1 OR code = (SELECT code FROM coffee_renewals WHERE session_id = $1)`,
+        [session],
+      ),
     byCode: (code) => one("SELECT * FROM coffee_supporters WHERE code = $1", [code]),
     // Two tabs redeeming the same session at once: the second gets the first's row
     insert: async (row) =>
@@ -171,6 +216,20 @@ function postgresStore(pool) {
          ON CONFLICT (session_id) DO NOTHING RETURNING *`,
         [row.session, row.code, row.amount, row.currency, row.paidAt, row.expiresAt, row.devices],
       )) || one("SELECT * FROM coffee_supporters WHERE session_id = $1", [row.session]),
+    // The renewal row and the new date together; reloading the thank-you page
+    // (the same session) does not extend it twice
+    renew: async ({ session, code, amount, currency, paidAt, days }) =>
+      (await one(
+        `WITH r AS (
+           INSERT INTO coffee_renewals (session_id, code, amount, currency, paid_at)
+           VALUES ($1, $2, $3, $4, $5)
+           ON CONFLICT (session_id) DO NOTHING RETURNING code
+         )
+         UPDATE coffee_supporters s
+         SET expires_at = greatest(s.expires_at, $5) + make_interval(days => $6), devices = 1
+         FROM r WHERE s.code = r.code RETURNING s.*`,
+        [session, code, amount, currency, paidAt, days],
+      )) || one("SELECT * FROM coffee_supporters WHERE code = $1", [code]),
     addDevice: async (code, max) =>
       Boolean(
         await one(

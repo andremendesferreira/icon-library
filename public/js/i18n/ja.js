@@ -208,6 +208,11 @@ export default {
   "coffee.tooMany": "試行回数が多すぎます。数分後にもう一度お試しください。",
   "coffee.disabled": "現在、コーヒーの支払いは利用できません。",
   "coffee.error": "サーバーに接続できませんでした。少し待ってからもう一度お試しください。",
+  "coffee.expiredText": "サポーター期間は {date} に終了しました。もう一杯のコーヒーでコード {code} がさらに {days} 日間更新され、このコードで公開したアイコンもそのままあなたのものです。",
+  "coffee.renewPay": "コーヒーで更新 · {price}",
+  "coffee.renewedElsewhere": "別の端末で更新済みです",
+  "coffee.codeExpired": "このコードは期限切れです。ここでもう一杯コーヒーを買うと {days} 日間更新され、このコードで公開したアイコンもそのままあなたのものです。",
+  "coffee.renewEarly": "もう一杯のコーヒーで {days} 日延長",
 
   "card.by": "作者：{author}",
   "publish.button": "Iconlibrary に公開",

@@ -92,7 +92,65 @@ test("código vencido não vale mais", async () => {
   const { cafe: c } = servico({ now: () => agora });
   const { code } = await c.redeem("cs_test_pago123456");
   agora = PAGO_EM * 1000 + (DAYS + 1) * DIA;
-  await assert.rejects(c.claim(code), { status: 404, code: "invalid_code" });
+  // Vencido é diferente de inexistente: a página oferece renovar o mesmo código
+  await assert.rejects(c.claim(code), { status: 410, code: "code_expired" });
+  assert.equal(await c.supporter(code), null);
+});
+
+// Renovação: o código vai no link do Stripe (client_reference_id)
+const renovacao = (code, dias) => ({ ...PAGA, created: PAGO_EM + dias * 86400, client_reference_id: code });
+
+test("renovar antes de vencer soma 30 dias ao fim do período, com o mesmo código", async () => {
+  let agora = PAGO_EM * 1000 + DIA;
+  const sessoes = { cs_test_pago123456: PAGA };
+  const { cafe: c, stripe } = servico({ sessoes, now: () => agora });
+  const { code } = await c.redeem("cs_test_pago123456");
+  await c.claim(code);
+  await c.claim(code);
+  await assert.rejects(c.claim(code), { code: "too_many_devices" });
+
+  agora = PAGO_EM * 1000 + 20 * DIA;
+  sessoes.cs_test_renova12345 = renovacao(code.toLowerCase().replace(/-/g, " "), 20);
+  const r = await c.redeem("cs_test_renova12345");
+  assert.equal(r.code, code);
+  assert.equal(r.expires, new Date(PAGO_EM * 1000 + 2 * DAYS * DIA).toISOString());
+  // Recarregar a página não renova de novo nem pergunta ao Stripe
+  const chamadas = stripe.chamadas.length;
+  assert.deepEqual(await c.redeem("cs_test_renova12345"), r);
+  assert.equal(stripe.chamadas.length, chamadas);
+  // Os aparelhos recomeçam: quem pagou é o primeiro do novo período
+  await c.claim(code);
+  await c.claim(code);
+  await assert.rejects(c.claim(code), { code: "too_many_devices" });
+});
+
+test("renovar depois de vencer conta 30 dias a partir do novo pagamento", async () => {
+  let agora = PAGO_EM * 1000 + DIA;
+  const sessoes = { cs_test_pago123456: PAGA };
+  const { cafe: c } = servico({ sessoes, now: () => agora });
+  const { code } = await c.redeem("cs_test_pago123456");
+  agora = PAGO_EM * 1000 + 45 * DIA;
+  assert.equal(await c.supporter(code), null);
+  sessoes.cs_test_renova12345 = renovacao(code, 45);
+  const r = await c.redeem("cs_test_renova12345");
+  assert.equal(r.code, code);
+  assert.equal(r.expires, new Date(PAGO_EM * 1000 + (45 + DAYS) * DIA).toISOString());
+  assert.equal((await c.supporter(code)).code, code);
+});
+
+test("renovação com código desconhecido vira código novo; pagamento velho não renova", async () => {
+  let agora = PAGO_EM * 1000 + DIA;
+  const sessoes = { cs_test_pago123456: PAGA, cs_test_outro123456: renovacao("CAFE-ZZZZ-ZZZZ", 0) };
+  const { cafe: c } = servico({ sessoes, now: () => agora });
+  const { code } = await c.redeem("cs_test_pago123456");
+  const outro = await c.redeem("cs_test_outro123456");
+  assert.notEqual(outro.code, "CAFE-ZZZZ-ZZZZ");
+  assert.notEqual(outro.code, code);
+
+  agora = PAGO_EM * 1000 + 100 * DIA;
+  sessoes.cs_test_velho123456 = renovacao(code, 40);
+  await assert.rejects(c.redeem("cs_test_velho123456"), { status: 410, code: "expired" });
+  assert.equal(await c.supporter(code), null);
 });
 
 // ── API do servidor ─────────────────────────────────────────────────────────

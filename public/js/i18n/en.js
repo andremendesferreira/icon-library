@@ -219,6 +219,11 @@ export default {
   "coffee.tooMany": "Too many attempts. Try again in a few minutes.",
   "coffee.disabled": "Coffee payments are not available right now.",
   "coffee.error": "Could not reach the server. Try again in a moment.",
+  "coffee.expiredText": "Your supporter period ended on {date}. Another coffee renews your code {code} for {days} more days — and the icons you published with it stay yours.",
+  "coffee.renewPay": "Renew with a coffee · {price}",
+  "coffee.renewedElsewhere": "I already renewed on another device",
+  "coffee.codeExpired": "This code has expired. Buy another coffee here to renew it for {days} days — the icons published with it stay yours.",
+  "coffee.renewEarly": "Add {days} more days with another coffee",
 
   "card.by": "by {author}",
   "publish.button": "Publish to Iconlibrary",

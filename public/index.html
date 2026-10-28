@@ -471,7 +471,10 @@
     <section id="coffee-invite">
       <h2 id="coffee-title" class="coffee__title" data-i18n="coffee.title">Buy the developer a coffee</h2>
       <p id="coffee-text" class="coffee__text"></p>
+      <!-- Código expirado neste navegador: renovar o mesmo código -->
+      <p id="coffee-renew" class="coffee__renew" hidden></p>
       <a id="coffee-pay" class="coffee__pay" href="#" rel="noopener">Buy a coffee</a>
+      <p class="coffee__note" id="coffee-renewed-row" hidden><button type="button" id="coffee-renewed" class="site-footer__report" data-i18n="coffee.renewedElsewhere">I already renewed on another device</button></p>
       <p class="coffee__note" data-i18n="coffee.secure">Secure payment by Stripe — your card details never reach this site.</p>
     </section>
     <section id="coffee-thanks" hidden>
@@ -482,6 +485,7 @@
         <code id="coffee-code-value"></code>
         <button type="button" id="coffee-copy" data-i18n="coffee.copyCode">Copy code</button>
       </div>
+      <p class="coffee__note"><a id="coffee-renew-early" href="#" rel="noopener" hidden></a></p>
       <p class="coffee__note"><button type="button" class="site-footer__report" data-mine-open>🗂️ <span data-i18n="mine.open">My published icons</span></button></p>
     </section>
     <form id="coffee-form" class="coffee__form">

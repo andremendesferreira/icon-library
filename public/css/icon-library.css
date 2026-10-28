@@ -2346,7 +2346,16 @@ html.i18n-pendente body {
 }
 /* Meus ícones: o que o apoiador publicou, com a situação e o botão Editar */
 .mine .coffee__title,
-.mine > .coffee__note {
+.mine > .coffee__renew {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff4e0;
+  color: #6b4a12;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.coffee__note {
   text-align: center;
 }
 .mine__form {
@@ -2688,6 +2697,10 @@ html.i18n-pendente body {
   background: var(--dk-surface);
   border-color: var(--dk-border);
   color: var(--dk-text);
+}
+[data-theme="dark"] .coffee__renew {
+  background: #3a2c14;
+  color: #f3dcae;
 }
 [data-theme="dark"] .coffee__text {
   color: var(--dk-text);

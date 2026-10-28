@@ -19,6 +19,9 @@ export class CoffeeView {
   campoCodigo = porId("coffee-code");
   situacao = porId("coffee-status");
   explicacao = porId("coffee-text");
+  renovar = porId("coffee-renew");
+  jaRenovei = porId("coffee-renewed-row");
+  renovarAntes = porId("coffee-renew-early");
 
   constructor() {
     for (const botao of this.botoes) botao.addEventListener("click", () => this.abrir());
@@ -26,14 +29,36 @@ export class CoffeeView {
     fecharAoClicarFora(this.janela);
   }
 
-  // config: { enabled, link, price, days, devices }
-  preparar(config) {
+  // config: { enabled, link, price, days, devices }; codigo: o código que este
+  // navegador conhece (vigente ou expirado), para o pagamento renová-lo
+  preparar(config, codigo = null) {
     for (const botao of this.botoes) botao.hidden = !config.enabled;
     if (!config.enabled) return;
-    this.pagar.href = config.link;
+    this.config = config;
     this.pagar.textContent = t("coffee.pay", { price: config.price });
     this.explicacao.textContent = t("coffee.text", { days: config.days });
     this.devices = config.devices;
+    this.renovarAntes.textContent = t("coffee.renewEarly", { days: config.days });
+    this.usarCodigoNoPagamento(codigo);
+  }
+
+  // O Stripe devolve o client_reference_id na sessão: o servidor estende
+  // esse código em vez de criar outro
+  usarCodigoNoPagamento(codigo) {
+    if (!this.config) return;
+    const link = new URL(this.config.link);
+    if (codigo) link.searchParams.set("client_reference_id", codigo);
+    this.pagar.href = link.href;
+    this.renovarAntes.href = link.href;
+    this.renovarAntes.hidden = !codigo;
+  }
+
+  // O período deste navegador terminou: oferece renovar o mesmo código
+  mostrarExpirado({ code, dataTexto }) {
+    this.renovar.textContent = t("coffee.expiredText", { date: dataTexto, code, days: this.config?.days ?? 30 });
+    this.renovar.hidden = false;
+    this.jaRenovei.hidden = false;
+    if (this.config) this.pagar.textContent = t("coffee.renewPay", { price: this.config.price });
   }
 
   // Apoiador ativo: o botão vira um agradecimento (e reabre o código)
@@ -75,6 +100,10 @@ export class CoffeeView {
       const codigo = this.campoCodigo.value.trim();
       if (codigo) acao(codigo);
     });
+  }
+
+  aoJaRenovar(acao) {
+    porId("coffee-renewed").addEventListener("click", () => acao());
   }
 
   aoCopiarCodigo(acao) {

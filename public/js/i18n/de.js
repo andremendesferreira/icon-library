@@ -216,6 +216,11 @@ export default {
   "coffee.tooMany": "Zu viele Versuche. Versuche es in ein paar Minuten erneut.",
   "coffee.disabled": "Kaffee-Zahlungen sind gerade nicht verfügbar.",
   "coffee.error": "Der Server ist nicht erreichbar. Versuche es gleich noch einmal.",
+  "coffee.expiredText": "Dein Unterstützer-Zeitraum ist am {date} abgelaufen. Ein weiterer Kaffee verlängert deinen Code {code} um {days} Tage – und die damit veröffentlichten Icons bleiben deine.",
+  "coffee.renewPay": "Mit einem Kaffee verlängern · {price}",
+  "coffee.renewedElsewhere": "Ich habe auf einem anderen Gerät schon verlängert",
+  "coffee.codeExpired": "Dieser Code ist abgelaufen. Spendiere hier einen weiteren Kaffee, um ihn um {days} Tage zu verlängern – die damit veröffentlichten Icons bleiben deine.",
+  "coffee.renewEarly": "Mit einem weiteren Kaffee {days} Tage dazu",
 
   "card.by": "von {author}",
   "publish.button": "In Iconlibrary veröffentlichen",

@@ -208,6 +208,11 @@ export default {
   "coffee.tooMany": "尝试次数过多，请几分钟后再试。",
   "coffee.disabled": "暂时无法请咖啡。",
   "coffee.error": "无法连接服务器，请稍后再试。",
+  "coffee.expiredText": "你的支持者期限已于 {date} 结束。再请一杯咖啡即可将代码 {code} 续期 {days} 天——用它发布的图标仍然归你。",
+  "coffee.renewPay": "用一杯咖啡续期 · {price}",
+  "coffee.renewedElsewhere": "我已在其他设备上续期",
+  "coffee.codeExpired": "此代码已过期。在这里再请一杯咖啡即可续期 {days} 天——用它发布的图标仍然归你。",
+  "coffee.renewEarly": "再请一杯咖啡，延长 {days} 天",
 
   "card.by": "作者：{author}",
   "publish.button": "发布到 Iconlibrary",
