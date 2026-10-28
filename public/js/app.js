@@ -17,6 +17,7 @@ import { PublishView } from "./views/PublishView.js";
 import { PublishController } from "./controllers/PublishController.js";
 import { ReportView } from "./views/ReportView.js";
 import { ReportController } from "./controllers/ReportController.js";
+import { PngView } from "./views/PngView.js";
 
 // O idioma vem antes de tudo: as views já nascem com os textos traduzidos
 await carregarIdioma();
@@ -54,8 +55,13 @@ const scratchpad = new ScratchpadController(
 );
 scratchpad.iniciar();
 
+// Janela "Baixar PNG" (tamanho), usada pelos cards e pelo editor
+const pngView = new PngView();
+const escolherTamanhoPng = (sugerido) => pngView.abrir(sugerido);
+
 const editor = new EditorController(new EditorModel(), new EditorView(), {
   avisar,
+  escolherTamanhoPng,
   aoAdicionar: (item, svg) => scratchpad.adicionar(item, svg),
   catalogo,
 });
@@ -85,6 +91,7 @@ new ReportController(new ReportView(), { avisar }).iniciar();
 new IconController(iconModel, iconView, {
   aoAdicionar: (item, svg) => scratchpad.adicionar(item, svg),
   aoEditar: (item, svg) => editor.abrir(item, svg),
+  escolherTamanhoPng,
 }).iniciar();
 if (apoiador.ativo()) anuncios.desligar();
 else anuncios.iniciar();

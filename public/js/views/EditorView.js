@@ -51,6 +51,10 @@ export class EditorView {
   linkStudio = porId("editor-studio");
   // Cor e espessura da seleção
   painelEstilo = porId("editor-style");
+  painelPontos = porId("editor-points");
+  botaoMaisPonto = porId("editor-point-add");
+  botaoMenosPonto = porId("editor-point-remove");
+  dicaPontos = porId("editor-points-hint");
   cor = porId("editor-color");
   corValor = porId("editor-color-value");
   campoTraco = porId("editor-stroke-field");
@@ -152,6 +156,13 @@ export class EditorView {
     porId("editor-png").addEventListener("click", acoes.aoBaixarPng);
     porId("editor-scratchpad").addEventListener("click", acoes.aoScratchpad);
 
+    this.botaoMaisPonto.addEventListener("click", acoes.aoAdicionarPonto);
+    this.botaoMenosPonto.addEventListener("click", () => {
+      acoes.aoRemoverPonto();
+      // O botão fica desativado depois de apagar e o navegador tira o foco
+      // dele: o foco volta ao desenho, para Delete e Ctrl+Z seguirem valendo
+      this.canvas.focus();
+    });
     this.janela.addEventListener("keydown", (evento) => this.teclado(evento));
   }
 
@@ -314,6 +325,7 @@ export class EditorView {
         return;
       }
       if (forma) this.acoes.aoClicarForma(Number(forma.dataset.i));
+      if (ponto) this.acoes.aoSelecionarPonto(ponto.dataset.ponto);
       if (!this.acoes.aoIniciarArraste()) return;
       evento.preventDefault();
       // A captura fica no próprio canvas: os nós são recriados a cada movimento
@@ -356,6 +368,7 @@ export class EditorView {
     this.desenharLista(estado);
     this.desenharPrevias(estado.svg);
     this.mostrarEstiloSelecao(estado.estiloSelecao);
+    this.mostrarPontos(estado);
     if (atualizarCodigo) {
       this.codigo.value = estado.svg;
       this.erro.textContent = "";
@@ -365,6 +378,15 @@ export class EditorView {
     this.botaoRefazer.disabled = !estado.podeRefazer;
     this.linkStudio.hidden = !estado.linkStudio;
     if (estado.linkStudio) this.linkStudio.href = estado.linkStudio;
+  }
+
+  // Botões + Ponto / − Ponto: aparecem com uma forma de traço selecionada;
+  // ativos quando há um ponto clicado que permite a ação
+  mostrarPontos({ editaPontos, pontoSelecionado, podeAdicionarPonto, podeRemoverPonto }) {
+    this.painelPontos.hidden = !editaPontos;
+    this.botaoMaisPonto.disabled = !podeAdicionarPonto;
+    this.botaoMenosPonto.disabled = !podeRemoverPonto;
+    this.dicaPontos.hidden = pontoSelecionado !== null;
   }
 
   mostrarErro(mensagem) {
@@ -384,7 +406,7 @@ export class EditorView {
     }
   }
 
-  desenharCanvas({ raiz, elementos, selecionados, pontos, viewBox, fora }) {
+  desenharCanvas({ raiz, elementos, selecionados, pontos, pontoSelecionado, viewBox, fora }) {
     const { x, y, w, h } = viewBox;
     // A margem abre espaço para pontos de controle fora da área do ícone
     // (comuns em curvas), para todos poderem ser pegos. Durante um arraste
@@ -468,7 +490,7 @@ export class EditorView {
       for (const p of pontos)
         camada.append(criar("circle", {
           cx: p.x, cy: p.y, r: RAIO_PONTO / escala,
-          class: `editor__handle editor__handle--${p.tipo}`,
+          class: `editor__handle editor__handle--${p.tipo}${p.id === pontoSelecionado ? " editor__handle--sel" : ""}`,
           "data-ponto": p.id,
           "vector-effect": "non-scaling-stroke",
         }));

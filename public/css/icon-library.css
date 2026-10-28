@@ -1754,6 +1754,15 @@ body:has(.scratchpad--open) .back-to-top {
   fill: var(--il-blue);
   stroke: #fff;
 }
+/* Ponto clicado: cheio, para apagar ou acrescentar vizinho (+/− Ponto) */
+.editor__handle.editor__handle--sel {
+  fill: var(--il-blue);
+  stroke: #fff;
+  stroke-width: 2.5;
+}
+.editor__handle--ctrl.editor__handle--sel {
+  fill: var(--il-purple);
+}
 .editor__handle-line {
   stroke: var(--il-purple);
   stroke-width: 1;
@@ -1906,6 +1915,12 @@ body:has(.scratchpad--open) .back-to-top {
 }
 [data-theme="dark"] .editor__handle {
   fill: var(--dk-surface);
+}
+[data-theme="dark"] .editor__handle.editor__handle--sel {
+  fill: var(--il-blue);
+}
+[data-theme="dark"] .editor__handle--ctrl.editor__handle--sel {
+  fill: var(--il-purple);
 }
 [data-theme="dark"] .editor__element--selected,
 [data-theme="dark"] .editor__close:hover,
@@ -2072,6 +2087,24 @@ body:has(.scratchpad--open) .back-to-top {
 /* Cor e espessura da seleção */
 .editor__style {
   margin-top: 6px;
+}
+/* + Ponto / − Ponto */
+.editor__points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.editor__points button {
+  flex: 1 1 0;
+}
+.editor__points button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.editor__points .editor__note {
+  flex-basis: 100%;
+  margin: 0;
 }
 .editor__style-row {
   display: flex;
@@ -2309,6 +2342,51 @@ html.i18n-pendente body {
 }
 .site-footer__report:hover {
   text-decoration: underline;
+}
+/* Baixar PNG: tamanhos prontos e um campo para outro tamanho */
+.png {
+  width: min(380px, 92vw);
+}
+.png .coffee__title {
+  text-align: center;
+}
+.png__sizes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.png__size {
+  padding: 8px 0;
+  border: 1px solid #c5d0dc;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-weight: 600;
+  color: #42505e;
+  cursor: pointer;
+}
+.png__size[aria-pressed="true"] {
+  border-color: #2a7fff;
+  background: #eef4ff;
+  color: #1558c8;
+}
+.png input[type="number"] {
+  padding: 8px 10px;
+  border: 1px solid #c5d0dc;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 400;
+}
+[data-theme="dark"] .png__size,
+[data-theme="dark"] .png input[type="number"] {
+  background: var(--dk-surface);
+  border-color: var(--dk-border);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .png__size[aria-pressed="true"] {
+  border-color: #4f8cff;
+  background: #1b2a48;
+  color: #9cc0ff;
 }
 /* Reportar bug: usa a janela e os campos de "publicar" */
 .report .coffee__title {

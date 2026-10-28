@@ -525,6 +525,219 @@ export function transformarElemento(elemento, m) {
   return novo;
 }
 
+// ── Apagar e acrescentar pontos ──────────────────────────────────────────────
+const meio = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
+// Ponto no meio de um arco (de "de" até o fim do comando A), pelo centro da
+// elipse (SVG 1.1, apêndice F.6.5). Devolve também os raios já corrigidos —
+// raios pequenos demais para ligar os dois pontos são ampliados pelo navegador.
+function meioDoArco(de, c) {
+  let rx = Math.abs(c.rx);
+  let ry = Math.abs(c.ry);
+  if (!rx || !ry || (de.x === c.x && de.y === c.y)) return null;
+  const phi = (c.rot * Math.PI) / 180;
+  const cos = Math.cos(phi);
+  const sen = Math.sin(phi);
+  const dx = (de.x - c.x) / 2;
+  const dy = (de.y - c.y) / 2;
+  const x1 = cos * dx + sen * dy;
+  const y1 = -sen * dx + cos * dy;
+  const lambda = (x1 * x1) / (rx * rx) + (y1 * y1) / (ry * ry);
+  if (lambda > 1) {
+    rx *= Math.sqrt(lambda);
+    ry *= Math.sqrt(lambda);
+  }
+  const num = rx * rx * ry * ry - rx * rx * y1 * y1 - ry * ry * x1 * x1;
+  const den = rx * rx * y1 * y1 + ry * ry * x1 * x1;
+  let k = Math.sqrt(Math.max(0, num / den));
+  if (c.large === c.sweep) k = -k;
+  const cxl = (k * rx * y1) / ry;
+  const cyl = (-k * ry * x1) / rx;
+  const cx = cos * cxl - sen * cyl + (de.x + c.x) / 2;
+  const cy = sen * cxl + cos * cyl + (de.y + c.y) / 2;
+  const angulo = (ux, uy, vx, vy) => Math.atan2(ux * vy - uy * vx, ux * vx + uy * vy);
+  const ux = (x1 - cxl) / rx;
+  const uy = (y1 - cyl) / ry;
+  const inicio = angulo(1, 0, ux, uy);
+  let varredura = angulo(ux, uy, (-x1 - cxl) / rx, (-y1 - cyl) / ry);
+  if (!c.sweep && varredura > 0) varredura -= 2 * Math.PI;
+  else if (c.sweep && varredura < 0) varredura += 2 * Math.PI;
+  const t = inicio + varredura / 2;
+  return {
+    x: cos * rx * Math.cos(t) - sen * ry * Math.sin(t) + cx,
+    y: sen * rx * Math.cos(t) + cos * ry * Math.sin(t) + cy,
+    rx,
+    ry,
+  };
+}
+
+// Um trecho de path (de "de" até o fim do comando) partido ao meio em dois,
+// com exatamente o mesmo desenho
+export function dividirTrecho(de, c) {
+  if (c.t === "C") {
+    // De Casteljau em t = 0,5
+    const c1 = { x: c.x1, y: c.y1 };
+    const c2 = { x: c.x2, y: c.y2 };
+    const a = meio(de, c1);
+    const b = meio(c1, c2);
+    const d = meio(c2, c);
+    const e = meio(a, b);
+    const f = meio(b, d);
+    const m = meio(e, f);
+    return [
+      { t: "C", x1: a.x, y1: a.y, x2: e.x, y2: e.y, x: m.x, y: m.y },
+      { t: "C", x1: f.x, y1: f.y, x2: d.x, y2: d.y, x: c.x, y: c.y },
+    ];
+  }
+  if (c.t === "Q") {
+    const c1 = { x: c.x1, y: c.y1 };
+    const a = meio(de, c1);
+    const b = meio(c1, c);
+    const m = meio(a, b);
+    return [
+      { t: "Q", x1: a.x, y1: a.y, x: m.x, y: m.y },
+      { t: "Q", x1: b.x, y1: b.y, x: c.x, y: c.y },
+    ];
+  }
+  if (c.t === "A") {
+    const m = meioDoArco(de, c);
+    // Cada metade cobre no máximo meia volta: arco "pequeno" nas duas
+    if (m)
+      return [
+        { ...c, rx: m.rx, ry: m.ry, large: 0, x: m.x, y: m.y },
+        { ...c, rx: m.rx, ry: m.ry, large: 0 },
+      ];
+  }
+  const m = meio(de, c);
+  return [{ t: "L", x: m.x, y: m.y }, { t: "L", x: c.x, y: c.y }];
+}
+
+// Onde cada comando do path começa (o fim do anterior; depois de Z, o início
+// do subcaminho)
+function inicios(cmds) {
+  const lista = [];
+  let atual = { x: 0, y: 0 };
+  let comeco = atual;
+  for (const c of cmds) {
+    lista.push(atual);
+    if (c.t === "Z") atual = comeco;
+    else {
+      atual = { x: c.x, y: c.y };
+      if (c.t === "M") comeco = atual;
+    }
+  }
+  return lista;
+}
+
+// Mínimo de pontos: linha aberta 2, polígono 3
+const MINIMO = { polyline: 2, polygon: 3 };
+
+// Apaga um ponto do traço (não as alças de curva). Devolve o elemento novo,
+// ou null quando não dá (forma sem pontos removíveis, ou que ficaria vazia).
+export function removerPonto(elemento, id) {
+  const a = elemento.attrs;
+  if (elemento.tag === "polyline" || elemento.tag === "polygon") {
+    const k = /^p(\d+)$/.exec(id)?.[1];
+    const pontos = lerPontos(a.points);
+    if (k === undefined || !pontos[k] || pontos.length <= MINIMO[elemento.tag]) return null;
+    pontos.splice(Number(k), 1);
+    return { ...elemento, attrs: { ...a, points: escreverPontos(pontos) } };
+  }
+  if (elemento.tag !== "path") return null;
+  const k = Number(/^(\d+):e$/.exec(id)?.[1]);
+  let cmds;
+  try {
+    cmds = lerPath(a.d);
+  } catch {
+    return null;
+  }
+  if (!Number.isInteger(k) || !cmds[k] || cmds[k].t === "Z") return null;
+  if (cmds[k].t === "M") {
+    // O trecho seguinte passa a começar o subcaminho
+    const seguinte = cmds[k + 1];
+    if (seguinte && seguinte.t !== "M" && seguinte.t !== "Z") cmds[k + 1] = { t: "M", x: seguinte.x, y: seguinte.y };
+  }
+  cmds.splice(k, 1);
+  // Sobras sem trecho nenhum ("M" sozinho, "M Z") saem também
+  const limpos = [];
+  for (let i = 0; i < cmds.length; i++) {
+    const c = cmds[i];
+    if (c.t === "M") {
+      const prox = cmds[i + 1];
+      if (!prox || prox.t === "M") continue;
+      if (prox.t === "Z") {
+        i++;
+        continue;
+      }
+    }
+    limpos.push(c);
+  }
+  if (!limpos.some((c) => c.t !== "M" && c.t !== "Z")) return null;
+  return { ...elemento, attrs: { ...a, d: escreverPath(limpos) } };
+}
+
+// Acrescenta um ponto no meio do trecho que sai do ponto indicado (ou do que
+// chega nele, se for o último). Devolve { elemento, id } — o id do ponto novo —
+// ou null quando a forma não tem pontos para isso (círculo, retângulo…).
+export function adicionarPonto(elemento, id) {
+  const a = elemento.attrs;
+  if (elemento.tag === "line") {
+    // Linha reta vira linha com três pontos
+    const p1 = { x: num(a.x1), y: num(a.y1) };
+    const p2 = { x: num(a.x2), y: num(a.y2) };
+    const { x1, y1, x2, y2, ...resto } = a;
+    return {
+      elemento: { ...elemento, tag: "polyline", attrs: { points: escreverPontos([p1, meio(p1, p2), p2]), ...resto } },
+      id: "p1",
+    };
+  }
+  if (elemento.tag === "polyline" || elemento.tag === "polygon") {
+    const k = Number(/^p(\d+)$/.exec(id)?.[1]);
+    const pontos = lerPontos(a.points);
+    if (!Number.isInteger(k) || !pontos[k] || pontos.length < 2) return null;
+    const fechado = elemento.tag === "polygon";
+    // O último ponto de uma linha aberta não tem trecho saindo: usa o que chega
+    const ultimo = !fechado && k === pontos.length - 1;
+    const [de, ate, onde] = ultimo
+      ? [pontos[k - 1], pontos[k], k]
+      : [pontos[k], pontos[(k + 1) % pontos.length], k + 1];
+    pontos.splice(onde, 0, meio(de, ate));
+    return { elemento: { ...elemento, attrs: { ...a, points: escreverPontos(pontos) } }, id: `p${onde}` };
+  }
+  if (elemento.tag !== "path") return null;
+  const k = Number(/^(\d+):e$/.exec(id)?.[1]);
+  let cmds;
+  try {
+    cmds = lerPath(a.d);
+  } catch {
+    return null;
+  }
+  if (!Number.isInteger(k) || !cmds[k] || cmds[k].t === "Z") return null;
+  const comecos = inicios(cmds);
+  const seguinte = cmds[k + 1];
+  const fim = { x: cmds[k].x, y: cmds[k].y };
+  if (seguinte && seguinte.t === "Z") {
+    // Trecho de fechamento (Z): uma reta até o início do subcaminho (o último M)
+    let destino = fim;
+    for (let i = k; i >= 0; i--)
+      if (cmds[i].t === "M") {
+        destino = { x: cmds[i].x, y: cmds[i].y };
+        break;
+      }
+    if (destino.x !== fim.x || destino.y !== fim.y) {
+      cmds.splice(k + 1, 0, { t: "L", ...meio(fim, destino) });
+      return { elemento: { ...elemento, attrs: { ...a, d: escreverPath(cmds) } }, id: `${k + 1}:e` };
+    }
+  } else if (seguinte && seguinte.t !== "M") {
+    cmds.splice(k + 1, 1, ...dividirTrecho(fim, seguinte));
+    return { elemento: { ...elemento, attrs: { ...a, d: escreverPath(cmds) } }, id: `${k + 1}:e` };
+  }
+  // Sem trecho saindo: divide o que chega (se houver)
+  if (cmds[k].t === "M") return null;
+  cmds.splice(k, 1, ...dividirTrecho(comecos[k], cmds[k]));
+  return { elemento: { ...elemento, attrs: { ...a, d: escreverPath(cmds) } }, id: `${k}:e` };
+}
+
 // Formas novas, centradas na área do ícone (viewBox { x, y, w, h })
 export function novaForma(tag, { x, y, w, h }) {
   const cx = x + w / 2;

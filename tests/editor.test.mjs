@@ -13,6 +13,7 @@ import {
   pontosDoElemento,
   transformarElemento,
 } from "../public/js/models/svgGeometry.js";
+import { adicionarPonto, dividirTrecho, removerPonto } from "../public/js/models/svgGeometry.js";
 import {
   EditorModel,
   FORMATO_ILE,
@@ -431,4 +432,102 @@ test("EditorModel: adicionar e remover", () => {
   model.remover();
   assert.equal(model.elementos.length, 2);
   assert.equal(model.selecionado, null);
+});
+
+// ── Apagar e acrescentar pontos ─────────────────────────────────────────────
+// Ponto de uma cúbica em t, para comparar o desenho antes e depois de dividir
+const naCubica = (p0, c, t) => {
+  const u = 1 - t;
+  return {
+    x: u * u * u * p0.x + 3 * u * u * t * c.x1 + 3 * u * t * t * c.x2 + t * t * t * c.x,
+    y: u * u * u * p0.y + 3 * u * u * t * c.y1 + 3 * u * t * t * c.y2 + t * t * t * c.y,
+  };
+};
+
+test("pontos: dividir uma curva ao meio não muda o desenho", () => {
+  const de = { x: 2, y: 20 };
+  const c = { t: "C", x1: 2, y1: 2, x2: 22, y2: 2, x: 22, y: 20 };
+  const [a, b] = dividirTrecho(de, c);
+  for (let i = 0; i <= 10; i++) {
+    const t = i / 10;
+    const antes = naCubica(de, c, t);
+    const depois = t <= 0.5 ? naCubica(de, a, t * 2) : naCubica({ x: a.x, y: a.y }, b, (t - 0.5) * 2);
+    assert.ok(Math.hypot(antes.x - depois.x, antes.y - depois.y) < 1e-9, `t=${t}`);
+  }
+  // Quadrática e reta: o ponto novo fica no meio
+  const [q] = dividirTrecho({ x: 0, y: 0 }, { t: "Q", x1: 10, y1: 10, x: 20, y: 0 });
+  assert.deepEqual([q.x, q.y], [10, 5]);
+  const [l] = dividirTrecho({ x: 0, y: 0 }, { t: "L", x: 10, y: 4 });
+  assert.deepEqual([l.x, l.y], [5, 2]);
+});
+
+test("pontos: dividir um arco põe o ponto novo sobre o arco", () => {
+  // Meia volta de raio 8 em (12, 12), passando por cima
+  const [a, b] = dividirTrecho({ x: 4, y: 12 }, { t: "A", rx: 8, ry: 8, rot: 0, large: 0, sweep: 1, x: 20, y: 12 });
+  assert.deepEqual([fmt(a.x), fmt(a.y)], ["12", "4"]);
+  assert.deepEqual([a.large, b.large, a.sweep, b.sweep], [0, 0, 1, 1]);
+  assert.deepEqual([b.x, b.y], [20, 12]);
+});
+
+test("pontos: acrescentar em linha, polilinha, polígono e path", () => {
+  // Linha reta vira linha com 3 pontos
+  const linha = adicionarPonto({ tag: "line", attrs: { x1: "2", y1: "2", x2: "10", y2: "6", stroke: "red" } }, "p1");
+  assert.deepEqual(linha.elemento, { tag: "polyline", attrs: { points: "2 2 6 4 10 6", stroke: "red" } });
+  assert.equal(linha.id, "p1");
+  // Último ponto de uma linha aberta: divide o trecho que chega
+  const fim = adicionarPonto({ tag: "polyline", attrs: { points: "0 0 10 0" } }, "p1");
+  assert.equal(fim.elemento.attrs.points, "0 0 5 0 10 0");
+  assert.equal(fim.id, "p1");
+  // Polígono: o último ponto liga no primeiro
+  assert.equal(adicionarPonto({ tag: "polygon", attrs: { points: "0 0 10 0 10 10" } }, "p2").elemento.attrs.points, "0 0 10 0 10 10 5 5");
+  // Path: trecho seguinte, trecho de fechamento (Z) e o último ponto aberto
+  assert.equal(adicionarPonto(path("M0 0L10 0L10 10"), "0:e").elemento.attrs.d, "M0 0L5 0L10 0L10 10");
+  assert.equal(adicionarPonto(path("M0 0L10 0L10 10Z"), "2:e").elemento.attrs.d, "M0 0L10 0L10 10L5 5Z");
+  assert.equal(adicionarPonto(path("M0 0L10 0"), "1:e").elemento.attrs.d, "M0 0L5 0L10 0");
+  // Formas sem pontos de traço, alças de curva e ids desconhecidos: não
+  assert.equal(adicionarPonto({ tag: "circle", attrs: { cx: "12", cy: "12", r: "4" } }, "c"), null);
+  assert.equal(adicionarPonto(path("M0 0C5 5 5 5 10 0"), "1:1"), null);
+  assert.equal(adicionarPonto(path("M0 0L10 0"), "9:e"), null);
+});
+
+test("pontos: apagar respeita o mínimo de cada forma", () => {
+  assert.equal(removerPonto({ tag: "polyline", attrs: { points: "0 0 5 5 10 0" } }, "p1").attrs.points, "0 0 10 0");
+  assert.equal(removerPonto({ tag: "polyline", attrs: { points: "0 0 10 0" } }, "p0"), null);
+  assert.equal(removerPonto({ tag: "polygon", attrs: { points: "0 0 10 0 10 10" } }, "p0"), null);
+  assert.equal(removerPonto({ tag: "line", attrs: { x1: "0", y1: "0", x2: "1", y2: "1" } }, "p1"), null);
+  // Path: o primeiro ponto passa o "M" adiante; ponto do meio some
+  assert.equal(removerPonto(path("M0 0L10 0L10 10"), "0:e").attrs.d, "M10 0L10 10");
+  assert.equal(removerPonto(path("M0 0L10 0L10 10"), "1:e").attrs.d, "M0 0L10 10");
+  // Nunca deixa o path sem nenhum trecho
+  assert.equal(removerPonto(path("M0 0L10 0"), "1:e"), null);
+  // Com dois subcaminhos, um que fica vazio sai inteiro
+  assert.equal(removerPonto(path("M0 0L10 0M20 20L30 30Z"), "3:e").attrs.d, "M0 0L10 0");
+});
+
+test("EditorModel: selecionar ponto, apagar e acrescentar, com desfazer", () => {
+  const model = new EditorModel();
+  model.definirDocumento({
+    raiz: { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor" },
+    elementos: [{ tag: "path", attrs: { d: "M2 12L12 2L22 12" } }],
+  });
+  model.selecionar(0);
+  model.selecionarPonto("1:e");
+  assert.equal(model.pontoSelecionado, "1:e");
+  assert.ok(model.podeRemoverPonto && model.podeAdicionarPonto);
+  // Acrescentar: o ponto novo fica selecionado
+  model.adicionarPontoNoSelecionado();
+  assert.equal(model.elementos[0].attrs.d, "M2 12L12 2L17 7L22 12");
+  assert.equal(model.pontoSelecionado, "2:e");
+  model.removerPontoSelecionado();
+  assert.equal(model.elementos[0].attrs.d, "M2 12L12 2L22 12");
+  assert.equal(model.pontoSelecionado, null);
+  model.desfazer();
+  model.desfazer();
+  assert.equal(model.elementos[0].attrs.d, "M2 12L12 2L22 12");
+  // Ponto que não existe, ou trocar de forma, limpa a seleção do ponto
+  model.selecionarPonto("9:e");
+  assert.equal(model.pontoSelecionado, null);
+  model.selecionarPonto("0:e");
+  model.limparSelecao();
+  assert.equal(model.pontoSelecionado, null);
 });

@@ -359,6 +359,13 @@
             <input type="range" id="editor-stroke" min="0.25" max="4" step="0.25" value="2" />
             <output id="editor-stroke-value" for="editor-stroke">2</output>
           </div>
+          <!-- Pontos: clicar num ponto da forma o seleciona; daí dá para apagá-lo
+               ou acrescentar outro no meio do trecho seguinte -->
+          <div class="editor__buttons editor__points" id="editor-points" hidden>
+            <button type="button" id="editor-point-add" title="Add a point in the middle of the next segment" data-i18n-attr="title:editor.pointAddTitle">+ <span data-i18n="editor.point">Point</span></button>
+            <button type="button" id="editor-point-remove" title="Delete the selected point (Delete)" data-i18n-attr="title:editor.pointRemoveTitle">− <span data-i18n="editor.point">Point</span></button>
+            <p id="editor-points-hint" class="editor__note" data-i18n="editor.pointHint">Click a point of the shape to delete it or add another.</p>
+          </div>
         </section>
 
         <h3 class="editor__heading" data-i18n="editor.transform">Transform</h3>
@@ -413,7 +420,7 @@
         <button type="button" id="editor-publish" class="editor__publish" data-i18n="publish.button" hidden>Publish to Iconlibrary</button>
         <button type="button" id="editor-scratchpad" data-i18n="editor.toScratchpad">Add to scratchpad</button>
         <button type="button" id="editor-download" data-i18n="editor.downloadSvg">Download SVG</button>
-        <button type="button" id="editor-png" data-i18n="editor.downloadPng">Download PNG</button>
+        <button type="button" id="editor-png" data-i18n="editor.downloadPng">Download PNG…</button>
         <button type="button" id="editor-copy" class="editor__primary" data-i18n="editor.copySvg">Copy SVG</button>
       </footer>
     </div>
@@ -483,6 +490,22 @@
     </form>
     <p id="coffee-status" class="coffee__status" role="status"></p>
   </dialog>
+  <!-- Baixar PNG: escolher o tamanho (cards e editor) -->
+  <dialog id="png" class="publish png" aria-labelledby="png-title">
+    <button type="button" id="png-close" class="coffee__close" aria-label="Close" data-i18n-attr="aria-label:coffee.close">×</button>
+    <h2 id="png-title" class="coffee__title" data-i18n="png.title">Download PNG</h2>
+    <form id="png-form" class="publish__form">
+      <fieldset class="publish__field">
+        <legend data-i18n="png.size">Size in pixels</legend>
+        <div id="png-sizes" class="png__sizes"></div>
+      </fieldset>
+      <label class="publish__field">
+        <span data-i18n="png.custom">Or type a size (16 to 1024)</span>
+        <input id="png-custom" type="number" step="1" required inputmode="numeric" />
+      </label>
+      <button type="submit" class="coffee__pay" data-i18n="png.download">Download</button>
+    </form>
+  </dialog>
   <!-- Reportar bug (rodapé): vai para o servidor e é lido em /admin; ou vira
        um issue no GitHub -->
   <dialog id="report" class="publish report" aria-labelledby="report-title">
@@ -515,6 +538,7 @@
       <a href="privacy.html" data-i18n-page="privacy" data-i18n="footer.privacy">Privacy</a>
       <button type="button" class="site-footer__coffee" data-coffee-open hidden>☕ <span data-i18n="coffee.button">Buy me a coffee</span></button>
       <button type="button" class="site-footer__report" data-report-open>🐞 <span data-i18n="footer.report">Report a bug</span></button>
+      <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener">💡 <span data-i18n="footer.ideas">Suggest an improvement</span></a>
     </nav>
     <p data-i18n="footer.credits">
       Icons belong to their authors: Lucide (ISC), Feather (MIT), Bootstrap

@@ -1,5 +1,6 @@
 import {
   FORMAS,
+  adicionarPonto,
   fmt,
   lerPath,
   limitesDoElemento,
@@ -7,6 +8,7 @@ import {
   moverPonto,
   novaForma,
   pontosDoElemento,
+  removerPonto,
   transformarElemento,
 } from "./svgGeometry.js";
 import { erro as erroCom } from "./erros.js";
@@ -163,6 +165,9 @@ export class EditorModel {
   // Cópia dos elementos no início de um arraste: cada movimento parte dela,
   // sem acumular arredondamentos
   base = null;
+  // Ponto clicado na forma selecionada (id de pontosDoElemento), para apagar
+  // ou acrescentar pontos
+  pontoSelecionado = null;
   // Copiar e colar: { elementos, nome } e quantas vezes já foi colado
   copiados = null;
   colagens = 0;
@@ -267,6 +272,7 @@ export class EditorModel {
     this.grupos = grupos;
     if (this.selecionado !== null && !this.elementos[this.selecionado])
       this.selecionado = null;
+    this.pontoSelecionado = null;
     if (!this.indicesDoGrupo(this.grupoSelecionado).length)
       this.grupoSelecionado = null;
   }
@@ -295,16 +301,19 @@ export class EditorModel {
   limparSelecao() {
     this.selecionado = null;
     this.grupoSelecionado = null;
+    this.pontoSelecionado = null;
   }
 
   selecionar(indice) {
     this.grupoSelecionado = null;
+    if (indice !== this.selecionado) this.pontoSelecionado = null;
     this.selecionado =
       indice !== null && this.elementos[indice] ? indice : null;
   }
 
   selecionarGrupo(grupo) {
     this.selecionado = null;
+    this.pontoSelecionado = null;
     this.grupoSelecionado = this.indicesDoGrupo(grupo).length ? grupo : null;
   }
 
@@ -370,6 +379,44 @@ export class EditorModel {
   pontosSelecionados() {
     if (this.selecionado === null || !this.editavel(this.selecionado)) return [];
     return pontosDoElemento(this.elementos[this.selecionado]);
+  }
+
+  // ── Apagar e acrescentar pontos ──────────────────────────────────────────
+  // Clique num ponto da forma selecionada (as alças de curva também ficam
+  // marcadas, mas só os pontos do traço podem ser apagados ou ganhar vizinho)
+  selecionarPonto(id) {
+    const existe = this.pontosSelecionados().some((p) => p.id === id);
+    this.pontoSelecionado = existe ? id : null;
+  }
+
+  get podeRemoverPonto() {
+    if (this.pontoSelecionado === null) return false;
+    return removerPonto(this.elementos[this.selecionado], this.pontoSelecionado) !== null;
+  }
+
+  get podeAdicionarPonto() {
+    if (this.pontoSelecionado === null) return false;
+    return adicionarPonto(this.elementos[this.selecionado], this.pontoSelecionado) !== null;
+  }
+
+  removerPontoSelecionado() {
+    if (!this.podeRemoverPonto) return false;
+    this.registrar();
+    const i = this.selecionado;
+    this.elementos[i] = { ...this.elementos[i], ...removerPonto(this.elementos[i], this.pontoSelecionado) };
+    this.pontoSelecionado = null;
+    return true;
+  }
+
+  // O ponto novo fica selecionado: dá para acrescentar outro logo em seguida
+  adicionarPontoNoSelecionado() {
+    if (!this.podeAdicionarPonto) return false;
+    this.registrar();
+    const i = this.selecionado;
+    const { elemento, id } = adicionarPonto(this.elementos[i], this.pontoSelecionado);
+    this.elementos[i] = { ...this.elementos[i], ...elemento };
+    this.pontoSelecionado = id;
+    return true;
   }
 
   // Centro dos pontos das formas, encaixado em meia unidade — girar e

@@ -96,6 +96,7 @@ ${PAGINAS.filter((p) => p !== pagina)
   .map((p) => `      <a href="${arquivo(p, idioma)}">${escapar(t(idioma, ROTULO[p]))}</a>`)
   .join("\n")}
       <a href="${icones}#report">🐞 ${escapar(t(idioma, "footer.report"))}</a>
+      <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener">💡 ${escapar(t(idioma, "footer.ideas"))}</a>
     </nav>
     <p class="site-footer__owner">© 2026 André M. Ferreira<span class="site-footer__version"><!--version--></span></p>
   </footer>

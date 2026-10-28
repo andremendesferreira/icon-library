@@ -11,11 +11,13 @@ const COR_PNG = "#2c3e50";
 export class IconController {
   // aoAdicionar(item, svg): botão "+" de um card (envia o ícone ao scratchpad)
   // aoEditar(item, svg): lápis de um card (abre o editor)
-  constructor(model, view, { aoAdicionar, aoEditar }) {
+  // escolherTamanhoPng(sugerido): pergunta o tamanho do PNG (null = desistiu)
+  constructor(model, view, { aoAdicionar, aoEditar, escolherTamanhoPng }) {
     this.model = model;
     this.view = view;
     this.aoAdicionar = aoAdicionar;
     this.aoEditar = aoEditar;
+    this.escolherTamanhoPng = escolherTamanhoPng;
   }
 
   iniciar() {
@@ -151,14 +153,18 @@ export class IconController {
   }
 
   // Opções do menu "⋯" de um card
-  executarMenu(acao, item) {
+  async executarMenu(acao, item) {
     const svg = this.model.svgFinal(item);
     const arquivo = nomeDeArquivo(item.nome);
-    const { tamanho, cor } = this.model.estilo;
+    const { cor } = this.model.estilo;
+    let { tamanho } = this.model.estilo;
     if (acao === "svg") {
       baixarSvg(svg, arquivo);
       this.view.mostrarToast(t("toast.downloading", { file: `${arquivo}.svg` }));
     } else if (acao === "png") {
+      // Pergunta o tamanho; o do controle "Tamanho" é a sugestão
+      if (this.escolherTamanhoPng) tamanho = await this.escolherTamanhoPng(tamanho);
+      if (!tamanho) return;
       const baixando =
         item.tipo === "emoji"
           ? baixarPngDeEmoji(item.char, tamanho, arquivo)

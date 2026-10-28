@@ -19,10 +19,12 @@ export class EditorController {
   // avisar(mensagem): aviso na tela; aoAdicionar(item, svg): scratchpad
   // catalogo: os ícones da página, para pôr outro por cima —
   //   { conjuntos(), atual(), buscar(chave, termo), svg(item), rotulo(chave) }
-  constructor(model, view, { avisar, aoAdicionar, catalogo }) {
+  // escolherTamanhoPng(sugerido): pergunta o tamanho do PNG (null = desistiu)
+  constructor(model, view, { avisar, aoAdicionar, catalogo, escolherTamanhoPng }) {
     this.model = model;
     this.view = view;
     this.avisar = avisar;
+    this.escolherTamanhoPng = escolherTamanhoPng;
     this.aoAdicionar = aoAdicionar;
     this.catalogo = catalogo;
   }
@@ -54,7 +56,27 @@ export class EditorController {
       aoTerminarArraste: mudar(() => model.terminarArraste()),
       aoAdicionar: mudar((tag) => model.adicionar(tag)),
       // Sem índice: apaga a seleção (forma ou ícone inteiro)
-      aoRemover: mudar((i) => model.remover(i)),
+      // Sem índice (tecla Delete): com um ponto selecionado, apaga o ponto
+      aoRemover: (i) => {
+        if (i === null && model.pontoSelecionado !== null) {
+          if (model.removerPontoSelecionado()) this.desenhar();
+          else this.avisar(t("editor.pointCantRemove"));
+          return;
+        }
+        model.remover(i);
+        this.desenhar();
+      },
+      aoSelecionarPonto: (id) => {
+        model.selecionarPonto(id);
+        this.desenhar({ atualizarCodigo: false });
+      },
+      aoRemoverPonto: () => {
+        if (model.removerPontoSelecionado()) this.desenhar();
+        else this.avisar(t("editor.pointCantRemove"));
+      },
+      aoAdicionarPonto: () => {
+        if (model.adicionarPontoNoSelecionado()) this.desenhar();
+      },
       aoOcultar: mudar((i) => model.alternarOculto(i)),
       aoTransformar: (operacao) => {
         const fixos = model.transformar(operacao);
@@ -103,8 +125,11 @@ export class EditorController {
         baixarSvg(model.svg(), this.arquivo);
         this.avisar(t("toast.downloading", { file: `${this.arquivo}.svg` }));
       },
-      aoBaixarPng: () => {
-        const tamanho = parseInt(model.raiz.width, 10) || 24;
+      aoBaixarPng: async () => {
+        // Pergunta o tamanho; o do próprio SVG é a sugestão
+        const sugerido = parseInt(model.raiz.width, 10) || 24;
+        const tamanho = this.escolherTamanhoPng ? await this.escolherTamanhoPng(sugerido) : sugerido;
+        if (!tamanho) return;
         baixarPngDeSvg(model.svg(), tamanho, COR_PNG, this.arquivo).then(
           () => this.avisar(t("toast.downloadingPng", { file: `${this.arquivo}.png`, size: tamanho })),
           () => this.avisar(t("toast.pngFailed")),
@@ -297,6 +322,12 @@ export class EditorController {
         grupos: model.gruposEmUso(),
         estiloSelecao: model.estiloDaSelecao(),
         pontos: model.pontosSelecionados(),
+        pontoSelecionado: model.pontoSelecionado,
+        // Só faz sentido com uma forma que tem pontos de traço (não círculo…)
+        editaPontos: model.pontosSelecionados().some((p) => p.tipo === "end") &&
+          ["path", "line", "polyline", "polygon"].includes(model.elementos[model.selecionado]?.tag),
+        podeRemoverPonto: model.podeRemoverPonto,
+        podeAdicionarPonto: model.podeAdicionarPonto,
         fora: model.pontosForaDaArea(),
         viewBox: model.viewBox,
         svg,
