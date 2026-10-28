@@ -289,17 +289,14 @@ async function handleModeration(req, res, url, ctx) {
     sendJson(req, res, 500, { error: "server" });
   };
   try {
-    // Pending icons, oldest first, each with the address of its preview
+    // Everything waiting, oldest first: new or edited icons (kind "icon") and
+    // edits of approved icons (kind "revision", with the live version in
+    // "current"). submittedAt changes with each edit, so an automated
+    // moderator knows an icon it already judged needs another look.
     if (url === "/api/moderation/icons") {
       if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
-      const icons = (await iconlibrary.review("pending")).map((i) => ({
-        id: i.id,
-        name: i.name,
-        slug: i.slug,
-        categories: i.categories,
-        author: i.author,
-        svg: i.svg,
-        createdAt: i.createdAt,
+      const icons = (await iconlibrary.queue()).map((i) => ({
+        ...i,
         preview: `/api/moderation/icons/${i.id}/preview.png`,
       }));
       return sendJson(req, res, 200, { icons });
@@ -310,17 +307,17 @@ async function handleModeration(req, res, url, ctx) {
       if (!previewAvailable()) return sendJson(req, res, 503, { error: "preview_unavailable" });
       const icon = await iconlibrary.get(imagem[1]);
       const size = previewSize(new URL(req.url, "http://localhost").searchParams.get("size"));
-      const png = renderPng(icon.svg, size);
+      // What is waiting for a decision: the edit, when there is one
+      const png = renderPng(iconlibrary.pendingSvg(icon), size);
       return send(req, res, 200, { "Content-Type": "image/png", "Cache-Control": "no-store", "Content-Length": png.length }, png);
     }
     const decisao = /^\/api\/moderation\/icons\/(\d+)\/(approve|reject)$/.exec(url);
     if (decisao) {
       if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
       const body = await readJson(req);
-      // Only pending icons: an automated moderator never undoes a human decision
-      const icon = await iconlibrary.get(decisao[1]);
-      if (icon.status !== "pending") return sendJson(req, res, 409, { error: "not_pending", status: icon.status });
-      return sendJson(req, res, 200, await iconlibrary.decide(decisao[1], decisao[2], body.note));
+      // Only what is waiting (the icon or its edit): an automated moderator
+      // never undoes a human decision
+      return sendJson(req, res, 200, await iconlibrary.decidePending(decisao[1], decisao[2], body.note));
     }
     return sendJson(req, res, 404, { error: "not_found" });
   } catch (err) {
@@ -369,6 +366,28 @@ async function handleIconlibrary(req, res, url, ctx) {
     }
   }
 
+  // The author's own icons, by the supporter code that published them:
+  //   POST /api/iconlibrary/mine            { code }  → { icons }
+  //   POST /api/iconlibrary/icons/:id/edit  { code, name, categories, author, svg, license }
+  // POST also for the list: the code goes in the body, never in the address
+  const edicao = /^\/api\/iconlibrary\/icons\/(\d+)\/edit$/.exec(url);
+  if (url === "/api/iconlibrary/mine" || edicao) {
+    if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+    if (!iconlibrary) return sendJson(req, res, 503, { error: "disabled" });
+    // Same limit as submitting: guessing codes here is as slow as there
+    if (!ctx.limit(`/api/iconlibrary/icons ${clientIp(req)}`, LIMITS["/api/iconlibrary/icons"]))
+      return sendJson(req, res, 429, { error: "too_many" });
+    try {
+      if (!edicao) {
+        const body = await readJson(req);
+        return sendJson(req, res, 200, { icons: await iconlibrary.mine(body.code) });
+      }
+      return sendJson(req, res, 200, await iconlibrary.edit(edicao[1], await readJson(req, MAX_BODY_ICON)));
+    } catch (err) {
+      return fail(err, "[iconlibrary]");
+    }
+  }
+
   // Review: GET /api/admin/icons?status=pending
   //         POST /api/admin/icons/:id/(approve|reject|delete)  { note? }
   if (url === "/api/admin/icons" || url.startsWith("/api/admin/icons/")) {
@@ -379,6 +398,13 @@ async function handleIconlibrary(req, res, url, ctx) {
         if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
         const status = new URL(req.url, "http://localhost").searchParams.get("status") || "pending";
         return sendJson(req, res, 200, { icons: await iconlibrary.review(status) });
+      }
+      // An approved icon's pending edit: POST /api/admin/icons/:id/revision/(approve|reject)
+      const revisao = /^\/api\/admin\/icons\/(\d+)\/revision\/(approve|reject)$/.exec(url);
+      if (revisao) {
+        if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+        await readJson(req);
+        return sendJson(req, res, 200, await iconlibrary.decideRevision(revisao[1], revisao[2]));
       }
       const m = /^\/api\/admin\/icons\/(\d+)\/(approve|reject|delete)$/.exec(url);
       if (!m) return sendJson(req, res, 404, { error: "not_found" });

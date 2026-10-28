@@ -2,7 +2,7 @@
   "name": "Iconlibrary — moderação (Ollama)",
   "nodes": [
     {
-      "id": "a881d8e6-34ed-4c34-a43a-0a72eff96312",
+      "id": "73da4a5b-c828-467d-be67-316ec1a1face",
       "name": "Manual",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
@@ -13,7 +13,7 @@
       "parameters": {}
     },
     {
-      "id": "c004a9d7-a203-4933-bcbb-7a41f59c970a",
+      "id": "a004a337-4d9d-4133-bfe6-f75440130286",
       "name": "A cada 10 minutos",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -33,7 +33,7 @@
       }
     },
     {
-      "id": "9a0141e3-1f33-48f8-bbaa-3baf329d2cba",
+      "id": "bc32cda2-9548-4ef2-945a-1beb7b2939c4",
       "name": "Configuração",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -46,7 +46,7 @@
       }
     },
     {
-      "id": "93715e62-d6c9-4e9e-a679-23cc9a34e038",
+      "id": "4963cbe3-7a91-4fd8-884f-45b1d02f2a0b",
       "name": "Pendentes",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -62,7 +62,7 @@
       }
     },
     {
-      "id": "d7f41277-34cd-4507-bafe-0373a12d5a9f",
+      "id": "4e1bdb08-60f4-4925-a057-fcc9bc1db718",
       "name": "Escolher próximo",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -71,11 +71,11 @@
         100
       ],
       "parameters": {
-        "jsCode": "// Um ícone por execução (o servidor é só CPU): o mais antigo ainda não visto.\n// Sem pendentes novos, o fluxo para aqui.\nconst config = $('Configuração').first().json;\nconst vistos = $getWorkflowStaticData('global').vistos ?? [];\nconst icone = ($input.first().json.icons ?? []).find((i) => !vistos.includes(i.id));\nif (!icone) return [];\nreturn [{ json: { ...icone, previewUrl: config.site + icone.preview + '?size=256' } }];\n"
+        "jsCode": "// Um ícone por execução (o servidor é só CPU): o mais antigo ainda não visto.\n// \"Visto\" é o ícone naquele envio (id@submittedAt): uma edição muda a data e\n// é julgada de novo. Sem pendentes novos, o fluxo para aqui.\nconst config = $('Configuração').first().json;\nconst vistos = $getWorkflowStaticData('global').vistos ?? [];\nconst chave = (i) => i.id + '@' + (i.submittedAt ?? i.createdAt);\nconst icone = ($input.first().json.icons ?? []).find((i) => !vistos.includes(chave(i)));\nif (!icone) return [];\nreturn [{ json: { ...icone, chave: chave(icone), previewUrl: config.site + icone.preview + '?size=256' } }];\n"
       }
     },
     {
-      "id": "a32d691b-17a2-46a2-82cf-62e4b4dd84bf",
+      "id": "9eb32e99-ae29-4be6-ba7b-2dc9b2f3e1e2",
       "name": "Prévia PNG",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -98,7 +98,7 @@
       }
     },
     {
-      "id": "5ade5a2f-6958-41c4-9c30-4c83396e7664",
+      "id": "020963e4-138c-438a-91b1-27f793911d43",
       "name": "Preparar etapa 1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -111,7 +111,7 @@
       }
     },
     {
-      "id": "7137658e-df22-44ad-9401-948ffda95cd5",
+      "id": "6c06c39c-4e76-4dc4-af5b-7721b40dca80",
       "name": "Ollama: descrever",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -131,7 +131,7 @@
       }
     },
     {
-      "id": "e7c6648d-ef72-43d6-bfdb-37fdc20c98e7",
+      "id": "6f989009-17e4-47af-aa2b-92e50e4f5cd8",
       "name": "Preparar etapa 2",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -144,7 +144,7 @@
       }
     },
     {
-      "id": "721ccdf0-a6e0-4c5d-b21c-84c2be7b235a",
+      "id": "69b4d41d-c138-42bb-9467-bb142841c220",
       "name": "Ollama: comparar",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -164,7 +164,7 @@
       }
     },
     {
-      "id": "9b539047-74ea-4230-b857-f4621886cf61",
+      "id": "6135139d-d6f4-4fb4-aa4b-91f34ca75e42",
       "name": "Decidir",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -173,11 +173,11 @@
         100
       ],
       "parameters": {
-        "jsCode": "const config = $('Configuração').first().json;\nconst icone = $('Escolher próximo').first().json;\nconst { analise } = $('Preparar etapa 2').first().json;\nconst texto = $input.first().json.message?.content ?? '';\nlet comparacao;\ntry {\n  comparacao = JSON.parse(texto);\n} catch {\n  throw new Error('A etapa 2 não devolveu JSON: ' + texto.slice(0, 300));\n}\n\nconst marca = String(analise.marca ?? '').trim();\nlet sugestao = 'aprovar';\nlet razao = 'Mostra: ' + analise.descricao;\nif (analise.ofensivo === true) {\n  sugestao = 'recusar';\n  razao = 'Conteúdo possivelmente ofensivo: ' + analise.descricao;\n} else if (marca && marca.toLowerCase() !== 'nenhuma') {\n  sugestao = 'recusar';\n  razao = 'Parece logotipo de marca: ' + marca;\n} else {\n  // Nome que não combina e crédito impróprio: os dois vão para você revisar\n  const problemas = [];\n  if (comparacao.combina !== true) problemas.push('O nome não combina com o desenho: ' + comparacao.motivo);\n  // Crédito vazio é sempre aceito (é opcional); o modelo só julga o que foi escrito\n  if (icone.author && comparacao.credito_ok !== true) problemas.push('Crédito impróprio: ' + comparacao.credito_motivo);\n  if (problemas.length) {\n    sugestao = 'revisar';\n    razao = problemas.join(' · ');\n  }\n}\n\nlet acao = '';\nif (config.fase >= 2 && sugestao === 'recusar') acao = 'reject';\nif (config.fase >= 3 && sugestao === 'aprovar') acao = 'approve';\n\n// Visto: não é julgado de novo (guarda os 500 mais recentes)\nconst dados = $getWorkflowStaticData('global');\ndados.vistos = [...(dados.vistos ?? []), icone.id].slice(-500);\n\nconst rotulo = { aprovar: '✅ APROVAR', recusar: '⛔ RECUSAR', revisar: '👀 REVISAR' }[sugestao];\nconst linhas = [\n  'Iconlibrary — ' + icone.name,\n  'Categorias: ' + (icone.categories ?? []).join(', '),\n  'Crédito: ' + (icone.author || '—'),\n  '',\n  'Sugestão: ' + rotulo,\n  razao,\n  '',\n  acao\n    ? 'Ação automática: ' + (acao === 'approve' ? 'aprovado' : 'recusado') + ' (fase ' + config.fase + ')'\n    : 'Decida em ' + config.site + '/admin',\n];\nreturn [{\n  json: {\n    id: icone.id,\n    acao,\n    nota: 'Moderação automática: ' + razao,\n    sugestao,\n    razao,\n    mensagem: linhas.join('\\n').slice(0, 1000),\n    previewUrl: icone.previewUrl,\n  },\n}];\n"
+        "jsCode": "const config = $('Configuração').first().json;\nconst icone = $('Escolher próximo').first().json;\nconst { analise } = $('Preparar etapa 2').first().json;\nconst texto = $input.first().json.message?.content ?? '';\nlet comparacao;\ntry {\n  comparacao = JSON.parse(texto);\n} catch {\n  throw new Error('A etapa 2 não devolveu JSON: ' + texto.slice(0, 300));\n}\n\nconst marca = String(analise.marca ?? '').trim();\nlet sugestao = 'aprovar';\nlet razao = 'Mostra: ' + analise.descricao;\nif (analise.ofensivo === true) {\n  sugestao = 'recusar';\n  razao = 'Conteúdo possivelmente ofensivo: ' + analise.descricao;\n} else if (marca && marca.toLowerCase() !== 'nenhuma') {\n  sugestao = 'recusar';\n  razao = 'Parece logotipo de marca: ' + marca;\n} else {\n  // Nome que não combina e crédito impróprio: os dois vão para você revisar\n  const problemas = [];\n  if (comparacao.combina !== true) problemas.push('O nome não combina com o desenho: ' + comparacao.motivo);\n  // Crédito vazio é sempre aceito (é opcional); o modelo só julga o que foi escrito\n  if (icone.author && comparacao.credito_ok !== true) problemas.push('Crédito impróprio: ' + comparacao.credito_motivo);\n  if (problemas.length) {\n    sugestao = 'revisar';\n    razao = problemas.join(' · ');\n  }\n}\n\nlet acao = '';\nif (config.fase >= 2 && sugestao === 'recusar') acao = 'reject';\nif (config.fase >= 3 && sugestao === 'aprovar') acao = 'approve';\n\n// Visto: não é julgado de novo (guarda os 500 mais recentes)\nconst dados = $getWorkflowStaticData('global');\ndados.vistos = [...(dados.vistos ?? []), icone.chave].slice(-500);\n\nconst rotulo = { aprovar: '✅ APROVAR', recusar: '⛔ RECUSAR', revisar: '👀 REVISAR' }[sugestao];\nconst linhas = [\n  (icone.kind === 'revision' ? '✏️ Edição de um ícone no ar — ' : 'Iconlibrary — ') + icone.name,\n  'Categorias: ' + (icone.categories ?? []).join(', '),\n  'Crédito: ' + (icone.author || '—'),\n  '',\n  'Sugestão: ' + rotulo,\n  razao,\n  '',\n  acao\n    ? 'Ação automática: ' + (acao === 'approve' ? 'aprovado' : 'recusado') + ' (fase ' + config.fase + ')'\n    : 'Decida em ' + config.site + '/admin',\n];\nreturn [{\n  json: {\n    id: icone.id,\n    acao,\n    nota: 'Moderação automática: ' + razao,\n    sugestao,\n    razao,\n    mensagem: linhas.join('\\n').slice(0, 1000),\n    previewUrl: icone.previewUrl,\n  },\n}];\n"
       }
     },
     {
-      "id": "d3cd96ac-4687-481c-9a49-70834c1c8b00",
+      "id": "5690fe51-ae81-4938-9c50-c96a088a2838",
       "name": "Agir?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
@@ -194,7 +194,7 @@
           },
           "conditions": [
             {
-              "id": "be4254b9-bbff-4017-9f97-6eb34638be54",
+              "id": "181b09b7-64d8-487f-83a7-6d982f4f0006",
               "leftValue": "={{ $json.acao }}",
               "rightValue": "",
               "operator": {
@@ -210,7 +210,7 @@
       }
     },
     {
-      "id": "9500fdc8-a4c7-4324-a1ab-420adde6afff",
+      "id": "a6485e30-fa8d-49df-95ae-eeb78917ff45",
       "name": "Aprovar ou recusar",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -231,7 +231,7 @@
       "onError": "continueRegularOutput"
     },
     {
-      "id": "04ddfe48-3d54-4278-9b0d-14fb9a9e8c14",
+      "id": "febcc377-7a27-43b1-9b13-237ac9e315da",
       "name": "Prévia para a mensagem",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -254,7 +254,7 @@
       }
     },
     {
-      "id": "53cb2fc9-7061-4f95-b919-b511bb6d8d91",
+      "id": "0a2bec15-88e6-4932-8a85-ea09e56ad9b1",
       "name": "Telegram",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,

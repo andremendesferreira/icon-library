@@ -167,11 +167,13 @@ export class EditorController {
         const nome = pedido.nome || "icon";
         this.model.carregar(pedido.conteudo, nome, { desfazivel: this.view.aberto });
         this.item = { nome, editavel: false };
+        this.sairDaEdicao();
       } else {
         const { nome, editavel } = this.model.carregarProjeto(pedido.conteudo, {
           desfazivel: this.view.aberto,
         });
         this.item = { nome: pedido.nome || nome, editavel };
+        this.sairDaEdicao();
       }
       this.view.abrir(this.item.nome);
       this.desenhar();
@@ -226,6 +228,7 @@ export class EditorController {
       const desfazivel = this.view.aberto;
       const { nome, editavel } = this.model.carregarProjeto(conteudo, { desfazivel });
       this.item = { nome, editavel };
+      this.sairDaEdicao();
       this.view.abrir(nome);
       this.desenhar();
       this.avisar(t("editor.opened", { file: arquivo.name }));
@@ -236,7 +239,21 @@ export class EditorController {
 
   // O que está no editor agora, para publicar na Iconlibrary
   atual() {
-    return { svg: this.model.svg(), nome: this.item?.nome || "" };
+    return { svg: this.model.svg(), nome: this.item?.nome || "", edicao: this.edicao ?? null };
+  }
+
+  // ── Editar um ícone publicado na Iconlibrary ("Meus ícones") ─────────────
+  // dados: { id, nome, svg, categorias, autor, codigo }. Publicar, depois,
+  // envia como edição desse ícone, já com nome, categorias e crédito.
+  abrirEdicao(dados) {
+    this.abrir({ nome: dados.nome, editavel: false }, dados.svg);
+    this.edicao = { id: dados.id, nome: dados.nome, categorias: dados.categorias, autor: dados.autor, codigo: dados.codigo };
+    this.view.mostrarEdicao(true);
+  }
+
+  sairDaEdicao() {
+    this.edicao = null;
+    this.view.mostrarEdicao(false);
   }
 
   get arquivo() {
@@ -246,6 +263,7 @@ export class EditorController {
   // Abre o editor com o SVG do card (já com o tamanho, traço e cor escolhidos)
   abrir(item, svg) {
     this.item = item;
+    this.sairDaEdicao();
     try {
       this.model.carregar(svg, item.nome);
     } catch (erro) {

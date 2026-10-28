@@ -34,6 +34,13 @@
     .vazio, .erro { grid-column: 1 / -1; padding: 30px; text-align: center; color: #6b7a89; }
     .erro { color: #c0392b; }
     code { font-size: 12px; }
+    .revisao { grid-template-columns: 170px 1fr; }
+    .antes-depois { grid-template-columns: 1fr 1fr; align-items: start; }
+    .antes-depois figure { margin: 0; display: grid; justify-items: center; gap: 4px; }
+    .antes-depois img { width: 72px; height: 72px; }
+    .antes-depois figcaption { font-size: 11px; color: #6b7a89; }
+    .aviso { color: #8a5a00 !important; font-weight: 600; }
+    del { color: #c0392b; } ins { color: #24713a; text-decoration: none; font-weight: 600; }
   </style>
   <h1>Icon Library — administração</h1>
   <div class="areas" role="group" aria-label="Área">
@@ -70,7 +77,9 @@
         endereco: (situacao) => `/api/admin/icons?status=${situacao}`,
         acao: (id, acao) => `/api/admin/icons/${id}/${acao}`,
         itens: (resposta) => resposta.icons,
-        cartao: (i, situacao) => `
+        // Ícone aprovado com uma edição do autor esperando: o que está no ar
+        // e a proposta, lado a lado
+        cartao: (i, situacao) => (situacao === "pending" && i.revision ? cartaoRevisao(i) : `
           <article class="icone" data-id="${i.id}">
             <div class="previa">${imagem(i.svg)}${imagem(i.svg, "pequeno")}</div>
             <div class="dados">
@@ -78,15 +87,16 @@
               <p><code>${texto(i.slug)}</code> · ${texto(i.categories.join(", "))}</p>
               <p>Crédito: ${texto(i.author || "—")}</p>
               <p>Apoiador: <code>${texto(i.supporterCode)}</code></p>
-              <p>Enviado: ${data(i.createdAt)}</p>
+              <p>Enviado: ${data(i.submittedAt || i.createdAt)}</p>
               ${i.reviewNote ? `<p>Nota: ${texto(i.reviewNote)}</p>` : ""}
+              ${i.revision ? '<p class="aviso">Edição do autor esperando revisão (em Pendentes)</p>' : ""}
               <div class="acoes">
                 ${situacao !== "approved" ? '<button type="button" class="aprovar" data-acao="approve">Aprovar</button>' : ""}
                 ${situacao !== "rejected" ? '<button type="button" class="recusar" data-acao="reject">Recusar</button>' : ""}
                 <button type="button" data-acao="delete">Excluir</button>
               </div>
             </div>
-          </article>`,
+          </article>`),
       },
       bugs: {
         nota:
@@ -109,6 +119,30 @@
           </article>`,
       },
     };
+    // Edição de um ícone aprovado: no ar continua a versão atual até aprovar
+    const mudou = (antes, depois) => (antes === depois ? texto(depois) : `<del>${texto(antes)}</del> → <ins>${texto(depois)}</ins>`);
+    function cartaoRevisao(i) {
+      const r = i.revision;
+      return `
+          <article class="icone revisao" data-id="${i.id}">
+            <div class="previa antes-depois">
+              <figure>${imagem(i.svg)}<figcaption>No ar</figcaption></figure>
+              <figure>${imagem(r.svg)}${imagem(r.svg, "pequeno")}<figcaption>Proposta</figcaption></figure>
+            </div>
+            <div class="dados">
+              <p class="aviso">Edição de um ícone aprovado</p>
+              <h2>${mudou(i.name, r.name)}</h2>
+              <p>${mudou(i.categories.join(", "), r.categories.join(", "))}</p>
+              <p>Crédito: ${mudou(i.author || "—", r.author || "—")}</p>
+              <p>Apoiador: <code>${texto(i.supporterCode)}</code></p>
+              <p>Edição enviada: ${data(r.submittedAt)}</p>
+              <div class="acoes">
+                <button type="button" class="aprovar" data-acao="revision/approve">Aprovar edição</button>
+                <button type="button" class="recusar" data-acao="revision/reject">Recusar edição</button>
+              </div>
+            </div>
+          </article>`;
+    }
     let area = "icones";
     let situacao = "pending";
 

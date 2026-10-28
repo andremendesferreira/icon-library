@@ -17,6 +17,7 @@ const MENSAGENS = {
   too_many: "coffee.tooMany",
   too_large: "publish.svgLarge",
   disabled: "publish.disabled",
+  not_owner: "publish.notOwner",
 };
 
 // Publicar o ícone do editor na Iconlibrary, a fonte da comunidade: só para
@@ -52,8 +53,17 @@ export class PublishController {
   }
 
   abrir() {
-    const { svg, nome } = this.icone();
-    this.view.abrir({ svg, nome, codigo: this.apoiador.ativo()?.code });
+    const { svg, nome, edicao } = this.icone();
+    this.edicao = edicao;
+    this.view.abrir({
+      svg,
+      nome: edicao?.nome ?? nome,
+      // O código que abriu "Meus ícones" é o do dono do ícone
+      codigo: edicao?.codigo ?? this.apoiador.ativo()?.code,
+      categorias: edicao?.categorias,
+      autor: edicao?.autor,
+      edicao: Boolean(edicao),
+    });
   }
 
   async enviar(dados) {
@@ -62,7 +72,9 @@ export class PublishController {
     view.travar(true);
     view.mostrarSituacao(t("publish.sending"));
     try {
-      const res = await fetch("api/iconlibrary/icons", {
+      // Edição de um ícone já publicado, ou um ícone novo
+      const destino = this.edicao ? `api/iconlibrary/icons/${this.edicao.id}/edit` : "api/iconlibrary/icons";
+      const res = await fetch(destino, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...dados, svg: this.icone().svg }),
@@ -76,7 +88,10 @@ export class PublishController {
       }
       // Enviado: a janela fecha e o aviso aparece por cima do editor
       view.fechar();
-      this.avisar(t("publish.sent", { name: dados.name.trim() }));
+      const name = dados.name.trim();
+      if (!this.edicao) this.avisar(t("publish.sent", { name }));
+      // Ícone aprovado: continua no ar até a edição ser aprovada
+      else this.avisar(t(resposta.revision === "pending" ? "publish.editSentLive" : "publish.editSent", { name }));
     } catch {
       view.mostrarSituacao(t("coffee.error"), "erro");
       view.travar(false);

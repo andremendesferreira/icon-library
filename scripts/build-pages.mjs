@@ -97,6 +97,7 @@ ${PAGINAS.filter((p) => p !== pagina)
   .join("\n")}
       <a href="${icones}#report">🐞 ${escapar(t(idioma, "footer.report"))}</a>
       <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener">💡 ${escapar(t(idioma, "footer.ideas"))}</a>
+      <a href="https://t.me/iconlibraryio" target="_blank" rel="noopener">📣 ${escapar(t(idioma, "footer.telegram"))}</a>
     </nav>
     <p class="site-footer__owner">© 2026 André M. Ferreira<span class="site-footer__version"><!--version--></span></p>
   </footer>

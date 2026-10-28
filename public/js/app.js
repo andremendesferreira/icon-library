@@ -18,6 +18,8 @@ import { PublishController } from "./controllers/PublishController.js";
 import { ReportView } from "./views/ReportView.js";
 import { ReportController } from "./controllers/ReportController.js";
 import { PngView } from "./views/PngView.js";
+import { MineView } from "./views/MineView.js";
+import { MineController } from "./controllers/MineController.js";
 
 // O idioma vem antes de tudo: as views já nascem com os textos traduzidos
 await carregarIdioma();
@@ -84,6 +86,12 @@ new PublishController(new PublishView(), {
   abrirCafe: () => cafeView.abrir(),
   avisar,
 }).iniciar();
+
+// "Meus ícones": o autor edita o que publicou e envia para nova revisão
+new MineController(new MineView(), {
+  apoiador,
+  aoEditar: (dados) => editor.abrirEdicao(dados),
+});
 
 // "Reportar bug" no rodapé
 new ReportController(new ReportView(), { avisar }).iniciar();

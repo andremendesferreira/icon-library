@@ -34,10 +34,14 @@ Todas as chamadas levam o cabeçalho `Authorization: Bearer <MODERATION_TOKEN>`.
 
 | Chamada | Para quê |
 |---|---|
-| `GET /api/moderation/icons` | pendentes: `{ icons: [{ id, name, slug, categories, author, svg, createdAt, preview }] }` |
+| `GET /api/moderation/icons` | o que espera decisão: `{ icons: [{ id, kind, name, slug, categories, author, svg, createdAt, submittedAt, current, preview }] }` — `kind` é `icon` (ícone novo ou editado antes de aprovado) ou `revision` (edição de um ícone já no ar; `current` traz a versão no ar) |
 | `GET /api/moderation/icons/{id}/preview.png?size=256` | o ícone em PNG (escuro sobre branco, com margem); `size` de 16 a 512 |
 | `POST /api/moderation/icons/{id}/approve` | aprova (só se ainda estiver pendente) |
 | `POST /api/moderation/icons/{id}/reject` com `{ "note": "motivo" }` | recusa; a nota aparece no `/admin` |
+
+Aprovar ou recusar age no que está esperando: o próprio ícone ou, num ícone já no
+ar, a edição (aprovar troca a versão no ar; recusar descarta a edição e o ícone
+continua como estava). A prévia em PNG mostra o que espera decisão.
 
 Um ícone que já foi decidido (por você ou antes) responde `409 not_pending`: o
 robô nunca desfaz uma decisão sua.
@@ -208,6 +212,17 @@ else {
 
 return { ...$json, sugestao, razao };
 ```
+
+### Edições dos autores
+
+Quem publicou pode editar o ícone (em **Meus ícones**, no site) e enviar de novo.
+O workflow marca como "visto" o ícone **naquele envio** (`id@submittedAt`): uma
+edição muda a data e é julgada de novo. No Telegram, uma edição de ícone que já
+está no ar chega com **✏️ Edição de um ícone no ar**.
+
+Quem já usava o workflow antes das edições: troque o código dos nós **Escolher
+próximo** e **Decidir** pelo do arquivo atualizado. Na primeira execução depois
+disso, os pendentes já vistos são julgados mais uma vez (a forma de marcar mudou).
 
 ## 4. As fases da autonomia
 

@@ -76,13 +76,22 @@ export class PublishView {
     for (const caixa of caixas) caixa.disabled = !caixa.checked && marcadas >= this.maximo;
   }
 
-  // svg: o ícone do editor; nome sugerido; codigo: o do apoiador, se houver
-  abrir({ svg, nome, codigo }) {
+  // svg: o ícone do editor; nome sugerido; codigo: o do apoiador, se houver.
+  // Editando um ícone já publicado (edicao): título e botão de "edição", com
+  // as categorias e o crédito dele já preenchidos.
+  abrir({ svg, nome, codigo, categorias = [], autor = "", edicao = false }) {
     this.previa.innerHTML = svg;
     this.nome.value = nome || "";
     this.codigo.value = codigo || "";
     this.aviso.hidden = Boolean(codigo);
     this.licenca.checked = false;
+    porId("publish-title").textContent = t(edicao ? "publish.titleEdit" : "publish.title");
+    this.enviar.textContent = t(edicao ? "publish.sendEdit" : "publish.send");
+    if (edicao) {
+      this.autor.value = autor || "";
+      for (const caixa of this.categorias.querySelectorAll("input")) caixa.checked = categorias.includes(caixa.value);
+      this.limitarCategorias();
+    }
     this.mostrarSituacao("");
     this.travar(false);
     if (!this.janela.open) this.janela.showModal();

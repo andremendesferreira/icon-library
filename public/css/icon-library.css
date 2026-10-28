@@ -1527,6 +1527,7 @@ body:has(.scratchpad--open) .back-to-top {
 .editor__header {
   grid-area: header;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   padding: 12px 18px;
@@ -2342,6 +2343,123 @@ html.i18n-pendente body {
 }
 .site-footer__report:hover {
   text-decoration: underline;
+}
+/* Meus ícones: o que o apoiador publicou, com a situação e o botão Editar */
+.mine .coffee__title,
+.mine > .coffee__note {
+  text-align: center;
+}
+.mine__form {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.mine__form input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #c5d0dc;
+  border-radius: 8px;
+  font: inherit;
+  text-transform: uppercase;
+}
+.mine__form button,
+.mine__item button {
+  padding: 8px 14px;
+  border: 1px solid #c5d0dc;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  color: #42505e;
+  cursor: pointer;
+}
+.mine__list {
+  display: grid;
+  gap: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mine__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid #e4e9f0;
+  border-radius: 10px;
+}
+.mine__preview {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  height: 40px;
+  color: #2c3e50;
+}
+.mine__preview svg {
+  width: 32px;
+  height: 32px;
+}
+.mine__info {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+  font-size: 14px;
+}
+.mine__info strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mine__status {
+  font-size: 12px;
+  color: #8a99a8;
+}
+.mine__status--approved {
+  color: #24713a;
+}
+.mine__status--rejected {
+  color: #c0392b;
+}
+.mine__status--revision,
+.mine__status--pending {
+  color: #8a5a00;
+}
+.publish__mine {
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 13px;
+}
+/* Editor: aviso de que é a edição de um ícone publicado */
+.editor__editing {
+  flex-basis: 100%;
+  order: 3;
+  margin: 6px 0 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #fff8e6;
+  font-size: 13px;
+  color: #6b4a00;
+}
+[data-theme="dark"] .mine__form input,
+[data-theme="dark"] .mine__form button,
+[data-theme="dark"] .mine__item button {
+  background: var(--dk-surface);
+  border-color: var(--dk-border);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .mine__item {
+  border-color: var(--dk-border);
+}
+[data-theme="dark"] .mine__preview {
+  color: var(--dk-text);
+}
+[data-theme="dark"] .editor__editing {
+  background: #2a2414;
+  color: #f5c141;
 }
 /* Baixar PNG: tamanhos prontos e um campo para outro tamanho */
 .png {

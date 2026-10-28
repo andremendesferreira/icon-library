@@ -86,6 +86,14 @@ export class EditorView {
     return this.janela.open;
   }
 
+  // Editando um ícone já publicado: aviso no topo e o botão de publicar vira
+  // "enviar edição"
+  mostrarEdicao(ativa) {
+    porId("editor-editing").hidden = !ativa;
+    const publicar = porId("editor-publish");
+    if (publicar) publicar.textContent = t(ativa ? "publish.buttonEdit" : "publish.button");
+  }
+
   abrir(nome) {
     this.nome.textContent = nome;
     this.erro.textContent = "";

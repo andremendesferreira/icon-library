@@ -305,6 +305,7 @@
         <h2 id="editor-title" class="editor__title">
           <span data-i18n="editor.title">Edit icon</span> <span id="editor-name" class="editor__name"></span>
         </h2>
+        <p id="editor-editing" class="editor__editing" data-i18n="editor.editing" hidden>Editing your Iconlibrary icon — publish to send the edit for review.</p>
         <button type="button" id="editor-close" class="editor__close" aria-label="Close editor" data-i18n-attr="aria-label:editor.close">×</button>
       </header>
 
@@ -430,6 +431,7 @@
     <button type="button" id="publish-close" class="coffee__close" aria-label="Close" data-i18n-attr="aria-label:coffee.close">×</button>
     <h2 id="publish-title" class="coffee__title" data-i18n="publish.title">Publish to Iconlibrary</h2>
     <p class="coffee__note" data-i18n="publish.intro">Share this icon in Iconlibrary, the community set. Every icon is reviewed before it appears.</p>
+    <p class="publish__mine"><button type="button" class="site-footer__report" data-mine-open>🗂️ <span data-i18n="mine.open">My published icons</span></button></p>
     <div id="publish-preview" class="publish__preview" aria-hidden="true"></div>
     <p id="publish-supporters" class="publish__supporters" hidden>
       <span data-i18n="publish.supportersOnly">Publishing is a thank-you for supporters: buy a coffee to get a supporter code.</span>
@@ -480,6 +482,7 @@
         <code id="coffee-code-value"></code>
         <button type="button" id="coffee-copy" data-i18n="coffee.copyCode">Copy code</button>
       </div>
+      <p class="coffee__note"><button type="button" class="site-footer__report" data-mine-open>🗂️ <span data-i18n="mine.open">My published icons</span></button></p>
     </section>
     <form id="coffee-form" class="coffee__form">
       <label for="coffee-code" data-i18n="coffee.haveCode">Already bought a coffee? Use your supporter code on this device:</label>
@@ -489,6 +492,18 @@
       </div>
     </form>
     <p id="coffee-status" class="coffee__status" role="status"></p>
+  </dialog>
+  <!-- Meus ícones: o que o apoiador publicou na Iconlibrary, para editar -->
+  <dialog id="mine" class="publish mine" aria-labelledby="mine-title">
+    <button type="button" id="mine-close" class="coffee__close" aria-label="Close" data-i18n-attr="aria-label:coffee.close">×</button>
+    <h2 id="mine-title" class="coffee__title" data-i18n="mine.title">My Iconlibrary icons</h2>
+    <p class="coffee__note" data-i18n="mine.intro">The icons you published with your supporter code. Edit one to send a new version for review — an approved icon stays live as it is until the edit is approved.</p>
+    <form id="mine-form" class="mine__form">
+      <input id="mine-code" placeholder="CAFE-XXXX-XXXX" autocomplete="off" spellcheck="false" aria-label="Supporter code" data-i18n-attr="aria-label:coffee.codeLabel" />
+      <button type="submit" data-i18n="mine.load">Show</button>
+    </form>
+    <p id="mine-status" class="coffee__status" role="status"></p>
+    <ul id="mine-list" class="mine__list"></ul>
   </dialog>
   <!-- Baixar PNG: escolher o tamanho (cards e editor) -->
   <dialog id="png" class="publish png" aria-labelledby="png-title">
@@ -539,6 +554,7 @@
       <button type="button" class="site-footer__coffee" data-coffee-open hidden>☕ <span data-i18n="coffee.button">Buy me a coffee</span></button>
       <button type="button" class="site-footer__report" data-report-open>🐞 <span data-i18n="footer.report">Report a bug</span></button>
       <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener">💡 <span data-i18n="footer.ideas">Suggest an improvement</span></a>
+      <a href="https://t.me/iconlibraryio" target="_blank" rel="noopener">📣 <span data-i18n="footer.telegram">Telegram channel</span></a>
     </nav>
     <p data-i18n="footer.credits">
       Icons belong to their authors: Lucide (ISC), Feather (MIT), Bootstrap
