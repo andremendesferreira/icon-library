@@ -1,7 +1,7 @@
 {
   "name": "icon-library",
   "version": "1.0.0",
-  "description": "Browse, filter and copy icons from Emoji, Lucide, Feather and Bootstrap Icons — click to copy, right-click for the SVG.",
+  "description": "Browse, customize and copy icons from Lucide, Feather, Bootstrap Icons and Emoji — with an in-browser SVG editor, a scratchpad, PNG export at any size and a community icon set.",
   "private": true,
   "scripts": {
     "start": "node scripts/server.js",
@@ -13,13 +13,22 @@
   "engines": {
     "node": ">=20.0.0"
   },
+  "homepage": "https://iconlibrary.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andremendesferreira/icon-library.git"
+  },
+  "bugs": "https://github.com/andremendesferreira/icon-library/issues",
+  "license": "MIT",
   "keywords": [
     "icons",
     "emoji",
     "lucide",
     "feather",
     "bootstrap-icons",
-    "svg"
+    "svg",
+    "svg-editor",
+    "icon-editor"
   ],
   "dependencies": {
     "@resvg/resvg-js": "2.6.2",

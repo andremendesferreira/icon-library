@@ -1,0 +1,63 @@
+name: Bug report
+description: Something on the site does not work as it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time! A **security problem** must not be reported here — see [SECURITY.md](https://github.com/andremendesferreira/icon-library/blob/main/SECURITY.md).
+        No GitHub account? Use **Report a bug** in the footer of [iconlibrary.io](https://iconlibrary.io).
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: And what did you expect to happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Choose the Lucide set
+        2. Open "arrow-right" in the editor
+        3. Click …
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Address
+      description: The page address, if it helps (with ?set=…&q=…).
+      placeholder: https://iconlibrary.io/?set=lucide&q=arrow
+  - type: dropdown
+    id: area
+    attributes:
+      label: Part of the site
+      options:
+        - Icon list (search, categories, copy, download)
+        - Editor
+        - Scratchpad
+        - Iconlibrary (publish, my icons)
+        - Buy me a coffee
+        - Guide, About or Privacy pages
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and system
+      placeholder: Chrome 140 on Windows 11, Safari on iPhone…
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Site language
+      options: [English, Español, Français, Deutsch, Русский, 中文（简体）, Português (Brasil), 日本語]
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or anything else
+      description: You can paste images here. Errors from the browser console (F12) help a lot.

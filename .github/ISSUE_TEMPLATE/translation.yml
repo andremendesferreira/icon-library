@@ -1,0 +1,34 @@
+name: Translation fix
+description: A text on the site is wrong, unclear or unnatural in your language.
+labels: [translation]
+body:
+  - type: markdown
+    attributes:
+      value: The translations were made by AI, so a native speaker's eye is very welcome. Thank you!
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language
+      options: [English, Español, Français, Deutsch, Русский, 中文（简体）, Português (Brasil), 日本語]
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where is the text?
+      placeholder: Main page, editor, Guide, Privacy…
+    validations:
+      required: true
+  - type: textarea
+    id: now
+    attributes:
+      label: Current text
+    validations:
+      required: true
+  - type: textarea
+    id: better
+    attributes:
+      label: Suggested text
+      description: And, if useful, why it reads better.
+    validations:
+      required: true

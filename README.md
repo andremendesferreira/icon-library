@@ -5,6 +5,31 @@
 <h1 align="center">Icon Library</h1>
 
 <p align="center">
+  <strong>Browse, customize and copy icons — free.</strong><br>
+  Lucide · Feather · Bootstrap Icons · Emoji, with an SVG editor in the browser.
+</p>
+
+<p align="center">
+  <a href="https://iconlibrary.io"><img src="https://img.shields.io/badge/site-iconlibrary.io-1d4ed8" alt="Website: iconlibrary.io"></a>
+  <a href="https://github.com/andremendesferreira/icon-library/actions/workflows/ci.yml"><img src="https://github.com/andremendesferreira/icon-library/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT"></a>
+  <img src="https://img.shields.io/badge/languages-8-7c3aed" alt="8 languages">
+  <a href="https://github.com/andremendesferreira/icon-library/discussions"><img src="https://img.shields.io/badge/discussions-join-0969da?logo=github" alt="GitHub Discussions"></a>
+  <a href="https://t.me/iconlibraryio"><img src="https://img.shields.io/badge/telegram-@iconlibraryio-26a5e4?logo=telegram&logoColor=white" alt="Telegram channel"></a>
+</p>
+
+<p align="center">
+  <a href="https://iconlibrary.io"><strong>Open the site</strong></a> ·
+  <a href="https://github.com/andremendesferreira/icon-library/discussions">Ideas and questions</a> ·
+  <a href="https://github.com/andremendesferreira/icon-library/issues/new/choose">Report a bug</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a>
+</p>
+
+<p align="center">
+  <a href="https://iconlibrary.io"><img src="docs/img/screenshot-icons.webp" alt="The Icon Library page: the Lucide set, with size, stroke and color controls above the icon cards" width="820"></a>
+</p>
+
+<p align="center">
   <a href="#english">English</a> · <a href="#português">Português</a>
 </p>
 
@@ -12,7 +37,7 @@
 
 ## English
 
-A page for browsing, filtering and copying icons from four sets — **Emoji (Unicode)**, **Lucide**, **Feather** and **Bootstrap Icons** — to use in menus and interfaces. Click an icon to copy its SVG; right-click to copy the alternative.
+A page for browsing, filtering and copying icons from four sets — **Emoji (Unicode)**, **Lucide**, **Feather** and **Bootstrap Icons** — to use in menus and interfaces. Click an icon to copy its SVG; right-click to copy the alternative. The pencil on each card opens an **SVG editor** to reshape, recolor and combine icons, and supporters can publish what they make to **Iconlibrary**, the community set.
 
 No framework, no build step and two runtime dependencies on the server (the PostgreSQL driver, for the coffee, Iconlibrary and bug reports, and an SVG→PNG renderer for moderation previews): plain HTML, CSS and JavaScript (ES modules, organized as MVC), served by a small Node.js server.
 
@@ -25,7 +50,7 @@ No framework, no build step and two runtime dependencies on the server (the Post
   - **+** adds the icon to the scratchpad;
   - **⋯** opens *Download SVG*, *Download PNG* (at the chosen size) and *Copy as React component*;
   - the **pencil** (all vector sets) opens the icon editor.
-- **Icon editor:** the icon on a grid, with draggable points for every shape — line, circle, ellipse, rect, polyline/polygon and path, including the control points of curves. Move shapes, rotate 90°, flip, grow/shrink (one shape or the whole icon), add and delete shapes, hide a shape to compare, snap to the grid (1, ½, ¼ unit or off), undo/redo, live SVG code (editable both ways) and previews at 16–48 px. **Icons on top of each other:** *+ Icon on top* searches the vector sets and adds another icon, resized to the same grid and keeping its style (stroke or fill), selectable as a whole. **Per-shape color and stroke width** for a shape or a whole icon. **Projects in `.ile` files:** *Save .ile* downloads the project and *Open .ile* (editor, main page, or drag and drop) brings it back — see [The .ile format](#the-ile-format). Copy, download SVG/PNG or send to the scratchpad; single-style Lucide and Feather icons can also go to [Lucide Studio](https://studio.lucide.dev).
+- **Icon editor:** the icon on a grid, with draggable points for every shape — line, circle, ellipse, rect, polyline/polygon and path, including the control points of curves. Move shapes, rotate 90° or 45°, flip, grow/shrink (one shape or the whole icon), add and delete shapes and points, copy and paste shapes (Ctrl+C/V), hide a shape to compare, snap to the grid (1, ½, ¼ unit or off), undo/redo, live SVG code (editable both ways) and previews at 16–48 px. **Icons on top of each other:** *+ Icon on top* searches the vector sets and adds another icon, resized to the same grid and keeping its style (stroke or fill), selectable as a whole. **Per-shape color and stroke width** for a shape or a whole icon. **Projects in `.ile` files:** *Save .ile* downloads the project and *Open .ile* (editor, main page, or drag and drop) brings it back — see [The .ile format](#the-ile-format). Copy, download SVG/PNG or send to the scratchpad; single-style Lucide and Feather icons can also go to [Lucide Studio](https://studio.lucide.dev).
 - **Scratchpad:** a drawer on the right edge (tab or *Open Scratchpad*) that collects icons as `<!-- name -->` followed by the SVG. *Copy all* and *Clear* at the bottom; the text is kept in the browser.
 - **Shareable searches:** the address follows the set and search (`?set=lucide&q=arrow`).
 - **Links that open the editor** — made by people (*Share link* in the editor) or by AI assistants: see [For AI assistants](#for-ai-assistants).
@@ -35,6 +60,8 @@ No framework, no build step and two runtime dependencies on the server (the Post
 - **Fast with large sets:** only categories near the screen are drawn; the rest are drawn as you scroll.
 - **Guide**, **About** and **Privacy** pages, linked in the footer — the Guide explains every feature step by step, with screenshots and a table of keyboard shortcuts.
 - **Responsive** from 360 px phones to wide desktops; keyboard support (arrows in the set list, `Esc` closes panels).
+
+<p align="center"><img src="docs/img/screenshot-editor.webp" alt="The icon editor: the Rocket icon on a grid, one shape selected with its points, the element list on the left and the SVG code on the right" width="820"></p>
 
 ### Icon sets
 
@@ -287,11 +314,18 @@ icon-library/
 ├── tests/                              npm test
 ├── BACKLOG.md                          AI service and paid plan (next steps)
 ├── .github/workflows/ci.yml            continuous integration
+├── .github/ISSUE_TEMPLATE/             issue forms (bug, translation) and links
+├── docs/                               n8n moderation guide; README screenshots in docs/img/
+├── CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md
 ├── Dockerfile, docker-compose*.yml     container
 └── package.json
 ```
 
 `public/js/package.json` only marks the folder as ES modules, so Node can import those files in the tests.
+
+### Contributing
+
+Icons, bug reports, translation fixes and code are all welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Ideas and questions go to [Discussions](https://github.com/andremendesferreira/icon-library/discussions), news to the [Telegram channel](https://t.me/iconlibraryio), and security problems are reported privately as described in [SECURITY.md](SECURITY.md). Everyone follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ### Credits
 
@@ -303,7 +337,7 @@ Icons belong to their authors and are used under their licenses: [Lucide](https:
 
 ## Português
 
-Uma página para navegar, filtrar e copiar ícones de quatro conjuntos — **Emoji (Unicode)**, **Lucide**, **Feather** e **Bootstrap Icons** — para usar em menus e interfaces. Clique num ícone para copiar o SVG; clique com o botão direito para copiar a alternativa.
+Uma página para navegar, filtrar e copiar ícones de quatro conjuntos — **Emoji (Unicode)**, **Lucide**, **Feather** e **Bootstrap Icons** — para usar em menus e interfaces. Clique num ícone para copiar o SVG; clique com o botão direito para copiar a alternativa. O lápis de cada card abre um **editor de SVG** para mudar o desenho, as cores e combinar ícones, e os apoiadores podem publicar o que criam na **Iconlibrary**, o conjunto da comunidade.
 
 Sem framework, sem build e com duas dependências no servidor (o driver do PostgreSQL, para o café, a Iconlibrary e os relatos de bug, e um renderizador de SVG para PNG, para as prévias da moderação): HTML, CSS e JavaScript puros (módulos ES, organizados em MVC), servidos por um pequeno servidor Node.js.
 
@@ -316,7 +350,7 @@ Sem framework, sem build e com duas dependências no servidor (o driver do Postg
   - **+** envia o ícone ao scratchpad;
   - **⋯** abre *Download SVG*, *Download PNG* (no tamanho escolhido) e *Copy as React component*;
   - o **lápis** (todos os conjuntos vetoriais) abre o editor de ícones.
-- **Editor de ícones:** o ícone sobre uma grade, com pontos arrastáveis em todas as formas — line, circle, ellipse, rect, polyline/polygon e path, incluindo os pontos de controle das curvas. Mover formas, girar 90°, espelhar, aumentar/diminuir (uma forma ou o ícone inteiro), adicionar e apagar formas, ocultar uma forma para comparar, encaixe na grade (1, ½, ¼ de unidade ou livre), desfazer/refazer, código SVG ao vivo (editável nos dois sentidos) e prévias de 16 a 48 px. **Ícones sobrepostos:** *+ Icon on top* busca nos conjuntos vetoriais e acrescenta outro ícone, ajustado à mesma grade e com o próprio estilo (traço ou preenchimento), selecionável inteiro. **Cor e espessura por forma**, numa forma ou num ícone inteiro. **Projetos em arquivos `.ile`:** *Save .ile* baixa o projeto e *Open .ile* (no editor, na página principal ou arrastando o arquivo) o traz de volta — veja [O formato .ile](#o-formato-ile). Copiar, baixar SVG/PNG ou enviar ao scratchpad; ícones do Lucide e do Feather de um estilo só também podem ir para o [Lucide Studio](https://studio.lucide.dev).
+- **Editor de ícones:** o ícone sobre uma grade, com pontos arrastáveis em todas as formas — line, circle, ellipse, rect, polyline/polygon e path, incluindo os pontos de controle das curvas. Mover formas, girar 90° ou 45°, espelhar, aumentar/diminuir (uma forma ou o ícone inteiro), adicionar e apagar formas e pontos, copiar e colar formas (Ctrl+C/V), ocultar uma forma para comparar, encaixe na grade (1, ½, ¼ de unidade ou livre), desfazer/refazer, código SVG ao vivo (editável nos dois sentidos) e prévias de 16 a 48 px. **Ícones sobrepostos:** *+ Icon on top* busca nos conjuntos vetoriais e acrescenta outro ícone, ajustado à mesma grade e com o próprio estilo (traço ou preenchimento), selecionável inteiro. **Cor e espessura por forma**, numa forma ou num ícone inteiro. **Projetos em arquivos `.ile`:** *Save .ile* baixa o projeto e *Open .ile* (no editor, na página principal ou arrastando o arquivo) o traz de volta — veja [O formato .ile](#o-formato-ile). Copiar, baixar SVG/PNG ou enviar ao scratchpad; ícones do Lucide e do Feather de um estilo só também podem ir para o [Lucide Studio](https://studio.lucide.dev).
 - **Scratchpad:** uma gaveta na borda direita (aba ou *Open Scratchpad*) que junta ícones como `<!-- nome -->` seguido do SVG. *Copy all* e *Clear* na base; o texto fica guardado no navegador.
 - **Buscas compartilháveis:** o endereço acompanha o conjunto e a busca (`?set=lucide&q=arrow`).
 - **Links que abrem o editor** — feitos por pessoas (*Share link* no editor) ou por assistentes de IA: veja [Para assistentes de IA](#para-assistentes-de-ia).
@@ -326,6 +360,8 @@ Sem framework, sem build e com duas dependências no servidor (o driver do Postg
 - **Rápida com conjuntos grandes:** só as categorias perto da tela são desenhadas; as demais, conforme a rolagem.
 - Páginas **Guia**, **Sobre** e **Privacidade**, com links no rodapé — o Guia explica cada recurso passo a passo, com capturas de tela e uma tabela de atalhos de teclado.
 - **Responsiva** de celulares de 360 px a monitores largos; teclado (setas na lista de conjuntos, `Esc` fecha painéis).
+
+<p align="center"><img src="docs/img/screenshot-editor.webp" alt="O editor de ícones: o ícone Rocket na grade, uma forma selecionada com os pontos, a lista de elementos à esquerda e o código SVG à direita" width="820"></p>
 
 ### Conjuntos de ícones
 
@@ -562,11 +598,18 @@ icon-library/
 ├── tests/                              npm test
 ├── BACKLOG.md                          serviço para IAs e plano pago (próximos passos)
 ├── .github/workflows/ci.yml            integração contínua
+├── .github/ISSUE_TEMPLATE/             formulários de issue (bug, tradução) e links
+├── docs/                               guia da moderação no n8n; prints do README em docs/img/
+├── CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md
 ├── Dockerfile, docker-compose*.yml     container
 └── package.json
 ```
 
 O `public/js/package.json` só marca a pasta como módulos ES, para o Node conseguir importar esses arquivos nos testes.
+
+### Como contribuir
+
+Ícones, relatos de bug, correções de tradução e código são bem-vindos — veja o [CONTRIBUTING.md](CONTRIBUTING.md). Ideias e dúvidas vão para as [Discussions](https://github.com/andremendesferreira/icon-library/discussions), as novidades para o [canal do Telegram](https://t.me/iconlibraryio), e problemas de segurança são reportados em privado, como explica o [SECURITY.md](SECURITY.md). Todos seguem o [Código de Conduta](CODE_OF_CONDUCT.md).
 
 ### Créditos
 

@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Idea or question
+    url: https://github.com/andremendesferreira/icon-library/discussions
+    about: Suggest a feature, share how you use the site or ask anything in Discussions.
+  - name: Security problem
+    url: https://github.com/andremendesferreira/icon-library/security/advisories/new
+    about: Report it privately — never in a public issue.
+  - name: Report without a GitHub account
+    url: https://iconlibrary.io
+    about: Use "Report a bug" in the site footer.
+  - name: News on Telegram
+    url: https://t.me/iconlibraryio
+    about: Follow what's new on the Telegram channel.
