@@ -50,6 +50,27 @@ export class EditorController {
         model.clicarForma(i);
         this.desenhar({ atualizarCodigo: false });
       },
+      aoAdicionarASelecao: (i) => {
+        model.adicionarASelecao(i);
+        this.desenhar({ atualizarCodigo: false });
+      },
+      aoIniciarCorte: () => this.avisar(t("editor.splitHint")),
+      // Devolve se cortou; fora do traço, avisa e o modo de corte continua
+      aoSeparar: (x, y) => {
+        if (!model.separar(x, y)) {
+          this.avisar(t("editor.splitMiss"));
+          return false;
+        }
+        this.desenhar();
+        return true;
+      },
+      // Devolve se agiu (Ctrl+J sem duas formas marcadas segue normal)
+      aoUnir: () => {
+        if (model.parceiro === null) return false;
+        if (model.unir()) this.desenhar();
+        else this.avisar(t("editor.joinCant"));
+        return true;
+      },
       aoIniciarArraste: () => model.iniciarArraste(),
       aoArrastarPonto: mudar((id, x, y) => model.arrastarPonto(id, x, y)),
       aoArrastarElemento: mudar((dx, dy) => model.arrastarElemento(dx, dy)),
@@ -83,6 +104,10 @@ export class EditorController {
         this.desenhar();
         if (fixos)
           this.avisar(t("editor.codeOnlyChanged", { n: fixos }));
+      },
+      aoOrdenar: (operacao) => {
+        if (!model.temSelecao) this.avisar(t("editor.orderNeedsSelection"));
+        else if (model.ordenar(operacao)) this.desenhar();
       },
       aoEncaixe: (passo) => {
         model.passo = passo;
@@ -353,6 +378,9 @@ export class EditorController {
         podeDesfazer: model.podeDesfazer,
         podeRefazer: model.podeRefazer,
         linkStudio,
+        duasFormas: model.parceiro !== null,
+        podeUnir: model.podeUnir,
+        podeSeparar: model.podeSeparar,
       },
       { atualizarCodigo },
     );

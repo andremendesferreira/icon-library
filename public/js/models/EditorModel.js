@@ -8,8 +8,11 @@ import {
   moverPonto,
   novaForma,
   pontosDoElemento,
+  podeUnir,
   removerPonto,
+  separarForma,
   transformarElemento,
+  unirTracos,
 } from "./svgGeometry.js";
 import { erro as erroCom } from "./erros.js";
 
@@ -158,6 +161,8 @@ export class EditorModel {
   // Seleção: uma forma (selecionado) ou um ícone inteiro (grupoSelecionado)
   selecionado = null;
   grupoSelecionado = null;
+  // Segunda forma, marcada com Shift+clique junto da selecionada (para unir)
+  parceiro = null;
   // Encaixe na grade, em unidades do ícone (0 = livre)
   passo = 0.5;
   historico = [];
@@ -272,6 +277,7 @@ export class EditorModel {
     this.grupos = grupos;
     if (this.selecionado !== null && !this.elementos[this.selecionado])
       this.selecionado = null;
+    if (this.selecionado === null || !this.elementos[this.parceiro]) this.parceiro = null;
     this.pontoSelecionado = null;
     if (!this.indicesDoGrupo(this.grupoSelecionado).length)
       this.grupoSelecionado = null;
@@ -300,12 +306,14 @@ export class EditorModel {
   // ── Seleção ──────────────────────────────────────────────────────────────
   limparSelecao() {
     this.selecionado = null;
+    this.parceiro = null;
     this.grupoSelecionado = null;
     this.pontoSelecionado = null;
   }
 
   selecionar(indice) {
     this.grupoSelecionado = null;
+    this.parceiro = null;
     if (indice !== this.selecionado) this.pontoSelecionado = null;
     this.selecionado =
       indice !== null && this.elementos[indice] ? indice : null;
@@ -313,6 +321,7 @@ export class EditorModel {
 
   selecionarGrupo(grupo) {
     this.selecionado = null;
+    this.parceiro = null;
     this.pontoSelecionado = null;
     this.grupoSelecionado = this.indicesDoGrupo(grupo).length ? grupo : null;
   }
@@ -322,7 +331,66 @@ export class EditorModel {
   clicarForma(indice) {
     const el = this.elementos[indice];
     if (this.grupoSelecionado !== null && el?.grupo === this.grupoSelecionado) return;
+    // Com duas formas marcadas, clicar numa delas mantém as duas (para arrastar)
+    if (this.parceiro !== null && (indice === this.selecionado || indice === this.parceiro)) return;
     this.selecionar(indice);
+  }
+
+  // Shift+clique: marca uma segunda forma junto da selecionada (ou desmarca,
+  // se já era ela). Sem forma selecionada, vale como um clique comum.
+  adicionarASelecao(indice) {
+    if (!this.elementos[indice]) return;
+    if (this.selecionado === null) {
+      this.selecionar(indice);
+      return;
+    }
+    if (indice === this.selecionado) return;
+    this.parceiro = indice === this.parceiro ? null : indice;
+    this.pontoSelecionado = null;
+  }
+
+  get podeUnir() {
+    return this.selecionado !== null && this.parceiro !== null &&
+      podeUnir(this.elementos[this.selecionado], this.elementos[this.parceiro]);
+  }
+
+  // Separar: uma forma só selecionada, que o editor sabe desenhar
+  get podeSeparar() {
+    return this.selecionado !== null && this.parceiro === null && this.editavel(this.selecionado);
+  }
+
+  // Corta a forma selecionada no ponto do traço mais perto de (x, y). Uma
+  // forma aberta vira duas (a segunda logo acima dela, as duas marcadas);
+  // uma fechada se abre ali. Devolve se cortou — clicar longe do traço, ou
+  // numa ponta da linha, não corta.
+  separar(x, y) {
+    if (!this.podeSeparar) return false;
+    const i = this.selecionado;
+    const el = this.elementos[i];
+    // Vale o clique em cima do traço desenhado, com uma pequena folga
+    const largura = parseFloat(this.efetivo(el, "stroke-width")) || 0;
+    const tolerancia = Math.max(largura / 2, 0.25) + this.viewBox.w / 48;
+    const corte = separarForma(el, x, y, tolerancia);
+    if (!corte) return false;
+    this.registrar();
+    const pedacos = corte.elementos.map((p) => ({ ...p, grupo: el.grupo, oculto: false }));
+    this.elementos.splice(i, 1, ...pedacos);
+    this.selecionar(i);
+    if (pedacos.length > 1) this.parceiro = i + 1;
+    return true;
+  }
+
+  // Une as duas formas marcadas num path só, no lugar da primeira (na ordem
+  // do desenho). Devolve se uniu.
+  unir() {
+    if (!this.podeUnir) return false;
+    const [i, j] = [this.selecionado, this.parceiro].sort((a, b) => a - b);
+    const unido = unirTracos(this.elementos[this.selecionado], this.elementos[this.parceiro]);
+    this.registrar();
+    this.elementos[i] = { ...unido, grupo: this.elementos[i].grupo, oculto: false };
+    this.elementos.splice(j, 1);
+    this.selecionar(i);
+    return true;
   }
 
   indicesDoGrupo(grupo) {
@@ -330,11 +398,46 @@ export class EditorModel {
     return this.elementos.flatMap((el, i) => (el.grupo === grupo ? [i] : []));
   }
 
-  // Ícones com formas, na ordem: [{ grupo, nome, indices }]
+  // Ícones com formas, na ordem do desenho (o de baixo primeiro):
+  // [{ grupo, nome, indices }]
   gruposEmUso() {
     return this.grupos
       .map((g, grupo) => ({ grupo, nome: g.nome, indices: this.indicesDoGrupo(grupo) }))
-      .filter((g) => g.indices.length);
+      .filter((g) => g.indices.length)
+      .sort((a, b) => a.indices[0] - b.indices[0]);
+  }
+
+  // ── Ordem (o último elemento é desenhado por cima) ───────────────────────
+  // operacao: "frente" e "tras" (um passo), "topo" e "fundo" (até a ponta).
+  // Uma forma muda de lugar entre as formas do próprio ícone; um ícone
+  // inteiro, entre os outros ícones. Devolve se algo mudou.
+  ordenar(operacao) {
+    const passo = { frente: 1, tras: -1, topo: Infinity, fundo: -Infinity }[operacao];
+    if (passo === undefined) return false;
+    this.parceiro = null;
+    if (this.selecionado !== null) {
+      const el = this.elementos[this.selecionado];
+      const irmaos = this.indicesDoGrupo(el.grupo);
+      const atual = irmaos.indexOf(this.selecionado);
+      const destino = Math.max(0, Math.min(irmaos.length - 1, atual + passo));
+      if (destino === atual) return false;
+      this.registrar();
+      const ordem = irmaos.map((i) => this.elementos[i]);
+      ordem.splice(destino, 0, ...ordem.splice(atual, 1));
+      irmaos.forEach((i, k) => (this.elementos[i] = ordem[k]));
+      this.selecionado = irmaos[destino];
+      return true;
+    }
+    if (this.grupoSelecionado === null) return false;
+    const grupos = this.gruposEmUso();
+    const atual = grupos.findIndex((g) => g.grupo === this.grupoSelecionado);
+    const destino = Math.max(0, Math.min(grupos.length - 1, atual + passo));
+    if (destino === atual) return false;
+    this.registrar();
+    grupos.splice(destino, 0, ...grupos.splice(atual, 1));
+    // Cada ícone vira um bloco seguido, na ordem nova
+    this.elementos = grupos.flatMap((g) => g.indices.map((i) => this.elementos[i]));
+    return true;
   }
 
   get temSelecao() {
@@ -343,7 +446,8 @@ export class EditorModel {
 
   // Alvo das ações: a forma, o ícone selecionado ou, sem seleção, tudo
   alvos() {
-    if (this.selecionado !== null) return [this.selecionado];
+    if (this.selecionado !== null)
+      return this.parceiro !== null ? [this.selecionado, this.parceiro] : [this.selecionado];
     if (this.grupoSelecionado !== null) return this.indicesDoGrupo(this.grupoSelecionado);
     return this.elementos.map((_, i) => i);
   }
@@ -377,7 +481,8 @@ export class EditorModel {
 
   // Pontos arrastáveis: só com uma forma selecionada
   pontosSelecionados() {
-    if (this.selecionado === null || !this.editavel(this.selecionado)) return [];
+    if (this.selecionado === null || this.parceiro !== null || !this.editavel(this.selecionado))
+      return [];
     return pontosDoElemento(this.elementos[this.selecionado]);
   }
 
@@ -485,7 +590,7 @@ export class EditorModel {
       indice !== null
         ? [indice]
         : this.selecionado !== null
-          ? [this.selecionado]
+          ? this.alvos()
           : this.indicesDoGrupo(this.grupoSelecionado);
     if (!indices.length || !indices.every((i) => this.elementos[i])) return;
     this.registrar();

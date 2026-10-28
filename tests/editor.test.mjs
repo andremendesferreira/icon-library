@@ -531,3 +531,135 @@ test("EditorModel: selecionar ponto, apagar e acrescentar, com desfazer", () => 
   model.limparSelecao();
   assert.equal(model.pontoSelecionado, null);
 });
+
+test("EditorModel: mudar a ordem de uma forma", () => {
+  const model = editor();
+  model.adicionar("rect");
+  const tags = () => model.elementos.map((el) => el.tag).join(",");
+  assert.equal(model.ordenar("frente"), false); // já está por cima
+  model.ordenar("tras");
+  assert.equal(tags(), "line,rect,circle");
+  assert.equal(model.selecionado, 1);
+  model.ordenar("fundo");
+  assert.equal(tags(), "rect,line,circle");
+  assert.equal(model.selecionado, 0);
+  assert.equal(model.ordenar("tras"), false);
+  model.ordenar("topo");
+  assert.equal(tags(), "line,circle,rect");
+  model.desfazer();
+  assert.equal(tags(), "rect,line,circle");
+  model.limparSelecao();
+  assert.equal(model.ordenar("frente"), false); // sem seleção, nada muda
+});
+
+test("EditorModel: mudar a ordem de um ícone inteiro", () => {
+  const model = editor();
+  model.selecionarGrupo(0);
+  model.copiar();
+  model.colar(); // ícone 1 por cima do 0
+  model.selecionar(0);
+  model.adicionar("rect"); // forma nova no ícone 0, depois do ícone 1
+  model.selecionarGrupo(1);
+  model.ordenar("fundo");
+  assert.deepEqual(model.elementos.map((el) => el.grupo), [1, 1, 0, 0, 0]);
+  assert.deepEqual(model.gruposEmUso().map((g) => g.grupo), [1, 0]);
+  assert.equal(model.grupoSelecionado, 1);
+  model.ordenar("frente");
+  assert.deepEqual(model.elementos.map((el) => el.grupo), [0, 0, 0, 1, 1]);
+});
+
+test("unirTracos: junta pelas pontas mais próximas, invertendo se preciso", async () => {
+  const { unirTracos, podeUnir } = await import("../public/js/models/svgGeometry.js");
+  const a = { tag: "line", attrs: { x1: "2", y1: "2", x2: "10", y2: "2", stroke: "red" } };
+  // b começa longe e termina encostado no fim de a: é percorrida ao contrário
+  const b = { tag: "path", attrs: { d: "M10 12C14 12 10 2 10 2" } };
+  assert.equal(unirTracos(a, b).attrs.d, "M2 2L10 2C10 2 14 12 10 12");
+  assert.equal(unirTracos(a, b).attrs.stroke, "red");
+  assert.equal(unirTracos(a, b).attrs.x1, undefined);
+  // Pontas separadas: uma reta liga as duas
+  const c = { tag: "polyline", attrs: { points: "12 4 20 4 20 10" } };
+  assert.equal(unirTracos(a, c).attrs.d, "M2 2L10 2L12 4L20 4L20 10");
+  // Arco invertido troca o sentido
+  const arco = { tag: "path", attrs: { d: "M10 2A4 4 0 0 1 18 2" } };
+  assert.equal(unirTracos({ tag: "line", attrs: { x1: "22", y1: "2", x2: "18", y2: "2" } }, arco).attrs.d, "M22 2L18 2A4 4 0 0 0 10 2");
+  // Formas fechadas não se unem
+  assert.equal(podeUnir(a, { tag: "circle", attrs: { cx: "1", cy: "1", r: "1" } }), false);
+  assert.equal(podeUnir(a, { tag: "path", attrs: { d: "M0 0L4 0L4 4Z" } }), false);
+});
+
+test("EditorModel: Shift+clique marca duas linhas e unir vira um path só", () => {
+  const model = editor();
+  model.adicionar("line");
+  model.selecionar(0);
+  model.adicionarASelecao(2);
+  assert.deepEqual(model.alvos(), [0, 2]);
+  assert.deepEqual(model.pontosSelecionados(), []);
+  assert.equal(model.podeUnir, true);
+  assert.equal(model.unir(), true);
+  assert.equal(model.elementos.length, 2);
+  assert.equal(model.elementos[0].tag, "path");
+  assert.equal(model.selecionado, 0);
+  assert.equal(model.parceiro, null);
+  model.desfazer();
+  assert.equal(model.elementos.length, 3);
+  // Com o círculo não dá
+  model.selecionar(0);
+  model.adicionarASelecao(1);
+  assert.equal(model.podeUnir, false);
+  assert.equal(model.unir(), false);
+  // Shift+clique de novo desmarca; clique comum volta a uma forma só
+  model.adicionarASelecao(1);
+  assert.equal(model.parceiro, null);
+  model.adicionarASelecao(2);
+  model.clicarForma(2);
+  assert.deepEqual(model.alvos(), [0, 2]);
+  model.clicarForma(1);
+  assert.deepEqual(model.alvos(), [1]);
+});
+
+test("separarForma: corta linhas e curvas em duas, abre formas fechadas", async () => {
+  const { separarForma } = await import("../public/js/models/svgGeometry.js");
+  const ds = (r) => r?.elementos.map((el) => el.attrs.d);
+  const linha = { tag: "line", attrs: { x1: "2", y1: "12", x2: "22", y2: "12", stroke: "red" } };
+  const corte = separarForma(linha, 8.3, 12.4, 1);
+  assert.deepEqual(ds(corte), ["M2 12L8.3 12", "M8.3 12L22 12"]);
+  assert.equal(corte.elementos[1].attrs.stroke, "red");
+  assert.equal(corte.elementos[1].attrs.x1, undefined);
+  // Longe do traço, ou numa ponta: não corta
+  assert.equal(separarForma(linha, 8, 16, 1), null);
+  assert.equal(separarForma(linha, 2, 12, 1), null);
+  // Curva: De Casteljau no ponto clicado
+  assert.deepEqual(ds(separarForma({ tag: "path", attrs: { d: "M2 12C2 2 22 2 22 12" } }, 12, 4.5, 1)), [
+    "M2 12C2 7 7 4.5 12 4.5",
+    "M12 4.5C17 4.5 22 7 22 12",
+  ]);
+  // Perto de um vértice, corta nele
+  assert.deepEqual(ds(separarForma({ tag: "polyline", attrs: { points: "2 2 12 12 22 2" } }, 12.0002, 12, 1)), [
+    "M2 2L12 12",
+    "M12 12L22 2",
+  ]);
+  // Fechadas: uma forma só, aberta no corte, começando e terminando nele
+  assert.deepEqual(ds(separarForma({ tag: "polygon", attrs: { points: "2 2 22 2 12 20" } }, 12, 2, 1)), [
+    "M12 2L22 2L12 20L2 2L12 2",
+  ]);
+  const circulo = ds(separarForma({ tag: "circle", attrs: { cx: "12", cy: "12", r: "10" } }, 12, 2.2, 1))[0];
+  assert.match(circulo, /^M12 2A10 10 0 0 0 2 12A10 10 0 1 0 22 12A10 10 0 0 0 12 2$/);
+});
+
+test("EditorModel: separar a forma selecionada", () => {
+  const model = editor();
+  model.selecionar(0); // a linha de 4 12 a 20 12
+  assert.equal(model.podeSeparar, true);
+  assert.equal(model.separar(12, 30), false); // longe do traço
+  assert.equal(model.separar(10, 12.5), true);
+  assert.deepEqual(model.elementos.map((el) => el.attrs.d ?? el.tag), ["M4 12L10 12", "M10 12L20 12", "circle"]);
+  assert.deepEqual(model.alvos(), [0, 1]); // os dois pedaços ficam marcados
+  assert.equal(model.podeSeparar, false);
+  model.desfazer();
+  assert.equal(model.elementos[0].tag, "line");
+  // Círculo: abre e continua um elemento só
+  model.selecionar(1);
+  assert.equal(model.separar(15, 12), true);
+  assert.equal(model.elementos.length, 2);
+  assert.equal(model.elementos[1].tag, "path");
+});

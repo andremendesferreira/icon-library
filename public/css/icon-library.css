@@ -1724,6 +1724,17 @@ body:has(.scratchpad--open) .back-to-top {
   touch-action: none;
   outline: none;
 }
+/* Modo de corte (Separar): o botão fica marcado enquanto o modo está ligado */
+.editor__buttons #editor-split[aria-pressed="true"] {
+  border-color: #e11d48;
+  background: #e11d48;
+  color: #fff;
+}
+/* Modo de corte (Separar): cursor de alvo em todo o desenho */
+.editor__canvas--corte,
+.editor__canvas--corte * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='none' stroke-linecap='round'%3E%3Cg stroke='%23fff' stroke-width='4'%3E%3Ccircle cx='16' cy='16' r='8'/%3E%3Cpath d='M16 2v7M16 23v7M2 16h7M23 16h7'/%3E%3C/g%3E%3Cg stroke='%23e11d48' stroke-width='2'%3E%3Ccircle cx='16' cy='16' r='8'/%3E%3Cpath d='M16 2v7M16 23v7M2 16h7M23 16h7'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%23e11d48'/%3E%3C/svg%3E") 16 16, crosshair !important;
+}
 .editor__grid-bg {
   fill: #fff;
 }
@@ -2000,6 +2011,19 @@ body:has(.scratchpad--open) .back-to-top {
   height: 10px;
   border-radius: 50%;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+/* Linha, círculo, retângulo e curva: só o ícone, dividindo a linha */
+.editor__buttons .editor__shape {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+}
+.editor__shape svg {
+  display: block;
+  flex-shrink: 0;
 }
 
 /* "+ Icon on top" e a busca */

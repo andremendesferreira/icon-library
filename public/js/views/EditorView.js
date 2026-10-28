@@ -53,6 +53,12 @@ export class EditorView {
   painelEstilo = porId("editor-style");
   painelPontos = porId("editor-points");
   botaoMaisPonto = porId("editor-point-add");
+  linhaUnir = porId("editor-join-row");
+  botaoUnir = porId("editor-join");
+  botaoSeparar = porId("editor-split");
+  // Modo de corte (Separar): o próximo clique no desenho corta a forma ali
+  cortando = false;
+  avisoUnir = porId("editor-join-cant");
   botaoMenosPonto = porId("editor-point-remove");
   dicaPontos = porId("editor-points-hint");
   cor = porId("editor-color");
@@ -78,6 +84,11 @@ export class EditorView {
     porId("editor-close").addEventListener("click", () => this.fechar());
     this.janela.addEventListener("cancel", (evento) => {
       evento.preventDefault();
+      // No modo de corte, o Esc só cancela o corte
+      if (this.cortando) {
+        this.modoCorte(false);
+        return;
+      }
       this.fechar();
     });
   }
@@ -106,6 +117,7 @@ export class EditorView {
     if (!this.janela.open) return;
     if (this.acoes?.temAlteracoes() && !window.confirm(t("editor.confirmClose"))) return;
     this.janela.close();
+    this.modoCorte(false);
     this.acoes?.aoFechar();
   }
 
@@ -138,12 +150,14 @@ export class EditorView {
       const botao = evento.target.closest("[data-acao]");
       if (botao?.dataset.acao === "ocultar") acoes.aoOcultar(i);
       else if (botao?.dataset.acao === "remover") acoes.aoRemover(i);
+      else if (evento.shiftKey) acoes.aoAdicionarASelecao(i);
       else acoes.aoSelecionar(i);
     });
     this.janela.addEventListener("click", (evento) => {
-      const botao = evento.target.closest("[data-add], [data-op]");
+      const botao = evento.target.closest("[data-add], [data-op], [data-ordem]");
       if (!botao) return;
       if (botao.dataset.add) acoes.aoAdicionar(botao.dataset.add);
+      else if (botao.dataset.ordem) acoes.aoOrdenar(botao.dataset.ordem);
       else acoes.aoTransformar(botao.dataset.op);
     });
     this.encaixe.addEventListener("change", () =>
@@ -165,6 +179,11 @@ export class EditorView {
     porId("editor-scratchpad").addEventListener("click", acoes.aoScratchpad);
 
     this.botaoMaisPonto.addEventListener("click", acoes.aoAdicionarPonto);
+    this.botaoUnir.addEventListener("click", acoes.aoUnir);
+    this.botaoSeparar.addEventListener("click", () => {
+      this.modoCorte(!this.cortando);
+      if (this.cortando) acoes.aoIniciarCorte();
+    });
     this.botaoMenosPonto.addEventListener("click", () => {
       acoes.aoRemoverPonto();
       // O botão fica desativado depois de apagar e o navegador tira o foco
@@ -302,6 +321,9 @@ export class EditorView {
       if (!acoes.aoCopiarForma()) return;
     } else if (ctrl && tecla === "v" && !evento.shiftKey) {
       if (!acoes.aoColarForma()) return;
+    } else if (ctrl && tecla === "j" && !evento.shiftKey) {
+      // Ctrl+J: une as duas formas marcadas (sem elas, fica com o navegador)
+      if (!acoes.aoUnir()) return;
     } else if (ctrl && tecla === "z" && !evento.shiftKey) acoes.aoDesfazer();
     else if (ctrl && (tecla === "y" || (tecla === "z" && evento.shiftKey)))
       acoes.aoRefazer();
@@ -315,6 +337,14 @@ export class EditorView {
     evento.preventDefault();
   }
 
+  // Liga ou desliga o modo de corte: cursor de alvo no desenho e o botão
+  // Separar marcado
+  modoCorte(ligado) {
+    this.cortando = ligado;
+    this.canvas.classList.toggle("editor__canvas--corte", ligado);
+    this.botaoSeparar.setAttribute("aria-pressed", String(ligado));
+  }
+
   // Posição do ponteiro em unidades do ícone
   pontoDoPonteiro(evento) {
     const p = this.canvas.createSVGPoint();
@@ -326,10 +356,24 @@ export class EditorView {
   ligarCanvas() {
     this.canvas.addEventListener("pointerdown", (evento) => {
       if (evento.button !== 0) return;
+      // Modo de corte: o clique corta a forma ali (fora do traço, avisa e
+      // continua no modo)
+      if (this.cortando) {
+        evento.preventDefault();
+        const p = this.pontoDoPonteiro(evento);
+        if (this.acoes.aoSeparar(p.x, p.y)) this.modoCorte(false);
+        return;
+      }
       const ponto = evento.target.closest("[data-ponto]");
       const forma = evento.target.closest("[data-i]");
       if (!ponto && !forma) {
         this.acoes.aoSelecionar(null);
+        return;
+      }
+      // Shift+clique numa forma: marca (ou desmarca) uma segunda, sem arrastar
+      if (forma && evento.shiftKey && !ponto) {
+        this.acoes.aoAdicionarASelecao(Number(forma.dataset.i));
+        evento.preventDefault();
         return;
       }
       if (forma) this.acoes.aoClicarForma(Number(forma.dataset.i));
@@ -370,13 +414,20 @@ export class EditorView {
   // ── Desenho ────────────────────────────────────────────────────────────────
   // estado: { raiz, elementos, selecionados (Set), selecionado,
   //   grupoSelecionado, grupos, pontos, fora, viewBox, svg, estiloSelecao,
-  //   podeDesfazer, podeRefazer, passo, linkStudio }
+  //   podeDesfazer, podeRefazer, passo, linkStudio, duasFormas, podeUnir,
+  //   podeSeparar }
   mostrar(estado, { atualizarCodigo = true } = {}) {
     this.desenharCanvas(estado);
     this.desenharLista(estado);
     this.desenharPrevias(estado.svg);
     this.mostrarEstiloSelecao(estado.estiloSelecao);
     this.mostrarPontos(estado);
+    this.linhaUnir.hidden = !estado.duasFormas && !estado.podeSeparar;
+    this.botaoUnir.hidden = !estado.duasFormas;
+    this.botaoUnir.disabled = !estado.podeUnir;
+    this.avisoUnir.hidden = !estado.duasFormas || estado.podeUnir;
+    this.botaoSeparar.hidden = !estado.podeSeparar;
+    if (this.cortando && !estado.podeSeparar) this.modoCorte(false);
     if (atualizarCodigo) {
       this.codigo.value = estado.svg;
       this.erro.textContent = "";
@@ -518,7 +569,7 @@ export class EditorView {
 
   // Lista de formas. Com mais de um ícone, cada um ganha um cabeçalho, que
   // seleciona o ícone inteiro (para mover, girar, colorir…)
-  desenharLista({ elementos, selecionado, grupos, grupoSelecionado }) {
+  desenharLista({ elementos, selecionados, grupos, grupoSelecionado }) {
     if (!elementos.length) {
       this.lista.innerHTML = `<li class="editor__empty">${escapar(t("editor.noElements"))}</li>`;
       return;
@@ -539,7 +590,8 @@ export class EditorView {
       const amostra = cor
         ? `<i class="editor__swatch" style="background:${escapar(cor)}" aria-hidden="true"></i>`
         : "";
-      const marcada = i === selecionado;
+      // A forma selecionada e a marcada com Shift (num ícone inteiro, só o cabeçalho)
+      const marcada = grupoSelecionado === null && selecionados.has(i);
       return `<li class="editor__element${marcada ? " editor__element--selected" : ""}${el.oculto ? " editor__element--hidden" : ""}" data-i="${i}">
           <button type="button" class="editor__element-name" aria-pressed="${marcada}">${amostra}<strong>${escapar(el.tag)}</strong><span>${escapar(resumo || "")}</span></button>
           <button type="button" class="editor__element-action" data-acao="ocultar" title="${escapar(t(el.oculto ? "editor.show" : "editor.hide"))}" aria-label="${escapar(t(el.oculto ? "editor.showLabel" : "editor.hideLabel", { tag: el.tag }))}">${el.oculto ? "◌" : "●"}</button>

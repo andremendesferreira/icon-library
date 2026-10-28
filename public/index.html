@@ -312,11 +312,17 @@
       <aside class="editor__side">
         <h3 class="editor__heading" data-i18n="editor.elements">Elements</h3>
         <ul id="editor-elements" class="editor__elements" aria-label="Elements" data-i18n-attr="aria-label:editor.elements"></ul>
+        <div class="editor__buttons editor__order" aria-label="Order" data-i18n-attr="aria-label:editor.order">
+          <button type="button" class="editor__shape" data-ordem="fundo" title="Send to back" aria-label="Send to back" data-i18n-attr="title:editor.sendToBack;aria-label:editor.sendToBack"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="14" y="14" width="8" height="8" rx="2"/><rect x="2" y="2" width="8" height="8" rx="2"/><path d="M7 14v1a2 2 0 0 0 2 2h1"/><path d="M14 7h1a2 2 0 0 1 2 2v1"/></svg></button>
+          <button type="button" class="editor__shape" data-ordem="tras" title="Send backward" aria-label="Send backward" data-i18n-attr="title:editor.sendBackward;aria-label:editor.sendBackward"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m16 10-4 4-4-4"/></svg></button>
+          <button type="button" class="editor__shape" data-ordem="frente" title="Bring forward" aria-label="Bring forward" data-i18n-attr="title:editor.bringForward;aria-label:editor.bringForward"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m8 14 4-4 4 4"/></svg></button>
+          <button type="button" class="editor__shape" data-ordem="topo" title="Bring to front" aria-label="Bring to front" data-i18n-attr="title:editor.bringToFront;aria-label:editor.bringToFront"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="8" y="8" width="8" height="8" rx="2"/><path d="M4 10a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2"/><path d="M14 20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2"/></svg></button>
+        </div>
         <div class="editor__buttons" aria-label="Add a shape" data-i18n-attr="aria-label:editor.addShape">
-          <button type="button" data-add="line" data-i18n="editor.addLine">+ Line</button>
-          <button type="button" data-add="circle" data-i18n="editor.addCircle">+ Circle</button>
-          <button type="button" data-add="rect" data-i18n="editor.addRect">+ Rect</button>
-          <button type="button" data-add="path" data-i18n="editor.addCurve">+ Curve</button>
+          <button type="button" class="editor__shape" data-add="line" title="Add a line" aria-label="Add a line" data-i18n-attr="title:editor.addLine;aria-label:editor.addLine"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 14.5L6.5 14.5"/><circle cx="3.5" cy="14.5" r="1.594" stroke-width="1"/><circle cx="20" cy="14.5" r="1.594" stroke-width="1"/><path d="M9.5 14.5L13 14.5"/><path d="M16.5 14.5L20 14.5"/><path d="M16 5h6"/><path d="M19 2v6"/></svg></button>
+          <button type="button" class="editor__shape" data-add="circle" title="Add a circle" aria-label="Add a circle" data-i18n-attr="title:editor.addCircle;aria-label:editor.addCircle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.267 2.08A10 10 0 1 0 21.92 10.733"/><path d="M16 5h6"/><path d="M19 2v6"/></svg></button>
+          <button type="button" class="editor__shape" data-add="rect" title="Add a rectangle" aria-label="Add a rectangle" data-i18n-attr="title:editor.addRect;aria-label:editor.addRect"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M22 10L22 18A2 2 0 0 1 20 20L4 20A2 2 0 0 1 2 18L2 8A2 2 0 0 1 4 6L12.536 6"/></svg></button>
+          <button type="button" class="editor__shape" data-add="path" title="Add a curve" aria-label="Add a curve" data-i18n-attr="title:editor.addCurve;aria-label:editor.addCurve"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8.5 13A0.403 0.403 0 0 1 8.5 13L16 13A0.405 0.405 0 0 1 16 13L13 15.5A0.81 0.81 0 0 0 13 15.5L13 19.5A0.405 0.405 0 0 1 13 19.5Z" stroke-width="1.5"/><path d="M3.5 18A9.72 9.72 0 0 1 8 6.5"/><circle cx="10.5" cy="5.5" r="2"/><circle cx="4.5" cy="20" r="2"/><path d="M16 5L22 5"/><path d="M19 2L19 8"/></svg></button>
           <button
             type="button"
             id="editor-add-icon"
@@ -367,6 +373,13 @@
             <button type="button" id="editor-point-remove" title="Delete the selected point (Delete)" data-i18n-attr="title:editor.pointRemoveTitle">− <span data-i18n="editor.point">Point</span></button>
             <p id="editor-points-hint" class="editor__note" data-i18n="editor.pointHint">Click a point of the shape to delete it or add another.</p>
           </div>
+          <!-- Separar: cortar a forma num ponto do traço. Unir: as duas formas
+               marcadas (Shift+clique) viram um path só -->
+          <div class="editor__buttons editor__join" id="editor-join-row" hidden>
+            <button type="button" id="editor-split" aria-pressed="false" title="Cut the shape at a point of its line" data-i18n="editor.split" data-i18n-attr="title:editor.splitTitle">Split</button>
+            <button type="button" id="editor-join" title="Join the two selected lines into one (Ctrl+J)" data-i18n="editor.join" data-i18n-attr="title:editor.joinTitle">Join</button>
+            <p id="editor-join-cant" class="editor__note" data-i18n="editor.joinCant">Only open lines and curves can be joined — not circles, rectangles or closed shapes.</p>
+          </div>
         </section>
 
         <h3 class="editor__heading" data-i18n="editor.transform">Transform</h3>
@@ -399,7 +412,8 @@
         <svg id="editor-canvas" class="editor__canvas" tabindex="0" role="img" aria-label="Icon being edited" data-i18n-attr="aria-label:editor.canvas"></svg>
         <p class="editor__hint" data-i18n="editor.hint">
           Drag the points to reshape · drag a shape to move it · arrows move ·
-          Delete removes · Ctrl+Z undoes · Ctrl+C / Ctrl+V copy and paste
+          Delete removes · Ctrl+Z undoes · Ctrl+C / Ctrl+V copy and paste ·
+          Shift+click a second line, then Ctrl+J joins them
         </p>
       </div>
 

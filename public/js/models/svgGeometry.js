@@ -528,10 +528,10 @@ export function transformarElemento(elemento, m) {
 // ── Apagar e acrescentar pontos ──────────────────────────────────────────────
 const meio = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
 
-// Ponto no meio de um arco (de "de" até o fim do comando A), pelo centro da
-// elipse (SVG 1.1, apêndice F.6.5). Devolve também os raios já corrigidos —
+// Arco (de "de" até o fim do comando A) pelo centro da elipse (SVG 1.1,
+// apêndice F.6.5): ângulo inicial e varredura. Os raios já vêm corrigidos —
 // raios pequenos demais para ligar os dois pontos são ampliados pelo navegador.
-function meioDoArco(de, c) {
+function arcoPeloCentro(de, c) {
   let rx = Math.abs(c.rx);
   let ry = Math.abs(c.ry);
   if (!rx || !ry || (de.x === c.x && de.y === c.y)) return null;
@@ -562,28 +562,51 @@ function meioDoArco(de, c) {
   let varredura = angulo(ux, uy, (-x1 - cxl) / rx, (-y1 - cyl) / ry);
   if (!c.sweep && varredura > 0) varredura -= 2 * Math.PI;
   else if (c.sweep && varredura < 0) varredura += 2 * Math.PI;
-  const t = inicio + varredura / 2;
+  return { cx, cy, rx, ry, cos, sen, inicio, varredura };
+}
+
+// Ponto do arco na fração u (0 = início, 1 = fim) da varredura
+function pontoDoArco({ cx, cy, rx, ry, cos, sen, inicio, varredura }, u) {
+  const t = inicio + varredura * u;
   return {
     x: cos * rx * Math.cos(t) - sen * ry * Math.sin(t) + cx,
     y: sen * rx * Math.cos(t) + cos * ry * Math.sin(t) + cy,
-    rx,
-    ry,
   };
 }
 
-// Um trecho de path (de "de" até o fim do comando) partido ao meio em dois,
-// com exatamente o mesmo desenho
-export function dividirTrecho(de, c) {
+const misturar = (a, b, u) => ({ x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u });
+
+// Ponto do trecho (de "de" até o fim do comando) na fração u
+function pontoNoTrecho(de, c, u) {
   if (c.t === "C") {
-    // De Casteljau em t = 0,5
+    const a = misturar(de, { x: c.x1, y: c.y1 }, u);
+    const b = misturar({ x: c.x1, y: c.y1 }, { x: c.x2, y: c.y2 }, u);
+    const d = misturar({ x: c.x2, y: c.y2 }, c, u);
+    return misturar(misturar(a, b, u), misturar(b, d, u), u);
+  }
+  if (c.t === "Q") {
+    const c1 = { x: c.x1, y: c.y1 };
+    return misturar(misturar(de, c1, u), misturar(c1, c, u), u);
+  }
+  if (c.t === "A") {
+    const arco = arcoPeloCentro(de, c);
+    if (arco) return pontoDoArco(arco, u);
+  }
+  return misturar(de, c, u);
+}
+
+// Um trecho de path partido em dois na fração u, com exatamente o mesmo desenho
+function partirTrecho(de, c, u) {
+  if (c.t === "C") {
+    // De Casteljau
     const c1 = { x: c.x1, y: c.y1 };
     const c2 = { x: c.x2, y: c.y2 };
-    const a = meio(de, c1);
-    const b = meio(c1, c2);
-    const d = meio(c2, c);
-    const e = meio(a, b);
-    const f = meio(b, d);
-    const m = meio(e, f);
+    const a = misturar(de, c1, u);
+    const b = misturar(c1, c2, u);
+    const d = misturar(c2, c, u);
+    const e = misturar(a, b, u);
+    const f = misturar(b, d, u);
+    const m = misturar(e, f, u);
     return [
       { t: "C", x1: a.x, y1: a.y, x2: e.x, y2: e.y, x: m.x, y: m.y },
       { t: "C", x1: f.x, y1: f.y, x2: d.x, y2: d.y, x: c.x, y: c.y },
@@ -591,26 +614,32 @@ export function dividirTrecho(de, c) {
   }
   if (c.t === "Q") {
     const c1 = { x: c.x1, y: c.y1 };
-    const a = meio(de, c1);
-    const b = meio(c1, c);
-    const m = meio(a, b);
+    const a = misturar(de, c1, u);
+    const b = misturar(c1, c, u);
+    const m = misturar(a, b, u);
     return [
       { t: "Q", x1: a.x, y1: a.y, x: m.x, y: m.y },
       { t: "Q", x1: b.x, y1: b.y, x: c.x, y: c.y },
     ];
   }
   if (c.t === "A") {
-    const m = meioDoArco(de, c);
-    // Cada metade cobre no máximo meia volta: arco "pequeno" nas duas
-    if (m)
+    const arco = arcoPeloCentro(de, c);
+    if (arco) {
+      const m = pontoDoArco(arco, u);
+      // Cada parte é "grande" só se passar de meia volta
+      const grande = (fracao) => (Math.abs(arco.varredura * fracao) > Math.PI ? 1 : 0);
       return [
-        { ...c, rx: m.rx, ry: m.ry, large: 0, x: m.x, y: m.y },
-        { ...c, rx: m.rx, ry: m.ry, large: 0 },
+        { ...c, rx: arco.rx, ry: arco.ry, large: grande(u), x: m.x, y: m.y },
+        { ...c, rx: arco.rx, ry: arco.ry, large: grande(1 - u) },
       ];
+    }
   }
-  const m = meio(de, c);
+  const m = misturar(de, c, u);
   return [{ t: "L", x: m.x, y: m.y }, { t: "L", x: c.x, y: c.y }];
 }
+
+// Um trecho de path partido ao meio em dois, com exatamente o mesmo desenho
+export const dividirTrecho = (de, c) => partirTrecho(de, c, 0.5);
 
 // Onde cada comando do path começa (o fim do anterior; depois de Z, o início
 // do subcaminho)
@@ -759,4 +788,220 @@ export function novaForma(tag, { x, y, w, h }) {
         ]) },
       };
   }
+}
+
+// ── Unir dois traços ─────────────────────────────────────────────────────────
+// Traço aberto (line, polyline ou path de um trecho só, sem Z) → comandos
+// absolutos começando num M; null para o resto (formas fechadas, círculos…)
+function comandosDoTraco({ tag, attrs }) {
+  if (tag === "line")
+    return [
+      { t: "M", x: num(attrs.x1), y: num(attrs.y1) },
+      { t: "L", x: num(attrs.x2), y: num(attrs.y2) },
+    ];
+  if (tag === "polyline") {
+    const pontos = lerPontos(attrs.points);
+    if (pontos.length < 2) return null;
+    return pontos.map((p, k) => ({ t: k ? "L" : "M", ...p }));
+  }
+  if (tag !== "path") return null;
+  let cmds;
+  try {
+    cmds = lerPath(attrs.d ?? "");
+  } catch {
+    return null;
+  }
+  const abertos = cmds.length > 1 && cmds[0].t === "M" &&
+    cmds.slice(1).every((c) => c.t !== "M" && c.t !== "Z");
+  return abertos ? cmds : null;
+}
+
+export const podeUnir = (a, b) =>
+  Boolean(a && b && comandosDoTraco(a) && comandosDoTraco(b));
+
+// O mesmo traço percorrido do fim para o começo
+function inverterTraco(cmds) {
+  const fim = cmds[cmds.length - 1];
+  const invertido = [{ t: "M", x: fim.x, y: fim.y }];
+  for (let k = cmds.length - 1; k > 0; k--) {
+    const c = cmds[k];
+    const { x, y } = cmds[k - 1];
+    if (c.t === "C") invertido.push({ t: "C", x1: c.x2, y1: c.y2, x2: c.x1, y2: c.y1, x, y });
+    else if (c.t === "Q") invertido.push({ t: "Q", x1: c.x1, y1: c.y1, x, y });
+    else if (c.t === "A") invertido.push({ ...c, sweep: c.sweep ? 0 : 1, x, y });
+    else invertido.push({ t: "L", x, y });
+  }
+  return invertido;
+}
+
+// Junta dois traços abertos num path só, pelas pontas mais próximas: se elas
+// já se tocam, viram um ponto só; senão, uma reta liga as duas. O resultado
+// fica com os atributos de estilo de a. Devolve null se não der para unir.
+export function unirTracos(a, b) {
+  const ca = comandosDoTraco(a);
+  const cb = comandosDoTraco(b);
+  if (!ca || !cb) return null;
+  const inicio = (cmds) => cmds[0];
+  const fim = (cmds) => cmds[cmds.length - 1];
+  const distancia = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+  const opcoes = [
+    [ca, cb],
+    [ca, inverterTraco(cb)],
+    [inverterTraco(ca), cb],
+    [cb, ca],
+  ];
+  const [primeiro, segundo] = opcoes.reduce((melhor, opcao) =>
+    distancia(fim(opcao[0]), inicio(opcao[1])) < distancia(fim(melhor[0]), inicio(melhor[1]))
+      ? opcao
+      : melhor,
+  );
+  const encostam = distancia(fim(primeiro), inicio(segundo)) < 1e-3;
+  const resto = segundo.slice(1);
+  const cmds = encostam
+    ? [...primeiro, ...resto]
+    : [...primeiro, { t: "L", x: inicio(segundo).x, y: inicio(segundo).y }, ...resto];
+  const { x1, y1, x2, y2, points, d, ...estilo } = a.attrs;
+  return { ...a, tag: "path", attrs: { d: escreverPath(cmds), ...estilo } };
+}
+
+// ── Separar (cortar a forma num ponto do traço) ──────────────────────────────
+// Qualquer forma conhecida → comandos absolutos de path, ou null
+function comandosDaForma(elemento) {
+  const { tag, attrs } = elemento;
+  if (tag === "polygon") {
+    const pontos = lerPontos(attrs.points);
+    if (pontos.length < 2) return null;
+    return [...pontos.map((p, k) => ({ t: k ? "L" : "M", ...p })), { t: "Z" }];
+  }
+  if (tag === "circle") {
+    const { r, ...resto } = attrs;
+    return comandosDaForma({ tag: "ellipse", attrs: { ...resto, rx: r, ry: r } });
+  }
+  if (tag === "rect" || tag === "ellipse") return lerPath(comoPath(elemento).attrs.d);
+  if (tag === "path") {
+    try {
+      return lerPath(attrs.d ?? "");
+    } catch {
+      return null;
+    }
+  }
+  return comandosDoTraco(elemento);
+}
+
+// Comandos → subcaminhos: { inicio, trechos: [{ de, c }], fechado }. O Z vira
+// um trecho de reta de volta ao início (quando ainda falta chegar lá).
+function subcaminhos(cmds) {
+  const lista = [];
+  let atual = null;
+  let ponto = { x: 0, y: 0 };
+  for (const c of cmds) {
+    if (c.t === "M") {
+      atual = { inicio: { x: c.x, y: c.y }, trechos: [], fechado: false };
+      lista.push(atual);
+      ponto = atual.inicio;
+    } else if (c.t === "Z") {
+      if (!atual) continue;
+      const { inicio } = atual;
+      if (Math.hypot(ponto.x - inicio.x, ponto.y - inicio.y) > 1e-9)
+        atual.trechos.push({ de: ponto, c: { t: "L", x: inicio.x, y: inicio.y } });
+      atual.fechado = true;
+      // Depois do Z, um novo desenho sem M recomeça do mesmo início
+      atual = { inicio, trechos: [], fechado: false };
+      lista.push(atual);
+      ponto = inicio;
+    } else {
+      if (!atual) {
+        atual = { inicio: ponto, trechos: [], fechado: false };
+        lista.push(atual);
+      }
+      atual.trechos.push({ de: ponto, c });
+      ponto = { x: c.x, y: c.y };
+    }
+  }
+  return lista.filter((sub) => sub.trechos.length);
+}
+
+// Ponto do traço mais perto de (x, y): { sub, k, u, distancia }. Amostra cada
+// trecho e refina em volta da melhor amostra.
+function pontoMaisProximo(subs, x, y) {
+  const AMOSTRAS = 48;
+  let melhor = null;
+  const medir = (sub, k, u) => {
+    const { de, c } = subs[sub].trechos[k];
+    const p = pontoNoTrecho(de, c, u);
+    const distancia = Math.hypot(p.x - x, p.y - y);
+    if (!melhor || distancia < melhor.distancia) melhor = { sub, k, u, distancia };
+    return distancia;
+  };
+  subs.forEach((s, sub) =>
+    s.trechos.forEach((_, k) => {
+      for (let n = 0; n <= AMOSTRAS; n++) medir(sub, k, n / AMOSTRAS);
+    }),
+  );
+  if (!melhor) return null;
+  // Busca pela razão áurea no intervalo vizinho da melhor amostra
+  const { sub, k } = melhor;
+  let a = Math.max(0, melhor.u - 1 / AMOSTRAS);
+  let b = Math.min(1, melhor.u + 1 / AMOSTRAS);
+  for (let n = 0; n < 40; n++) {
+    const m1 = a + (b - a) * 0.382;
+    const m2 = a + (b - a) * 0.618;
+    if (medir(sub, k, m1) < medir(sub, k, m2)) b = m2;
+    else a = m1;
+  }
+  return melhor;
+}
+
+const EXTREMO = 1e-3;
+
+// Corta a forma no ponto do traço mais perto de (x, y), se ele estiver a até
+// "tolerancia" de distância. Uma forma aberta vira duas; uma fechada (círculo,
+// retângulo, polígono, path com Z) se abre ali e continua uma só. Devolve
+// { elementos: [um ou dois], ponto } ou null (longe do traço, numa ponta, ou
+// forma que não dá para cortar).
+export function separarForma(elemento, x, y, tolerancia) {
+  const cmds = comandosDaForma(elemento);
+  if (!cmds) return null;
+  const subs = subcaminhos(cmds);
+  const achado = pontoMaisProximo(subs, x, y);
+  if (!achado || achado.distancia > tolerancia) return null;
+
+  const sub = subs[achado.sub];
+  let { k, u } = achado;
+  // Perto de um vértice, corta exatamente nele
+  if (u < EXTREMO) u = 0;
+  else if (u > 1 - EXTREMO) u = 1;
+  const { de, c } = sub.trechos[k];
+  const [antes, depois] = u === 0 ? [null, c] : u === 1 ? [c, null] : partirTrecho(de, c, u);
+  const ponto = u === 0 ? de : u === 1 ? { x: c.x, y: c.y } : { x: antes.x, y: antes.y };
+  const comandos = (trechos) => trechos.map((t) => t.c);
+  const M = (p) => ({ t: "M", x: p.x, y: p.y });
+  // Os outros subcaminhos ficam como estavam
+  const reescrever = (s) => [M(s.inicio), ...comandos(s.trechos), ...(s.fechado ? [{ t: "Z" }] : [])];
+  const anteriores = subs.slice(0, achado.sub).flatMap(reescrever);
+  const seguintes = subs.slice(achado.sub + 1).flatMap(reescrever);
+
+  const { x1, y1, x2, y2, points, d, x: _x, y: _y, width, height, rx, ry, cx, cy, r, ...estilo } =
+    elemento.attrs;
+  const comoElemento = (lista) => ({ ...elemento, tag: "path", attrs: { d: escreverPath(lista), ...estilo } });
+
+  if (sub.fechado) {
+    // Recomeça no corte, dá a volta inteira e termina no mesmo ponto, aberto
+    const volta = [
+      M(ponto),
+      ...(depois ? [depois] : []),
+      ...comandos(sub.trechos.slice(k + 1)),
+      ...comandos(sub.trechos.slice(0, k)),
+      ...(antes ? [antes] : []),
+    ];
+    return { elementos: [comoElemento([...anteriores, ...volta, ...seguintes])], ponto };
+  }
+  const primeira = [M(sub.inicio), ...comandos(sub.trechos.slice(0, k)), ...(antes ? [antes] : [])];
+  const segunda = [M(ponto), ...(depois ? [depois] : []), ...comandos(sub.trechos.slice(k + 1))];
+  // Corte numa das pontas da linha: não há o que separar
+  if (primeira.length < 2 || segunda.length < 2) return null;
+  return {
+    elementos: [comoElemento([...anteriores, ...primeira]), comoElemento([...segunda, ...seguintes])],
+    ponto,
+  };
 }
