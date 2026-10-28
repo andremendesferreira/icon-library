@@ -1584,9 +1584,12 @@ body:has(.scratchpad--open) .back-to-top {
   line-height: 1.4;
   color: #8a99a8;
 }
+/* Na coluna do código, entre as prévias e o SVG: encolhe antes do código */
 .editor__elements {
+  flex: 0 1 auto;
+  min-height: 72px;
   max-height: 34vh;
-  margin: 0 0 10px;
+  margin: 0 0 4px;
   padding: 0;
   overflow-y: auto;
   list-style: none;
@@ -1651,7 +1654,8 @@ body:has(.scratchpad--open) .back-to-top {
   flex-wrap: wrap;
   gap: 6px;
 }
-/* Giros, espelhos e tamanho: dois por linha; as quatro setas numa linha só */
+/* Giros, espelhos e tamanho: dois por linha; as quatro setas e os quatro
+   botões de ordem, cada grupo numa linha só */
 .editor__buttons--grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1659,7 +1663,7 @@ body:has(.scratchpad--open) .back-to-top {
 .editor__buttons--grid > button {
   grid-column: span 2;
 }
-.editor__buttons--grid > :is([data-op="esquerda"], [data-op="cima"], [data-op="baixo"], [data-op="direita"]) {
+.editor__buttons--grid > :is([data-op="esquerda"], [data-op="cima"], [data-op="baixo"], [data-op="direita"], [data-ordem]) {
   grid-column: span 1;
 }
 .editor__buttons button,
@@ -2023,6 +2027,16 @@ body:has(.scratchpad--open) .back-to-top {
 }
 .editor__shape svg {
   display: block;
+  flex-shrink: 0;
+}
+
+/* Separar e Unir: ícone e texto */
+.editor__join button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.editor__join svg {
   flex-shrink: 0;
 }
 

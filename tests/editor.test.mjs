@@ -663,3 +663,8 @@ test("EditorModel: separar a forma selecionada", () => {
   assert.equal(model.elementos.length, 2);
   assert.equal(model.elementos[1].tag, "path");
 });
+
+test("novaForma: triângulo é um polígono de três pontos no centro", () => {
+  const el = novaForma("triangle", { x: 0, y: 0, w: 24, h: 24 });
+  assert.deepEqual(el, { tag: "polygon", attrs: { points: "12 7 18 16 6 16" } });
+});

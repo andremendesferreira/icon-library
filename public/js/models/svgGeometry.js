@@ -779,6 +779,15 @@ export function novaForma(tag, { x, y, w, h }) {
       return { tag, attrs: { cx: fmt(cx), cy: fmt(cy), r: fmt(4 * u) } };
     case "rect":
       return { tag, attrs: { x: fmt(cx - 5 * u), y: fmt(cy - 4 * u), width: fmt(10 * u), height: fmt(8 * u), rx: fmt(2 * u) } };
+    case "triangle":
+      return {
+        tag: "polygon",
+        attrs: { points: escreverPontos([
+          { x: cx, y: cy - 5 * u },
+          { x: cx + 6 * u, y: cy + 4 * u },
+          { x: cx - 6 * u, y: cy + 4 * u },
+        ]) },
+      };
     default:
       return {
         tag: "path",
