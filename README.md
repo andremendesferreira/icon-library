@@ -50,7 +50,7 @@ No framework, no build step and two runtime dependencies on the server (the Post
   - **+** adds the icon to the scratchpad;
   - **⋯** opens *Download SVG*, *Download PNG* (at the chosen size) and *Copy as React component*;
   - the **pencil** (all vector sets) opens the icon editor.
-- **Icon editor:** the icon on a grid, with draggable points for every shape — line, circle, ellipse, rect, polyline/polygon and path, including the control points of curves. Move shapes, rotate 90° or 45°, flip, grow/shrink (one shape or the whole icon), add and delete shapes and points, copy and paste shapes (Ctrl+C/V), hide a shape to compare, snap to the grid (1, ½, ¼ unit or off), undo/redo, live SVG code (editable both ways) and previews at 16–48 px. **Icons on top of each other:** *+ Icon on top* searches the vector sets and adds another icon, resized to the same grid and keeping its style (stroke or fill), selectable as a whole. **Per-shape color and stroke width** for a shape or a whole icon. **Projects in `.ile` files:** *Save .ile* downloads the project and *Open .ile* (editor, main page, or drag and drop) brings it back — see [The .ile format](#the-ile-format). Copy, download SVG/PNG or send to the scratchpad; single-style Lucide and Feather icons can also go to [Lucide Studio](https://studio.lucide.dev).
+- **Icon editor:** the icon on a grid, with draggable points for every shape — line, circle, ellipse, rect, polyline/polygon and path, including the control points of curves. Move shapes, rotate 90° or 45°, flip, grow/shrink (one shape or the whole icon), add and delete shapes (line, circle, rectangle, triangle, curve) and points, copy and paste shapes (Ctrl+C/V), hide a shape to compare, snap to the grid (1, ½, ¼ unit or off), undo/redo, live SVG code (editable both ways) and previews at 16–48 px. **Select several shapes:** drag on an empty area (Shift adds, from anywhere), Shift+click, Ctrl+A. **Group and ungroup** (Ctrl+G, Ctrl+Shift+G): a click selects the group, a double click one shape. **Join** two open lines (Ctrl+J), **split** a shape where you click, and **stacking order** buttons. **Help:** the *?* button or key shows every command with its keys and mouse actions. **Icons on top of each other:** *Icon on top* searches the vector sets and adds another icon as a group, resized to the same grid and keeping its style (stroke or fill). **Per-shape color and stroke width** for a shape or a whole icon. **Projects in `.ile` files:** *Save .ile* downloads the project and *Open .ile* (editor, main page, or drag and drop) brings it back — see [The .ile format](#the-ile-format). Copy, download SVG/PNG or send to the scratchpad; single-style Lucide and Feather icons can also go to [Lucide Studio](https://studio.lucide.dev).
 - **Scratchpad:** a drawer on the right edge (tab or *Open Scratchpad*) that collects icons as `<!-- name -->` followed by the SVG. *Copy all* and *Clear* at the bottom; the text is kept in the browser.
 - **Shareable searches:** the address follows the set and search (`?set=lucide&q=arrow`).
 - **Links that open the editor** — made by people (*Share link* in the editor) or by AI assistants: see [For AI assistants](#for-ai-assistants).
@@ -61,7 +61,7 @@ No framework, no build step and two runtime dependencies on the server (the Post
 - **Guide**, **About** and **Privacy** pages, linked in the footer — the Guide explains every feature step by step, with screenshots and a table of keyboard shortcuts.
 - **Responsive** from 360 px phones to wide desktops; keyboard support (arrows in the set list, `Esc` closes panels).
 
-<p align="center"><img src="docs/img/screenshot-editor.webp" alt="The icon editor: the Rocket icon on a grid, one shape selected with its points, the element list on the left and the SVG code on the right" width="820"></p>
+<p align="center"><img src="docs/img/screenshot-editor.webp" alt="The icon editor: the Rocket icon on a grid, one shape selected with its points, the tools on the left, the element list and the SVG code on the right" width="820"></p>
 
 ### Icon sets
 
@@ -251,7 +251,7 @@ A `.ile` file is UTF-8 JSON text:
 }
 ```
 
-- `raiz` holds the attributes of the `<svg>` tag; each element has its own attributes, the icon it belongs to (`grupo`, an index into `grupos`) and whether it is hidden. Elements the editor cannot draw (`<g>`, `<text>`…) are kept as `html`.
+- `raiz` holds the attributes of the `<svg>` tag; each element has its own attributes, the icon it belongs to (`grupo`, an index into `grupos`) and whether it is hidden. A group made with *Group* has `manual: true` in `grupos`. The exported SVG stays flat, with no `<g>`: groups exist only in the editor and in `.ile` files. Elements the editor cannot draw (`<g>`, `<text>`…) are kept as `html`.
 - `editavel` keeps the *Open in Lucide Studio* button for Lucide and Feather icons.
 - Opening validates the structure and passes everything through the same cleaning as pasted code: no `<script>`, `<foreignObject>`, event attributes or `javascript:` links. Files over 2 MB, or saved by a newer version (`versao` above 1), are refused with a message.
 
@@ -316,7 +316,7 @@ icon-library/
 ├── .github/workflows/ci.yml            continuous integration
 ├── .github/ISSUE_TEMPLATE/             issue forms (bug, translation) and links
 ├── docs/                               n8n moderation guide; README screenshots in docs/img/
-├── CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md, CLAUDE.md
 ├── Dockerfile, docker-compose*.yml     container
 └── package.json
 ```
@@ -350,7 +350,7 @@ Sem framework, sem build e com duas dependências no servidor (o driver do Postg
   - **+** envia o ícone ao scratchpad;
   - **⋯** abre *Download SVG*, *Download PNG* (no tamanho escolhido) e *Copy as React component*;
   - o **lápis** (todos os conjuntos vetoriais) abre o editor de ícones.
-- **Editor de ícones:** o ícone sobre uma grade, com pontos arrastáveis em todas as formas — line, circle, ellipse, rect, polyline/polygon e path, incluindo os pontos de controle das curvas. Mover formas, girar 90° ou 45°, espelhar, aumentar/diminuir (uma forma ou o ícone inteiro), adicionar e apagar formas e pontos, copiar e colar formas (Ctrl+C/V), ocultar uma forma para comparar, encaixe na grade (1, ½, ¼ de unidade ou livre), desfazer/refazer, código SVG ao vivo (editável nos dois sentidos) e prévias de 16 a 48 px. **Ícones sobrepostos:** *+ Icon on top* busca nos conjuntos vetoriais e acrescenta outro ícone, ajustado à mesma grade e com o próprio estilo (traço ou preenchimento), selecionável inteiro. **Cor e espessura por forma**, numa forma ou num ícone inteiro. **Projetos em arquivos `.ile`:** *Save .ile* baixa o projeto e *Open .ile* (no editor, na página principal ou arrastando o arquivo) o traz de volta — veja [O formato .ile](#o-formato-ile). Copiar, baixar SVG/PNG ou enviar ao scratchpad; ícones do Lucide e do Feather de um estilo só também podem ir para o [Lucide Studio](https://studio.lucide.dev).
+- **Editor de ícones:** o ícone sobre uma grade, com pontos arrastáveis em todas as formas — line, circle, ellipse, rect, polyline/polygon e path, incluindo os pontos de controle das curvas. Mover formas, girar 90° ou 45°, espelhar, aumentar/diminuir (uma forma ou o ícone inteiro), adicionar e apagar formas (linha, círculo, retângulo, triângulo, curva) e pontos, copiar e colar formas (Ctrl+C/V), ocultar uma forma para comparar, encaixe na grade (1, ½, ¼ de unidade ou livre), desfazer/refazer, código SVG ao vivo (editável nos dois sentidos) e prévias de 16 a 48 px. **Selecionar várias formas:** arraste no vazio (Shift soma, de qualquer ponto), Shift+clique, Ctrl+A. **Agrupar e desagrupar** (Ctrl+G, Ctrl+Shift+G): um clique seleciona o grupo, um duplo clique uma forma. **Unir** duas linhas abertas (Ctrl+J), **separar** uma forma onde você clicar e botões de **ordem**. **Ajuda:** o botão ou a tecla *?* mostra todos os comandos com as teclas e as ações do mouse. **Ícones sobrepostos:** *Ícone por cima* busca nos conjuntos vetoriais e acrescenta outro ícone como grupo, ajustado à mesma grade e com o próprio estilo (traço ou preenchimento). **Cor e espessura por forma**, numa forma ou num ícone inteiro. **Projetos em arquivos `.ile`:** *Save .ile* baixa o projeto e *Open .ile* (no editor, na página principal ou arrastando o arquivo) o traz de volta — veja [O formato .ile](#o-formato-ile). Copiar, baixar SVG/PNG ou enviar ao scratchpad; ícones do Lucide e do Feather de um estilo só também podem ir para o [Lucide Studio](https://studio.lucide.dev).
 - **Scratchpad:** uma gaveta na borda direita (aba ou *Open Scratchpad*) que junta ícones como `<!-- nome -->` seguido do SVG. *Copy all* e *Clear* na base; o texto fica guardado no navegador.
 - **Buscas compartilháveis:** o endereço acompanha o conjunto e a busca (`?set=lucide&q=arrow`).
 - **Links que abrem o editor** — feitos por pessoas (*Share link* no editor) ou por assistentes de IA: veja [Para assistentes de IA](#para-assistentes-de-ia).
@@ -535,7 +535,7 @@ Os próximos passos — servidor MCP e API HTTP, num plano pago de baixo custo �
 
 Um arquivo `.ile` é texto JSON em UTF-8, com a estrutura do exemplo em [The .ile format](#the-ile-format):
 
-- `raiz` guarda os atributos da tag `<svg>`; cada elemento tem seus atributos, o ícone a que pertence (`grupo`, posição em `grupos`) e se está oculto. Elementos que o editor não desenha (`<g>`, `<text>`…) ficam em `html`.
+- `raiz` guarda os atributos da tag `<svg>`; cada elemento tem seus atributos, o ícone a que pertence (`grupo`, posição em `grupos`) e se está oculto. Um grupo feito com *Agrupar* tem `manual: true` em `grupos`. O SVG exportado continua sem `<g>`: os grupos existem só no editor e nos arquivos `.ile`. Elementos que o editor não desenha (`<g>`, `<text>`…) ficam em `html`.
 - `editavel` mantém o botão *Open in Lucide Studio* para ícones do Lucide e do Feather.
 - Ao abrir, a estrutura é validada e tudo passa pela mesma limpeza do código colado: sem `<script>`, `<foreignObject>`, atributos de evento ou links `javascript:`. Arquivos acima de 2 MB, ou salvos por uma versão mais nova (`versao` acima de 1), são recusados com uma mensagem.
 
@@ -600,7 +600,7 @@ icon-library/
 ├── .github/workflows/ci.yml            integração contínua
 ├── .github/ISSUE_TEMPLATE/             formulários de issue (bug, tradução) e links
 ├── docs/                               guia da moderação no n8n; prints do README em docs/img/
-├── CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md, SECURITY.md, CODE_OF_CONDUCT.md, CLAUDE.md
 ├── Dockerfile, docker-compose*.yml     container
 └── package.json
 ```

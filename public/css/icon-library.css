@@ -1729,7 +1729,7 @@ body:has(.scratchpad--open) .back-to-top {
   outline: none;
 }
 /* Modo de corte (Separar): o botão fica marcado enquanto o modo está ligado */
-.editor__buttons #editor-split[aria-pressed="true"] {
+.editor__buttons #editor-split[aria-pressed="true"]:not(:disabled) {
   border-color: #e11d48;
   background: #e11d48;
   color: #fff;
@@ -2030,14 +2030,141 @@ body:has(.scratchpad--open) .back-to-top {
   flex-shrink: 0;
 }
 
-/* Separar e Unir: ícone e texto */
-.editor__join button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+/* Agrupar, Desagrupar, Unir e Separar: sem poder ser usados, ficam apagados */
+.editor__buttons button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
-.editor__join svg {
+.editor__buttons button:disabled:hover {
+  border-color: #c5d0dc;
+  color: #42505e;
+}
+
+/* Retângulo de seleção por área e caixa em volta de várias formas */
+.editor__area {
+  fill: rgba(47, 128, 237, 0.12);
+  stroke: var(--il-blue);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
+}
+.editor__box {
+  fill: none;
+  stroke: var(--il-blue);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  pointer-events: none;
+}
+
+/* Ajuda do editor: teclas e mouse ilustrados */
+.editor__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.editor__help-open {
+  font-size: 17px;
+  font-weight: 700;
+}
+.editor-help {
+  width: min(960px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 0;
+  border: none;
+  border-radius: 14px;
+  background: #fff;
+  color: #2c3e50;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+.editor-help::backdrop {
+  background: rgba(15, 23, 42, 0.5);
+}
+.editor-help__body {
+  padding: 16px 20px 20px;
+}
+.editor-help__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.editor-help__header h2 {
+  margin: 0;
+  font-size: 17px;
+}
+.editor-help__sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 8px 24px;
+}
+.editor-help__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.editor-help__list li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 0;
+  border-top: 1px solid #e4e9f0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.editor-help__keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+}
+.editor-help__keys i {
+  font-style: normal;
+  color: #8a99a8;
+}
+.editor-help kbd {
+  display: inline-block;
+  min-width: 24px;
+  padding: 2px 6px;
+  border: 1px solid #c5d0dc;
+  border-bottom-width: 3px;
+  border-radius: 6px;
+  background: #f8fafd;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+}
+.editor-help__mouse,
+.editor-help__button svg {
+  display: block;
   flex-shrink: 0;
+  color: var(--il-blue-dark);
+}
+.editor-help__button {
+  margin-right: 4px;
+  padding: 2px 4px;
+  border: 1px solid #c5d0dc;
+  border-radius: 6px;
+}
+[data-theme="dark"] .editor__buttons button:disabled:hover {
+  border-color: var(--dk-border);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .editor-help {
+  background: var(--dk-surface);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .editor-help__list li {
+  border-color: var(--dk-border);
+}
+[data-theme="dark"] .editor-help kbd,
+[data-theme="dark"] .editor-help__button {
+  border-color: var(--dk-border);
+  background: var(--dk-surface-2);
+}
+[data-theme="dark"] .editor-help__mouse,
+[data-theme="dark"] .editor-help__button svg {
+  color: var(--dk-text);
 }
 
 /* "Icon on top" (ícone e texto) e a busca */

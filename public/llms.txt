@@ -72,4 +72,4 @@ When you base an icon on one of these, keep the license notice of its set (Lucid
 
 ## What the user can do with the link
 
-The editor shows the icon on a grid. The user can drag points (including curve controls), move, rotate, flip and resize shapes, add another icon on top, set a color and stroke width per shape, undo/redo, edit the SVG code, then copy the SVG, download SVG/PNG, save a `.ile` project, or copy a share link of their own.
+The editor shows the icon on a grid. The user can drag points (including curve controls), select several shapes, group and ungroup them, join and split lines, change the stacking order, move, rotate, flip and resize shapes, add another icon on top, set a color and stroke width per shape, undo/redo, edit the SVG code, then copy the SVG, download SVG/PNG, save a `.ile` project, or copy a share link of their own.

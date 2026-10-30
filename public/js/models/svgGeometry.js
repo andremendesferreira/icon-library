@@ -1014,3 +1014,50 @@ export function separarForma(elemento, x, y, tolerancia) {
     ponto,
   };
 }
+
+// ── Seleção por área ─────────────────────────────────────────────────────────
+// O segmento a–b encosta no retângulo? (recorte de Liang–Barsky)
+function segmentoTocaRetangulo(a, b, { x1, y1, x2, y2 }) {
+  let inicio = 0;
+  let fim = 1;
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  for (const [p, q] of [
+    [-dx, a.x - x1],
+    [dx, x2 - a.x],
+    [-dy, a.y - y1],
+    [dy, y2 - a.y],
+  ]) {
+    if (p === 0) {
+      if (q < 0) return false;
+    } else if (p < 0) inicio = Math.max(inicio, q / p);
+    else fim = Math.min(fim, q / p);
+    if (inicio > fim) return false;
+  }
+  return true;
+}
+
+// A linha da forma encosta no retângulo { x1, y1, x2, y2 }? Olha o traço, não
+// a caixa em volta: um arco grande não é pego por um retângulo na área vazia
+// dele. Curvas e arcos são medidos em pedacinhos retos.
+export function formaTocaRetangulo(elemento, retangulo) {
+  let cmds;
+  try {
+    cmds = comandosDaForma(elemento);
+  } catch {
+    return false;
+  }
+  if (!cmds) return false;
+  return subcaminhos(cmds).some((sub) =>
+    sub.trechos.some(({ de, c }) => {
+      const pedacos = c.t === "L" ? 1 : 24;
+      let anterior = de;
+      for (let n = 1; n <= pedacos; n++) {
+        const p = n === pedacos ? { x: c.x, y: c.y } : pontoNoTrecho(de, c, n / pedacos);
+        if (segmentoTocaRetangulo(anterior, p, retangulo)) return true;
+        anterior = p;
+      }
+      return false;
+    }),
+  );
+}

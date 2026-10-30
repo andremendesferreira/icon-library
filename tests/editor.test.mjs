@@ -599,7 +599,7 @@ test("EditorModel: Shift+clique marca duas linhas e unir vira um path só", () =
   assert.equal(model.elementos.length, 2);
   assert.equal(model.elementos[0].tag, "path");
   assert.equal(model.selecionado, 0);
-  assert.equal(model.parceiro, null);
+  assert.deepEqual(model.extras, []);
   model.desfazer();
   assert.equal(model.elementos.length, 3);
   // Com o círculo não dá
@@ -609,7 +609,7 @@ test("EditorModel: Shift+clique marca duas linhas e unir vira um path só", () =
   assert.equal(model.unir(), false);
   // Shift+clique de novo desmarca; clique comum volta a uma forma só
   model.adicionarASelecao(1);
-  assert.equal(model.parceiro, null);
+  assert.deepEqual(model.extras, []);
   model.adicionarASelecao(2);
   model.clicarForma(2);
   assert.deepEqual(model.alvos(), [0, 2]);
@@ -667,4 +667,117 @@ test("EditorModel: separar a forma selecionada", () => {
 test("novaForma: triângulo é um polígono de três pontos no centro", () => {
   const el = novaForma("triangle", { x: 0, y: 0, w: 24, h: 24 });
   assert.deepEqual(el, { tag: "polygon", attrs: { points: "12 7 18 16 6 16" } });
+});
+
+function quatroFormas() {
+  const model = new EditorModel();
+  model.definirDocumento({
+    raiz: { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2" },
+    elementos: [
+      { tag: "line", attrs: { x1: "2", y1: "2", x2: "10", y2: "2" } },
+      { tag: "line", attrs: { x1: "2", y1: "6", x2: "10", y2: "6" } },
+      { tag: "circle", attrs: { cx: "12", cy: "12", r: "6" } },
+      { tag: "line", attrs: { x1: "14", y1: "20", x2: "20", y2: "20" } },
+    ],
+  });
+  return model;
+}
+
+test("EditorModel: seleção por área olha a linha, não a caixa em volta", () => {
+  const model = quatroFormas();
+  // Dentro do círculo, sem encostar no traço dele
+  model.selecionarArea({ x1: 9, y1: 9, x2: 15, y2: 15 });
+  assert.equal(model.temSelecao, false);
+  model.selecionarArea({ x1: 3, y1: 1, x2: 5, y2: 7 });
+  assert.deepEqual(model.alvos(), [0, 1]);
+  // Substitui, ou soma com Shift
+  model.selecionarArea({ x1: 15, y1: 19, x2: 16, y2: 21 });
+  assert.deepEqual(model.alvos(), [3]);
+  model.selecionarArea({ x1: 3, y1: 1.5, x2: 4, y2: 2.5 }, { somar: true });
+  assert.deepEqual(model.alvos(), [3, 0]);
+  // A espessura conta: 0,5 acima da linha ainda encosta no traço de largura 2
+  model.selecionarArea({ x1: 15, y1: 20.5, x2: 16, y2: 20.9 });
+  assert.deepEqual(model.alvos(), [3]);
+  // Oculta não entra
+  model.alternarOculto(3);
+  model.selecionarArea({ x1: 15, y1: 19, x2: 16, y2: 21 });
+  assert.equal(model.temSelecao, false);
+});
+
+test("EditorModel: várias formas valem juntas para mover, ordenar e apagar", () => {
+  const model = quatroFormas();
+  model.definirSelecao([0, 1]);
+  assert.equal(model.quantidade, 2);
+  assert.deepEqual(model.pontosSelecionados(), []);
+  model.transformar("direita");
+  assert.equal(model.elementos[0].attrs.x1, "2.5");
+  assert.equal(model.elementos[1].attrs.x1, "2.5");
+  // Ordem: o conjunto vai junto e mantém a ordem interna
+  model.ordenar("topo");
+  assert.deepEqual(model.elementos.map((el) => el.attrs.y1 ?? "c"), ["c", "20", "2", "6"]);
+  assert.deepEqual(model.alvos(), [2, 3]);
+  assert.equal(model.ordenar("frente"), false);
+  model.ordenar("tras");
+  assert.deepEqual(model.elementos.map((el) => el.attrs.y1 ?? "c"), ["c", "2", "6", "20"]);
+  model.selecionarTudo();
+  assert.equal(model.quantidade, 4);
+  model.remover();
+  assert.equal(model.elementos.length, 0);
+  model.desfazer();
+  assert.equal(model.elementos.length, 4);
+});
+
+test("EditorModel: agrupar, clicar, entrar com duplo clique e desagrupar", () => {
+  const model = quatroFormas();
+  assert.equal(model.podeAgrupar, false);
+  model.definirSelecao([0, 2]);
+  assert.equal(model.agrupar("Grupo 1"), true);
+  // O bloco fica na altura da forma mais acima
+  assert.deepEqual(model.elementos.map((el) => el.grupo), [0, 1, 1, 0]);
+  assert.deepEqual(model.elementos.map((el) => el.attrs.y1 ?? "c"), ["6", "2", "c", "20"]);
+  assert.equal(model.grupoSelecionado, 1);
+  assert.equal(model.podeAgrupar, false);
+  assert.equal(model.podeDesagrupar, true);
+  // Agrupar à mão não tira o ícone do Lucide Studio
+  assert.equal(model.misturado, false);
+
+  model.selecionar(0);
+  model.clicarForma(2); // clique numa forma do grupo: o grupo inteiro
+  assert.equal(model.grupoSelecionado, 1);
+  model.selecionar(1); // duplo clique: uma forma lá dentro
+  model.clicarForma(2); // novo clique troca de forma ali dentro
+  assert.equal(model.selecionado, 2);
+  assert.equal(model.podeDesagrupar, true);
+
+  model.selecionarGrupo(1);
+  model.selecionarArea({ x1: 3, y1: 5, x2: 4, y2: 7 }); // toca só na forma solta
+  assert.deepEqual(model.alvos(), [0]);
+  model.selecionarArea({ x1: 3, y1: 1, x2: 4, y2: 3 }); // toca numa do grupo: pega o grupo
+  assert.equal(model.grupoSelecionado, 1);
+
+  // Salvo no .ile, o grupo continua sendo um grupo manual
+  const salvo = JSON.stringify(model.exportarProjeto({ nome: "x" }));
+
+  assert.deepEqual(validarProjeto(JSON.parse(salvo)).grupos[1], { nome: "Grupo 1", manual: true });
+
+  assert.equal(model.desagrupar(), true);
+  assert.deepEqual(model.elementos.map((el) => el.grupo), [0, 0, 0, 0]);
+  assert.deepEqual(model.alvos(), [1, 2]);
+  model.desfazer();
+  assert.deepEqual(model.elementos.map((el) => el.grupo), [0, 1, 1, 0]);
+});
+
+test("EditorModel: copiar várias formas e copiar um grupo", () => {
+  const model = quatroFormas();
+  model.definirSelecao([0, 1]);
+  model.copiar();
+  model.colar();
+  assert.equal(model.elementos.length, 6);
+  assert.deepEqual(model.alvos(), [4, 5]);
+  model.agrupar("G");
+  model.copiar();
+  model.colar();
+  assert.equal(model.elementos.length, 8);
+  assert.deepEqual(model.grupos[model.grupoSelecionado], { nome: "G", manual: true });
+  assert.notEqual(model.grupoSelecionado, 1);
 });

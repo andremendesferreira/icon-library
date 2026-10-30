@@ -37,6 +37,12 @@ export class EditorController {
         acao(...args);
         this.desenhar();
       };
+    const mudarSelecao =
+      (acao) =>
+      (...args) => {
+        acao(...args);
+        this.desenhar({ atualizarCodigo: false });
+      };
     this.view.ligar({
       aoSelecionar: (i) => {
         model.selecionar(i);
@@ -54,6 +60,28 @@ export class EditorController {
         model.adicionarASelecao(i);
         this.desenhar({ atualizarCodigo: false });
       },
+      aoEntrarNaForma: mudarSelecao((i) => model.selecionar(i)),
+      aoSelecionarArea: mudarSelecao((retangulo, opcoes) => model.selecionarArea(retangulo, opcoes)),
+      aoSelecionarTudo: mudarSelecao(() => model.selecionarTudo()),
+      // Devolve se havia seleção para limpar (senão o Esc segue para a janela)
+      aoLimparSelecao: () => {
+        if (!model.temSelecao) return false;
+        model.limparSelecao();
+        this.desenhar({ atualizarCodigo: false });
+        return true;
+      },
+      // Devolvem se agiram (o atalho sem efeito segue para o navegador)
+      aoAgrupar: () => {
+        const n = model.grupos.filter((g) => g.manual).length + 1;
+        if (!model.agrupar(t("editor.groupName", { n }))) return false;
+        this.desenhar();
+        return true;
+      },
+      aoDesagrupar: () => {
+        if (!model.desagrupar()) return false;
+        this.desenhar();
+        return true;
+      },
       aoIniciarCorte: () => this.avisar(t("editor.splitHint")),
       // Devolve se cortou; fora do traço, avisa e o modo de corte continua
       aoSeparar: (x, y) => {
@@ -66,9 +94,9 @@ export class EditorController {
       },
       // Devolve se agiu (Ctrl+J sem duas formas marcadas segue normal)
       aoUnir: () => {
-        if (model.parceiro === null) return false;
+        if (model.quantidade < 2) return false;
         if (model.unir()) this.desenhar();
-        else this.avisar(t("editor.joinCant"));
+        else this.avisar(t("editor.joinNeed"));
         return true;
       },
       aoIniciarArraste: () => model.iniciarArraste(),
@@ -378,7 +406,10 @@ export class EditorController {
         podeDesfazer: model.podeDesfazer,
         podeRefazer: model.podeRefazer,
         linkStudio,
-        duasFormas: model.parceiro !== null,
+        quantidade: model.quantidade,
+        caixa: model.quantidade > 1 ? model.limitesDe(model.alvos()) : null,
+        podeAgrupar: model.podeAgrupar,
+        podeDesagrupar: model.podeDesagrupar,
         podeUnir: model.podeUnir,
         podeSeparar: model.podeSeparar,
       },

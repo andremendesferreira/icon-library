@@ -306,7 +306,10 @@
           <span data-i18n="editor.title">Edit icon</span> <span id="editor-name" class="editor__name"></span>
         </h2>
         <p id="editor-editing" class="editor__editing" data-i18n="editor.editing" hidden>Editing your Iconlibrary icon — publish to send the edit for review.</p>
-        <button type="button" id="editor-close" class="editor__close" aria-label="Close editor" data-i18n-attr="aria-label:editor.close">×</button>
+        <div class="editor__header-actions">
+          <button type="button" id="editor-help-open" class="editor__close editor__help-open" title="Commands and shortcuts (?)" aria-label="Commands and shortcuts" data-i18n-attr="title:editor.helpOpen;aria-label:editor.helpOpen">?</button>
+          <button type="button" id="editor-close" class="editor__close" aria-label="Close editor" data-i18n-attr="aria-label:editor.close">×</button>
+        </div>
       </header>
 
       <aside class="editor__side">
@@ -345,9 +348,18 @@
           <div id="editor-picker-results" class="editor__picker-results"></div>
         </section>
 
+        <!-- Sempre no mesmo lugar; sem poder ser usados, ficam apagados -->
+        <h3 class="editor__heading" data-i18n="editor.combine">Combine</h3>
+        <div class="editor__buttons">
+          <button type="button" class="editor__shape" id="editor-group" disabled><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 7V5c0-1.1.9-2 2-2h2"/><path d="M17 3h2c1.1 0 2 .9 2 2v2"/><path d="M21 17v2c0 1.1-.9 2-2 2h-2"/><path d="M7 21H5c-1.1 0-2-.9-2-2v-2"/><rect width="7" height="5" x="7" y="7" rx="1"/><rect width="7" height="5" x="10" y="12" rx="1"/></svg></button>
+          <button type="button" class="editor__shape" id="editor-ungroup" disabled><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="11" y="14" width="10" height="7" rx="2"/><rect x="3" y="3" width="10" height="7" rx="2"/></svg></button>
+          <button type="button" class="editor__shape" id="editor-join" disabled><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 14v2"/><path d="M12 20v2"/><path d="M12 2v2"/><path d="M12 8v2"/><path d="M20.288 16.703A1 1 0 0022 16V8a1 1 0 00-1.712-.703l-3.99 3.991a1 1 0 00-.001 1.424z"/><path d="M3.712 16.703A1 1 0 012 16V8a1 1 0 011.712-.703l3.99 3.991a1 1 0 01.001 1.424z"/></svg></button>
+          <button type="button" class="editor__shape" id="editor-split" aria-pressed="false" disabled><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 14v2"/><path d="M12 20v2"/><path d="M12 2v2"/><path d="M12 8v2"/><path d="M17.712 7.297A1 1 -180 0 0 16 8L16 16A1 1 -180 0 0 17.712 16.703L21.702 12.712A1 1 -180 0 0 21.703 11.288Z"/><path d="M6.288 16.703A1 1 -180 0 0 8 16L8 8A1 1 -180 0 0 6.288 7.297L2.298 11.288A1 1 -180 0 0 2.297 12.712Z"/></svg></button>
+        </div>
+
         <!-- Cor e espessura da forma (ou do ícone) selecionado -->
         <section id="editor-style" class="editor__style" aria-label="Selected shape style" data-i18n-attr="aria-label:editor.selectedStyle" hidden>
-          <h3 class="editor__heading" data-i18n="editor.selected">Selected</h3>
+          <h3 class="editor__heading"><span data-i18n="editor.selected">Selected</span> <span id="editor-selected-count"></span></h3>
           <div class="editor__style-row">
             <label for="editor-color" data-i18n="editor.color">Color</label>
             <input type="color" id="editor-color" value="#2c3e50" />
@@ -365,13 +377,6 @@
             <button type="button" id="editor-point-add" title="Add a point in the middle of the next segment" data-i18n-attr="title:editor.pointAddTitle">+ <span data-i18n="editor.point">Point</span></button>
             <button type="button" id="editor-point-remove" title="Delete the selected point (Delete)" data-i18n-attr="title:editor.pointRemoveTitle">− <span data-i18n="editor.point">Point</span></button>
             <p id="editor-points-hint" class="editor__note" data-i18n="editor.pointHint">Click a point of the shape to delete it or add another.</p>
-          </div>
-          <!-- Separar: cortar a forma num ponto do traço. Unir: as duas formas
-               marcadas (Shift+clique) viram um path só -->
-          <div class="editor__buttons editor__join" id="editor-join-row" hidden>
-            <button type="button" id="editor-split" aria-pressed="false" title="Cut the shape at a point of its line" data-i18n-attr="title:editor.splitTitle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 14v2"/><path d="M12 20v2"/><path d="M12 2v2"/><path d="M12 8v2"/><path d="M17.712 7.297A1 1 -180 0 0 16 8L16 16A1 1 -180 0 0 17.712 16.703L21.702 12.712A1 1 -180 0 0 21.703 11.288Z"/><path d="M6.288 16.703A1 1 -180 0 0 8 16L8 8A1 1 -180 0 0 6.288 7.297L2.298 11.288A1 1 -180 0 0 2.297 12.712Z"/></svg><span data-i18n="editor.split">Split</span></button>
-            <button type="button" id="editor-join" title="Join the two selected lines into one (Ctrl+J)" data-i18n-attr="title:editor.joinTitle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 14v2"/><path d="M12 20v2"/><path d="M12 2v2"/><path d="M12 8v2"/><path d="M20.288 16.703A1 1 0 0022 16V8a1 1 0 00-1.712-.703l-3.99 3.991a1 1 0 00-.001 1.424z"/><path d="M3.712 16.703A1 1 0 012 16V8a1 1 0 011.712-.703l3.99 3.991a1 1 0 01.001 1.424z"/></svg><span data-i18n="editor.join">Join</span></button>
-            <p id="editor-join-cant" class="editor__note" data-i18n="editor.joinCant">Only open lines and curves can be joined — not circles, rectangles or closed shapes.</p>
           </div>
         </section>
 
@@ -407,11 +412,7 @@
 
       <div class="editor__stage">
         <svg id="editor-canvas" class="editor__canvas" tabindex="0" role="img" aria-label="Icon being edited" data-i18n-attr="aria-label:editor.canvas"></svg>
-        <p class="editor__hint" data-i18n="editor.hint">
-          Drag the points to reshape · drag a shape to move it · arrows move ·
-          Delete removes · Ctrl+Z undoes · Ctrl+C / Ctrl+V copy and paste ·
-          Shift+click a second line, then Ctrl+J joins them
-        </p>
+        <p id="editor-hint" class="editor__hint" role="status"></p>
       </div>
 
       <div class="editor__code">
@@ -438,6 +439,51 @@
         <button type="button" id="editor-png" data-i18n="editor.downloadPng">Download PNG…</button>
         <button type="button" id="editor-copy" class="editor__primary" data-i18n="editor.copySvg">Copy SVG</button>
       </footer>
+    </div>
+  </dialog>
+  <!-- Ajuda do editor: comandos ilustrados com as teclas e o mouse -->
+  <dialog id="editor-help" class="editor-help" aria-labelledby="editor-help-title">
+    <div class="editor-help__body">
+      <header class="editor-help__header">
+        <h2 id="editor-help-title" data-i18n="help.title">Commands and shortcuts</h2>
+        <button type="button" id="editor-help-close" class="editor__close" aria-label="Close help" data-i18n-attr="aria-label:help.close">×</button>
+      </header>
+      <div class="editor-help__sections">
+        <section>
+          <h3 class="editor__heading" data-i18n="help.select">Select</h3>
+          <ul class="editor-help__list">
+            <li><span class="editor-help__keys"><svg class="editor-help__mouse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3a6 6 0 0 0-6 6v1h6z" fill="currentColor" stroke="none"/><rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 3v7"/></svg></span><span data-i18n="help.click">Click a shape to select it</span></li>
+            <li><span class="editor-help__keys"><svg class="editor-help__mouse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 3a6 6 0 0 0-6 6v1h6z" fill="currentColor" stroke="none"/><rect x="3" y="3" width="12" height="18" rx="6"/><path d="M9 3v7"/><path d="M18 12h5"/><path d="m21 10 2 2-2 2"/></svg></span><span data-i18n="help.area">Drag on an empty area to select what the rectangle touches</span></li>
+            <li><span class="editor-help__keys"><kbd>Shift</kbd><i>+</i><svg class="editor-help__mouse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 3a6 6 0 0 0-6 6v1h6z" fill="currentColor" stroke="none"/><rect x="3" y="3" width="12" height="18" rx="6"/><path d="M9 3v7"/><path d="M18 12h5"/><path d="m21 10 2 2-2 2"/></svg></span><span data-i18n="help.areaAdd">Hold Shift and drag, starting anywhere, to add to the selection</span></li>
+            <li><span class="editor-help__keys"><kbd>Shift</kbd><i>+</i><svg class="editor-help__mouse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3a6 6 0 0 0-6 6v1h6z" fill="currentColor" stroke="none"/><rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 3v7"/></svg></span><span data-i18n="help.toggle">Hold Shift and click to add or remove a shape</span></li>
+            <li><span class="editor-help__keys"><kbd data-ctrl>Ctrl</kbd><i>+</i><kbd>A</kbd></span><span data-i18n="help.all">Select all shapes</span></li>
+            <li><span class="editor-help__keys"><kbd>Esc</kbd></span><span data-i18n="help.clear">Clear the selection</span></li>
+          </ul>
+        </section>
+        <section>
+          <h3 class="editor__heading" data-i18n="help.edit">Edit</h3>
+          <ul class="editor-help__list">
+            <li><span class="editor-help__keys"><svg class="editor-help__mouse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 3a6 6 0 0 0-6 6v1h6z" fill="currentColor" stroke="none"/><rect x="3" y="3" width="12" height="18" rx="6"/><path d="M9 3v7"/><path d="M18 12h5"/><path d="m21 10 2 2-2 2"/></svg></span><span data-i18n="help.move">Drag a selected shape to move it</span></li>
+            <li><span class="editor-help__keys"><svg class="editor-help__mouse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 3a6 6 0 0 0-6 6v1h6z" fill="currentColor" stroke="none"/><rect x="3" y="3" width="12" height="18" rx="6"/><path d="M9 3v7"/><path d="M18 12h5"/><path d="m21 10 2 2-2 2"/></svg></span><span data-i18n="help.points">Drag a point to reshape the line</span></li>
+            <li><span class="editor-help__keys"><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd></span><span data-i18n="help.arrows">Nudge what is selected</span></li>
+            <li><span class="editor-help__keys"><kbd>Delete</kbd></span><span data-i18n="help.delete">Delete what is selected</span></li>
+            <li><span class="editor-help__keys"><kbd data-ctrl>Ctrl</kbd><i>+</i><kbd>C</kbd> <kbd data-ctrl>Ctrl</kbd><i>+</i><kbd>V</kbd></span><span data-i18n="help.copy">Copy and paste</span></li>
+            <li><span class="editor-help__keys"><kbd data-ctrl>Ctrl</kbd><i>+</i><kbd>Z</kbd></span><span data-i18n="help.undo">Undo</span></li>
+            <li><span class="editor-help__keys"><kbd data-ctrl>Ctrl</kbd><i>+</i><kbd>Y</kbd></span><span data-i18n="help.redo">Redo</span></li>
+          </ul>
+        </section>
+        <section>
+          <h3 class="editor__heading" data-i18n="help.combine">Combine</h3>
+          <ul class="editor-help__list">
+            <li><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 7V5c0-1.1.9-2 2-2h2"/><path d="M17 3h2c1.1 0 2 .9 2 2v2"/><path d="M21 17v2c0 1.1-.9 2-2 2h-2"/><path d="M7 21H5c-1.1 0-2-.9-2-2v-2"/><rect width="7" height="5" x="7" y="7" rx="1"/><rect width="7" height="5" x="10" y="12" rx="1"/></svg></span><kbd data-ctrl>Ctrl</kbd><i>+</i><kbd>G</kbd></span><span data-i18n="help.group">Group: the shapes stay separate but move together</span></li>
+            <li><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="11" y="14" width="10" height="7" rx="2"/><rect x="3" y="3" width="10" height="7" rx="2"/></svg></span><kbd data-ctrl>Ctrl</kbd><i>+</i><kbd>Shift</kbd><i>+</i><kbd>G</kbd></span><span data-i18n="help.ungroup">Ungroup: the shapes become loose again</span></li>
+            <li><span class="editor-help__keys"><svg class="editor-help__mouse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3a6 6 0 0 0-6 6v1h6z" fill="currentColor" stroke="none"/><rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 3v7"/></svg><svg class="editor-help__mouse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3a6 6 0 0 0-6 6v1h6z" fill="currentColor" stroke="none"/><rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 3v7"/></svg></span><span data-i18n="help.into">Double-click to pick one shape inside a group</span></li>
+            <li><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 14v2"/><path d="M12 20v2"/><path d="M12 2v2"/><path d="M12 8v2"/><path d="M20.288 16.703A1 1 0 0022 16V8a1 1 0 00-1.712-.703l-3.99 3.991a1 1 0 00-.001 1.424z"/><path d="M3.712 16.703A1 1 0 012 16V8a1 1 0 011.712-.703l3.99 3.991a1 1 0 01.001 1.424z"/></svg></span><kbd data-ctrl>Ctrl</kbd><i>+</i><kbd>J</kbd></span><span data-i18n="help.join">Join two open lines into a single line</span></li>
+            <li><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 14v2"/><path d="M12 20v2"/><path d="M12 2v2"/><path d="M12 8v2"/><path d="M17.712 7.297A1 1 -180 0 0 16 8L16 16A1 1 -180 0 0 17.712 16.703L21.702 12.712A1 1 -180 0 0 21.703 11.288Z"/><path d="M6.288 16.703A1 1 -180 0 0 8 16L8 8A1 1 -180 0 0 6.288 7.297L2.298 11.288A1 1 -180 0 0 2.297 12.712Z"/></svg></span></span><span data-i18n="help.split">Split: click where to cut the line. Esc cancels</span></li>
+            <li><span class="editor-help__keys"><kbd>?</kbd></span><span data-i18n="help.open">Open this help</span></li>
+          </ul>
+        </section>
+      </div>
     </div>
   </dialog>
   <!-- Publicar na Iconlibrary (fonte da comunidade): abre por cima do editor -->
