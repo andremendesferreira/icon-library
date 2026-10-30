@@ -1,8 +1,8 @@
 // Deutsch
 export default {
-  "meta.title": "Icon Library — SVG-Icons und Emojis kopieren",
+  "meta.title": "Kostenlose SVG-Icons und Emojis kopieren | Icon Library",
   "meta.description":
-    "Icons aus Emoji, Lucide, Feather und Bootstrap Icons durchsuchen, filtern und kopieren — Klick zum Kopieren, Rechtsklick für das SVG.",
+    "Kostenlose Icons: Durchsuche Lucide, Feather, Bootstrap Icons und alle Emojis. Kopiere sauberes SVG, exportiere PNG oder React, bearbeite im Browser.",
   "lang.label": "Sprache",
   "theme.label": "Dunkles Design",
   "theme.toDark": "Zum dunklen Design wechseln",
@@ -350,6 +350,7 @@ export default {
   "publish.editSentLive": "Änderung gesendet! Die aktuelle Version von „{name}“ bleibt online, bis die Änderung freigegeben ist.",
   "publish.notOwner": "Dieses Icon wurde mit einem anderen Unterstützer-Code veröffentlicht.",
   "footer.telegram": "Telegram-Kanal",
+  "footer.github": "Open Source auf GitHub",
   "nav.label": "Website",
   "footer.icons": "Icons",
   "footer.guide": "Anleitung",

@@ -1,8 +1,8 @@
 // Português (Brasil)
 export default {
-  "meta.title": "Icon Library — copie ícones SVG e emojis",
+  "meta.title": "Ícones SVG e Emojis Grátis: Copie e Edite | Icon Library",
   "meta.description":
-    "Navegue, filtre e copie ícones de Emoji, Lucide, Feather e Bootstrap Icons — clique para copiar, botão direito para o SVG.",
+    "Ícones grátis: busque no Lucide, Feather, Bootstrap Icons e em todos os emojis. Copie SVG limpo, exporte PNG ou React e edite no navegador.",
   "lang.label": "Idioma",
   "theme.label": "Tema escuro",
   "theme.toDark": "Mudar para o tema escuro",
@@ -350,6 +350,7 @@ export default {
   "publish.editSentLive": "Edição enviada! A versão atual de “{name}” continua no ar até a edição ser aprovada.",
   "publish.notOwner": "Este ícone foi publicado com outro código de apoiador.",
   "footer.telegram": "Canal no Telegram",
+  "footer.github": "Código aberto no GitHub",
   "nav.label": "Site",
   "footer.icons": "Ícones",
   "footer.guide": "Guia",

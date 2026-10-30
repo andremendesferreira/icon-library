@@ -1,8 +1,8 @@
 // Русский
 export default {
-  "meta.title": "Icon Library — копируйте SVG-иконки и эмодзи",
+  "meta.title": "Бесплатные SVG-иконки и эмодзи | Icon Library",
   "meta.description":
-    "Просматривайте, фильтруйте и копируйте иконки Emoji, Lucide, Feather и Bootstrap Icons — щелчок копирует, правый щелчок — SVG.",
+    "Бесплатные иконки: ищите в Lucide, Feather, Bootstrap Icons и среди всех эмодзи. Копируйте чистый SVG, экспортируйте PNG или React, редактируйте в браузере.",
   "lang.label": "Язык",
   "theme.label": "Тёмная тема",
   "theme.toDark": "Включить тёмную тему",
@@ -364,6 +364,7 @@ export default {
   "publish.editSentLive": "Правка отправлена! Текущая версия «{name}» останется на сайте, пока правка не будет одобрена.",
   "publish.notOwner": "Эта иконка опубликована с другим кодом поддержки.",
   "footer.telegram": "Канал в Telegram",
+  "footer.github": "Открытый код на GitHub",
   "nav.label": "Сайт",
   "footer.icons": "Иконки",
   "footer.guide": "Руководство",

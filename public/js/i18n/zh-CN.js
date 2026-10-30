@@ -1,8 +1,8 @@
 // 中文（简体）
 export default {
-  "meta.title": "Icon Library — 复制 SVG 图标和表情符号",
+  "meta.title": "免费 SVG 图标和表情符号：复制、编辑、导出 | Icon Library",
   "meta.description":
-    "浏览、筛选并复制 Emoji、Lucide、Feather 和 Bootstrap Icons 中的图标——单击复制，右键获取 SVG。",
+    "免费图标工具：搜索 Lucide、Feather、Bootstrap Icons 和所有表情符号。复制干净的 SVG，导出 PNG 或 React，并在浏览器中编辑图标。",
   "lang.label": "语言",
   "theme.label": "深色主题",
   "theme.toDark": "切换到深色主题",
@@ -343,6 +343,7 @@ export default {
   "publish.editSentLive": "编辑已提交！在编辑获批之前，“{name}”的当前版本会继续上线。",
   "publish.notOwner": "这个图标是用另一个支持者代码发布的。",
   "footer.telegram": "Telegram 频道",
+  "footer.github": "GitHub 开源代码",
   "nav.label": "网站",
   "footer.icons": "图标",
   "footer.guide": "指南",

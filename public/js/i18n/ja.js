@@ -1,8 +1,8 @@
 // 日本語
 export default {
-  "meta.title": "Icon Library — SVG アイコンと絵文字をコピー",
+  "meta.title": "無料の SVG アイコンと絵文字：コピー・編集 | Icon Library",
   "meta.description":
-    "Emoji、Lucide、Feather、Bootstrap Icons のアイコンを探して、絞り込んで、コピー。クリックでコピー、右クリックで SVG。",
+    "無料のアイコンツール：Lucide、Feather、Bootstrap Icons とすべての絵文字を検索。きれいな SVG をコピーし、PNG や React で書き出し、ブラウザで編集できます。",
   "lang.label": "言語",
   "theme.label": "ダークテーマ",
   "theme.toDark": "ダークテーマに切り替え",
@@ -343,6 +343,7 @@ export default {
   "publish.editSentLive": "編集を送りました！編集が承認されるまで、「{name}」の現在のバージョンが公開されたままです。",
   "publish.notOwner": "このアイコンは別のサポーターコードで公開されました。",
   "footer.telegram": "Telegram チャンネル",
+  "footer.github": "GitHub のオープンソース",
   "nav.label": "サイト",
   "footer.icons": "アイコン",
   "footer.guide": "ガイド",

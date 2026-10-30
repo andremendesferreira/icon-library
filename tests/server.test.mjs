@@ -43,7 +43,7 @@ test("página principal com cabeçalhos de segurança", async () => {
   assert.match(res.headers["content-type"], /text\/html/);
   assert.equal(res.headers["x-content-type-options"], "nosniff");
   assert.equal(res.headers["cache-control"], "no-cache");
-  assert.match(res.corpo.toString(), /<title>Icon Library/);
+  assert.match(res.corpo.toString(), /<title>[^<]*Icon Library<\/title>/);
 });
 
 test("endereço malformado responde 400 e o servidor continua de pé", async () => {
@@ -269,4 +269,18 @@ test("páginas: título e descrição dentro de <head>, conteúdo dentro de <bod
     assert.match(cabeca, /<meta\s+name="description"\s+content="[^"]+"/, `${arquivo}: descrição fora do <head>`);
     assert.match(html, /<\/head>\s*<body>[\s\S]+<\/body>\s*<\/html>\s*$/, `${arquivo}: <body>`);
   }
+});
+
+test("SEO: a página principal traz título escapado e dados estruturados válidos", async () => {
+  const html = (await pedir("/")).corpo.toString();
+  assert.match(html, /<title>Free SVG Icons &amp; Emojis: Copy, Edit &amp; Export \| Icon Library<\/title>/);
+  const dados = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(html)[1]);
+  assert.equal(dados["@type"], "WebApplication");
+  assert.equal(dados.url, "https://iconlibrary.io/");
+  // Nos outros idiomas, o título continua escapado e os dados continuam lá
+  const pt = (await pedir("/?lang=pt-BR")).corpo.toString();
+  assert.match(pt, /application\/ld\+json/);
+  const en = (await import("../public/js/i18n/en.js")).default;
+  assert.ok(en["meta.title"].length <= 60);
+  assert.ok(en["meta.description"].length <= 160);
 });
