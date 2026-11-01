@@ -414,6 +414,7 @@ export class EditorController {
         podeDesagrupar: model.podeDesagrupar,
         podeUnir: model.podeUnir,
         linhaAberta: model.linhaAberta,
+        blocos: model.blocosDasCamadas(),
         ligacao: model.ligacaoDaUniao,
         podeSeparar: model.podeSeparar,
       },

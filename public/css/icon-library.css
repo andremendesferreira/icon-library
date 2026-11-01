@@ -1731,6 +1731,8 @@ body:has(.scratchpad--open) .back-to-top {
 }
 .editor__canvas {
   flex: 1;
+  -webkit-touch-callout: none;
+  user-select: none;
   width: 100%;
   min-height: 0;
   color: #2c3e50;

@@ -814,3 +814,13 @@ test("unirTracos: aceita path de vários trechos, como os do Feather", async () 
   const d = unirTracos(longe, framer).attrs.d;
   assert.equal((d.match(/M/g) ?? []).length, 3);
 });
+
+test("EditorModel: em Ver camadas, um grupo é um bloco só", () => {
+  const model = quatroFormas();
+  assert.deepEqual(model.blocosDasCamadas(), [0, 1, 2, 3]);
+  model.definirSelecao([1, 2]);
+  model.agrupar("G");
+  assert.deepEqual(model.blocosDasCamadas(), [0, 1, 1, 2]);
+  model.desagrupar();
+  assert.deepEqual(model.blocosDasCamadas(), [0, 1, 2, 3]);
+});

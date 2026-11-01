@@ -396,6 +396,17 @@ export class EditorModel {
     this.definirSelecao(this.elementos.flatMap((el, i) => (el.oculto ? [] : [i])));
   }
 
+  // Ver camadas: o número do bloco de cada forma, na ordem do desenho. Um
+  // grupo é um bloco só; cada forma solta é o seu próprio bloco.
+  blocosDasCamadas() {
+    const blocos = new Map();
+    return this.elementos.map((el, i) => {
+      const chave = el.grupo ? `grupo${el.grupo}` : `forma${i}`;
+      if (!blocos.has(chave)) blocos.set(chave, blocos.size);
+      return blocos.get(chave);
+    });
+  }
+
   // Quantas formas estão selecionadas
   get quantidade() {
     return this.temSelecao ? this.alvos().length : 0;

@@ -15,11 +15,14 @@ const ATRIBUTOS_DE_DESENHO = new Set([
 const RAIO_PONTO = 6;
 const LARGURA_CLIQUE = 14;
 const RAIO_PONTO_TOQUE = 10;
+const corDaCamada = (bloco) => CORES_DAS_CAMADAS[bloco % CORES_DAS_CAMADAS.length];
 // Distinguíveis entre si, nos dois temas e também com daltonismo (Okabe–Ito)
 const CORES_DAS_CAMADAS = ["#0072b2", "#e69f00", "#009e73", "#cc79a7", "#d55e00", "#56b4e9", "#8e44ad", "#7a8b00"];
 const LARGURA_CLIQUE_TOQUE = 26;
 // Em pixels: quanto o dedo precisa andar para virar arraste
 const TOLERANCIA_TOQUE = 8;
+// Segurar uma forma por esse tempo soma ela à seleção (ou tira, se já estava)
+const TOQUE_LONGO_MS = 500;
 const DUPLO_CLIQUE_MS = 350;
 // Em pixels: menos que isso ainda é um clique
 const MOVIMENTO_MINIMO = 4;
@@ -481,20 +484,14 @@ export class EditorView {
         };
         return;
       }
-      if (forma) {
-        const i = Number(forma.dataset.i);
-        // Com o dedo, o primeiro toque só seleciona: encostar numa forma não
-        // pode movê-la sem querer. Mover é para o que já está selecionado.
-        const movivel = evento.pointerType !== "touch" || ponto || this.acoes.aoEstaSelecionada(i);
-        // Os nós são recriados a cada desenho, então o evento dblclick não
-        // chega: o duplo clique é contado aqui
-        const agora = evento.timeStamp;
-        const duplo = this.cliqueAnterior?.i === i && agora - this.cliqueAnterior.quando < DUPLO_CLIQUE_MS;
-        this.cliqueAnterior = { i, quando: agora };
-        if (duplo) this.acoes.aoEntrarNaForma(i);
-        else this.acoes.aoClicarForma(i);
-        if (!movivel) return;
+      // Dedo numa forma: só se sabe o que é quando ele sai, anda ou o tempo
+      // passa. Selecionar já aqui apagaria a seleção antes do toque longo.
+      if (forma && !ponto && evento.pointerType === "touch") {
+        evento.preventDefault();
+        this.iniciarToqueNaForma(evento, Number(forma.dataset.i));
+        return;
       }
+      if (forma) this.clicarNaForma(Number(forma.dataset.i), evento.timeStamp);
       if (ponto) this.acoes.aoSelecionarPonto(ponto.dataset.ponto);
       if (!this.acoes.aoIniciarArraste()) return;
       evento.preventDefault();
@@ -518,6 +515,10 @@ export class EditorView {
         this.moverArea(evento);
         return;
       }
+      if (this.toqueForma && evento.pointerId === this.toqueForma.id) {
+        this.moverToqueNaForma(evento);
+        return;
+      }
       if (!this.arraste || evento.pointerId !== this.arraste.id) return;
       const p = this.pontoDoPonteiro(evento);
       if (!this.arraste.solto) {
@@ -538,12 +539,20 @@ export class EditorView {
         this.terminarArea(evento);
         return;
       }
+      if (this.toqueForma && evento.pointerId === this.toqueForma.id) {
+        this.terminarToqueNaForma(evento);
+        return;
+      }
       if (!this.arraste || evento.pointerId !== this.arraste.id) return;
       this.arraste = null;
       this.acoes.aoTerminarArraste();
     };
     this.canvas.addEventListener("pointerup", terminar);
     this.canvas.addEventListener("pointercancel", terminar);
+    // Segurar o dedo não pode abrir o menu do navegador sobre o desenho
+    this.canvas.addEventListener("contextmenu", (evento) => {
+      if (this.toque) evento.preventDefault();
+    });
   }
 
   // ── Desenho ────────────────────────────────────────────────────────────────
@@ -620,6 +629,62 @@ export class EditorView {
     this.erro.textContent = mensagem;
   }
 
+  // Os nós são recriados a cada desenho, então o evento dblclick não chega: o
+  // duplo clique é contado aqui
+  clicarNaForma(i, quando) {
+    const duplo = this.cliqueAnterior?.i === i && quando - this.cliqueAnterior.quando < DUPLO_CLIQUE_MS;
+    this.cliqueAnterior = { i, quando };
+    if (duplo) this.acoes.aoEntrarNaForma(i);
+    else this.acoes.aoClicarForma(i);
+  }
+
+  iniciarToqueNaForma(evento, i) {
+    try {
+      this.canvas.setPointerCapture(evento.pointerId);
+    } catch {
+      // Sem captura o toque só termina se o dedo sair do canvas
+    }
+    const toque = {
+      id: evento.pointerId,
+      i,
+      tela: { x: evento.clientX, y: evento.clientY },
+      longo: false,
+      temporizador: setTimeout(() => {
+        toque.longo = true;
+        this.acoes.aoAdicionarASelecao(i);
+        navigator.vibrate?.(30);
+      }, TOQUE_LONGO_MS),
+    };
+    this.toqueForma = toque;
+  }
+
+  // O dedo andou: em forma já selecionada vira arraste; em outra, só seleciona,
+  // para encostar nela não a mover sem querer
+  moverToqueNaForma(evento) {
+    const toque = this.toqueForma;
+    if (toque.longo) return;
+    if (Math.hypot(evento.clientX - toque.tela.x, evento.clientY - toque.tela.y) < TOLERANCIA_TOQUE) return;
+    clearTimeout(toque.temporizador);
+    const movivel = this.acoes.aoEstaSelecionada(toque.i);
+    this.toqueForma = null;
+    this.acoes.aoClicarForma(toque.i);
+    if (!movivel || !this.acoes.aoIniciarArraste()) return;
+    this.arraste = {
+      id: toque.id,
+      ponto: null,
+      inicio: this.pontoDoPonteiro(evento),
+      solto: true,
+      tela: toque.tela,
+    };
+  }
+
+  terminarToqueNaForma(evento) {
+    const toque = this.toqueForma;
+    clearTimeout(toque.temporizador);
+    this.toqueForma = null;
+    if (!toque.longo && evento.type !== "pointercancel") this.clicarNaForma(toque.i, evento.timeStamp);
+  }
+
   // Retângulo de seleção: só aparece depois de um pequeno movimento, para um
   // clique com a mão tremendo não virar seleção por área
   retanguloDaArea(evento) {
@@ -668,7 +733,7 @@ export class EditorView {
     }
   }
 
-  desenharCanvas({ raiz, elementos, selecionados, pontos, pontoSelecionado, viewBox, fora, caixa, ligacao }) {
+  desenharCanvas({ raiz, elementos, selecionados, pontos, pontoSelecionado, viewBox, fora, caixa, ligacao, blocos }) {
     const { x, y, w, h } = viewBox;
     // A margem abre espaço para pontos de controle fora da área do ícone
     // (comuns em curvas), para todos poderem ser pegos. Durante um arraste
@@ -714,7 +779,7 @@ export class EditorView {
 
     elementos.forEach((el, i) => {
       if (el.oculto) return;
-      const no = el.html ? this.deHtml(el.html) : criar(el.tag, this.camadas ? this.comCorDaCamada(el, i, desenho) : el.attrs);
+      const no = el.html ? this.deHtml(el.html) : criar(el.tag, this.camadas ? this.comCorDaCamada(el, corDaCamada(blocos[i]), desenho) : el.attrs);
       if (!no) return;
       icone.append(no);
       if (el.html) return;
@@ -778,8 +843,7 @@ export class EditorView {
   }
 
   // Atributos da forma com a cor da camada, sem tocar no que é "none"
-  comCorDaCamada(el, i, desenho) {
-    const cor = CORES_DAS_CAMADAS[i % CORES_DAS_CAMADAS.length];
+  comCorDaCamada(el, cor, desenho) {
     const attrs = { ...el.attrs };
     if ((attrs.stroke ?? desenho.stroke ?? "none") !== "none") attrs.stroke = cor;
     if ((attrs.fill ?? desenho.fill ?? "black") !== "none") attrs.fill = cor;
@@ -798,7 +862,17 @@ export class EditorView {
 
   // Lista de formas. Com mais de um ícone, cada um ganha um cabeçalho, que
   // seleciona o ícone inteiro (para mover, girar, colorir…)
-  desenharLista({ elementos, selecionados, grupos, grupoSelecionado }) {
+  desenharLista({ elementos, selecionados, grupos, grupoSelecionado, blocos }) {
+    // Com as camadas ligadas, a lista diz o que está na frente e no fundo. Num
+    // grupo, o aviso fica no cabeçalho: ele conta como um bloco só.
+    const ultimo = elementos.length - 1;
+    const rotuloDaCamada = (indices) => {
+      if (!this.camadas || new Set(blocos).size < 2) return "";
+      const texto = indices.includes(0) ? t("editor.layerBack") : indices.includes(ultimo) ? t("editor.layerFront") : "";
+      return texto ? `<em class="editor__layer">${escapar(texto)}</em>` : "";
+    };
+    const amostraDe = (cor) =>
+      cor ? `<i class="editor__swatch" style="background:${escapar(cor)}" aria-hidden="true"></i>` : "";
     if (!elementos.length) {
       this.lista.innerHTML = `<li class="editor__empty">${escapar(t("editor.noElements"))}</li>`;
       return;
@@ -816,19 +890,8 @@ export class EditorView {
       const cor = el.html
         ? null
         : [el.attrs.stroke, el.attrs.fill].find((v) => v && v !== "none" && v !== "currentColor");
-      const corDaLinha = this.camadas ? CORES_DAS_CAMADAS[i % CORES_DAS_CAMADAS.length] : cor;
-      const amostra = corDaLinha
-        ? `<i class="editor__swatch" style="background:${escapar(corDaLinha)}" aria-hidden="true"></i>`
-        : "";
-      // Com as camadas ligadas, a lista diz qual forma está na frente e no fundo
-      const camada = !this.camadas || elementos.length < 2
-        ? ""
-        : i === 0
-          ? t("editor.layerBack")
-          : i === elementos.length - 1
-            ? t("editor.layerFront")
-            : "";
-      const rotulo = camada ? `<em class="editor__layer">${escapar(camada)}</em>` : "";
+      const amostra = amostraDe(this.camadas ? corDaCamada(blocos[i]) : cor);
+      const rotulo = el.grupo ? "" : rotuloDaCamada([i]);
       // A forma selecionada e a marcada com Shift (num ícone inteiro, só o cabeçalho)
       const marcada = grupoSelecionado === null && selecionados.has(i);
       return `<li class="editor__element${marcada ? " editor__element--selected" : ""}${el.oculto ? " editor__element--hidden" : ""}" data-i="${i}">
@@ -846,7 +909,7 @@ export class EditorView {
       .map(({ grupo, nome, indices }) => {
         const marcado = grupo === grupoSelecionado;
         return `<li class="editor__group${marcado ? " editor__group--selected" : ""}">
-          <button type="button" class="editor__group-name" data-grupo="${grupo}" aria-pressed="${marcado}" title="${escapar(t("editor.selectGroup"))}">${escapar(nome)}<span>${escapar(t("editor.shapes", { n: indices.length }))}</span></button>
+          <button type="button" class="editor__group-name" data-grupo="${grupo}" aria-pressed="${marcado}" title="${escapar(t("editor.selectGroup"))}">${grupo ? amostraDe(this.camadas ? corDaCamada(blocos[indices[0]]) : null) : ""}${escapar(nome)}${grupo ? rotuloDaCamada(indices) : ""}<span>${escapar(t("editor.shapes", { n: indices.length }))}</span></button>
         </li>${indices.map((i) => linha(elementos[i], i)).join("")}`;
       })
       .join("");
