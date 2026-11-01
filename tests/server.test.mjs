@@ -105,7 +105,7 @@ test("robots.txt e sitemap.xml com o endereço do site", async () => {
     // Cada idioma: a página principal (?lang=) e as páginas de texto
     assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/\?lang=pt-BR<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/about\.ja\.html<\/loc>/);
-    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 24);
+    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 24 + 8);
   } finally {
     delete process.env.SITE_URL;
   }
@@ -283,4 +283,27 @@ test("SEO: a página principal traz título escapado e dados estruturados válid
   const en = (await import("../public/js/i18n/en.js")).default;
   assert.ok(en["meta.title"].length <= 60);
   assert.ok(en["meta.description"].length <= 160);
+});
+
+test("guias dos conjuntos: ícones no HTML, só os idiomas que existem, no sitemap", async () => {
+  for (const pagina of ["lucide-icons", "feather-icons", "bootstrap-icons", "emoji-icons"]) {
+    for (const caminho of [`/${pagina}.html`, `/${pagina}.pt-BR.html`]) {
+      const res = await pedir(caminho);
+      assert.equal(res.status, 200, caminho);
+      const html = res.corpo.toString();
+      assert.ok((html.match(/<li>(<svg|<span class="set-grid__emoji")/g) ?? []).length >= 30, caminho);
+      assert.match(html, /data-languages="en,pt-BR"/);
+      // Uma forma sem tamanho não aparece: o ícone sairia incompleto
+      assert.doesNotMatch(html, /<rect(?![^>]*width=)/);
+      // hreflang: inglês, português e x-default, nada que dê 404
+      assert.equal((html.match(/hreflang=/g) ?? []).length, 3);
+      // Todo link interno .html precisa existir
+      for (const [, destino] of html.matchAll(/href="([\w.-]+\.html)"/g))
+        assert.equal((await pedir(`/${destino}`)).status, 200, destino);
+    }
+    assert.equal((await pedir(`/${pagina}.ru.html`)).status, 404);
+  }
+  const sitemap = (await pedir("/sitemap.xml")).corpo.toString();
+  assert.match(sitemap, /lucide-icons\.pt-BR\.html/);
+  assert.match(sitemap, /emoji-icons\.html/);
 });

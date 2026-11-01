@@ -1,4 +1,5 @@
-// Gera as páginas de texto (Guia, Sobre, Privacidade) em todos os idiomas:
+// Gera as páginas de texto (Guia, Sobre, Privacidade, em todos os idiomas, e os
+// guias dos conjuntos de ícones, em inglês e português):
 //
 //   pages/<pagina>/<idioma>.html  →  public/<pagina>.html (inglês)
 //                                    public/<pagina>.<idioma>.html (demais)
@@ -17,6 +18,12 @@ const SITE = "https://iconlibrary.io";
 const IDIOMAS = ["en", "es", "fr", "de", "ru", "zh-CN", "pt-BR", "ja"];
 const PAGINAS = ["guide", "about", "privacy"];
 const ROTULO = { guide: "footer.guide", about: "footer.about", privacy: "footer.privacy" };
+// Um guia para cada conjunto de ícones, por enquanto só nos idiomas que o autor
+// consegue revisar. O nome do conjunto também é o de pages/<pagina>/.
+const CONJUNTOS = ["lucide-icons", "feather-icons", "bootstrap-icons", "emoji-icons"];
+const IDIOMAS_CONJUNTOS = ["en", "pt-BR"];
+const NOME_CONJUNTO = { "lucide-icons": "Lucide", "feather-icons": "Feather", "bootstrap-icons": "Bootstrap Icons", "emoji-icons": "Emoji" };
+const idiomasDe = (pagina) => (CONJUNTOS.includes(pagina) ? IDIOMAS_CONJUNTOS : IDIOMAS);
 const raiz = new URL("../", import.meta.url);
 
 const arquivo = (pagina, idioma) => `${pagina}${idioma === "en" ? "" : `.${idioma}`}.html`;
@@ -27,6 +34,25 @@ const dicionarios = {};
 for (const idioma of IDIOMAS)
   dicionarios[idioma] = (await import(new URL(`public/js/i18n/${idioma}.js`, raiz))).default;
 const t = (idioma, chave) => dicionarios[idioma][chave] ?? dicionarios.en[chave];
+
+// Ícones escolhidos do conjunto, já no HTML: aparecem mesmo sem JavaScript
+function grade(pagina) {
+  const icones = JSON.parse(readFileSync(new URL(`pages/${pagina}/icones.json`, raiz), "utf8"));
+  const itens = icones.map(
+    ({ nome, svg, emoji }) => `<li>${svg ?? `<span class="set-grid__emoji">${emoji}</span>`}<small>${escapar(nome)}</small></li>`,
+  );
+  return `<ul class="set-grid">\n${itens.join("\n")}\n</ul>`;
+}
+
+// Botão que abre a ferramenta já no conjunto, e links para os outros guias
+function ferramenta(chave, idioma, pagina) {
+  const separador = idioma === "en" ? "?" : `?lang=${idioma}&amp;`;
+  const outros = CONJUNTOS.filter((c) => c !== pagina)
+    .map((c) => `<a href="${arquivo(c, idioma)}">${NOME_CONJUNTO[c]}</a>`)
+    .join(" · ");
+  return `<p class="page__cta"><a class="page__open" href="./${separador}set=${chave}">${escapar(t(idioma, "sets.open"))}</a></p>
+<p class="page__meta">${escapar(t(idioma, "sets.others"))} ${outros}</p>`;
+}
 
 function montar(pagina, idioma) {
   const fonte = readFileSync(new URL(`pages/${pagina}/${idioma}.html`, raiz), "utf8").replace(/\r\n/g, "\n");
@@ -42,11 +68,13 @@ function montar(pagina, idioma) {
       "<!--cafe-->",
       `<p class="page__coffee"><a class="site-footer__coffee" href="${icones}#coffee">☕ ${escapar(t(idioma, "coffee.button"))}</a></p>`,
     )
+    .replace("<!--grade-->", () => (CONJUNTOS.includes(pagina) ? grade(pagina) : ""))
+    .replace(/<!--ferramenta:(\w+)-->/, (_, chave) => ferramenta(chave, idioma, pagina))
     .split("\n")
     .map((linha) => (linha ? `    ${linha}` : ""))
     .join("\n");
   const endereco = `${SITE}/${arquivo(pagina, idioma)}`;
-  const versoes = IDIOMAS.map(
+  const versoes = idiomasDe(pagina).map(
     (l) => `  <link rel="alternate" hreflang="${l}" href="${SITE}/${arquivo(pagina, l)}" />`,
   ).join("\n");
 
@@ -55,6 +83,7 @@ function montar(pagina, idioma) {
 <html
   lang="${idioma}"
   data-page="${pagina}"
+  data-languages="${idiomasDe(pagina).join(",")}"
   data-label-to-dark="${escapar(t(idioma, "theme.toDark"))}"
   data-label-to-light="${escapar(t(idioma, "theme.toLight"))}"
 >
@@ -116,8 +145,8 @@ ${PAGINAS.filter((p) => p !== pagina)
 
 const conferir = process.argv.includes("--check");
 const desatualizados = [];
-for (const pagina of PAGINAS)
-  for (const idioma of IDIOMAS) {
+for (const pagina of [...PAGINAS, ...CONJUNTOS])
+  for (const idioma of idiomasDe(pagina)) {
     const destino = new URL(`public/${arquivo(pagina, idioma)}`, raiz);
     const html = montar(pagina, idioma);
     const atual = existsSync(destino) ? readFileSync(destino, "utf8").replace(/\r\n/g, "\n") : null;

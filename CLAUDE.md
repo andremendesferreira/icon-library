@@ -24,7 +24,8 @@ Site at https://iconlibrary.io. Plain ES modules with an MVC layout, no framewor
 ## Rules that are easy to miss
 
 - **8 languages:** `en`, `es`, `fr`, `de`, `ru`, `zh-CN`, `pt-BR`, `ja`. Every key in `public/js/i18n/` must exist in all of them (`tests/i18n.test.mjs` enforces it).
-- **Generated pages:** `public/{about,guide,privacy}*.html` come from `pages/`. Edit `pages/` and run `npm run pages`.
+- **Generated pages:** `public/{about,guide,privacy}*.html` and the set guides (`lucide-icons`, `feather-icons`, `bootstrap-icons`, `emoji-icons`) come from `pages/`. Edit `pages/` and run `npm run pages`.
+- **Set guides are an exception to the 8 languages:** only English and Portuguese for now, the languages the maintainer can review. `data-languages` tells `detect.js` which versions exist. Their text is written by hand: don't generate thin pages from a template, which is what AdSense rejected.
 - **Dockerfile:** it lists the scripts one by one, so a new file in `scripts/` needs its own `COPY`.
 - **Migrations:** applied by hand with the database owner role (`PG_MIGRATE=false`). The app uses another role, so a new table needs its `GRANT`, and the migration must be recorded in `schema_migrations`.
 

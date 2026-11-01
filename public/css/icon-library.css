@@ -2714,6 +2714,78 @@ html.i18n-pendente body {
   outline: none;
 }
 /* Páginas de texto: seletor na linha do "voltar" */
+/* Guias dos conjuntos: amostra de ícones já no HTML, código e botão da ferramenta */
+.set-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+.set-grid li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 4px 8px;
+  border: 1px solid #dfe6ee;
+  border-radius: 10px;
+  text-align: center;
+}
+.set-grid svg {
+  width: 24px;
+  height: 24px;
+}
+.set-grid__emoji {
+  font-size: 24px;
+  line-height: 1;
+}
+.set-grid small {
+  font-size: 11px;
+  line-height: 1.2;
+  color: #5a6b7b;
+  overflow-wrap: anywhere;
+}
+.page pre {
+  overflow-x: auto;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #eef2f7;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.page pre code {
+  padding: 0;
+  background: none;
+}
+.page__cta {
+  margin: 16px 0 6px;
+}
+.page a.page__open {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: var(--il-blue);
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+}
+.page a.page__open:hover,
+.page a.page__open:focus-visible {
+  background: var(--il-blue-dark);
+  color: #fff;
+}
+[data-theme="dark"] .set-grid li {
+  border-color: var(--dk-border);
+}
+[data-theme="dark"] .set-grid small {
+  color: var(--dk-text);
+}
+[data-theme="dark"] .page pre {
+  background: var(--dk-surface-2);
+}
+
 .page__top {
   display: flex;
   flex-wrap: wrap;

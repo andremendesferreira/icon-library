@@ -69,6 +69,11 @@
   var doLink = doEndereco();
   var atual = doLink || salvo() || doNavegador() || PADRAO;
   var paginaDeTexto = html.getAttribute("data-page");
+  // Idiomas em que esta página existe: nem toda página de texto tem os oito
+  var daPagina = (html.getAttribute("data-languages") || "").split(",");
+  function existe(idioma) {
+    return !paginaDeTexto || daPagina.indexOf(idioma) !== -1;
+  }
 
   window.IconLibraryLang = {
     idiomas: IDIOMAS,
@@ -82,7 +87,7 @@
     // A versão em inglês é a página "padrão" (x-default): quem chega nela
     // sem ter escolhido inglês vai para o próprio idioma. As traduzidas
     // ficam como estão — foram abertas de propósito.
-    if (html.lang === PADRAO && atual !== PADRAO && !doLink)
+    if (html.lang === PADRAO && atual !== PADRAO && !doLink && existe(atual))
       location.replace(pagina(paginaDeTexto, atual) + location.hash);
   } else {
     // Página principal: traduzida no lugar por js/i18n/i18n.js. Até lá ela
@@ -102,6 +107,7 @@
     if (!seletor) return;
     var mostrado = paginaDeTexto ? html.lang : atual;
     for (var i = 0; i < IDIOMAS.length; i++) {
+      if (!existe(IDIOMAS[i][0])) continue;
       var opcao = document.createElement("option");
       opcao.value = IDIOMAS[i][0];
       opcao.lang = IDIOMAS[i][0];

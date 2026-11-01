@@ -1,0 +1,75 @@
+<!-- {"title":"Lucide Icons: 1,900 Free SVG Icons, Copy or Edit | Icon Library","description":"A practical guide to Lucide: license, installing it in React and other frameworks, and how it compares to Feather. Browse, restyle and copy its SVG icons."} -->
+<h1 class="page__title">Lucide icons</h1>
+<p class="page__lead">
+  Lucide is an open-source set of about 1,900 outline icons. It began as a
+  community fork of Feather and is now one of the most complete sets of its
+  kind, which makes it a safe default for interfaces.
+</p>
+<!--ferramenta:lucide-->
+
+<h2>A sample of the set</h2>
+<!--grade-->
+
+<h2>What the style gives you</h2>
+<p>
+  Every icon is drawn on a 24×24 grid with a 2-unit stroke, rounded ends and no
+  fill. Because the shapes are lines, one icon can be made lighter or heavier by
+  changing <code>stroke-width</code>, with no need for a second file. Icons use
+  <code>currentColor</code>, so they follow the color of the text around them,
+  including on hover and in dark mode.
+</p>
+<p>
+  The consistency is the main reason to choose it. If you mix a Lucide icon with
+  one from a filled set, the difference in visual weight stands out at once.
+</p>
+
+<h2>License</h2>
+<p>
+  Lucide uses the ISC license, a short permissive license: you can use the icons
+  in personal and commercial projects, and modify them. Keep the license notice
+  when you redistribute the package itself.
+</p>
+
+<h2>Using it in a project</h2>
+<p>For one or two icons, pasting the SVG is enough and adds no dependency:</p>
+<pre><code>&lt;button aria-label="Search"&gt;
+  &lt;svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24" fill="none"
+       stroke="currentColor" stroke-width="2"&gt;…&lt;/svg&gt;
+&lt;/button&gt;</code></pre>
+<p>For many icons in React, the official package imports each one separately:</p>
+<pre><code>npm install lucide-react
+
+import { Search } from "lucide-react";
+
+&lt;Search size={20} strokeWidth={1.5} /&gt;</code></pre>
+<p>
+  There are official packages for other frameworks too. Check
+  <a href="https://lucide.dev" rel="noopener">lucide.dev</a> for the current list.
+</p>
+
+<h2>Lucide or Feather?</h2>
+<p>
+  They look almost the same, because Lucide came from
+  <a href="feather-icons.html">Feather</a>. Lucide has more than six times as
+  many icons, so it is more likely to have the one you need. Feather makes sense
+  when you only need common icons and prefer a small, stable set, or when a
+  project already uses it.
+</p>
+
+<h2>Common mistakes</h2>
+<ul>
+  <li>
+    <strong>A button with only an icon and no name.</strong> A screen reader has
+    nothing to announce. Put <code>aria-label</code> on the button and
+    <code>aria-hidden="true"</code> on the SVG.
+  </li>
+  <li>
+    <strong>Scaling without thinking about the stroke.</strong> A 2-unit stroke
+    looks heavy on a 48 px icon, because it grows with the icon. Try 1.5 at large
+    sizes.
+  </li>
+  <li>
+    <strong>Fixing the color in the SVG.</strong> A hardcoded color stops the
+    icon from following dark mode. Keep <code>currentColor</code>.
+  </li>
+</ul>

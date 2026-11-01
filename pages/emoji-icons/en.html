@@ -1,0 +1,63 @@
+<!-- {"title":"Emoji List: Copy Any Emoji and Use It Well | Icon Library","description":"How emojis work: why they look different on each system, combined sequences, accessibility, and when an SVG icon is the better choice. Search and copy any emoji."} -->
+<h1 class="page__title">Emojis: copy them and use them well</h1>
+<p class="page__lead">
+  An emoji is a text character, not an image. That one fact explains most of their
+  behavior: they are light and easy to paste, but you don't control how they look.
+</p>
+<!--ferramenta:emoji-->
+
+<h2>A few emojis to copy</h2>
+<!--grade-->
+
+<h2>Why the same emoji looks different</h2>
+<p>
+  The Unicode standard defines the character and its meaning, while the drawing
+  comes from a font on each device. So 😀 is drawn differently on Android, iOS and
+  Windows. A new emoji also takes time to reach every system, and until then an old
+  device may show an empty box. Icon Library marks the ones that have no drawing on
+  your machine, so you can see them before using them.
+</p>
+<p>
+  Flags are a known example: Windows generally shows two letters, such as "BR",
+  instead of a flag. Don't rely on a flag emoji alone to indicate a language or
+  country.
+</p>
+
+<h2>Emojis made of several characters</h2>
+<p>
+  Some emojis are sequences joined by an invisible character. 👩‍💻 combines 👩 and
+  💻, and a system without that combination shows the two separately. This also
+  affects code: such an emoji counts as several characters in a JavaScript string,
+  so cutting text with <code>slice</code> can break it.
+</p>
+<pre><code>"👩‍💻".length                   // 5
+[...new Intl.Segmenter().segment("👩‍💻")].length  // 1</code></pre>
+
+<h2>Accessibility</h2>
+<p>
+  Screen readers announce the name of each emoji, so a row of them is read aloud in
+  full. Use them sparingly and don't let one replace a word that carries meaning. If
+  an emoji is only decoration, hide it from them:
+</p>
+<pre><code>&lt;span aria-hidden="true"&gt;🎉&lt;/span&gt; Payment confirmed</code></pre>
+
+<h2>Emoji or SVG icon?</h2>
+<ul>
+  <li>
+    <strong>Emoji:</strong> messages, social posts, commit messages, documents and
+    other text, where a little personality helps and the exact look doesn't matter.
+  </li>
+  <li>
+    <strong>SVG icon:</strong> buttons, menus and anything in an interface, where you
+    need a consistent look on every system, your own colors and a precise size. See
+    <a href="lucide-icons.html">Lucide</a> or
+    <a href="bootstrap-icons.html">Bootstrap Icons</a>.
+  </li>
+</ul>
+
+<h2>Can I use emojis freely?</h2>
+<p>
+  Typing the character is fine anywhere, because it is just text. The drawings are a
+  different matter: each company's emoji art belongs to it under its own terms, so
+  check them before using a picture of an emoji, for example in a logo or a product.
+</p>

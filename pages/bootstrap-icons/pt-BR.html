@@ -1,0 +1,62 @@
+<!-- {"title":"Bootstrap Icons: mais de 2.000 ícones SVG grátis | Icon Library","description":"Guia prático do Bootstrap Icons: licença, SVG ou fonte de ícones, versões de contorno e preenchidas. Veja, ajuste e copie mais de 2.000 ícones SVG."} -->
+<h1 class="page__title">Bootstrap Icons</h1>
+<p class="page__lead">
+  O Bootstrap Icons é um conjunto de código aberto com mais de 2.000 ícones, da
+  equipe do Bootstrap. Não é preciso usar o framework: os ícones são arquivos SVG
+  comuns, que funcionam em qualquer projeto.
+</p>
+<!--ferramenta:bootstrap-->
+
+<h2>Uma amostra do conjunto</h2>
+<!--grade-->
+
+<h2>Versões de contorno e preenchidas</h2>
+<p>
+  Essa é a principal diferença em relação ao Lucide e ao Feather. Muitos ícones vêm
+  em pares, como <code>star</code> e <code>star-fill</code>, o que serve bem para
+  estados como "não favoritado" e "favoritado". As formas são áreas preenchidas numa
+  grade de 16×16, em vez de linhas, então ficam nítidas em tamanhos pequenos.
+</p>
+<p>
+  Uma consequência: como não há traço para ajustar, <code>stroke-width</code> não
+  deixa esses ícones mais leves. A cor funciona por <code>fill</code>, usando
+  <code>currentColor</code>.
+</p>
+
+<h2>Licença</h2>
+<p>
+  O Bootstrap Icons usa a licença MIT: dá para usar e modificar os ícones em
+  projetos pessoais e comerciais. Mantenha o aviso de licença ao redistribuir o
+  pacote.
+</p>
+
+<h2>SVG ou fonte de ícones?</h2>
+<p>O conjunto oferece os dois. A fonte é rápida de configurar:</p>
+<pre><code>npm install bootstrap-icons
+
+&lt;link rel="stylesheet" href="bootstrap-icons/font/bootstrap-icons.min.css"&gt;
+&lt;i class="bi bi-search" aria-hidden="true"&gt;&lt;/i&gt;</code></pre>
+<p>
+  Em troca, a fonte carrega todos os ícones, mesmo que você use dez. Se precisa de
+  poucos, colar o SVG não carrega nada a mais. Também evita o instante em que a
+  fonte ainda não carregou e o ícone não aparece.
+</p>
+
+<h2>Quando escolher</h2>
+<ul>
+  <li><strong>Você já usa Bootstrap:</strong> o visual combina com os componentes.</li>
+  <li><strong>Você precisa de muitos assuntos:</strong> a variedade é grande, inclusive de marcas.</li>
+  <li><strong>Você precisa de estados preenchidos:</strong> os pares já estão desenhados.</li>
+</ul>
+<p>
+  Para um visual leve, de linhas, o <a href="lucide-icons.pt-BR.html">Lucide</a>
+  tende a combinar melhor. Evite misturar os dois na mesma tela, porque formas
+  preenchidas de 16×16 e linhas de 24×24 têm pesos visuais diferentes.
+</p>
+
+<h2>Ícones de marcas</h2>
+<p>
+  O conjunto inclui logotipos de empresas e produtos. A licença MIT cobre os
+  arquivos, mas não dá direitos sobre as marcas mostradas, então siga as orientações
+  de cada uma.
+</p>

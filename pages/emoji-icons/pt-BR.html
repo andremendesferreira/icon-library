@@ -1,0 +1,64 @@
+<!-- {"title":"Lista de emojis: copie qualquer emoji e use bem | Icon Library","description":"Como os emojis funcionam: por que mudam em cada sistema, sequências combinadas, acessibilidade e quando um ícone SVG é melhor. Busque e copie qualquer emoji."} -->
+<h1 class="page__title">Emojis: copie e use bem</h1>
+<p class="page__lead">
+  Um emoji é um caractere de texto, não uma imagem. Esse único fato explica a maior
+  parte do comportamento deles: são leves e fáceis de colar, mas você não controla
+  como aparecem.
+</p>
+<!--ferramenta:emoji-->
+
+<h2>Alguns emojis para copiar</h2>
+<!--grade-->
+
+<h2>Por que o mesmo emoji muda de aparência</h2>
+<p>
+  O padrão Unicode define o caractere e o significado, e o desenho vem de uma fonte
+  em cada aparelho. Por isso, 😀 é desenhado de forma diferente no Android, no iOS e
+  no Windows. Um emoji novo também demora a chegar a todos os sistemas, e até lá um
+  aparelho antigo pode mostrar um quadrado vazio. O Icon Library sinaliza os que não
+  têm desenho na sua máquina, para você ver antes de usar.
+</p>
+<p>
+  As bandeiras são um exemplo conhecido: o Windows em geral mostra duas letras, como
+  "BR", em vez da bandeira. Não dependa só de um emoji de bandeira para indicar um
+  idioma ou país.
+</p>
+
+<h2>Emojis feitos de vários caracteres</h2>
+<p>
+  Alguns emojis são sequências unidas por um caractere invisível. 👩‍💻 combina 👩 e 💻,
+  e um sistema sem essa combinação mostra os dois separados. Isso também afeta o
+  código: um emoji assim conta como vários caracteres numa string do JavaScript, então
+  cortar o texto com <code>slice</code> pode quebrá-lo.
+</p>
+<pre><code>"👩‍💻".length                   // 5
+[...new Intl.Segmenter().segment("👩‍💻")].length  // 1</code></pre>
+
+<h2>Acessibilidade</h2>
+<p>
+  Leitores de tela anunciam o nome de cada emoji, então uma fileira deles é lida em voz
+  alta por inteiro. Use com moderação e não troque por emoji uma palavra que carrega
+  significado. Se for só decoração, esconda dos leitores:
+</p>
+<pre><code>&lt;span aria-hidden="true"&gt;🎉&lt;/span&gt; Pagamento confirmado</code></pre>
+
+<h2>Emoji ou ícone SVG?</h2>
+<ul>
+  <li>
+    <strong>Emoji:</strong> mensagens, redes sociais, commits, documentos e outros
+    textos, onde um pouco de personalidade ajuda e a aparência exata não importa.
+  </li>
+  <li>
+    <strong>Ícone SVG:</strong> botões, menus e tudo que for interface, onde você precisa
+    de aparência igual em todos os sistemas, cores próprias e tamanho preciso. Veja o
+    <a href="lucide-icons.pt-BR.html">Lucide</a> ou o
+    <a href="bootstrap-icons.pt-BR.html">Bootstrap Icons</a>.
+  </li>
+</ul>
+
+<h2>Posso usar emojis à vontade?</h2>
+<p>
+  Digitar o caractere é livre, porque é só texto. Os desenhos são outra história: a
+  arte de cada empresa pertence a ela, com termos próprios, então confira antes de usar
+  a imagem de um emoji, por exemplo num logotipo ou num produto.
+</p>

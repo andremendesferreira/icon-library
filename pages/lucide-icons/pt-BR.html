@@ -1,0 +1,75 @@
+<!-- {"title":"Ícones Lucide: 1.900 ícones SVG grátis, copie ou edite | Icon Library","description":"Guia prático do Lucide: licença, como instalar no React e em outros frameworks, e como ele se compara ao Feather. Veja, ajuste e copie os ícones SVG."} -->
+<h1 class="page__title">Ícones Lucide</h1>
+<p class="page__lead">
+  O Lucide é um conjunto de código aberto com cerca de 1.900 ícones de contorno.
+  Ele nasceu como uma derivação do Feather mantida pela comunidade e hoje é um
+  dos mais completos do tipo, o que o torna uma escolha segura para interfaces.
+</p>
+<!--ferramenta:lucide-->
+
+<h2>Uma amostra do conjunto</h2>
+<!--grade-->
+
+<h2>O que esse estilo oferece</h2>
+<p>
+  Cada ícone é desenhado numa grade de 24×24, com traço de 2 unidades, pontas
+  arredondadas e sem preenchimento. Como as formas são linhas, o mesmo ícone fica
+  mais leve ou mais pesado mudando <code>stroke-width</code>, sem precisar de outro
+  arquivo. Os ícones usam <code>currentColor</code>, então acompanham a cor do
+  texto em volta, inclusive ao passar o mouse e no tema escuro.
+</p>
+<p>
+  A consistência é o principal motivo para escolhê-lo. Ao misturar um ícone do
+  Lucide com um de um conjunto preenchido, a diferença de peso visual logo aparece.
+</p>
+
+<h2>Licença</h2>
+<p>
+  O Lucide usa a licença ISC, curta e permissiva: dá para usar os ícones em
+  projetos pessoais e comerciais e modificá-los. Mantenha o aviso de licença ao
+  redistribuir o próprio pacote.
+</p>
+
+<h2>Como usar num projeto</h2>
+<p>Para um ou dois ícones, colar o SVG basta e não acrescenta dependência:</p>
+<pre><code>&lt;button aria-label="Buscar"&gt;
+  &lt;svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24" fill="none"
+       stroke="currentColor" stroke-width="2"&gt;…&lt;/svg&gt;
+&lt;/button&gt;</code></pre>
+<p>Para muitos ícones no React, o pacote oficial importa cada um separadamente:</p>
+<pre><code>npm install lucide-react
+
+import { Search } from "lucide-react";
+
+&lt;Search size={20} strokeWidth={1.5} /&gt;</code></pre>
+<p>
+  Há pacotes oficiais para outros frameworks também. Veja a lista atual em
+  <a href="https://lucide.dev" rel="noopener">lucide.dev</a>.
+</p>
+
+<h2>Lucide ou Feather?</h2>
+<p>
+  Eles são quase iguais, porque o Lucide veio do
+  <a href="feather-icons.pt-BR.html">Feather</a>. O Lucide tem mais de seis vezes
+  mais ícones, então é mais provável que tenha o que você precisa. O Feather faz
+  sentido quando você só precisa dos ícones comuns e prefere um conjunto pequeno e
+  estável, ou quando o projeto já o usa.
+</p>
+
+<h2>Erros comuns</h2>
+<ul>
+  <li>
+    <strong>Botão só com ícone e sem nome.</strong> O leitor de tela não tem o que
+    anunciar. Coloque <code>aria-label</code> no botão e
+    <code>aria-hidden="true"</code> no SVG.
+  </li>
+  <li>
+    <strong>Aumentar o tamanho sem pensar no traço.</strong> Um traço de 2 unidades
+    fica pesado num ícone de 48 px, porque cresce junto com ele. Experimente 1,5 em
+    tamanhos grandes.
+  </li>
+  <li>
+    <strong>Fixar a cor no SVG.</strong> Uma cor fixa impede o ícone de acompanhar
+    o tema escuro. Mantenha <code>currentColor</code>.
+  </li>
+</ul>
