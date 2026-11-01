@@ -33,14 +33,19 @@ function montar(pagina, idioma) {
   const cabecalho = /^<!--\s*(\{.*?\})\s*-->\n/s.exec(fonte);
   if (!cabecalho) throw new Error(`pages/${pagina}/${idioma}.html: falta o comentário JSON com title/description`);
   const { title, description } = JSON.parse(cabecalho[1]);
+  const icones = idioma === "en" ? "./" : `./?lang=${idioma}`;
+  // <!--cafe--> no texto vira o botão do café
   const conteudo = fonte
     .slice(cabecalho[0].length)
     .trimEnd()
+    .replace(
+      "<!--cafe-->",
+      `<p class="page__coffee"><a class="site-footer__coffee" href="${icones}#coffee">☕ ${escapar(t(idioma, "coffee.button"))}</a></p>`,
+    )
     .split("\n")
     .map((linha) => (linha ? `    ${linha}` : ""))
     .join("\n");
   const endereco = `${SITE}/${arquivo(pagina, idioma)}`;
-  const icones = idioma === "en" ? "./" : `./?lang=${idioma}`;
   const versoes = IDIOMAS.map(
     (l) => `  <link rel="alternate" hreflang="${l}" href="${SITE}/${arquivo(pagina, l)}" />`,
   ).join("\n");
@@ -96,6 +101,7 @@ ${conteudo}
 ${PAGINAS.filter((p) => p !== pagina)
   .map((p) => `      <a href="${arquivo(p, idioma)}">${escapar(t(idioma, ROTULO[p]))}</a>`)
   .join("\n")}
+      <a class="site-footer__coffee" href="${icones}#coffee">☕ ${escapar(t(idioma, "coffee.button"))}</a>
       <a href="${icones}#report">🐞 ${escapar(t(idioma, "footer.report"))}</a>
       <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener">💡 ${escapar(t(idioma, "footer.ideas"))}</a>
       <a href="https://t.me/iconlibraryio" target="_blank" rel="noopener">📣 ${escapar(t(idioma, "footer.telegram"))}</a>

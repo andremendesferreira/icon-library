@@ -28,13 +28,17 @@ Site at https://iconlibrary.io. Plain ES modules with an MVC layout, no framewor
 - **Dockerfile:** it lists the scripts one by one, so a new file in `scripts/` needs its own `COPY`.
 - **Migrations:** applied by hand with the database owner role (`PG_MIGRATE=false`). The app uses another role, so a new table needs its `GRANT`, and the migration must be recorded in `schema_migrations`.
 
+## Coffee
+
+Everything that leads to the coffee uses the same gold style (`.coffee-button`, `.site-footer__coffee`), in both themes. People who already support the site see the discreet green instead. Other pages link with `#coffee`, and `<!--cafe-->` in `pages/` becomes the button. Don't put a coffee link inside or next to an ad unit: it could be read as part of the ad, and AdSense restricts text around ads.
+
 ## SVG editor
 
 - `svgGeometry.js` has pure geometry and `EditorModel.js` holds the state, neither touching the DOM (except `lerSvg`). `EditorView.js` draws and reads input; `EditorController.js` connects them.
 - **Selection:** `selecionado` (one shape), `selecionado` + `extras` (several) or `grupoSelecionado` (a whole group). Use `definirSelecao` and `alvos()`; a complete group turns into a group selection.
 - **Groups:** `grupos[0]` is the opened icon, with loose shapes. Every other entry is a group, either an icon added on top or `manual: true` from *Group*. A click selects the group; a double click picks one shape. Groups exist only in the editor and in `.ile` files, and the exported SVG stays flat, with no `<g>`.
 - **Canvas nodes are recreated on every draw**, so `dblclick` never arrives: the double click is counted in `pointerdown`.
-- **Phone layout (up to 900 px wide):** the drawing stays in view, with the tools in tabs below it. `data-painel` blocks use `display: contents` on larger screens, and `data-aba` on `#editor-layout` picks the visible one. A new tool needs its place in a panel, and a keyboard-only action needs a touch path too (`.editor__barra`).
+- **Phone layout (up to 900 px wide):** the drawing stays in view, with the tools in tabs below it. `data-painel` blocks use `display: contents` on larger screens, and `data-aba` on `#editor-layout` picks the visible one. A new tool needs its place in a panel, and a keyboard-only action needs a touch path too (`.editor__barra`). Publish and Copy SVG stay in a fixed footer on every tab; the rest of the footer shows only in the Export tab.
 - **Touch (`pointer: coarse`, `EditorView.toque`):** larger targets; a touch on a shape only acts when the finger lifts, moves or holds for 500 ms (long press adds or removes it), because selecting on `pointerdown` would clear the selection first. Moving a shape requires it to be selected already. Hints use the `…Touch` keys, and the help shows `.editor-help__toque` rows instead of `.editor-help__teclado`.
 - **Esc** goes in order: cancel the split mode, clear the selection, then ask to close the editor.
 - **Editor buttons with an icon only** need `title` and `aria-label` through `data-i18n-attr`. `data-i18n` on a button would replace its icon. Combine buttons get their text from `mostrarCombinar`. They use `aria-disabled`, not `disabled`, so a tap on one can explain what is missing, because a phone has no hover.

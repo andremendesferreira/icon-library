@@ -93,6 +93,11 @@ export class CoffeeController {
       this.view.mostrarApoiador(this.data(apoiador.expires));
       this.view.mostrarObrigado({ code: apoiador.code, dataTexto: this.data(apoiador.expires) });
     }
+    // Link vindo das outras páginas do site (guia, sobre…): …/#coffee
+    if (location.hash === "#coffee") {
+      history.replaceState(null, "", location.pathname + location.search);
+      if (config.enabled) this.view.abrir();
+    }
   }
 
   async confirmarPagamento(sessao) {

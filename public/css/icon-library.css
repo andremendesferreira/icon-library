@@ -2028,11 +2028,26 @@ body:has(.scratchpad--open) .back-to-top {
   .editor__textarea {
     min-height: 90px;
   }
-  /* O rodapé (salvar, baixar, copiar) é a aba Exportar; desfazer está na barra */
-  .editor__layout:not([data-aba="exportar"]) > .editor__footer,
+  /* Publicar e Copiar ficam sempre à mão; o resto do rodapé é a aba Exportar,
+     e desfazer está na barra */
+  .editor__layout:not([data-aba="exportar"]) > .editor__footer > :not(#editor-copy, #editor-publish),
   #editor-undo,
   #editor-redo {
     display: none;
+  }
+  .editor__footer #editor-publish,
+  .editor__footer #editor-copy {
+    min-height: 40px;
+    white-space: normal;
+    line-height: 1.15;
+  }
+  /* Bases largas: na aba Exportar, os dois ganham uma linha só para eles */
+  .editor__footer #editor-publish {
+    flex: 2 1 55%;
+    margin-left: 0;
+  }
+  .editor__footer #editor-copy {
+    flex: 1 1 30%;
   }
   .editor__footer {
     flex: none;
@@ -2727,43 +2742,72 @@ html.i18n-pendente body {
   }
 }
 
+/* Sem espaço ao lado do título centralizado: as ferramentas ganham a própria
+   linha, para não cobrirem o título */
+@media (max-width: 1560px) {
+  .header__tools {
+    position: static;
+    width: 100%;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+}
+
 /* ── Pague um café ── */
-.coffee-button {
-  display: flex;
+/* Tudo que leva ao café tem o mesmo destaque do Publicar, nos dois temas.
+   Quem já apoia vê o verde discreto, sem insistência. */
+.coffee-button,
+.site-footer__coffee,
+a.site-footer__coffee,
+.site-footer a.site-footer__coffee,
+[data-theme="dark"] .coffee-button,
+[data-theme="dark"] .site-footer__coffee {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 38px;
-  padding: 0 14px;
-  border: 2px solid #f0c36d;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid #b7791f;
   border-radius: 19px;
-  background: #fff8e6;
+  background: #f6c343;
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
-  color: #8a5a00;
+  font-weight: 700;
+  color: #3a2600;
+  text-decoration: none;
   cursor: pointer;
 }
 .coffee-button:hover,
-.coffee-button:focus-visible {
-  border-color: var(--il-gold-dark);
+.coffee-button:focus-visible,
+.site-footer__coffee:hover,
+.site-footer__coffee:focus-visible,
+.site-footer a.site-footer__coffee:hover,
+.site-footer a.site-footer__coffee:focus-visible,
+[data-theme="dark"] .coffee-button:hover,
+[data-theme="dark"] .coffee-button:focus-visible,
+[data-theme="dark"] .site-footer__coffee:hover,
+[data-theme="dark"] .site-footer__coffee:focus-visible {
+  border-color: #8a5a00;
+  background: #eeb422;
+  color: #3a2600;
+  text-decoration: none;
   outline: none;
 }
-.coffee-button--supporter {
+.coffee-button.coffee-button--supporter,
+.site-footer__coffee.coffee-button--supporter {
   border-color: #b9e0c3;
   background: #effaf2;
   color: #24713a;
 }
-.site-footer__coffee {
-  padding: 0;
-  border: none;
-  background: none;
-  font: inherit;
-  font-weight: 600;
-  color: var(--il-gold-dark);
-  cursor: pointer;
+[data-theme="dark"] .coffee-button.coffee-button--supporter,
+[data-theme="dark"] .site-footer__coffee.coffee-button--supporter {
+  border-color: #2e6b41;
+  background: #13281b;
+  color: #7fd69a;
 }
-.site-footer__coffee:hover {
-  text-decoration: underline;
+/* Na seção do café do Guia */
+.page__coffee {
+  margin: 14px 0;
 }
 /* Sobre a ferramenta, antes do rodapé: texto corrido, discreto */
 .site-about {
@@ -3151,7 +3195,7 @@ html.i18n-pendente body {
 .coffee__status[data-tipo="erro"] {
   color: #c0392b;
 }
-/* Celular: só a xícara no cabeçalho */
+/* Celular: só a xícara no cabeçalho, com o mesmo dourado */
 @media (max-width: 590px) {
   .coffee-button__text {
     display: none;
@@ -3177,16 +3221,6 @@ html.i18n-pendente body {
 }
 [data-theme="dark"] .coffee__form {
   border-top-color: var(--dk-border);
-}
-[data-theme="dark"] .coffee-button {
-  background: #2a2414;
-  border-color: #7a6224;
-  color: #f5c141;
-}
-[data-theme="dark"] .coffee-button--supporter {
-  background: #13281b;
-  border-color: #2e6b41;
-  color: #7fd69a;
 }
 
 /* ── Guia: índice, figuras, tabela de atalhos ── */
@@ -3400,9 +3434,26 @@ kbd {
 .coffee__status[data-tipo="ok"] {
   color: #24713a;
 }
-.editor__footer .editor__publish {
-  border-color: var(--il-gold-dark);
-  color: #8a5a00;
+/* Publicar: a ação de destaque do editor, igual nos dois temas */
+.editor__footer .editor__publish,
+[data-theme="dark"] .editor__footer button.editor__publish:not(.editor__primary) {
+  /* Quando não cabe na linha, fica à direita, junto de Copiar SVG */
+  margin-left: auto;
+  border-color: #b7791f;
+  background: #f6c343;
+  font-weight: 700;
+  color: #3a2600;
+}
+.editor__footer .editor__publish::before {
+  content: "★ ";
+}
+.editor__footer .editor__publish:hover,
+.editor__footer .editor__publish:focus-visible,
+[data-theme="dark"] .editor__footer button.editor__publish:not(.editor__primary):hover,
+[data-theme="dark"] .editor__footer button.editor__publish:not(.editor__primary):focus-visible {
+  border-color: #8a5a00;
+  background: #eeb422;
+  color: #3a2600;
 }
 [data-theme="dark"] .publish,
 [data-theme="dark"] .publish__field input:not([type="checkbox"]) {
