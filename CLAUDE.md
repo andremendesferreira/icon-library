@@ -44,4 +44,5 @@ Everything that leads to the coffee uses the same gold style (`.coffee-button`, 
 - **Esc** goes in order: cancel the split mode, clear the selection, then ask to close the editor.
 - **Editor buttons with an icon only** need `title` and `aria-label` through `data-i18n-attr`. `data-i18n` on a button would replace its icon. Combine buttons get their text from `mostrarCombinar`. They use `aria-disabled`, not `disabled`, so a tap on one can explain what is missing, because a phone has no hover.
 - **Join** has two modes in `EditorModel.unir`: two selected lines, or one open line (`uniaoDaForma`), which closes it or connects its nearest end to the selected point.
+- **Fill** (`alternarPreenchimento`) only works on closed shapes (`formaFechada`). Removing the fill of a shape with no stroke gives it a stroke, so it doesn't vanish.
 - **Show layers** only changes how the canvas and the list are drawn (`EditorView.camadas`). The SVG never gets those colors. A group is one block with one color (`blocosDasCamadas`).

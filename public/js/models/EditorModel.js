@@ -4,6 +4,7 @@ import {
   aplicarUniaoInterna,
   formaTocaRetangulo,
   fmt,
+  formaFechada,
   lerPath,
   limitesDoElemento,
   matrizes,
@@ -1007,6 +1008,49 @@ export class EditorModel {
       else attrs["stroke-width"] = valor;
       this.elementos[i] = { ...el, attrs };
     }
+  }
+
+  // ── Preenchimento ────────────────────────────────────────────────────────
+  // Só nas formas fechadas da seleção
+  formasPreenchiveis() {
+    if (!this.temSelecao) return [];
+    return this.alvos().filter((i) => this.elementos[i] && !this.elementos[i].html && formaFechada(this.elementos[i]));
+  }
+
+  get podePreencher() {
+    return this.formasPreenchiveis().length > 0;
+  }
+
+  get preenchida() {
+    const formas = this.formasPreenchiveis();
+    return formas.length > 0 && formas.every((i) => this.efetivo(this.elementos[i], "fill") !== "none");
+  }
+
+  // Liga ou desliga, em todas juntas. O preenchimento usa a cor do traço. Ao
+  // desligar numa forma sem traço (as do Bootstrap), o traço assume a cor dela,
+  // porque sem os dois a forma sumiria. Devolve se mudou.
+  alternarPreenchimento() {
+    const formas = this.formasPreenchiveis();
+    if (!formas.length) return false;
+    const preencher = !this.preenchida;
+    this.registrar();
+    for (const i of formas) {
+      const el = this.elementos[i];
+      const attrs = { ...el.attrs };
+      const traco = this.efetivo(el, "stroke");
+      const fundo = this.efetivo(el, "fill");
+      if (preencher) {
+        const cor = traco === "none" ? "currentColor" : traco;
+        if (cor === this.raiz.fill) delete attrs.fill;
+        else attrs.fill = cor;
+      } else {
+        if (traco === "none") attrs.stroke = fundo;
+        if ((this.raiz.fill ?? PADRAO_DESENHO.fill) === "none") delete attrs.fill;
+        else attrs.fill = "none";
+      }
+      this.elementos[i] = { ...el, attrs };
+    }
+    return true;
   }
 
   // Cor e espessura atuais da seleção, para os controles: { cor, traco }.

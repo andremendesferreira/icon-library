@@ -84,6 +84,9 @@ export class EditorController {
       },
       aoAvisar: (mensagem) => this.avisar(mensagem),
       aoEstaSelecionada: (i) => model.temSelecao && model.alvos().includes(i),
+      aoPreencher: () => {
+        if (model.alternarPreenchimento()) this.desenhar();
+      },
       aoIniciarCorte: () => this.avisar(t(this.view.toque ? "editor.splitHintTouch" : "editor.splitHint")),
       // Devolve se cortou; fora do traço, avisa e o modo de corte continua
       aoSeparar: (x, y) => {
@@ -414,6 +417,8 @@ export class EditorController {
         podeDesagrupar: model.podeDesagrupar,
         podeUnir: model.podeUnir,
         linhaAberta: model.linhaAberta,
+        podePreencher: model.podePreencher,
+        preenchida: model.preenchida,
         blocos: model.blocosDasCamadas(),
         ligacao: model.ligacaoDaUniao,
         uniaoDaForma: model.uniaoDaForma,

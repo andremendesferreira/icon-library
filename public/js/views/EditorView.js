@@ -84,6 +84,7 @@ export class EditorView {
   // Celular: cada toque soma ou tira uma forma, sem precisar do Shift
   varias = false;
   botaoCamadas = porId("editor-layers");
+  botaoPreencher = porId("editor-fill");
   // Cada forma com uma cor, para ver a ordem. Só no desenho: o SVG não muda.
   camadas = false;
   botaoMenosPonto = porId("editor-point-remove");
@@ -224,6 +225,7 @@ export class EditorView {
         if (botao.getAttribute("aria-disabled") === "true") acoes.aoAvisar(botao.title);
         else acao();
       });
+    seAtivo(this.botaoPreencher, acoes.aoPreencher);
     seAtivo(this.botaoAgrupar, acoes.aoAgrupar);
     seAtivo(this.botaoDesagrupar, acoes.aoDesagrupar);
     seAtivo(this.botaoUnir, acoes.aoUnir);
@@ -569,6 +571,9 @@ export class EditorView {
     this.mostrarEstiloSelecao(estado.estiloSelecao);
     this.mostrarPontos(estado);
     this.mostrarCombinar(estado);
+    this.botaoPreencher.setAttribute("aria-disabled", String(!estado.podePreencher));
+    this.botaoPreencher.setAttribute("aria-pressed", String(estado.preenchida));
+    this.botaoPreencher.title = t(estado.podePreencher ? "editor.fillTitle" : "editor.fillNeed");
     this.barraDesfazer.disabled = !estado.podeDesfazer;
     this.barraRefazer.disabled = !estado.podeRefazer;
     this.barraApagar.disabled = !estado.quantidade;

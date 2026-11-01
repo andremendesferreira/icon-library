@@ -868,3 +868,55 @@ test("EditorModel: Unir com uma forma só fecha, ou liga ao ponto escolhido", ()
   assert.equal(model.elementos[0].attrs.d, "M2 2L12 12L22 2L22 20Z");
   assert.equal(model.podeUnir, false); // já fechada
 });
+
+test("formaFechada: círculos, polígonos e paths fechados", async () => {
+  const { formaFechada } = await import("../public/js/models/svgGeometry.js");
+  assert.equal(formaFechada({ tag: "circle", attrs: { cx: "1", cy: "1", r: "1" } }), true);
+  assert.equal(formaFechada({ tag: "polygon", attrs: { points: "0 0 4 0 4 4" } }), true);
+  assert.equal(formaFechada(path("M0 0L4 0L4 4Z")), true);
+  assert.equal(formaFechada(path("M0 0L4 0L4 4L0 0")), true); // volta ao início
+  assert.equal(formaFechada(path("M0 0L4 0L4 4Z M8 8L9 9")), false); // um trecho aberto
+  assert.equal(formaFechada(path("M0 0L4 0L4 4")), false);
+  assert.equal(formaFechada({ tag: "line", attrs: { x1: "1", y1: "1", x2: "9", y2: "9" } }), false);
+  assert.equal(formaFechada({ tag: "polyline", attrs: { points: "0 0 4 0 4 4" } }), false);
+});
+
+test("EditorModel: preencher uma forma fechada e tirar o preenchimento", () => {
+  const model = quatroFormas();
+  model.selecionar(0); // linha
+  assert.equal(model.podePreencher, false);
+  assert.equal(model.alternarPreenchimento(), false);
+  model.selecionar(2); // círculo
+  assert.equal(model.podePreencher, true);
+  assert.equal(model.preenchida, false);
+  model.alternarPreenchimento();
+  assert.equal(model.elementos[2].attrs.fill, "currentColor");
+  assert.equal(model.preenchida, true);
+  assert.match(model.svg(), /<circle[^>]*fill="currentColor"/);
+  model.alternarPreenchimento();
+  assert.equal(model.elementos[2].attrs.fill, undefined);
+  model.alternarPreenchimento();
+  model.desfazer();
+  assert.equal(model.preenchida, false);
+  // Com cor própria, o preenchimento segue a cor
+  model.definirCor("#ff0000");
+  model.alternarPreenchimento();
+  assert.equal(model.elementos[2].attrs.fill, "#ff0000");
+  model.definirCor("#00ff00");
+  assert.equal(model.elementos[2].attrs.fill, "#00ff00");
+});
+
+test("EditorModel: tirar o preenchimento de uma forma sem traço não a faz sumir", () => {
+  const model = new EditorModel();
+  model.definirDocumento({
+    raiz: { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 16 16", fill: "currentColor" },
+    elementos: [path("M0 0L4 0L4 4Z")],
+  });
+  model.selecionar(0);
+  assert.equal(model.preenchida, true);
+  model.alternarPreenchimento();
+  assert.equal(model.elementos[0].attrs.fill, "none");
+  assert.equal(model.elementos[0].attrs.stroke, "currentColor");
+  model.alternarPreenchimento();
+  assert.equal(model.preenchida, true);
+});

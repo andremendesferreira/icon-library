@@ -889,6 +889,25 @@ export function unirTracos(a, b) {
   return { ...a, tag: "path", attrs: { d: escreverPath(cmds), ...estilo } };
 }
 
+// A forma é fechada? Círculos, retângulos e polígonos sempre; um path, se todos
+// os trechos terminam com Z ou voltam ao ponto em que começaram.
+export function formaFechada(elemento) {
+  if (["circle", "ellipse", "rect", "polygon"].includes(elemento.tag)) return true;
+  let cmds;
+  try {
+    cmds = comandosDaForma(elemento);
+  } catch {
+    return false;
+  }
+  if (!cmds) return false;
+  const subs = subcaminhos(cmds);
+  return subs.length > 0 && subs.every((sub) => {
+    if (sub.fechado) return true;
+    const { c } = sub.trechos[sub.trechos.length - 1];
+    return sub.trechos.length > 1 && Math.hypot(c.x - sub.inicio.x, c.y - sub.inicio.y) < 1e-3;
+  });
+}
+
 // ── Unir dentro da mesma forma ───────────────────────────────────────────────
 // Numa linha aberta, as pontas são as do último trecho. Sem ponto, ou com uma
 // das pontas como ponto, a linha se fecha. Com um ponto no meio, a ponta mais

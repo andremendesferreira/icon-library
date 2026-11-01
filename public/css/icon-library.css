@@ -2249,6 +2249,20 @@ body:has(.scratchpad--open) .back-to-top {
   color: #42505e;
 }
 
+/* Preencher: marcado quando a forma está preenchida */
+.editor__buttons .editor__fill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.editor__buttons .editor__fill[aria-pressed="true"],
+[data-theme="dark"] .editor__buttons .editor__fill[aria-pressed="true"] {
+  border-color: var(--il-blue);
+  background: var(--il-blue);
+  color: #fff;
+}
+
 /* Nome dos botões de Combinar: só no celular, onde não há dica de mouse */
 .editor__rotulo {
   display: none;
