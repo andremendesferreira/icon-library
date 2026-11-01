@@ -82,11 +82,12 @@ export class EditorController {
         this.desenhar();
         return true;
       },
-      aoIniciarCorte: () => this.avisar(t("editor.splitHint")),
+      aoEstaSelecionada: (i) => model.temSelecao && model.alvos().includes(i),
+      aoIniciarCorte: () => this.avisar(t(this.view.toque ? "editor.splitHintTouch" : "editor.splitHint")),
       // Devolve se cortou; fora do traço, avisa e o modo de corte continua
       aoSeparar: (x, y) => {
         if (!model.separar(x, y)) {
-          this.avisar(t("editor.splitMiss"));
+          this.avisar(t(this.view.toque ? "editor.splitMissTouch" : "editor.splitMiss"));
           return false;
         }
         this.desenhar();

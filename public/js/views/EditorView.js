@@ -14,6 +14,10 @@ const ATRIBUTOS_DE_DESENHO = new Set([
 // Tamanho, em pixels de tela, dos pontos e da área de clique
 const RAIO_PONTO = 6;
 const LARGURA_CLIQUE = 14;
+const RAIO_PONTO_TOQUE = 10;
+const LARGURA_CLIQUE_TOQUE = 26;
+// Em pixels: quanto o dedo precisa andar para virar arraste
+const TOLERANCIA_TOQUE = 8;
 const DUPLO_CLIQUE_MS = 350;
 // Em pixels: menos que isso ainda é um clique
 const MOVIMENTO_MINIMO = 4;
@@ -65,6 +69,15 @@ export class EditorView {
   dica = porId("editor-hint");
   contagem = porId("editor-selected-count");
   ajuda = porId("editor-help");
+  layout = porId("editor-layout");
+  barraDesfazer = porId("editor-undo-bar");
+  barraRefazer = porId("editor-redo-bar");
+  barraApagar = porId("editor-delete-bar");
+  botaoVarias = porId("editor-multi");
+  // Dedo em vez de mouse: alvos maiores e textos sem teclas
+  toque = window.matchMedia?.("(pointer: coarse)").matches ?? false;
+  // Celular: cada toque soma ou tira uma forma, sem precisar do Shift
+  varias = false;
   botaoMenosPonto = porId("editor-point-remove");
   dicaPontos = porId("editor-points-hint");
   cor = porId("editor-color");
@@ -124,6 +137,7 @@ export class EditorView {
     if (this.acoes?.temAlteracoes() && !window.confirm(t("editor.confirmClose"))) return;
     this.janela.close();
     this.modoCorte(false);
+    this.modoVarias(false);
     this.acoes?.aoFechar();
   }
 
@@ -185,6 +199,14 @@ export class EditorView {
     porId("editor-scratchpad").addEventListener("click", acoes.aoScratchpad);
 
     this.botaoMaisPonto.addEventListener("click", acoes.aoAdicionarPonto);
+    this.barraDesfazer.addEventListener("click", acoes.aoDesfazer);
+    this.barraRefazer.addEventListener("click", acoes.aoRefazer);
+    this.barraApagar.addEventListener("click", () => acoes.aoRemover(null));
+    this.botaoVarias.addEventListener("click", () => this.modoVarias(!this.varias));
+    this.layout.querySelector(".editor__abas").addEventListener("click", (evento) => {
+      const aba = evento.target.closest("[data-aba]");
+      if (aba) this.mostrarAba(aba.dataset.aba);
+    });
     this.botaoAgrupar.addEventListener("click", acoes.aoAgrupar);
     this.botaoDesagrupar.addEventListener("click", acoes.aoDesagrupar);
     this.botaoUnir.addEventListener("click", acoes.aoUnir);
@@ -377,6 +399,17 @@ export class EditorView {
     this.botaoSeparar.setAttribute("aria-pressed", String(ligado));
   }
 
+  modoVarias(ligado) {
+    this.varias = ligado;
+    this.botaoVarias.setAttribute("aria-pressed", String(ligado));
+  }
+
+  mostrarAba(aba) {
+    this.layout.dataset.aba = aba;
+    for (const botao of this.layout.querySelectorAll(".editor__abas [data-aba]"))
+      botao.setAttribute("aria-selected", String(botao.dataset.aba === aba));
+  }
+
   // Ajuda dos comandos: no Mac, a tecla Ctrl aparece como ⌘
   abrirAjuda() {
     if (this.ajuda.open) return;
@@ -408,8 +441,9 @@ export class EditorView {
       const forma = evento.target.closest("[data-i]");
       // No vazio, ou com Shift em qualquer lugar: começa um retângulo de
       // seleção. Sem movimento, vira um clique (ver terminar)
-      if (evento.shiftKey || (!ponto && !forma)) {
-        if (!evento.shiftKey) this.acoes.aoSelecionar(null);
+      const somar = evento.shiftKey || this.varias;
+      if (somar || (!ponto && !forma)) {
+        if (!somar) this.acoes.aoSelecionar(null);
         evento.preventDefault();
         try {
           this.canvas.setPointerCapture(evento.pointerId);
@@ -418,7 +452,7 @@ export class EditorView {
         }
         this.area = {
           id: evento.pointerId,
-          somar: evento.shiftKey,
+          somar,
           forma: forma ? Number(forma.dataset.i) : null,
           inicio: this.pontoDoPonteiro(evento),
           tela: { x: evento.clientX, y: evento.clientY },
@@ -428,6 +462,9 @@ export class EditorView {
       }
       if (forma) {
         const i = Number(forma.dataset.i);
+        // Com o dedo, o primeiro toque só seleciona: encostar numa forma não
+        // pode movê-la sem querer. Mover é para o que já está selecionado.
+        const movivel = evento.pointerType !== "touch" || ponto || this.acoes.aoEstaSelecionada(i);
         // Os nós são recriados a cada desenho, então o evento dblclick não
         // chega: o duplo clique é contado aqui
         const agora = evento.timeStamp;
@@ -435,6 +472,7 @@ export class EditorView {
         this.cliqueAnterior = { i, quando: agora };
         if (duplo) this.acoes.aoEntrarNaForma(i);
         else this.acoes.aoClicarForma(i);
+        if (!movivel) return;
       }
       if (ponto) this.acoes.aoSelecionarPonto(ponto.dataset.ponto);
       if (!this.acoes.aoIniciarArraste()) return;
@@ -449,6 +487,9 @@ export class EditorView {
         id: evento.pointerId,
         ponto: ponto?.dataset.ponto ?? null,
         inicio: this.pontoDoPonteiro(evento),
+        // O dedo sempre treme um pouco: só vira arraste depois de um movimento
+        solto: evento.pointerType !== "touch",
+        tela: { x: evento.clientX, y: evento.clientY },
       };
     });
     this.canvas.addEventListener("pointermove", (evento) => {
@@ -458,6 +499,12 @@ export class EditorView {
       }
       if (!this.arraste || evento.pointerId !== this.arraste.id) return;
       const p = this.pontoDoPonteiro(evento);
+      if (!this.arraste.solto) {
+        const { tela } = this.arraste;
+        if (Math.hypot(evento.clientX - tela.x, evento.clientY - tela.y) < TOLERANCIA_TOQUE) return;
+        this.arraste.solto = true;
+        this.arraste.inicio = p;
+      }
       if (this.arraste.ponto) this.acoes.aoArrastarPonto(this.arraste.ponto, p.x, p.y);
       else
         this.acoes.aoArrastarElemento(
@@ -490,6 +537,9 @@ export class EditorView {
     this.mostrarEstiloSelecao(estado.estiloSelecao);
     this.mostrarPontos(estado);
     this.mostrarCombinar(estado);
+    this.barraDesfazer.disabled = !estado.podeDesfazer;
+    this.barraRefazer.disabled = !estado.podeRefazer;
+    this.barraApagar.disabled = !estado.quantidade;
     this.mostrarDica(estado);
     this.contagem.textContent = estado.quantidade > 1 ? `· ${t("editor.shapes", { n: estado.quantidade })}` : "";
     if (atualizarCodigo) {
@@ -528,7 +578,7 @@ export class EditorView {
         : quantidade > 1
           ? "editor.hintMany"
           : "editor.hintOne";
-    this.dica.textContent = t(chave);
+    this.dica.textContent = t(this.toque ? `${chave}Touch` : chave);
   }
 
   // Botões + Ponto / − Ponto: aparecem com uma forma de traço selecionada;
@@ -658,7 +708,7 @@ export class EditorView {
         "data-i": i,
         fill: preenchida ? "transparent" : "none",
         stroke: "transparent",
-        "stroke-width": LARGURA_CLIQUE,
+        "stroke-width": this.toque ? LARGURA_CLIQUE_TOQUE : LARGURA_CLIQUE,
         "vector-effect": "non-scaling-stroke",
       }));
     });
@@ -685,7 +735,7 @@ export class EditorView {
           }));
       for (const p of pontos)
         camada.append(criar("circle", {
-          cx: p.x, cy: p.y, r: RAIO_PONTO / escala,
+          cx: p.x, cy: p.y, r: (this.toque ? RAIO_PONTO_TOQUE : RAIO_PONTO) / escala,
           class: `editor__handle editor__handle--${p.tipo}${p.id === pontoSelecionado ? " editor__handle--sel" : ""}`,
           "data-ponto": p.id,
           "vector-effect": "non-scaling-stroke",

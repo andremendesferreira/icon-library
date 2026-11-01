@@ -1526,6 +1526,7 @@ body:has(.scratchpad--open) .back-to-top {
 }
 .editor__header {
   grid-area: header;
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1575,8 +1576,16 @@ body:has(.scratchpad--open) .back-to-top {
   text-transform: uppercase;
   color: #7f8c8d;
 }
-.editor__side .editor__heading:first-child {
+.editor__painel[data-painel="formas"] > .editor__heading:first-child {
   margin-top: 0;
+}
+/* Os painéis só existem como abas no celular */
+.editor__painel {
+  display: contents;
+}
+.editor__barra,
+.editor__abas {
+  display: none;
 }
 .editor__note {
   margin: -4px 0 8px;
@@ -1883,23 +1892,200 @@ body:has(.scratchpad--open) .back-to-top {
     height: 100%;
     border-radius: 0;
   }
+  /* Celular: o desenho fica sempre à vista, com as ferramentas em abas */
   .editor__layout {
-    height: auto;
-    min-height: 100%;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto auto;
-    grid-template-areas: "header" "stage" "side" "code" "footer";
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+  }
+  .editor__header {
+    order: -2;
+    padding: 6px 12px;
   }
   .editor__stage {
-    height: min(92vw, 60vh);
+    order: -1;
+  }
+  .editor__barra {
+    order: 1;
+  }
+  .editor__abas {
+    order: 2;
   }
   .editor__side,
   .editor__code {
-    border: none;
+    order: 3;
+  }
+  .editor__footer {
+    order: 4;
+  }
+  .editor__stage {
+    flex: none;
+    height: min(92vw, 40dvh);
+    padding: 4px 8px;
+  }
+  .editor__hint {
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+  .editor__barra {
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px 8px;
     border-top: 1px solid #e4e9f0;
   }
+  .editor__barra button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    min-height: 44px;
+    padding: 3px 2px;
+    border: 1px solid #c5d0dc;
+    border-radius: 8px;
+    background: #fff;
+    font: inherit;
+    font-size: 11px;
+    line-height: 1.2;
+    color: #42505e;
+    cursor: pointer;
+  }
+  .editor__barra button:disabled {
+    opacity: 0.4;
+  }
+  .editor__barra button[aria-pressed="true"] {
+    border-color: var(--il-blue);
+    background: var(--il-blue);
+    color: #fff;
+  }
+  .editor__abas {
+    flex: none;
+    display: flex;
+    overflow-x: auto;
+    border-top: 1px solid #e4e9f0;
+    border-bottom: 1px solid #e4e9f0;
+  }
+  .editor__abas button {
+    flex: 1 0 auto;
+    min-height: 40px;
+    padding: 0 8px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font: inherit;
+    font-size: 12.5px;
+    color: #5b6b7b;
+    cursor: pointer;
+  }
+  .editor__abas button[aria-selected="true"] {
+    border-bottom-color: var(--il-blue);
+    font-weight: 700;
+    color: var(--il-blue-dark);
+  }
+  .editor__side,
+  .editor__code {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px 12px;
+    border: none;
+  }
+  .editor__painel {
+    display: none;
+  }
+  [data-aba="formas"] > .editor__side > [data-painel="formas"],
+  [data-aba="editar"] > .editor__side > [data-painel="editar"],
+  [data-aba="transformar"] > .editor__side > [data-painel="transformar"],
+  [data-aba="elementos"] > .editor__code > [data-painel="elementos"] {
+    display: block;
+  }
+  [data-aba="exportar"] > .editor__code > [data-painel="exportar"] {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+  [data-aba="elementos"] > .editor__side,
+  [data-aba="exportar"] > .editor__side,
+  [data-aba="formas"] > .editor__code,
+  [data-aba="editar"] > .editor__code,
+  [data-aba="transformar"] > .editor__code {
+    display: none;
+  }
+  .editor__painel .editor__heading:first-child {
+    margin-top: 0;
+  }
+  .editor__elements {
+    max-height: none;
+  }
   .editor__textarea {
-    min-height: 160px;
+    min-height: 90px;
+  }
+  /* O rodapé (salvar, baixar, copiar) é a aba Exportar; desfazer está na barra */
+  .editor__layout:not([data-aba="exportar"]) > .editor__footer,
+  #editor-undo,
+  #editor-redo {
+    display: none;
+  }
+  .editor__footer {
+    flex: none;
+    gap: 6px;
+    padding: 8px 12px;
+  }
+  .editor__footer button {
+    padding: 6px 8px;
+  }
+  .editor__spacer {
+    display: none;
+  }
+}
+/* Celular deitado: o desenho à esquerda e as ferramentas à direita */
+@media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+  .editor__layout {
+    display: grid;
+    grid-template-columns: 42% minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "header header"
+      "stage barra"
+      "stage abas"
+      "stage painel"
+      "stage footer";
+  }
+  .editor__stage {
+    grid-area: stage;
+    height: auto;
+    min-height: 0;
+  }
+  .editor__barra {
+    grid-area: barra;
+    border-top: none;
+  }
+  .editor__abas {
+    grid-area: abas;
+    border-top: none;
+  }
+  .editor__side,
+  .editor__code {
+    grid-area: painel;
+  }
+  .editor__footer {
+    grid-area: footer;
+  }
+}
+/* Dedo: a ajuda mostra os gestos e os botões, sem as teclas */
+.editor-help__toque {
+  display: none !important;
+}
+@media (pointer: coarse) {
+  .editor-help__toque {
+    display: flex !important;
+  }
+  .editor-help__teclado,
+  .editor-help kbd,
+  .editor-help__keys i {
+    display: none !important;
   }
 }
 [data-theme="dark"] .editor {
@@ -2079,13 +2265,20 @@ body:has(.scratchpad--open) .back-to-top {
 .editor-help::backdrop {
   background: rgba(15, 23, 42, 0.5);
 }
-.editor-help__body {
-  padding: 16px 20px 20px;
+.editor-help__sections {
+  padding: 0 20px 20px;
 }
+/* Fica no topo ao rolar, para o × continuar ao alcance */
 .editor-help__header {
+  margin: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 12px 20px 8px;
+  background: #fff;
 }
 .editor-help__header h2 {
   margin: 0;
@@ -2152,6 +2345,21 @@ body:has(.scratchpad--open) .back-to-top {
 }
 [data-theme="dark"] .editor-help {
   background: var(--dk-surface);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .editor-help__header {
+  background: var(--dk-surface);
+}
+[data-theme="dark"] .editor__barra,
+[data-theme="dark"] .editor__abas {
+  border-color: var(--dk-border);
+}
+[data-theme="dark"] .editor__barra button:not([aria-pressed="true"]) {
+  border-color: var(--dk-border);
+  background: var(--dk-surface-2);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .editor__abas button {
   color: var(--dk-text);
 }
 [data-theme="dark"] .editor-help__list li {

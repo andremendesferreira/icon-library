@@ -8,3 +8,5 @@ stack.env
 
 # Textos e imagens para divulgação (LinkedIn), fora do repositório
 linkedin/
+divulgacao/
+tests/mobile/video/
