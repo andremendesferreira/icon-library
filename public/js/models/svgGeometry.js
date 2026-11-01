@@ -800,7 +800,7 @@ export function novaForma(tag, { x, y, w, h }) {
 }
 
 // ── Unir dois traços ─────────────────────────────────────────────────────────
-// Traço aberto (line, polyline ou path de um trecho só, sem Z) → comandos
+// Traço aberto (line, polyline ou path sem Z, mesmo com vários trechos) → comandos
 // absolutos começando num M; null para o resto (formas fechadas, círculos…)
 function comandosDoTraco({ tag, attrs }) {
   if (tag === "line")
@@ -820,8 +820,7 @@ function comandosDoTraco({ tag, attrs }) {
   } catch {
     return null;
   }
-  const abertos = cmds.length > 1 && cmds[0].t === "M" &&
-    cmds.slice(1).every((c) => c.t !== "M" && c.t !== "Z");
+  const abertos = cmds.length > 1 && cmds[0].t === "M" && cmds.every((c) => c.t !== "Z");
   return abertos ? cmds : null;
 }
 
@@ -835,12 +834,42 @@ function inverterTraco(cmds) {
   for (let k = cmds.length - 1; k > 0; k--) {
     const c = cmds[k];
     const { x, y } = cmds[k - 1];
-    if (c.t === "C") invertido.push({ t: "C", x1: c.x2, y1: c.y2, x2: c.x1, y2: c.y1, x, y });
+    // Entre dois trechos, o lápis continua levantado
+    if (c.t === "M") invertido.push({ t: "M", x, y });
+    else if (c.t === "C") invertido.push({ t: "C", x1: c.x2, y1: c.y2, x2: c.x1, y2: c.y1, x, y });
     else if (c.t === "Q") invertido.push({ t: "Q", x1: c.x1, y1: c.y1, x, y });
     else if (c.t === "A") invertido.push({ ...c, sweep: c.sweep ? 0 : 1, x, y });
     else invertido.push({ t: "L", x, y });
   }
   return invertido;
+}
+
+const inicio = (cmds) => cmds[0];
+const fim = (cmds) => cmds[cmds.length - 1];
+const distancia = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+
+// Qual ponta liga com qual: a combinação em que elas ficam mais perto
+function melhorLigacao(ca, cb) {
+  return [
+    [ca, cb],
+    [ca, inverterTraco(cb)],
+    [inverterTraco(ca), cb],
+    [cb, ca],
+  ].reduce((melhor, opcao) =>
+    distancia(fim(opcao[0]), inicio(opcao[1])) < distancia(fim(melhor[0]), inicio(melhor[1]))
+      ? opcao
+      : melhor,
+  );
+}
+
+// As duas pontas que unirTracos ligaria: { de, para }, ou null
+export function pontasDaUniao(a, b) {
+  const ca = comandosDoTraco(a);
+  const cb = comandosDoTraco(b);
+  if (!ca || !cb) return null;
+  const [primeiro, segundo] = melhorLigacao(ca, cb);
+  const { x, y } = fim(primeiro);
+  return { de: { x, y }, para: { x: inicio(segundo).x, y: inicio(segundo).y } };
 }
 
 // Junta dois traços abertos num path só, pelas pontas mais próximas: se elas
@@ -850,20 +879,7 @@ export function unirTracos(a, b) {
   const ca = comandosDoTraco(a);
   const cb = comandosDoTraco(b);
   if (!ca || !cb) return null;
-  const inicio = (cmds) => cmds[0];
-  const fim = (cmds) => cmds[cmds.length - 1];
-  const distancia = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
-  const opcoes = [
-    [ca, cb],
-    [ca, inverterTraco(cb)],
-    [inverterTraco(ca), cb],
-    [cb, ca],
-  ];
-  const [primeiro, segundo] = opcoes.reduce((melhor, opcao) =>
-    distancia(fim(opcao[0]), inicio(opcao[1])) < distancia(fim(melhor[0]), inicio(melhor[1]))
-      ? opcao
-      : melhor,
-  );
+  const [primeiro, segundo] = melhorLigacao(ca, cb);
   const encostam = distancia(fim(primeiro), inicio(segundo)) < 1e-3;
   const resto = segundo.slice(1);
   const cmds = encostam

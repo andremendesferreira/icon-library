@@ -8,6 +8,7 @@ import {
   matrizes,
   moverPonto,
   novaForma,
+  pontasDaUniao,
   pontosDoElemento,
   podeUnir,
   removerPonto,
@@ -404,6 +405,20 @@ export class EditorModel {
     if (this.quantidade !== 2) return false;
     const [a, b] = this.alvos();
     return podeUnir(this.elementos[a], this.elementos[b]);
+  }
+
+  // Uma linha aberta sozinha: falta só marcar a outra para poder unir
+  get linhaAberta() {
+    if (this.quantidade !== 1) return false;
+    const el = this.elementos[this.alvos()[0]];
+    return podeUnir(el, el);
+  }
+
+  // As pontas que Unir ligaria, para mostrar no desenho antes de agir
+  get ligacaoDaUniao() {
+    if (!this.podeUnir) return null;
+    const [a, b] = this.alvos();
+    return pontasDaUniao(this.elementos[a], this.elementos[b]);
   }
 
   // Separar: uma forma só selecionada, que o editor sabe desenhar

@@ -15,6 +15,8 @@ const ATRIBUTOS_DE_DESENHO = new Set([
 const RAIO_PONTO = 6;
 const LARGURA_CLIQUE = 14;
 const RAIO_PONTO_TOQUE = 10;
+// Distinguíveis entre si, nos dois temas e também com daltonismo (Okabe–Ito)
+const CORES_DAS_CAMADAS = ["#0072b2", "#e69f00", "#009e73", "#cc79a7", "#d55e00", "#56b4e9", "#8e44ad", "#7a8b00"];
 const LARGURA_CLIQUE_TOQUE = 26;
 // Em pixels: quanto o dedo precisa andar para virar arraste
 const TOLERANCIA_TOQUE = 8;
@@ -78,6 +80,9 @@ export class EditorView {
   toque = window.matchMedia?.("(pointer: coarse)").matches ?? false;
   // Celular: cada toque soma ou tira uma forma, sem precisar do Shift
   varias = false;
+  botaoCamadas = porId("editor-layers");
+  // Cada forma com uma cor, para ver a ordem. Só no desenho: o SVG não muda.
+  camadas = false;
   botaoMenosPonto = porId("editor-point-remove");
   dicaPontos = porId("editor-points-hint");
   cor = porId("editor-color");
@@ -138,6 +143,8 @@ export class EditorView {
     this.janela.close();
     this.modoCorte(false);
     this.modoVarias(false);
+    this.camadas = false;
+    this.botaoCamadas.setAttribute("aria-pressed", "false");
     this.acoes?.aoFechar();
   }
 
@@ -207,16 +214,24 @@ export class EditorView {
       const aba = evento.target.closest("[data-aba]");
       if (aba) this.mostrarAba(aba.dataset.aba);
     });
-    this.botaoAgrupar.addEventListener("click", acoes.aoAgrupar);
-    this.botaoDesagrupar.addEventListener("click", acoes.aoDesagrupar);
-    this.botaoUnir.addEventListener("click", acoes.aoUnir);
+    // Apagado, o botão não age e explica o que falta: no celular não existe
+    // a dica de passar o mouse
+    const seAtivo = (botao, acao) =>
+      botao.addEventListener("click", () => {
+        if (botao.getAttribute("aria-disabled") === "true") acoes.aoAvisar(botao.title);
+        else acao();
+      });
+    seAtivo(this.botaoAgrupar, acoes.aoAgrupar);
+    seAtivo(this.botaoDesagrupar, acoes.aoDesagrupar);
+    seAtivo(this.botaoUnir, acoes.aoUnir);
+    this.botaoCamadas.addEventListener("click", () => this.modoCamadas(!this.camadas));
     porId("editor-help-open").addEventListener("click", () => this.abrirAjuda());
     porId("editor-help-close").addEventListener("click", () => this.ajuda.close());
     // Clique no fundo escuro fecha a ajuda
     this.ajuda.addEventListener("click", (evento) => {
       if (evento.target === this.ajuda) this.ajuda.close();
     });
-    this.botaoSeparar.addEventListener("click", () => {
+    seAtivo(this.botaoSeparar, () => {
       this.modoCorte(!this.cortando);
       if (this.cortando) acoes.aoIniciarCorte();
     });
@@ -399,6 +414,12 @@ export class EditorView {
     this.botaoSeparar.setAttribute("aria-pressed", String(ligado));
   }
 
+  modoCamadas(ligado) {
+    this.camadas = ligado;
+    this.botaoCamadas.setAttribute("aria-pressed", String(ligado));
+    if (this.ultimoEstado) this.mostrar(this.ultimoEstado, { atualizarCodigo: false });
+  }
+
   modoVarias(ligado) {
     this.varias = ligado;
     this.botaoVarias.setAttribute("aria-pressed", String(ligado));
@@ -531,6 +552,7 @@ export class EditorView {
   //   podeDesfazer, podeRefazer, passo, linkStudio, quantidade, caixa,
   //   podeAgrupar, podeDesagrupar, podeUnir, podeSeparar }
   mostrar(estado, { atualizarCodigo = true } = {}) {
+    this.ultimoEstado = estado;
     this.desenharCanvas(estado);
     this.desenharLista(estado);
     this.desenharPrevias(estado.svg);
@@ -558,7 +580,7 @@ export class EditorView {
   mostrarCombinar({ podeAgrupar, podeDesagrupar, podeUnir, podeSeparar }) {
     const botao = (no, pode, chave, chaveFalta) => {
       const texto = t(pode ? chave : chaveFalta);
-      no.disabled = !pode;
+      no.setAttribute("aria-disabled", String(!pode));
       no.title = texto;
       no.setAttribute("aria-label", texto);
     };
@@ -570,14 +592,18 @@ export class EditorView {
   }
 
   // Uma frase para o momento, em vez de todos os atalhos de uma vez
-  mostrarDica({ quantidade, grupoSelecionado }) {
+  mostrarDica({ quantidade, grupoSelecionado, podeUnir, linhaAberta }) {
     const chave = !quantidade
       ? "editor.hintNone"
       : grupoSelecionado
         ? "editor.hintGroup"
-        : quantidade > 1
-          ? "editor.hintMany"
-          : "editor.hintOne";
+        : podeUnir
+          ? "editor.hintJoin"
+          : quantidade > 1
+            ? "editor.hintMany"
+            : linhaAberta
+              ? "editor.hintLine"
+              : "editor.hintOne";
     this.dica.textContent = t(this.toque ? `${chave}Touch` : chave);
   }
 
@@ -642,7 +668,7 @@ export class EditorView {
     }
   }
 
-  desenharCanvas({ raiz, elementos, selecionados, pontos, pontoSelecionado, viewBox, fora, caixa }) {
+  desenharCanvas({ raiz, elementos, selecionados, pontos, pontoSelecionado, viewBox, fora, caixa, ligacao }) {
     const { x, y, w, h } = viewBox;
     // A margem abre espaço para pontos de controle fora da área do ícone
     // (comuns em curvas), para todos poderem ser pegos. Durante um arraste
@@ -688,7 +714,7 @@ export class EditorView {
 
     elementos.forEach((el, i) => {
       if (el.oculto) return;
-      const no = el.html ? this.deHtml(el.html) : criar(el.tag, el.attrs);
+      const no = el.html ? this.deHtml(el.html) : criar(el.tag, this.camadas ? this.comCorDaCamada(el, i, desenho) : el.attrs);
       if (!no) return;
       icone.append(no);
       if (el.html) return;
@@ -722,6 +748,13 @@ export class EditorView {
         class: "editor__box",
         "vector-effect": "non-scaling-stroke",
       }));
+    // Unir: as duas pontas que serão ligadas
+    if (ligacao) {
+      const { de, para } = ligacao;
+      contornos.append(criar("line", { x1: de.x, y1: de.y, x2: para.x, y2: para.y, class: "editor__ligacao", "vector-effect": "non-scaling-stroke" }));
+      for (const p of [de, para])
+        contornos.append(criar("circle", { cx: p.x, cy: p.y, r: 5 / escala, class: "editor__ligacao-ponta", "vector-effect": "non-scaling-stroke" }));
+    }
     this.canvas.append(icone, contornos, cliques);
 
     // Pontos do elemento selecionado, e linhas dos controles de curva
@@ -742,6 +775,15 @@ export class EditorView {
         }));
       this.canvas.append(camada);
     }
+  }
+
+  // Atributos da forma com a cor da camada, sem tocar no que é "none"
+  comCorDaCamada(el, i, desenho) {
+    const cor = CORES_DAS_CAMADAS[i % CORES_DAS_CAMADAS.length];
+    const attrs = { ...el.attrs };
+    if ((attrs.stroke ?? desenho.stroke ?? "none") !== "none") attrs.stroke = cor;
+    if ((attrs.fill ?? desenho.fill ?? "black") !== "none") attrs.fill = cor;
+    return attrs;
   }
 
   // Elemento que o editor não entende (g, text…): desenhado como está
@@ -774,13 +816,23 @@ export class EditorView {
       const cor = el.html
         ? null
         : [el.attrs.stroke, el.attrs.fill].find((v) => v && v !== "none" && v !== "currentColor");
-      const amostra = cor
-        ? `<i class="editor__swatch" style="background:${escapar(cor)}" aria-hidden="true"></i>`
+      const corDaLinha = this.camadas ? CORES_DAS_CAMADAS[i % CORES_DAS_CAMADAS.length] : cor;
+      const amostra = corDaLinha
+        ? `<i class="editor__swatch" style="background:${escapar(corDaLinha)}" aria-hidden="true"></i>`
         : "";
+      // Com as camadas ligadas, a lista diz qual forma está na frente e no fundo
+      const camada = !this.camadas || elementos.length < 2
+        ? ""
+        : i === 0
+          ? t("editor.layerBack")
+          : i === elementos.length - 1
+            ? t("editor.layerFront")
+            : "";
+      const rotulo = camada ? `<em class="editor__layer">${escapar(camada)}</em>` : "";
       // A forma selecionada e a marcada com Shift (num ícone inteiro, só o cabeçalho)
       const marcada = grupoSelecionado === null && selecionados.has(i);
       return `<li class="editor__element${marcada ? " editor__element--selected" : ""}${el.oculto ? " editor__element--hidden" : ""}" data-i="${i}">
-          <button type="button" class="editor__element-name" aria-pressed="${marcada}">${amostra}<strong>${escapar(el.tag)}</strong><span>${escapar(resumo || "")}</span></button>
+          <button type="button" class="editor__element-name" aria-pressed="${marcada}">${amostra}<strong>${escapar(el.tag)}</strong>${rotulo}<span>${escapar(resumo || "")}</span></button>
           <button type="button" class="editor__element-action" data-acao="ocultar" title="${escapar(t(el.oculto ? "editor.show" : "editor.hide"))}" aria-label="${escapar(t(el.oculto ? "editor.showLabel" : "editor.hideLabel", { tag: el.tag }))}">${el.oculto ? "◌" : "●"}</button>
           <button type="button" class="editor__element-action" data-acao="remover" title="${escapar(t("editor.delete"))}" aria-label="${escapar(t("editor.deleteLabel", { tag: el.tag }))}">×</button>
         </li>`;

@@ -781,3 +781,36 @@ test("EditorModel: copiar várias formas e copiar um grupo", () => {
   assert.deepEqual(model.grupos[model.grupoSelecionado], { nome: "G", manual: true });
   assert.notEqual(model.grupoSelecionado, 1);
 });
+
+test("EditorModel: dica de unir e prévia das pontas que serão ligadas", async () => {
+  const { pontasDaUniao } = await import("../public/js/models/svgGeometry.js");
+  const a = { tag: "line", attrs: { x1: "2", y1: "2", x2: "10", y2: "2" } };
+  const b = { tag: "line", attrs: { x1: "20", y1: "2", x2: "12", y2: "2" } };
+  assert.deepEqual(pontasDaUniao(a, b), { de: { x: 10, y: 2 }, para: { x: 12, y: 2 } });
+  assert.equal(pontasDaUniao(a, { tag: "circle", attrs: { cx: "1", cy: "1", r: "1" } }), null);
+
+  const model = quatroFormas();
+  model.selecionar(0);
+  assert.equal(model.linhaAberta, true);
+  assert.equal(model.ligacaoDaUniao, null);
+  model.selecionar(2); // o círculo é fechado
+  assert.equal(model.linhaAberta, false);
+  model.definirSelecao([0, 1]);
+  assert.equal(model.linhaAberta, false);
+  assert.ok(model.ligacaoDaUniao);
+  model.definirSelecao([0, 2]);
+  assert.equal(model.ligacaoDaUniao, null);
+});
+
+test("unirTracos: aceita path de vários trechos, como os do Feather", async () => {
+  const { unirTracos, podeUnir } = await import("../public/js/models/svgGeometry.js");
+  const framer = { tag: "path", attrs: { d: "M5 16V9h14V2H5l14 14h-7m-7 0l7 7v-7m-7 0h7" } };
+  assert.equal(podeUnir(framer, framer), true);
+  const linha = { tag: "line", attrs: { x1: "22", y1: "16", x2: "13", y2: "16" } };
+  // O fim do path fica em (12, 16), perto da linha: uma reta liga os dois
+  assert.equal(unirTracos(framer, linha).attrs.d.endsWith("L12 16L22 16L13 16") || unirTracos(framer, linha).attrs.d.includes("L13 16"), true);
+  // Invertido, os trechos continuam separados, sem riscos novos entre eles
+  const longe = { tag: "line", attrs: { x1: "5", y1: "20", x2: "5", y2: "16.5" } };
+  const d = unirTracos(longe, framer).attrs.d;
+  assert.equal((d.match(/M/g) ?? []).length, 3);
+});

@@ -82,6 +82,7 @@ export class EditorController {
         this.desenhar();
         return true;
       },
+      aoAvisar: (mensagem) => this.avisar(mensagem),
       aoEstaSelecionada: (i) => model.temSelecao && model.alvos().includes(i),
       aoIniciarCorte: () => this.avisar(t(this.view.toque ? "editor.splitHintTouch" : "editor.splitHint")),
       // Devolve se cortou; fora do traço, avisa e o modo de corte continua
@@ -412,6 +413,8 @@ export class EditorController {
         podeAgrupar: model.podeAgrupar,
         podeDesagrupar: model.podeDesagrupar,
         podeUnir: model.podeUnir,
+        linhaAberta: model.linhaAberta,
+        ligacao: model.ligacaoDaUniao,
         podeSeparar: model.podeSeparar,
       },
       { atualizarCodigo },
