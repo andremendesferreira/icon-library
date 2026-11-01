@@ -63,7 +63,7 @@ jobs:
             sleep 3
           done
           [ "$status" = "healthy" ]
-          curl -fsS http://localhost:3000/ | grep -q "<title>Icon Library"
+          curl -fsS http://localhost:3000/ | grep -q "Icon Library</title>"
           # Main page in another language: canonical and lang for search engines
           curl -fsS "http://localhost:3000/?lang=pt-BR" | grep -q 'rel="canonical" href="https://iconlibrary.io/?lang=pt-BR"'
           curl -fsS "http://localhost:3000/?lang=pt-BR" | grep -q '<html lang="pt-BR"'
