@@ -1926,7 +1926,10 @@ body:has(.scratchpad--open) .back-to-top {
     height: min(92vw, max(40dvh, calc(100dvh - 390px)));
     padding: 4px 8px;
   }
+  /* Sempre com espaço para duas linhas: o desenho não muda de tamanho junto com a dica */
   .editor__hint {
+    flex: none;
+    min-height: 2.5em;
     margin-top: 2px;
     font-size: 11px;
     line-height: 1.25;

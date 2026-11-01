@@ -889,6 +889,47 @@ export function unirTracos(a, b) {
   return { ...a, tag: "path", attrs: { d: escreverPath(cmds), ...estilo } };
 }
 
+// ── Unir dentro da mesma forma ───────────────────────────────────────────────
+// Numa linha aberta, as pontas são as do último trecho. Sem ponto, ou com uma
+// das pontas como ponto, a linha se fecha. Com um ponto no meio, a ponta mais
+// próxima é ligada a ele por uma reta. Uma única reta não tem o que fechar.
+// Devolve { de, para, fecha } ou null.
+export function uniaoInterna(elemento, ponto = null) {
+  const cmds = comandosDoTraco(elemento);
+  if (!cmds) return null;
+  let k = cmds.length - 1;
+  while (cmds[k].t !== "M") k--;
+  const comeco = { x: cmds[k].x, y: cmds[k].y };
+  const final = { x: fim(cmds).x, y: fim(cmds).y };
+  const eh = (p, q) => distancia(p, q) < 1e-3;
+  if (!ponto || eh(ponto, comeco) || eh(ponto, final)) {
+    const trechos = cmds.slice(k + 1);
+    if (!trechos.length || (trechos.length === 1 && trechos[0].t === "L")) return null;
+    return { de: final, para: comeco, fecha: true };
+  }
+  const para = { x: ponto.x, y: ponto.y };
+  const de = distancia(final, para) <= distancia(comeco, para) ? final : comeco;
+  return { de, para, fecha: false };
+}
+
+// A forma depois de uniaoInterna: sempre um path, com os mesmos atributos de estilo
+export function aplicarUniaoInterna(elemento, ponto = null) {
+  const uniao = uniaoInterna(elemento, ponto);
+  if (!uniao) return null;
+  const cmds = [...comandosDoTraco(elemento)];
+  if (uniao.fecha) cmds.push({ t: "Z" });
+  else if (uniao.de.x === fim(cmds).x && uniao.de.y === fim(cmds).y)
+    cmds.push({ t: "L", x: uniao.para.x, y: uniao.para.y });
+  else {
+    // A ponta é o começo do trecho: ele passa a começar no ponto escolhido
+    let k = cmds.length - 1;
+    while (cmds[k].t !== "M") k--;
+    cmds.splice(k, 1, { t: "M", x: uniao.para.x, y: uniao.para.y }, { t: "L", x: uniao.de.x, y: uniao.de.y });
+  }
+  const { x1, y1, x2, y2, points, d, ...estilo } = elemento.attrs;
+  return { ...elemento, tag: "path", attrs: { d: escreverPath(cmds), ...estilo } };
+}
+
 // ── Separar (cortar a forma num ponto do traço) ──────────────────────────────
 // Qualquer forma conhecida → comandos absolutos de path, ou null
 function comandosDaForma(elemento) {

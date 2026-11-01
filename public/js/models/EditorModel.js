@@ -1,6 +1,7 @@
 import {
   FORMAS,
   adicionarPonto,
+  aplicarUniaoInterna,
   formaTocaRetangulo,
   fmt,
   lerPath,
@@ -14,6 +15,7 @@ import {
   removerPonto,
   separarForma,
   transformarElemento,
+  uniaoInterna,
   unirTracos,
 } from "./svgGeometry.js";
 import { erro as erroCom } from "./erros.js";
@@ -413,9 +415,23 @@ export class EditorModel {
   }
 
   get podeUnir() {
+    if (this.quantidade === 1) return Boolean(this.uniaoDaForma);
     if (this.quantidade !== 2) return false;
     const [a, b] = this.alvos();
     return podeUnir(this.elementos[a], this.elementos[b]);
+  }
+
+  // O ponto do traço escolhido na forma selecionada, para a união interna.
+  // Alças de curva não contam.
+  get pontoDaUniao() {
+    const ponto = this.pontosSelecionados().find((p) => p.id === this.pontoSelecionado);
+    return ponto?.tipo === "end" ? ponto : null;
+  }
+
+  // Uma linha aberta selecionada: fechar, ou ligar a ponta ao ponto escolhido
+  get uniaoDaForma() {
+    if (this.quantidade !== 1) return null;
+    return uniaoInterna(this.elementos[this.alvos()[0]], this.pontoDaUniao);
   }
 
   // Uma linha aberta sozinha: falta só marcar a outra para poder unir
@@ -428,6 +444,7 @@ export class EditorModel {
   // As pontas que Unir ligaria, para mostrar no desenho antes de agir
   get ligacaoDaUniao() {
     if (!this.podeUnir) return null;
+    if (this.quantidade === 1) return this.uniaoDaForma;
     const [a, b] = this.alvos();
     return pontasDaUniao(this.elementos[a], this.elementos[b]);
   }
@@ -459,9 +476,17 @@ export class EditorModel {
   }
 
   // Une as duas formas marcadas num path só, no lugar da primeira (na ordem
-  // do desenho). Devolve se uniu.
+  // do desenho), ou faz a união dentro da forma selecionada. Devolve se uniu.
   unir() {
     if (!this.podeUnir) return false;
+    if (this.quantidade === 1) {
+      const indice = this.alvos()[0];
+      const nova = aplicarUniaoInterna(this.elementos[indice], this.pontoDaUniao);
+      this.registrar();
+      this.elementos[indice] = nova;
+      this.pontoSelecionado = null;
+      return true;
+    }
     const [a, b] = this.alvos();
     const [i, j] = [a, b].sort((p, q) => p - q);
     const unido = unirTracos(this.elementos[a], this.elementos[b]);

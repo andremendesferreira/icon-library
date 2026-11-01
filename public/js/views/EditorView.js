@@ -465,7 +465,8 @@ export class EditorView {
       const forma = evento.target.closest("[data-i]");
       // No vazio, ou com Shift em qualquer lugar: começa um retângulo de
       // seleção. Sem movimento, vira um clique (ver terminar)
-      const somar = evento.shiftKey || this.varias;
+      // Com Várias ligado, um ponto da forma continua podendo ser escolhido
+      const somar = evento.shiftKey || (this.varias && !ponto);
       if (somar || (!ponto && !forma)) {
         if (!somar) this.acoes.aoSelecionar(null);
         evento.preventDefault();
@@ -601,9 +602,11 @@ export class EditorView {
   }
 
   // Uma frase para o momento, em vez de todos os atalhos de uma vez
-  mostrarDica({ quantidade, grupoSelecionado, podeUnir, linhaAberta }) {
+  mostrarDica({ quantidade, grupoSelecionado, podeUnir, linhaAberta, uniaoDaForma }) {
     const chave = !quantidade
       ? "editor.hintNone"
+      : uniaoDaForma && !grupoSelecionado
+        ? uniaoDaForma.fecha ? "editor.hintClose" : "editor.hintLink"
       : grupoSelecionado
         ? "editor.hintGroup"
         : podeUnir

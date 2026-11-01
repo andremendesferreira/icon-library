@@ -96,7 +96,7 @@ export class EditorController {
       },
       // Devolve se agiu (Ctrl+J sem duas formas marcadas segue normal)
       aoUnir: () => {
-        if (model.quantidade < 2) return false;
+        if (!model.quantidade) return false;
         if (model.unir()) this.desenhar();
         else this.avisar(t("editor.joinNeed"));
         return true;
@@ -416,6 +416,7 @@ export class EditorController {
         linhaAberta: model.linhaAberta,
         blocos: model.blocosDasCamadas(),
         ligacao: model.ligacaoDaUniao,
+        uniaoDaForma: model.uniaoDaForma,
         podeSeparar: model.podeSeparar,
       },
       { atualizarCodigo },

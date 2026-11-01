@@ -824,3 +824,47 @@ test("EditorModel: em Ver camadas, um grupo é um bloco só", () => {
   model.desagrupar();
   assert.deepEqual(model.blocosDasCamadas(), [0, 1, 2, 3]);
 });
+
+test("uniaoInterna: fecha a linha ou liga a ponta a um ponto", async () => {
+  const { uniaoInterna, aplicarUniaoInterna } = await import("../public/js/models/svgGeometry.js");
+  const v = { tag: "polyline", attrs: { points: "2 2 12 12 22 2 30 2", stroke: "red" } };
+  // Sem ponto, ou com uma ponta: fecha
+  assert.equal(aplicarUniaoInterna(v).attrs.d, "M2 2L12 12L22 2L30 2Z");
+  assert.equal(aplicarUniaoInterna(v, { x: 2, y: 2 }).attrs.d, "M2 2L12 12L22 2L30 2Z");
+  assert.equal(aplicarUniaoInterna(v).attrs.points, undefined);
+  assert.equal(aplicarUniaoInterna(v).attrs.stroke, "red");
+  // Ponto mais perto do fim: a linha continua até ele
+  assert.equal(aplicarUniaoInterna(v, { x: 22, y: 2 }).attrs.d, "M2 2L12 12L22 2L30 2L22 2");
+  // Ponto mais perto do começo: o trecho passa a começar nele
+  const u = aplicarUniaoInterna(v, { x: 12, y: 12 }, undefined);
+  assert.equal(u.attrs.d, "M12 12L2 2L12 12L22 2L30 2");
+  // Uma reta sozinha não fecha; uma curva sozinha fecha
+  assert.equal(uniaoInterna({ tag: "line", attrs: { x1: "1", y1: "1", x2: "9", y2: "9" } }), null);
+  assert.equal(aplicarUniaoInterna({ tag: "path", attrs: { d: "M2 12C2 2 22 2 22 12" } }).attrs.d, "M2 12C2 2 22 2 22 12Z");
+  // Fechada não entra
+  assert.equal(uniaoInterna({ tag: "path", attrs: { d: "M0 0L4 0L4 4Z" } }), null);
+});
+
+test("EditorModel: Unir com uma forma só fecha, ou liga ao ponto escolhido", () => {
+  const model = new EditorModel();
+  model.definirDocumento({
+    raiz: { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor" },
+    elementos: [{ tag: "polyline", attrs: { points: "2 2 12 12 22 2 22 20" } }],
+  });
+  model.selecionar(0);
+  assert.equal(model.podeUnir, true);
+  assert.equal(model.uniaoDaForma.fecha, true);
+  model.selecionarPonto("p2");
+  assert.equal(model.uniaoDaForma.fecha, false);
+  assert.deepEqual(model.ligacaoDaUniao.para, { x: 22, y: 2 });
+  model.unir();
+  assert.equal(model.elementos[0].attrs.d, "M2 2L12 12L22 2L22 20L22 2");
+  assert.equal(model.pontoSelecionado, null);
+  assert.equal(model.selecionado, 0);
+  model.desfazer();
+  assert.equal(model.elementos[0].tag, "polyline");
+  model.selecionar(0);
+  model.unir();
+  assert.equal(model.elementos[0].attrs.d, "M2 2L12 12L22 2L22 20Z");
+  assert.equal(model.podeUnir, false); // já fechada
+});
