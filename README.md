@@ -124,13 +124,13 @@ They stay off until configured. To turn them on:
 
 With `cliente` empty no Google script is loaded; on `localhost` the areas show as dashed previews.
 
-### Buy me a coffee (no ads for 30 days)
+### Buy me a coffee (30 days as a supporter)
 
-Visitors can buy the developer a coffee (about US$ 3) through Stripe; in return the site shows them no ads for 30 days. The button only appears when Stripe and the database are configured.
+Visitors can buy the developer a coffee (about US$ 3) through Stripe; in return, for 30 days they can publish and edit icons on Iconlibrary and see no ads when the site shows them. The button only appears when Stripe and the database are configured.
 
 1. **Payment:** the button opens a Stripe **Payment Link**. In its settings, *After payment* → redirect to `https://iconlibrary.io/?coffee={CHECKOUT_SESSION_ID}`.
 2. **Confirmation:** back on the site, the page sends the session ID to `POST /api/coffee/redeem`. The server (`scripts/coffee.js`) asks Stripe whether it was paid and stores a row in PostgreSQL (table `coffee_supporters`, created automatically) with a **supporter code** valid until 30 days after the payment.
-3. **No ads:** the browser keeps the code and the end date; while it is valid the AdSense script is not even loaded. The code can be used on up to 3 devices (`POST /api/coffee/claim`), with a limit of 10 attempts per 15 minutes per IP.
+3. **Benefits:** the browser keeps the code and the end date; while it is valid the AdSense script is not even loaded. The code can be used on up to 3 devices (`POST /api/coffee/claim`), with a limit of 10 attempts per 15 minutes per IP.
 4. **Stored:** only the Stripe session ID, amount, dates, code and device count — no name, e-mail or card data. The privacy policy describes this.
 5. **Renewal:** a browser that knows its code (valid or expired) adds it to the Payment Link as `client_reference_id`. That payment extends the same code by 30 days — from the end of the current period, or from the payment if it already ended — and the device count starts over. The supporter keeps the Iconlibrary icons published with the code. Renewals are stored in `coffee_renewals` (migration 005); an expired code typed on another device answers `410 code_expired`, and the page offers to renew it.
 
@@ -424,13 +424,13 @@ Elas ficam desligadas até serem configuradas. Para ligar:
 
 Com `cliente` vazio nenhum script do Google é carregado; em `localhost` as áreas aparecem como prévias tracejadas.
 
-### Pague um café (30 dias sem anúncios)
+### Pague um café (30 dias como apoiador)
 
-Quem visita pode pagar um café ao desenvolvedor (cerca de US$ 3) pelo Stripe e, em troca, fica 30 dias sem anúncios no site. O botão só aparece com o Stripe e o banco configurados.
+Quem visita pode pagar um café ao desenvolvedor (cerca de US$ 3) pelo Stripe e, em troca, por 30 dias pode publicar e editar ícones na Iconlibrary e não vê anúncios quando o site os exibir. O botão só aparece com o Stripe e o banco configurados.
 
 1. **Pagamento:** o botão abre um **Payment Link** do Stripe. Nas configurações dele, *Após o pagamento* → redirecionar para `https://iconlibrary.io/?coffee={CHECKOUT_SESSION_ID}`.
 2. **Confirmação:** de volta ao site, a página envia o ID da sessão para `POST /api/coffee/redeem`. O servidor (`scripts/coffee.js`) pergunta ao Stripe se foi pago e grava no PostgreSQL (tabela `coffee_supporters`, criada automaticamente) um **código de apoiador** válido até 30 dias depois do pagamento.
-3. **Sem anúncios:** o navegador guarda o código e a data de fim; enquanto vale, o script do AdSense nem é carregado. O código serve em até 3 aparelhos (`POST /api/coffee/claim`), com limite de 10 tentativas a cada 15 minutos por IP.
+3. **Benefícios:** o navegador guarda o código e a data de fim; enquanto vale, o script do AdSense nem é carregado. O código serve em até 3 aparelhos (`POST /api/coffee/claim`), com limite de 10 tentativas a cada 15 minutos por IP.
 4. **O que é guardado:** só o ID da sessão no Stripe, valor, datas, código e número de aparelhos — sem nome, e-mail ou dados do cartão. A política de privacidade descreve isso.
 5. **Renovação:** o navegador que conhece o código (vigente ou expirado) o coloca no Payment Link como `client_reference_id`. Esse pagamento estende o mesmo código por 30 dias — a partir do fim do período atual, ou do pagamento se já terminou — e a contagem de aparelhos recomeça. O apoiador continua dono dos ícones da Iconlibrary publicados com o código. As renovações ficam em `coffee_renewals` (migration 005); um código expirado digitado em outro aparelho responde `410 code_expired`, e a página oferece renová-lo.
 
