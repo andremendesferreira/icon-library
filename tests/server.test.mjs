@@ -95,6 +95,15 @@ test("404 para arquivo inexistente", async () => {
   assert.equal((await pedir("/nada.js")).status, 404);
 });
 
+test("política e sobre trazem o e-mail de contato em todos os idiomas", async () => {
+  for (const pagina of ["privacy", "about"]) {
+    for (const sufixo of ["", ".es", ".fr", ".de", ".ru", ".zh-CN", ".pt-BR", ".ja"]) {
+      const html = (await pedir(`/${pagina}${sufixo}.html`)).corpo.toString();
+      assert.match(html, /href="mailto:contact@iconlibrary\.io"/, `${pagina}${sufixo}`);
+    }
+  }
+});
+
 test("robots.txt e sitemap.xml com o endereço do site", async () => {
   process.env.SITE_URL = "https://icons.example.com/";
   try {

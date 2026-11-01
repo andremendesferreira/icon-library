@@ -154,6 +154,7 @@ With `MODERATION_TOKEN` set (at least 32 characters, `openssl rand -hex 32`), an
 
 - **Report a bug** in the footer (and on the guide, about and privacy pages) opens a form: what happened, an optional e-mail for a reply, and, sent along automatically, the page address, language, browser and window size. The IP is not stored. A hidden field catches bots, and each IP may send 5 reports per 15 minutes.
 - The form also links to **GitHub Issues**, with the issue already filled in from what was typed; without the database, only that link is shown.
+- For privacy requests and anything that shouldn't be public, write to contact@iconlibrary.io.
 - Reports are read at **`/admin`**, under *Bug reports* (open / resolved), with a link to reply by e-mail.
 - **API:** `GET /api/reports/config`, `POST /api/reports`; admin: `GET /api/admin/reports?status=open|resolved`, `POST /api/admin/reports/:id/resolve|reopen|delete`. Table `bug_reports` (`migrations/003_bug_reports.sql`); if it is missing, only the form is off.
 
@@ -455,6 +456,7 @@ Com `MODERATION_TOKEN` definido (mínimo de 32 caracteres, `openssl rand -hex 32
 
 - **Reportar bug**, no rodapé (e nas páginas de guia, sobre e privacidade), abre um formulário: o que aconteceu, um e-mail opcional para resposta e, enviados automaticamente, o endereço da página, o idioma, o navegador e o tamanho da janela. O IP não é guardado. Um campo escondido barra robôs, e cada IP pode enviar 5 relatos a cada 15 minutos.
 - O formulário também leva ao **GitHub Issues**, com o issue já preenchido com o que foi digitado; sem o banco, só esse link aparece.
+- Para pedidos de privacidade e o que não deve ficar público, escreva para contact@iconlibrary.io.
 - Os relatos são lidos em **`/admin`**, na aba *Relatos de bug* (abertos / resolvidos), com um link para responder por e-mail.
 - **API:** `GET /api/reports/config`, `POST /api/reports`; admin: `GET /api/admin/reports?status=open|resolved`, `POST /api/admin/reports/:id/resolve|reopen|delete`. Tabela `bug_reports` (`migrations/003_bug_reports.sql`); se ela faltar, só o formulário fica desligado.
 
