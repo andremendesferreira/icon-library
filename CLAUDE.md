@@ -33,6 +33,10 @@ Site at https://iconlibrary.io. Plain ES modules with an MVC layout, no framewor
 
 Everything that leads to the coffee uses the same gold style (`.coffee-button`, `.site-footer__coffee`), in both themes. People who already support the site see the discreet green instead. Other pages link with `#coffee`, and `<!--cafe-->` in `pages/` becomes the button. Don't put a coffee link inside or next to an ad unit: it could be read as part of the ad, and AdSense restricts text around ads. AdSense turned the site down for low-value content on 2026-11-01, so no text may promise ad removal as if ads were already showing.
 
+## Footer
+
+Links use the same color and SVG icons (`.site-footer__icon`, Bootstrap Icons), in `public/index.html` and `scripts/build-pages.mjs`; only the coffee keeps its button style. `.site-footer__quebra` splits the pages and coffee from the community links.
+
 ## SVG editor
 
 - `svgGeometry.js` has pure geometry and `EditorModel.js` holds the state, neither touching the DOM (except `lerSvg`). `EditorView.js` draws and reads input; `EditorController.js` connects them.

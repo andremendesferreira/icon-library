@@ -1270,6 +1270,7 @@ body:has(.scratchpad--open) .back-to-top {
 .site-footer nav {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
   gap: 8px 22px;
 }
@@ -1280,6 +1281,27 @@ body:has(.scratchpad--open) .back-to-top {
 }
 .site-footer a:hover {
   text-decoration: underline;
+}
+/* Todos os itens do rodapé na mesma linha, com ícone e texto centralizados */
+.site-footer nav > a:not(.site-footer__coffee),
+.site-footer nav > .site-footer__report {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--il-blue-dark);
+}
+/* Páginas e café numa linha, comunidade na outra: nenhum link fica sozinho */
+.site-footer__quebra {
+  flex-basis: 100%;
+  height: 0;
+}
+.site-footer__icon {
+  flex: none;
+  width: 14px;
+  height: 14px;
 }
 .site-footer p {
   margin: 12px 0 0;
