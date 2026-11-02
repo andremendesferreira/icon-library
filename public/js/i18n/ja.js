@@ -386,6 +386,8 @@ export default {
   "sets.open": "このセットを Icon Library で開く",
   "sets.others": "他のセット：",
   "sets.guides": "各セットのガイド（英語）：",
+  "articles.label": "記事：",
+  "articles.lgpd": "合うアイコンがないときのデザイン：LGPD の事例",
   "footer.telegram": "Telegram チャンネル",
   "footer.github": "GitHub のオープンソース",
   "nav.label": "サイト",

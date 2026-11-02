@@ -114,7 +114,7 @@ test("robots.txt e sitemap.xml com o endereço do site", async () => {
     // Cada idioma: a página principal (?lang=) e as páginas de texto
     assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/\?lang=pt-BR<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/about\.ja\.html<\/loc>/);
-    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 24 + 8);
+    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 24 + 8 + 2);
   } finally {
     delete process.env.SITE_URL;
   }
@@ -292,6 +292,21 @@ test("SEO: a página principal traz título escapado e dados estruturados válid
   const en = (await import("../public/js/i18n/en.js")).default;
   assert.ok(en["meta.title"].length <= 60);
   assert.ok(en["meta.description"].length <= 160);
+});
+
+test("artigo: inglês e português, ícones no HTML, links válidos, no sitemap", async () => {
+  for (const caminho of ["/lgpd-icon.html", "/lgpd-icon.pt-BR.html"]) {
+    const res = await pedir(caminho);
+    assert.equal(res.status, 200, caminho);
+    const html = res.corpo.toString();
+    assert.match(html, /data-languages="en,pt-BR"/);
+    assert.equal((html.match(/hreflang=/g) ?? []).length, 3);
+    assert.ok((html.match(/<svg /g) ?? []).length >= 20, caminho);
+    for (const [, destino] of html.matchAll(/href="([\w.-]+\.html)"/g))
+      assert.equal((await pedir(`/${destino}`)).status, 200, destino);
+  }
+  assert.equal((await pedir("/lgpd-icon.ru.html")).status, 404);
+  assert.match((await pedir("/sitemap.xml")).corpo.toString(), /lgpd-icon\.pt-BR\.html/);
 });
 
 test("guias dos conjuntos: ícones no HTML, só os idiomas que existem, no sitemap", async () => {

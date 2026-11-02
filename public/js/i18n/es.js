@@ -393,6 +393,8 @@ export default {
   "sets.open": "Abrir este conjunto en Icon Library",
   "sets.others": "Otros conjuntos:",
   "sets.guides": "Guías de cada conjunto (en inglés):",
+  "articles.label": "Artículos:",
+  "articles.lgpd": "Cómo crear un icono cuando ninguno sirve: el caso de la LGPD",
   "footer.telegram": "Canal de Telegram",
   "footer.github": "Código abierto en GitHub",
   "nav.label": "Sitio",

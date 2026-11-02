@@ -386,6 +386,8 @@ export default {
   "sets.open": "在 Icon Library 中打开此图标集",
   "sets.others": "其他图标集：",
   "sets.guides": "各图标集指南（英文）：",
+  "articles.label": "文章：",
+  "articles.lgpd": "没有合适图标时如何设计：LGPD 案例",
   "footer.telegram": "Telegram 频道",
   "footer.github": "GitHub 开源代码",
   "nav.label": "网站",

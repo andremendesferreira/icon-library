@@ -77,7 +77,7 @@ const REVALIDATE = new Set([".html", ".js", ".css", ".json", ".txt", ".xml"]);
 // Pages listed in the sitemap: the main page in each language (?lang=) and
 // every text page (about.html, about.pt-BR.html…), read from public/
 function sitemapPages() {
-  const files = fs.readdirSync(ROOT).filter((f) => /^(guide|about|privacy|lucide-icons|feather-icons|bootstrap-icons|emoji-icons)(\.[\w-]+)?\.html$/.test(f)).sort();
+  const files = fs.readdirSync(ROOT).filter((f) => /^(guide|about|privacy|lucide-icons|feather-icons|bootstrap-icons|emoji-icons|lgpd-icon)(\.[\w-]+)?\.html$/.test(f)).sort();
   const langs = files.map((f) => f.match(/^about\.([\w-]+)\.html$/)?.[1]).filter(Boolean);
   return ["/", ...langs.map((l) => `/?lang=${l}`), ...files.map((f) => `/${f}`)];
 }

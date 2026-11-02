@@ -1,5 +1,5 @@
 // Gera as páginas de texto (Guia, Sobre, Privacidade, em todos os idiomas, e os
-// guias dos conjuntos de ícones, em inglês e português):
+// guias dos conjuntos de ícones e os artigos, em inglês e português):
 //
 //   pages/<pagina>/<idioma>.html  →  public/<pagina>.html (inglês)
 //                                    public/<pagina>.<idioma>.html (demais)
@@ -30,7 +30,9 @@ const ROTULO = { guide: "footer.guide", about: "footer.about", privacy: "footer.
 const CONJUNTOS = ["lucide-icons", "feather-icons", "bootstrap-icons", "emoji-icons"];
 const IDIOMAS_CONJUNTOS = ["en", "pt-BR"];
 const NOME_CONJUNTO = { "lucide-icons": "Lucide", "feather-icons": "Feather", "bootstrap-icons": "Bootstrap Icons", "emoji-icons": "Emoji" };
-const idiomasDe = (pagina) => (CONJUNTOS.includes(pagina) ? IDIOMAS_CONJUNTOS : IDIOMAS);
+// Artigos: textos com a experiência do autor, nos mesmos idiomas dos guias
+const ARTIGOS = ["lgpd-icon"];
+const idiomasDe = (pagina) => (CONJUNTOS.includes(pagina) || ARTIGOS.includes(pagina) ? IDIOMAS_CONJUNTOS : IDIOMAS);
 const raiz = new URL("../", import.meta.url);
 
 const arquivo = (pagina, idioma) => `${pagina}${idioma === "en" ? "" : `.${idioma}`}.html`;
@@ -153,7 +155,7 @@ ${PAGINAS.filter((p) => p !== pagina)
 
 const conferir = process.argv.includes("--check");
 const desatualizados = [];
-for (const pagina of [...PAGINAS, ...CONJUNTOS])
+for (const pagina of [...PAGINAS, ...CONJUNTOS, ...ARTIGOS])
   for (const idioma of idiomasDe(pagina)) {
     const destino = new URL(`public/${arquivo(pagina, idioma)}`, raiz);
     const html = montar(pagina, idioma);

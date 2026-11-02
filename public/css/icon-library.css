@@ -2783,6 +2783,43 @@ html.i18n-pendente body {
   color: #5a6b7b;
   overflow-wrap: anywhere;
 }
+/* Artigos: nota em destaque, como o comentário do assistente */
+.page__note {
+  margin: 18px 0;
+  padding: 4px 18px;
+  border-left: 4px solid var(--il-blue);
+  border-radius: 0 10px 10px 0;
+  background: #eef2f7;
+}
+.page__note-sign {
+  font-style: italic;
+  color: #5a6b7b;
+}
+[data-theme="dark"] .page__note {
+  background: var(--dk-surface-2);
+}
+[data-theme="dark"] .page__note-sign {
+  color: var(--dk-muted);
+}
+/* Artigos: ícones maiores para comparar e a mesma forma em vários tamanhos */
+.set-grid--large {
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+}
+.set-grid--large svg {
+  width: 48px;
+  height: 48px;
+}
+.icon-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 20px;
+  margin: 14px 0;
+}
+.page pre code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .page pre {
   overflow-x: auto;
   padding: 12px 14px;

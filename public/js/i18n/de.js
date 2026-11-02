@@ -393,6 +393,8 @@ export default {
   "sets.open": "Dieses Set in Icon Library öffnen",
   "sets.others": "Andere Sets:",
   "sets.guides": "Anleitungen zu jedem Set (auf Englisch):",
+  "articles.label": "Artikel:",
+  "articles.lgpd": "Ein Icon entwerfen, wenn keines passt: das Beispiel LGPD",
   "footer.telegram": "Telegram-Kanal",
   "footer.github": "Open Source auf GitHub",
   "nav.label": "Website",

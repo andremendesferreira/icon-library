@@ -1,0 +1,268 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de pages/lgpd-icon/en.html — edite lá e rode npm run pages -->
+<html
+  lang="en"
+  data-page="lgpd-icon"
+  data-languages="en,pt-BR"
+  data-label-to-dark="Switch to dark theme"
+  data-label-to-light="Switch to light theme"
+>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="google-adsense-account" content="ca-pub-1124520097523749" />
+  <meta name="description" content="A real case: why no ready-made icon worked for a Brazilian data privacy (LGPD) tool, and how it became a family of three versions, with SVG ready to copy." />
+  <title>Designing an icon when none fits: an LGPD case study | Icon Library</title>
+  <meta name="theme-color" content="#f5f7fb" />
+  <link rel="canonical" href="https://iconlibrary.io/lgpd-icon.html" />
+  <link rel="alternate" hreflang="en" href="https://iconlibrary.io/lgpd-icon.html" />
+  <link rel="alternate" hreflang="pt-BR" href="https://iconlibrary.io/lgpd-icon.pt-BR.html" />
+  <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/lgpd-icon.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Icon Library" />
+  <meta property="og:url" content="https://iconlibrary.io/lgpd-icon.html" />
+  <meta property="og:title" content="Designing an icon when none fits: an LGPD case study | Icon Library" />
+  <meta property="og:description" content="A real case: why no ready-made icon worked for a Brazilian data privacy (LGPD) tool, and how it became a family of three versions, with SVG ready to copy." />
+  <meta property="og:image" content="https://iconlibrary.io/img/og-image.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="stylesheet" href="css/icon-library.css" />
+  <script src="js/i18n/detect.js"></script>
+  <script src="js/views/theme.js"></script>
+</head>
+<body>
+  <main class="page">
+    <div class="page__top">
+      <a class="page__back" href="./">← Back to the icons</a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="Language"></select>
+      </label>
+    </div>
+    <h1 class="page__title">Designing an icon when none fits: an LGPD case study</h1>
+    <p class="page__meta">By André M. Ferreira · November 2, 2026</p>
+    <p class="page__lead">
+      Have you ever spent hours looking for an icon for a feature, only to end up with
+      five candidates, each missing something the others have? That happened to me
+      while looking for an icon for a tool built around the LGPD, Brazil's data
+      protection law. This is the path to a result I'm happy with, and what I learned
+      about icons along the way.
+    </p>
+
+    <h2>The problem</h2>
+    <p>
+      I built a tool that finds and classifies attributes in databases across
+      different database systems, in line with the LGPD (Lei Geral de Proteção de
+      Dados, Brazil's counterpart to the GDPR). It walks through tables and columns,
+      takes a random sample of a thousand records, identifies where personal data
+      lives and rates how critical each item is. All it was missing was an icon — and
+      that looked like a five-minute job.
+    </p>
+    <p>
+      To my surprise, it took a lot longer than five minutes. I went through many
+      references and explored associations of words, images and symbols, but nothing
+      convinced me I had found the right answer. I tried several approaches and tried
+      combining ideas, but icon libraries usually draw one concept at a time. These
+      were the closest candidates:
+    </p>
+    <ul class="set-grid">
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 11.693V5"/><path d="m22 22-1.875-1.875"/><path d="M3 12a9 3 0 0 0 8.697 2.998"/><path d="M3 5v14a9 3 0 0 0 9.28 2.999"/><circle cx="18" cy="18" r="3"/><ellipse cx="12" cy="5" rx="9" ry="3"/></svg><small>database-search (Lucide)</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M13 5.698a5 5 0 0 1-.904.525C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777A5 5 0 0 1 3 5.698V7c0 .374.356.875 1.318 1.313C5.234 8.729 6.536 9 8 9c.666 0 1.298-.056 1.876-.156-.43.31-.804.693-1.102 1.132A12 12 0 0 1 8 10c-1.573 0-3.022-.289-4.096-.777A5 5 0 0 1 3 8.698V10c0 .374.356.875 1.318 1.313C5.234 11.729 6.536 12 8 12h.027a4.6 4.6 0 0 0-.017.8A2 2 0 0 0 8 13c-1.573 0-3.022-.289-4.096-.777A5 5 0 0 1 3 11.698V13c0 .374.356.875 1.318 1.313C5.234 14.729 6.536 15 8 15c0 .363.097.704.266.997Q8.134 16.001 8 16c-1.573 0-3.022-.289-4.096-.777C2.875 14.755 2 14.007 2 13V4c0-1.007.875-1.755 1.904-2.223C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4v4.256a4.5 4.5 0 0 0-1.753-.249C12.787 7.654 13 7.289 13 7zm-8.682-3.01C3.356 3.124 3 3.625 3 4c0 .374.356.875 1.318 1.313C5.234 5.729 6.536 6 8 6s2.766-.27 3.682-.687C12.644 4.875 13 4.373 13 4c0-.374-.356-.875-1.318-1.313C10.766 2.271 9.464 2 8 2s-2.766.27-3.682.687Z"/><path d="M9 13a1 1 0 0 1 1-1v-1a2 2 0 1 1 4 0v1a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1zm3-3a1 1 0 0 0-1 1v1h2v-1a1 1 0 0 0-1-1"/></svg><small>database-lock (Bootstrap)</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M6.376 18.91a6 6 0 0 1 11.249.003"/><circle cx="12" cy="11" r="4"/></svg><small>shield-user (Lucide)</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z"/><path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193"/><circle cx="10.5" cy="6.5" r=".5" fill="currentColor"/></svg><small>tags (Lucide)</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg><small>scale (Lucide)</small></li>
+    </ul>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Idea</th><th>Candidate</th><th>What's missing</th></tr></thead>
+        <tbody>
+        <tr><td>Searching a database</td><td><code>database-search</code></td><td>Says nothing about personal data</td></tr>
+        <tr><td>A protected database</td><td><code>database-lock</code></td><td>Shows neither the search nor the classification</td></tr>
+        <tr><td>A protected person</td><td><code>shield-user</code></td><td>No database, and it reads as account security</td></tr>
+        <tr><td>Classification</td><td><code>tags</code></td><td>On its own, says nothing about privacy</td></tr>
+        <tr><td>Law</td><td><code>scale</code></td><td>Reads as “legal” in general</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Each candidate got one part right. None said, at once, personal data,
+      protection and a Brazilian law.
+    </p>
+
+    <h2>First attempt: combining shapes</h2>
+    <p>I made two versions in the Icon Library editor, both starting from a shield:</p>
+    <ul class="set-grid set-grid--large">
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.889 13.111C20.889 18.667 17 21.444 12.378 23.056A1.111 1.111 0 0 1 11.633 23.044C7 21.444 3.111 18.667 3.111 13.111L3.111 5.333A1.111 1.111 0 0 1 4.222 4.222C6.444 4.222 9.222 2.889 11.156 1.2A1.3 1.3 0 0 1 12.844 1.2C14.789 2.9 17.556 4.222 19.778 4.222A1.111 1.111 0 0 1 20.889 5.333Z"/><path d="M5 18C3.966 10.452 20.274 10.452 19.5 18" stroke-width="1.5"/><circle cx="12" cy="7.5" r="3.24" stroke-width="1.5"/><path d="M14.5 15L9 15" stroke-width="1.25"/><path d="M12.5 17.5L9 17.5" stroke-width="1.25"/><path d="M14.5 17.5L15.509 18.206L17 16.5" stroke-width="1.25"/><path d="M14.5 20L9 20" stroke-width="1.25"/></svg><small>Shield, person, lines and ✓</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 13C22 20.5 17 21.444 12.378 23.056A1.111 1.111 0 0 1 11.633 23.044C7 21.444 2.5 21 2.5 13L2.5 5A1.111 1.111 0 0 1 4.5 4.5C8.5 5.5 9.222 2.889 11.156 1.2A1.3 1.3 0 0 1 12.844 1.2C14.789 2.9 15.5 5.5 19.5 4.5A1.111 1.111 0 0 1 21.5 5Z"/><circle cx="11.827" cy="12.827" r="6.675" stroke-width="1.5"/><path d="M8 18C8 16 10.125 15 12.188 15C14.25 15 16 16 16 18" stroke-width="1.5"/><circle cx="12" cy="11" r="2.362" stroke-width="1.25"/></svg><small>Shield and person in a circle</small></li>
+    </ul>
+    <p>
+      The first one tells the story well at 48 px: verified personal data. At 16 and
+      24 px, though, the lines and the check mark blur together. The second stays
+      legible when small, but it's generic: it could stand for account security or a
+      login.
+    </p>
+    <p>
+      That was the first lesson: a detailed icon needs a simplified version, and an
+      icon that works at every size almost always says less.
+    </p>
+
+    <h2>Changing the question</h2>
+    <p>
+      Until then I was looking for a picture of what the tool does. The turning point
+      was asking what the LGPD protects: the person. That led to the
+      <strong>keyhole person</strong>, where someone's head and body form the hole of
+      a keyhole. Personal data is the person, and it's locked away.
+    </p>
+    <ul class="set-grid set-grid--large">
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="9.5" r="2.5"/><path d="M10.6 12.3 9 17h6l-1.6-4.7"/></svg><small>Keyhole person</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9.5" r="2.5"/><path d="M10.6 12.3 9 17h6l-1.6-4.7"/><circle cx="12" cy="12" r="10" stroke-dasharray="3.2 2.6"/></svg><small>In a privacy bubble</small></li>
+    </ul>
+    <p>
+      At this stage I used an AI assistant (Claude) to generate variations and compare
+      them side by side at several sizes and in both themes. Seeing ten proposals on one
+      screen, from 16 to 96 px, made it quick to drop the ones that only worked large.
+      The drawings follow Lucide's rules: a 24-unit grid, a 2-unit stroke, round caps
+      and about 2 px of padding, so they don't look bigger than the icons next to them.
+    </p>
+    <blockquote class="page__note">
+      <p>
+        <strong>A word from the assistant.</strong> André invited me to comment on my
+        part, so here it is. I generated alternatives quickly, showed them side by side
+        at real sizes and in both themes, and took care of technical details:
+        simplifying the map, fixing a stroke that fell outside the frame and cutting
+        the globe out through drawing direction. The keyhole person came up in one of
+        those rounds.
+      </p>
+      <p>
+        The decisions that gave the icon its identity were his: bringing Brazil into
+        the drawing, combining the map with the diamond, filling the flag and making
+        the colored version. He also set aside proposals I had recommended, and the
+        result is better for it. As I see it, that's where this kind of tool helps
+        most: it speeds up exploration, while the judgment stays with the person who
+        knows the project.
+      </p>
+      <p class="page__note-sign">— Claude, AI assistant by Anthropic</p>
+    </blockquote>
+
+    <h2>Bringing Brazil into the drawing</h2>
+    <p>
+      The LGPD is a Brazilian law, and I wanted that to show. The map outline comes from
+      Natural Earth, which is in the public domain. The original outline has 1,648
+      points. Simplified with the Douglas-Peucker algorithm, it keeps 20, enough to
+      recognize Brazil at 16 px without a jagged stroke.
+    </p>
+    <ul class="set-grid set-grid--large">
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.79 4.07 8.89 2.02 9.78 4.08 13.46 2.48 14.24 4.1 12.87 5.49 15.55 5.03 21.54 7.55 18.67 15.98 14.82 17.71 12.51 22 10.41 20.18 12.36 18.15 10.22 16 10.04 13.05 6.53 9.68 3.92 10.34 2.25 8.57 4.25 6.9 4.31 3.82Z"/></svg><small>Map with 20 points</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.79 4.07 8.89 2.02 9.78 4.08 13.46 2.48 14.24 4.1 12.87 5.49 15.55 5.03 21.54 7.55 18.67 15.98 14.82 17.71 12.51 22 10.41 20.18 12.36 18.15 10.22 16 10.04 13.05 6.53 9.68 3.92 10.34 2.25 8.57 4.25 6.9 4.31 3.82Z"/><circle cx="14.5" cy="9.8" r="1.8" stroke-width="1.75"/><path d="M13.5 11.6 12.7 14.5h3.6l-.8-2.9" stroke-width="1.75"/></svg><small>Map and keyhole person</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5 22.5 12 12 22.5 1.5 12Z"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="10.6" r="1.7" stroke-width="1.5"/><path d="M11.1 12.4 10.2 15.3h3.6l-.9-2.9" stroke-width="1.5"/></svg><small>Diamond and globe</small></li>
+    </ul>
+    <p>
+      The diamond and the globe recall the flag, with the keyhole person in place of
+      the banner. In the end I combined both: the map behind, the diamond in front. The
+      decision that mattered most was <strong>filling the diamond</strong>. As
+      outlines, the diamond, the globe and the keyhole became three lines touching each
+      other at 24 px. With a solid area and the globe cut out, it stays clear even at
+      16 px.
+    </p>
+
+    <h2>A family of three versions</h2>
+    <p>
+      One icon doesn't fit every place. I kept three black versions, which follow the
+      text color, and a colored one:
+    </p>
+    <ul class="set-grid set-grid--large">
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/></svg><small>Seal</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12Z" stroke-width="1.5"/><path d="M11.49 11.88A1.55 1.55 0 1 1 12.89 11.88L13.66 14.6H10.72Z" stroke-width="1.5"/></svg><small>Outline</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/></svg><small>Minimal</small></li>
+    <li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L6 12.5Z" stroke="#061906" fill="#061906"/><path d="M6.38 10.4L5.33 8.65L3.02 10.32L1.57 9.35L0.77 7.6L2.91 5.82L2.97 2.51L4.57 2.77L7.9 0.58L8.85 2.79L12.67 0.66L13.15 2.6L12.16 4.3L15.04 3.8L21.84 6.94L18.95 15.63L15.09 18.04L11.77 22.02L9.78 19.97L11.03 18.15L5.5 12Z" stroke-width="0.25" stroke="#165115" fill="#165115"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM17 10A4.78 4.78 0 1 0 7.5 13.5A4.78 4.78 0 1 0 17 10Z" fill="#51450b" stroke="#51450b" stroke-width="3"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM17 10A4.78 4.78 0 1 0 7.5 14Z" fill="#ddbf2c" stroke="#ddbf2c"/><circle cx="12" cy="12" r="4.031" fill="#051133" stroke="#051133" stroke-width="3"/><circle cx="12" cy="12" r="3.5" fill="#061d60" stroke="#061d60" stroke-width="2.75"/><path d="M11.5 11.5A1.389 1.389 0 1 1 12.5 11.5L13.5 14.5L10.5 14.5Z" fill="#f0f0f0" stroke="#f0f0f0" stroke-width="1.5"/><path d="M11.55 11.65A1.25 1.25 0 1 1 12.45 11.65L13.35 14.35L10.65 14.35Z" stroke-width="1" fill="#ffffff" stroke="#ffffff"/><path d="M7.904 7.098C7.987 7.262 7.815 7.434 7.65 7.353L6.697 6.875A1.513 1.513 135 0 0 5.344 6.874L4.389 7.352C4.228 7.436 4.054 7.261 4.136 7.098L4.614 6.143A1.513 1.513 135 0 0 4.613 4.791L4.136 3.837A0.189 0.189 135 0 1 4.389 3.583L5.345 4.06A1.513 1.513 135 0 0 6.696 4.061L7.652 3.582A0.189 0.189 135 0 1 7.906 3.836L7.426 4.791A1.513 1.513 135 0 0 7.428 6.144ZM11.219 7.556A0.114 0.114 135 0 1 11.068 7.708L10.495 7.421C10.239 7.293 9.939 7.294 9.683 7.421L9.109 7.708A0.114 0.114 135 0 1 8.957 7.556L9.244 6.982A0.905 0.905 135 0 0 9.244 6.17L8.958 5.598A0.114 0.114 135 0 1 9.109 5.446L9.682 5.732A0.905 0.905 135 0 0 10.494 5.732L11.067 5.446A0.114 0.114 135 0 1 11.219 5.598L10.933 6.171A0.905 0.905 135 0 0 10.933 6.983ZM8.993 10.558A0.077 0.077 135 0 1 8.891 10.66L8.51 10.469C8.34 10.383 8.14 10.383 7.969 10.468L7.587 10.66A0.077 0.077 135 0 1 7.485 10.558L7.676 10.175A0.607 0.607 135 0 0 7.675 9.634L7.485 9.254A0.077 0.077 135 0 1 7.587 9.152L7.967 9.342A0.607 0.607 135 0 0 8.51 9.342L8.892 9.151A0.077 0.077 135 0 1 8.993 9.253L8.802 9.634C8.717 9.806 8.716 10.007 8.802 10.177Z" stroke-width="0.25" fill="#ebedf0" stroke="#ebedf0"/><path d="M17.285 12.736C17.178 12.681 17.064 12.794 17.118 12.902L17.432 13.528A0.993 0.993 135 0 1 17.433 14.414L17.118 15.041C17.064 15.147 17.178 15.261 17.285 15.208L17.912 14.893A0.993 0.993 135 0 1 18.798 14.893L19.425 15.208A0.124 0.124 135 0 0 19.592 15.041L19.278 14.414A0.993 0.993 135 0 1 19.278 13.528L19.592 12.9A0.124 0.124 135 0 0 19.425 12.735L18.799 13.049A0.993 0.993 135 0 1 17.909 13.048ZM16.984 10.56A0.076 0.076 135 0 0 16.883 10.659L17.074 11.035C17.159 11.204 17.156 11.4 17.073 11.567L16.883 11.944A0.076 0.076 135 0 0 16.984 12.045L17.361 11.855A0.594 0.594 135 0 1 17.894 11.854L18.269 12.043A0.076 0.076 135 0 0 18.369 11.944L18.18 11.568A0.594 0.594 135 0 1 18.18 11.035L18.368 10.66A0.076 0.076 135 0 0 18.27 10.56L17.894 10.746A0.594 0.594 135 0 1 17.361 10.747ZM15.015 12.02A0.05 0.05 135 0 0 14.949 12.087L15.074 12.337C15.13 12.449 15.129 12.581 15.073 12.691L14.95 12.942A0.05 0.05 135 0 0 15.015 13.011L15.265 12.885A0.398 0.398 135 0 1 15.621 12.886L15.871 13.011A0.05 0.05 135 0 0 15.938 12.943L15.813 12.695A0.398 0.398 135 0 1 15.813 12.337L15.939 12.087A0.05 0.05 135 0 0 15.872 12.02L15.621 12.146C15.507 12.202 15.377 12.203 15.263 12.146Z" fill="#ebedf0" stroke="none"/><path d="M17.818 6.369A0.127 0.127 90 0 1 17.816 6.604L17.143 6.829C16.842 6.933 16.603 7.169 16.503 7.468L16.281 8.143A0.127 0.127 90 0 1 16.041 8.143L15.814 7.469A1.007 1.007 90 0 0 15.179 6.829L14.502 6.604A0.127 0.127 90 0 1 14.503 6.37L15.178 6.143A1.007 1.007 90 0 0 15.814 5.507L16.041 4.829A0.127 0.127 90 0 1 16.281 4.826L16.503 5.503A1.007 1.007 90 0 0 17.142 6.142ZM19.589 8.151A0.086 0.086 90 0 1 19.59 8.31L19.142 8.459C18.94 8.524 18.78 8.682 18.714 8.887L18.566 9.336A0.086 0.086 90 0 1 18.404 9.336L18.254 8.886A0.674 0.674 90 0 0 17.829 8.459L17.381 8.31A0.086 0.086 90 0 1 17.381 8.152L17.827 8A0.674 0.674 90 0 0 18.257 7.574L18.404 7.127A0.086 0.086 90 0 1 18.566 7.127L18.714 7.574C18.78 7.777 18.938 7.934 19.142 7.999Z" fill="#ebedf0" stroke="none"/><path d="M11.005 18.18A0.103 0.103 -90 0 1 11.008 17.99L11.552 17.806C11.796 17.722 11.99 17.531 12.071 17.289L12.25 16.742A0.103 0.103 -90 0 1 12.444 16.742L12.629 17.288A0.815 0.815 -90 0 0 13.143 17.806L13.691 17.989A0.103 0.103 -90 0 1 13.69 18.179L13.143 18.362A0.815 0.815 -90 0 0 12.628 18.876L12.443 19.425A0.103 0.103 -90 0 1 12.25 19.43L12.072 18.88A0.815 0.815 -90 0 0 11.552 18.362ZM9.57 16.735A0.069 0.069 -90 0 1 9.569 16.605L9.933 16.486C10.097 16.434 10.226 16.306 10.28 16.14L10.399 15.777A0.069 0.069 -90 0 1 10.531 15.776L10.652 16.14A0.546 0.546 -90 0 0 10.996 16.486L11.359 16.605A0.069 0.069 -90 0 1 11.359 16.735L10.998 16.857A0.546 0.546 -90 0 0 10.649 17.202L10.531 17.565A0.069 0.069 -90 0 1 10.399 17.566L10.281 17.202C10.226 17.038 10.097 16.911 9.933 16.858Z" fill="#ebedf0" stroke="none"/></svg><small>Colored</small></li>
+    </ul>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Version</th><th>Where to use it</th></tr></thead>
+        <tbody>
+        <tr><td>Seal</td><td>Logo, header, compliance badge and one-color print</td></tr>
+        <tr><td>Outline</td><td>Menus and buttons, next to Lucide or Feather icons</td></tr>
+        <tr><td>Minimal</td><td>Favicon, browser tab and anywhere at 16 px</td></tr>
+        <tr><td>Colored</td><td>Presentations and the tool's own page</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>At real sizes, from 16 to 48 px, the seal and the minimal version look like this:</p>
+    <p class="icon-sizes"><svg width="16" height="16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/></svg><svg width="24" height="24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/></svg><svg width="32" height="32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/></svg><svg width="48" height="48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/></svg></p>
+    <p class="icon-sizes"><svg width="16" height="16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/></svg><svg width="24" height="24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/></svg><svg width="32" height="32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/></svg><svg width="48" height="48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/></svg></p>
+
+    <h2>What I learned</h2>
+    <ul>
+      <li>
+        <strong>Test at real sizes.</strong> An icon that looks great at 96 px can blur
+        at 16. Always check 16, 24 and 48 px, in light and dark themes.
+      </li>
+      <li>
+        <strong>Respect the set's padding.</strong> Lucide icons leave about 2 px free
+        around them. My first map went to the edge: besides looking bigger than its
+        neighbors, half of the stroke fell outside the frame.
+      </li>
+      <li>
+        <strong>Vary the stroke on purpose.</strong> A 2 px outer outline with 1.5 px
+        inner details works well, as long as the difference looks intentional.
+      </li>
+      <li>
+        <strong>Holes depend on drawing direction.</strong> To cut the globe out of the
+        filled diamond, the circle is drawn in the opposite direction to the diamond.
+        With SVG's default fill rule (<code>nonzero</code>), that opens the hole without
+        any extra attribute.
+      </li>
+      <li>
+        <strong>Be careful with national symbols.</strong> Brazil's Law 5,700/1971
+        regulates the flag and forbids altering it. The icon is a stylized reference to
+        its shapes and colors, not the flag, which is why I left out the "Ordem e
+        Progresso" banner. To register a design like this as a trademark, ask a
+        specialist.
+      </li>
+    </ul>
+
+    <h2>How to do the same in Icon Library</h2>
+    <ol>
+      <li>Find the icon closest to your idea and click the pencil to open the editor.</li>
+      <li>Use <strong>Icon on top</strong> to bring in a second icon, then adjust its size and position.</li>
+      <li>Select the shapes that belong together and use <strong>Group</strong>. <strong>Show layers</strong> paints each shape in its own color.</li>
+      <li>For a solid area, close the line with <strong>Join</strong> and use <strong>Fill</strong>.</li>
+      <li>Use <strong>Copy SVG</strong>, or publish the icon so others can find it.</li>
+    </ol>
+    <p class="page__cta"><a class="page__open" href="./">Open Icon Library</a></p>
+
+    <h2>The code of the three versions</h2>
+    <p>These are the SVGs I use today, for anyone who wants to see how they're built.</p>
+    <h3>Seal</h3>
+    <pre><code>&lt;svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/&gt;&lt;path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/&gt;&lt;path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/&gt;&lt;/svg&gt;</code></pre>
+    <h3>Outline</h3>
+    <pre><code>&lt;svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/&gt;&lt;path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12Z" stroke-width="1.5"/&gt;&lt;path d="M11.49 11.88A1.55 1.55 0 1 1 12.89 11.88L13.66 14.6H10.72Z" stroke-width="1.5"/&gt;&lt;/svg&gt;</code></pre>
+    <h3>Minimal</h3>
+    <pre><code>&lt;svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/&gt;&lt;path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/&gt;&lt;/svg&gt;</code></pre>
+    <p class="page__meta">
+      See also the guides to <a href="lucide-icons.html">Lucide</a> and
+      <a href="bootstrap-icons.html">Bootstrap Icons</a>, the sets the candidates
+      came from.
+    </p>
+  </main>
+  <footer class="site-footer">
+    <nav aria-label="Site">
+      <a href="./">Icons</a>
+      <a href="guide.html">Guide</a>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a class="site-footer__coffee" href="./#coffee">☕ Buy me a coffee</a>
+      <span class="site-footer__quebra"></span>
+      <a href="./#report"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A5 5 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A5 5 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623M4 7v4a4 4 0 0 0 3.5 3.97V7zm4.5 0v7.97A4 4 0 0 0 12 11V7zM12 6a4 4 0 0 0-1.334-2.982A3.98 3.98 0 0 0 8 2a3.98 3.98 0 0 0-2.667 1.018A4 4 0 0 0 4 6z"/></svg>Report a bug</a>
+      <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg>Suggest an improvement</a>
+      <a href="https://t.me/iconlibraryio" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.287 5.906q-1.168.486-4.666 2.01-.567.225-.595.442c-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294q.39.01.868-.32 3.269-2.206 3.374-2.23c.05-.012.12-.026.166.016s.042.12.037.141c-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8 8 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629q.14.092.27.187c.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.4 1.4 0 0 0-.013-.315.34.34 0 0 0-.114-.217.53.53 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09"/></svg>Telegram channel</a>
+      <a href="https://github.com/andremendesferreira/icon-library" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg>Open source on GitHub</a>
+    </nav>
+    <p class="site-footer__owner">© 2026 André M. Ferreira<span class="site-footer__version"><!--version--></span></p>
+  </footer>
+</body>
+</html>

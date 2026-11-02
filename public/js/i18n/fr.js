@@ -393,6 +393,8 @@ export default {
   "sets.open": "Ouvrir ce jeu dans Icon Library",
   "sets.others": "Autres jeux :",
   "sets.guides": "Guides de chaque jeu (en anglais) :",
+  "articles.label": "Articles :",
+  "articles.lgpd": "Créer une icône quand aucune ne convient : le cas de la LGPD",
   "footer.telegram": "Chaîne Telegram",
   "footer.github": "Open source sur GitHub",
   "nav.label": "Site",

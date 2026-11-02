@@ -1,0 +1,205 @@
+<!-- {"title":"Como criar um ícone quando nenhum serve: o caso da LGPD | Icon Library","description":"Um caso real: por que nenhum ícone pronto representava uma ferramenta de LGPD e como cheguei a uma família de três versões, com o SVG pronto para copiar."} -->
+<h1 class="page__title">Como criar um ícone quando nenhum serve: o caso da LGPD</h1>
+<p class="page__meta">Por André M. Ferreira · 2 de novembro de 2026</p>
+<p class="page__lead">
+  Você já passou horas procurando um ícone que represente uma função do seu
+  projeto e terminou com uns cinco candidatos, cada um com algo que falta no
+  outro? Foi o que aconteceu comigo ao procurar um ícone para uma ferramenta de
+  LGPD. Este texto conta o caminho até um resultado que me deixou satisfeito, e o
+  que aprendi sobre ícones no processo.
+</p>
+
+<h2>O problema</h2>
+<p>
+  Desenvolvi uma ferramenta que localiza e classifica atributos em bancos de
+  dados de diferentes SGBDs, em conformidade com a LGPD (Lei Geral de Proteção de
+  Dados). Ela percorre tabelas e colunas, faz uma amostragem aleatória de mil
+  registros, identifica onde há dados pessoais e classifica o nível de
+  criticidade de cada um. Faltava apenas um ícone para ela — e parecia uma
+  tarefa de cinco minutos.
+</p>
+<p>
+  Para minha surpresa, não foram cinco minutos. Pesquisei diversas referências,
+  explorei associações de palavras, imagens e símbolos, mas nada me convencia de
+  que havia encontrado a solução ideal. Testei várias abordagens e tentei juntar
+  ideias, mas as bibliotecas de ícones costumam desenhar um único conceito por
+  vez. Estes eram os candidatos mais próximos:
+</p>
+<ul class="set-grid">
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M21 11.693V5"/><path d="m22 22-1.875-1.875"/><path d="M3 12a9 3 0 0 0 8.697 2.998"/><path d="M3 5v14a9 3 0 0 0 9.28 2.999"/><circle cx="18" cy="18" r="3"/><ellipse cx="12" cy="5" rx="9" ry="3"/></svg><small>database-search (Lucide)</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M13 5.698a5 5 0 0 1-.904.525C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777A5 5 0 0 1 3 5.698V7c0 .374.356.875 1.318 1.313C5.234 8.729 6.536 9 8 9c.666 0 1.298-.056 1.876-.156-.43.31-.804.693-1.102 1.132A12 12 0 0 1 8 10c-1.573 0-3.022-.289-4.096-.777A5 5 0 0 1 3 8.698V10c0 .374.356.875 1.318 1.313C5.234 11.729 6.536 12 8 12h.027a4.6 4.6 0 0 0-.017.8A2 2 0 0 0 8 13c-1.573 0-3.022-.289-4.096-.777A5 5 0 0 1 3 11.698V13c0 .374.356.875 1.318 1.313C5.234 14.729 6.536 15 8 15c0 .363.097.704.266.997Q8.134 16.001 8 16c-1.573 0-3.022-.289-4.096-.777C2.875 14.755 2 14.007 2 13V4c0-1.007.875-1.755 1.904-2.223C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4v4.256a4.5 4.5 0 0 0-1.753-.249C12.787 7.654 13 7.289 13 7zm-8.682-3.01C3.356 3.124 3 3.625 3 4c0 .374.356.875 1.318 1.313C5.234 5.729 6.536 6 8 6s2.766-.27 3.682-.687C12.644 4.875 13 4.373 13 4c0-.374-.356-.875-1.318-1.313C10.766 2.271 9.464 2 8 2s-2.766.27-3.682.687Z"/><path d="M9 13a1 1 0 0 1 1-1v-1a2 2 0 1 1 4 0v1a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1zm3-3a1 1 0 0 0-1 1v1h2v-1a1 1 0 0 0-1-1"/></svg><small>database-lock (Bootstrap)</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M6.376 18.91a6 6 0 0 1 11.249.003"/><circle cx="12" cy="11" r="4"/></svg><small>shield-user (Lucide)</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z"/><path d="M2 7v6.172a2 2 0 0 0 .586 1.414l6.71 6.71a2.4 2.4 0 0 0 3.191.193"/><circle cx="10.5" cy="6.5" r=".5" fill="currentColor"/></svg><small>tags (Lucide)</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg><small>scale (Lucide)</small></li>
+</ul>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Ideia</th><th>Candidato</th><th>O que falta</th></tr></thead>
+    <tbody>
+    <tr><td>Busca em banco de dados</td><td><code>database-search</code></td><td>Não diz que são dados pessoais</td></tr>
+    <tr><td>Banco de dados protegido</td><td><code>database-lock</code></td><td>Não mostra a busca nem a classificação</td></tr>
+    <tr><td>Pessoa protegida</td><td><code>shield-user</code></td><td>Não diz que é um banco de dados e lembra segurança de conta</td></tr>
+    <tr><td>Classificação</td><td><code>tags</code></td><td>Sozinho, não diz nada sobre privacidade</td></tr>
+    <tr><td>Lei</td><td><code>scale</code></td><td>Parece “jurídico” em geral</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  Cada candidato acertava uma parte. Nenhum dizia, ao mesmo tempo, que se trata de
+  dados pessoais, de proteção e de uma lei brasileira.
+</p>
+
+<h2>Primeira tentativa: combinar formas</h2>
+<p>Criei duas versões no editor da Icon Library, as duas partindo de um escudo:</p>
+<ul class="set-grid set-grid--large">
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.889 13.111C20.889 18.667 17 21.444 12.378 23.056A1.111 1.111 0 0 1 11.633 23.044C7 21.444 3.111 18.667 3.111 13.111L3.111 5.333A1.111 1.111 0 0 1 4.222 4.222C6.444 4.222 9.222 2.889 11.156 1.2A1.3 1.3 0 0 1 12.844 1.2C14.789 2.9 17.556 4.222 19.778 4.222A1.111 1.111 0 0 1 20.889 5.333Z"/><path d="M5 18C3.966 10.452 20.274 10.452 19.5 18" stroke-width="1.5"/><circle cx="12" cy="7.5" r="3.24" stroke-width="1.5"/><path d="M14.5 15L9 15" stroke-width="1.25"/><path d="M12.5 17.5L9 17.5" stroke-width="1.25"/><path d="M14.5 17.5L15.509 18.206L17 16.5" stroke-width="1.25"/><path d="M14.5 20L9 20" stroke-width="1.25"/></svg><small>Escudo, pessoa, linhas e ✓</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 13C22 20.5 17 21.444 12.378 23.056A1.111 1.111 0 0 1 11.633 23.044C7 21.444 2.5 21 2.5 13L2.5 5A1.111 1.111 0 0 1 4.5 4.5C8.5 5.5 9.222 2.889 11.156 1.2A1.3 1.3 0 0 1 12.844 1.2C14.789 2.9 15.5 5.5 19.5 4.5A1.111 1.111 0 0 1 21.5 5Z"/><circle cx="11.827" cy="12.827" r="6.675" stroke-width="1.5"/><path d="M8 18C8 16 10.125 15 12.188 15C14.25 15 16 16 16 18" stroke-width="1.5"/><circle cx="12" cy="11" r="2.362" stroke-width="1.25"/></svg><small>Escudo e pessoa no círculo</small></li>
+</ul>
+<p>
+  A primeira conta bem a história em 48 px: dados pessoais verificados. Em 16 e
+  24 px, porém, as linhas e o ✓ viram um borrão. A segunda continua legível
+  pequena, mas fica genérica, porque poderia representar a segurança de uma conta
+  ou um login.
+</p>
+<p>
+  Foi a primeira lição: um ícone cheio de detalhes precisa de uma versão
+  simplificada, e o ícone que funciona em qualquer tamanho quase sempre diz menos.
+</p>
+
+<h2>Mudando a pergunta</h2>
+<p>
+  Até ali eu procurava um desenho para o que a ferramenta faz. A virada foi
+  perguntar o que a LGPD protege: a pessoa. Daí veio a ideia da
+  <strong>pessoa-fechadura</strong>, em que a cabeça e o corpo de alguém formam o
+  buraco de uma fechadura. O dado pessoal é a própria pessoa, e ele está guardado.
+</p>
+<ul class="set-grid set-grid--large">
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="9.5" r="2.5"/><path d="M10.6 12.3 9 17h6l-1.6-4.7"/></svg><small>Pessoa-fechadura</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9.5" r="2.5"/><path d="M10.6 12.3 9 17h6l-1.6-4.7"/><circle cx="12" cy="12" r="10" stroke-dasharray="3.2 2.6"/></svg><small>Na bolha de privacidade</small></li>
+</ul>
+<p>
+  Nessa etapa usei um assistente de IA (Claude) para gerar variações e
+  compará-las lado a lado em vários tamanhos e nos dois temas. Ver dez propostas
+  na mesma tela, de 16 a 96 px, ajudou a descartar rápido o que só funcionava
+  grande. Os desenhos seguem as regras do Lucide: grade de 24, traço de 2 unidades,
+  pontas arredondadas e 2 px de margem, para não parecerem maiores que os ícones
+  ao lado.
+</p>
+<blockquote class="page__note">
+  <p>
+    <strong>A palavra do assistente.</strong> André me convidou a comentar a minha
+    parte, então aqui vai. Gerei alternativas rápido, mostrei todas lado a lado nos
+    tamanhos e temas reais e cuidei de detalhes técnicos: simplificar o mapa,
+    corrigir o traço que saía do quadro e abrir o furo do globo pelo sentido do
+    desenho. A pessoa-fechadura surgiu numa dessas rodadas.
+  </p>
+  <p>
+    As decisões que deram identidade ao ícone foram dele: trazer o Brasil para o
+    desenho, juntar o mapa ao losango, preencher a bandeira e criar a versão
+    colorida. Ele também deixou de lado propostas que eu tinha recomendado, e o
+    resultado ficou melhor por isso. Na minha visão, é assim que esse tipo de
+    ferramenta ajuda mais: acelera a exploração, mas o critério continua com quem
+    conhece o projeto.
+  </p>
+  <p class="page__note-sign">— Claude, assistente de IA da Anthropic</p>
+</blockquote>
+
+<h2>Trazendo o Brasil para o desenho</h2>
+<p>
+  A LGPD é uma lei brasileira, e eu queria que isso aparecesse. O contorno do mapa
+  veio dos dados do Natural Earth, que são de domínio público. O contorno original
+  tem 1.648 pontos. Simplificado com o algoritmo de Douglas-Peucker, ficou com 20,
+  o suficiente para reconhecer o Brasil em 16 px sem que o traço fique serrilhado.
+</p>
+<ul class="set-grid set-grid--large">
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.79 4.07 8.89 2.02 9.78 4.08 13.46 2.48 14.24 4.1 12.87 5.49 15.55 5.03 21.54 7.55 18.67 15.98 14.82 17.71 12.51 22 10.41 20.18 12.36 18.15 10.22 16 10.04 13.05 6.53 9.68 3.92 10.34 2.25 8.57 4.25 6.9 4.31 3.82Z"/></svg><small>Mapa com 20 pontos</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.79 4.07 8.89 2.02 9.78 4.08 13.46 2.48 14.24 4.1 12.87 5.49 15.55 5.03 21.54 7.55 18.67 15.98 14.82 17.71 12.51 22 10.41 20.18 12.36 18.15 10.22 16 10.04 13.05 6.53 9.68 3.92 10.34 2.25 8.57 4.25 6.9 4.31 3.82Z"/><circle cx="14.5" cy="9.8" r="1.8" stroke-width="1.75"/><path d="M13.5 11.6 12.7 14.5h3.6l-.8-2.9" stroke-width="1.75"/></svg><small>Mapa e pessoa-fechadura</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5 22.5 12 12 22.5 1.5 12Z"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="10.6" r="1.7" stroke-width="1.5"/><path d="M11.1 12.4 10.2 15.3h3.6l-.9-2.9" stroke-width="1.5"/></svg><small>Losango e globo</small></li>
+</ul>
+<p>
+  O losango e o globo lembram a bandeira, com a pessoa-fechadura no lugar da
+  faixa. No fim juntei os dois: o mapa ao fundo e o losango na frente. A decisão
+  que mais pesou foi <strong>preencher o losango</strong>. Em contorno, losango,
+  globo e fechadura viravam três linhas encostadas em 24 px. Com a área cheia e o
+  globo vazado, o conjunto continua claro até em 16 px.
+</p>
+
+<h2>Uma família de três versões</h2>
+<p>
+  Um ícone só não serve para tudo. Fiquei com três versões em preto, que acompanham
+  a cor do texto, e uma colorida:
+</p>
+<ul class="set-grid set-grid--large">
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/></svg><small>Selo</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12Z" stroke-width="1.5"/><path d="M11.49 11.88A1.55 1.55 0 1 1 12.89 11.88L13.66 14.6H10.72Z" stroke-width="1.5"/></svg><small>Contorno</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/></svg><small>Mínimo</small></li>
+<li><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L6 12.5Z" stroke="#061906" fill="#061906"/><path d="M6.38 10.4L5.33 8.65L3.02 10.32L1.57 9.35L0.77 7.6L2.91 5.82L2.97 2.51L4.57 2.77L7.9 0.58L8.85 2.79L12.67 0.66L13.15 2.6L12.16 4.3L15.04 3.8L21.84 6.94L18.95 15.63L15.09 18.04L11.77 22.02L9.78 19.97L11.03 18.15L5.5 12Z" stroke-width="0.25" stroke="#165115" fill="#165115"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM17 10A4.78 4.78 0 1 0 7.5 13.5A4.78 4.78 0 1 0 17 10Z" fill="#51450b" stroke="#51450b" stroke-width="3"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM17 10A4.78 4.78 0 1 0 7.5 14Z" fill="#ddbf2c" stroke="#ddbf2c"/><circle cx="12" cy="12" r="4.031" fill="#051133" stroke="#051133" stroke-width="3"/><circle cx="12" cy="12" r="3.5" fill="#061d60" stroke="#061d60" stroke-width="2.75"/><path d="M11.5 11.5A1.389 1.389 0 1 1 12.5 11.5L13.5 14.5L10.5 14.5Z" fill="#f0f0f0" stroke="#f0f0f0" stroke-width="1.5"/><path d="M11.55 11.65A1.25 1.25 0 1 1 12.45 11.65L13.35 14.35L10.65 14.35Z" stroke-width="1" fill="#ffffff" stroke="#ffffff"/><path d="M7.904 7.098C7.987 7.262 7.815 7.434 7.65 7.353L6.697 6.875A1.513 1.513 135 0 0 5.344 6.874L4.389 7.352C4.228 7.436 4.054 7.261 4.136 7.098L4.614 6.143A1.513 1.513 135 0 0 4.613 4.791L4.136 3.837A0.189 0.189 135 0 1 4.389 3.583L5.345 4.06A1.513 1.513 135 0 0 6.696 4.061L7.652 3.582A0.189 0.189 135 0 1 7.906 3.836L7.426 4.791A1.513 1.513 135 0 0 7.428 6.144ZM11.219 7.556A0.114 0.114 135 0 1 11.068 7.708L10.495 7.421C10.239 7.293 9.939 7.294 9.683 7.421L9.109 7.708A0.114 0.114 135 0 1 8.957 7.556L9.244 6.982A0.905 0.905 135 0 0 9.244 6.17L8.958 5.598A0.114 0.114 135 0 1 9.109 5.446L9.682 5.732A0.905 0.905 135 0 0 10.494 5.732L11.067 5.446A0.114 0.114 135 0 1 11.219 5.598L10.933 6.171A0.905 0.905 135 0 0 10.933 6.983ZM8.993 10.558A0.077 0.077 135 0 1 8.891 10.66L8.51 10.469C8.34 10.383 8.14 10.383 7.969 10.468L7.587 10.66A0.077 0.077 135 0 1 7.485 10.558L7.676 10.175A0.607 0.607 135 0 0 7.675 9.634L7.485 9.254A0.077 0.077 135 0 1 7.587 9.152L7.967 9.342A0.607 0.607 135 0 0 8.51 9.342L8.892 9.151A0.077 0.077 135 0 1 8.993 9.253L8.802 9.634C8.717 9.806 8.716 10.007 8.802 10.177Z" stroke-width="0.25" fill="#ebedf0" stroke="#ebedf0"/><path d="M17.285 12.736C17.178 12.681 17.064 12.794 17.118 12.902L17.432 13.528A0.993 0.993 135 0 1 17.433 14.414L17.118 15.041C17.064 15.147 17.178 15.261 17.285 15.208L17.912 14.893A0.993 0.993 135 0 1 18.798 14.893L19.425 15.208A0.124 0.124 135 0 0 19.592 15.041L19.278 14.414A0.993 0.993 135 0 1 19.278 13.528L19.592 12.9A0.124 0.124 135 0 0 19.425 12.735L18.799 13.049A0.993 0.993 135 0 1 17.909 13.048ZM16.984 10.56A0.076 0.076 135 0 0 16.883 10.659L17.074 11.035C17.159 11.204 17.156 11.4 17.073 11.567L16.883 11.944A0.076 0.076 135 0 0 16.984 12.045L17.361 11.855A0.594 0.594 135 0 1 17.894 11.854L18.269 12.043A0.076 0.076 135 0 0 18.369 11.944L18.18 11.568A0.594 0.594 135 0 1 18.18 11.035L18.368 10.66A0.076 0.076 135 0 0 18.27 10.56L17.894 10.746A0.594 0.594 135 0 1 17.361 10.747ZM15.015 12.02A0.05 0.05 135 0 0 14.949 12.087L15.074 12.337C15.13 12.449 15.129 12.581 15.073 12.691L14.95 12.942A0.05 0.05 135 0 0 15.015 13.011L15.265 12.885A0.398 0.398 135 0 1 15.621 12.886L15.871 13.011A0.05 0.05 135 0 0 15.938 12.943L15.813 12.695A0.398 0.398 135 0 1 15.813 12.337L15.939 12.087A0.05 0.05 135 0 0 15.872 12.02L15.621 12.146C15.507 12.202 15.377 12.203 15.263 12.146Z" fill="#ebedf0" stroke="none"/><path d="M17.818 6.369A0.127 0.127 90 0 1 17.816 6.604L17.143 6.829C16.842 6.933 16.603 7.169 16.503 7.468L16.281 8.143A0.127 0.127 90 0 1 16.041 8.143L15.814 7.469A1.007 1.007 90 0 0 15.179 6.829L14.502 6.604A0.127 0.127 90 0 1 14.503 6.37L15.178 6.143A1.007 1.007 90 0 0 15.814 5.507L16.041 4.829A0.127 0.127 90 0 1 16.281 4.826L16.503 5.503A1.007 1.007 90 0 0 17.142 6.142ZM19.589 8.151A0.086 0.086 90 0 1 19.59 8.31L19.142 8.459C18.94 8.524 18.78 8.682 18.714 8.887L18.566 9.336A0.086 0.086 90 0 1 18.404 9.336L18.254 8.886A0.674 0.674 90 0 0 17.829 8.459L17.381 8.31A0.086 0.086 90 0 1 17.381 8.152L17.827 8A0.674 0.674 90 0 0 18.257 7.574L18.404 7.127A0.086 0.086 90 0 1 18.566 7.127L18.714 7.574C18.78 7.777 18.938 7.934 19.142 7.999Z" fill="#ebedf0" stroke="none"/><path d="M11.005 18.18A0.103 0.103 -90 0 1 11.008 17.99L11.552 17.806C11.796 17.722 11.99 17.531 12.071 17.289L12.25 16.742A0.103 0.103 -90 0 1 12.444 16.742L12.629 17.288A0.815 0.815 -90 0 0 13.143 17.806L13.691 17.989A0.103 0.103 -90 0 1 13.69 18.179L13.143 18.362A0.815 0.815 -90 0 0 12.628 18.876L12.443 19.425A0.103 0.103 -90 0 1 12.25 19.43L12.072 18.88A0.815 0.815 -90 0 0 11.552 18.362ZM9.57 16.735A0.069 0.069 -90 0 1 9.569 16.605L9.933 16.486C10.097 16.434 10.226 16.306 10.28 16.14L10.399 15.777A0.069 0.069 -90 0 1 10.531 15.776L10.652 16.14A0.546 0.546 -90 0 0 10.996 16.486L11.359 16.605A0.069 0.069 -90 0 1 11.359 16.735L10.998 16.857A0.546 0.546 -90 0 0 10.649 17.202L10.531 17.565A0.069 0.069 -90 0 1 10.399 17.566L10.281 17.202C10.226 17.038 10.097 16.911 9.933 16.858Z" fill="#ebedf0" stroke="none"/></svg><small>Colorida</small></li>
+</ul>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Versão</th><th>Onde usar</th></tr></thead>
+    <tbody>
+    <tr><td>Selo</td><td>Logo, cabeçalho, selo de conformidade e impressão em uma cor</td></tr>
+    <tr><td>Contorno</td><td>Menus e botões, ao lado de ícones do Lucide ou do Feather</td></tr>
+    <tr><td>Mínimo</td><td>Favicon, aba do navegador e qualquer lugar em 16 px</td></tr>
+    <tr><td>Colorida</td><td>Apresentações e a página da própria ferramenta</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>Nos tamanhos reais, de 16 a 48 px, o selo e o mínimo ficam assim:</p>
+<p class="icon-sizes"><svg width="16" height="16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/></svg><svg width="24" height="24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/></svg><svg width="32" height="32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/></svg><svg width="48" height="48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/><path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/></svg></p>
+<p class="icon-sizes"><svg width="16" height="16" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/></svg><svg width="24" height="24" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/></svg><svg width="32" height="32" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/></svg><svg width="48" height="48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/><path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/></svg></p>
+
+<h2>O que aprendi no caminho</h2>
+<ul>
+  <li>
+    <strong>Teste nos tamanhos reais.</strong> Um ícone bonito em 96 px pode virar
+    um borrão em 16. Olhe sempre em 16, 24 e 48 px, nos temas claro e escuro.
+  </li>
+  <li>
+    <strong>Respeite a margem do conjunto.</strong> Os ícones do Lucide deixam
+    cerca de 2 px livres em volta. Meu primeiro mapa ia até a borda: além de
+    parecer maior que os vizinhos, metade do traço ficava fora do quadro.
+  </li>
+  <li>
+    <strong>Use traços diferentes de propósito.</strong> Contorno externo com 2 px
+    e detalhes internos com 1,5 px funcionam bem, desde que a diferença pareça
+    intencional.
+  </li>
+  <li>
+    <strong>Furos dependem do sentido do desenho.</strong> Para vazar o globo dentro
+    do losango preenchido, o círculo é desenhado no sentido contrário ao do
+    losango. Com a regra de preenchimento padrão do SVG (<code>nonzero</code>),
+    isso abre o furo sem nenhum atributo extra.
+  </li>
+  <li>
+    <strong>Cuidado com símbolos nacionais.</strong> A Lei 5.700/1971 regula o uso
+    da bandeira e proíbe alterá-la. O ícone é uma referência estilizada às formas e
+    cores, não a bandeira, e por isso evitei a faixa "Ordem e Progresso". Para
+    registrar um desenho assim como marca, vale consultar um especialista.
+  </li>
+</ul>
+
+<h2>Como fazer o mesmo na Icon Library</h2>
+<ol>
+  <li>Procure o ícone mais próximo da ideia e clique no lápis para abrir o editor.</li>
+  <li>Use <strong>Ícone por cima</strong> para trazer um segundo ícone e ajuste o tamanho e a posição.</li>
+  <li>Selecione as formas que andam juntas e use <strong>Agrupar</strong>. <strong>Ver camadas</strong> mostra cada forma numa cor.</li>
+  <li>Para uma área cheia, feche a linha com <strong>Unir</strong> e use <strong>Preencher</strong>.</li>
+  <li>Use <strong>Copiar SVG</strong>, ou publique o ícone para que outras pessoas o encontrem.</li>
+</ol>
+<p class="page__cta"><a class="page__open" href="./?lang=pt-BR">Abrir a Icon Library</a></p>
+
+<h2>O código das três versões</h2>
+<p>Estes são os SVGs que uso hoje, para quem quiser estudar como foram montados.</p>
+<h3>Selo</h3>
+<pre><code>&lt;svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/&gt;&lt;path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12ZM16.97 11.71a4.78 4.78 0 1 0-9.56 0a4.78 4.78 0 1 0 9.56 0Z" stroke-width="1.5" fill="currentColor"/&gt;&lt;path d="M11.63 11.67A1.25 1.25 0 1 1 12.75 11.67L13.38 13.85H11Z" stroke-width="1" fill="currentColor"/&gt;&lt;/svg&gt;</code></pre>
+<h3>Contorno</h3>
+<pre><code>&lt;svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="M6.88 10.9L5.83 9.15L3.52 10.82L2.07 9.85L1.27 8.1L3.41 6.32L3.47 3.01L5.07 3.27L8.4 1.08L9.35 3.29L13.17 1.16L13.65 3.1L12.66 4.8L15.54 4.3L22.34 7.44L19.45 16.13L15.59 18.54L12.27 22.52L10.28 20.47L11.53 18.65L11.05 17.23" stroke-width="1.75"/&gt;&lt;path d="M12.19 4.54L19.47 11.81L12.19 19.08L4.69 12Z" stroke-width="1.5"/&gt;&lt;path d="M11.49 11.88A1.55 1.55 0 1 1 12.89 11.88L13.66 14.6H10.72Z" stroke-width="1.5"/&gt;&lt;/svg&gt;</code></pre>
+<h3>Mínimo</h3>
+<pre><code>&lt;svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="M12 1.5L22.5 12L12 22.5L1.5 12ZM18.2 12a6.2 6.2 0 1 0-12.4 0a6.2 6.2 0 1 0 12.4 0Z" stroke-width="1.5" fill="currentColor"/&gt;&lt;path d="M11.21 12.36A1.75 1.75 0 1 1 12.79 12.36L13.66 15.43H10.34Z" stroke-width="1" fill="currentColor"/&gt;&lt;/svg&gt;</code></pre>
+<p class="page__meta">
+  Veja também os guias do <a href="lucide-icons.pt-BR.html">Lucide</a> e do
+  <a href="bootstrap-icons.pt-BR.html">Bootstrap Icons</a>, os conjuntos de onde
+  vieram os candidatos.
+</p>

@@ -407,6 +407,8 @@ export default {
   "sets.open": "Открыть этот набор в Icon Library",
   "sets.others": "Другие наборы:",
   "sets.guides": "Руководства по наборам (на английском):",
+  "articles.label": "Статьи:",
+  "articles.lgpd": "Как создать иконку, когда ни одна не подходит: пример LGPD",
   "footer.telegram": "Канал в Telegram",
   "footer.github": "Открытый код на GitHub",
   "nav.label": "Сайт",

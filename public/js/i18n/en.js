@@ -396,6 +396,8 @@ export default {
   "sets.open": "Open this set in Icon Library",
   "sets.others": "Other sets:",
   "sets.guides": "Guides to each set:",
+  "articles.label": "Articles:",
+  "articles.lgpd": "Designing an icon when none fits: an LGPD case study",
   "footer.telegram": "Telegram channel",
   "footer.github": "Open source on GitHub",
   "nav.label": "Site",
