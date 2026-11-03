@@ -27,6 +27,7 @@ Site at https://iconlibrary.io. Plain ES modules with an MVC layout, no framewor
 - **Generated pages:** `public/{about,guide,privacy}*.html` the set guides (`lucide-icons`, `feather-icons`, `bootstrap-icons`, `emoji-icons`) and the articles (`ARTIGOS` in `scripts/build-pages.mjs`, also listed in the sitemap regex in `scripts/server.js`) come from `pages/`. Edit `pages/` and run `npm run pages`.
 - **Set guides and articles are an exception to the 8 languages:** only English and Portuguese for now, the languages the maintainer can review. `data-languages` tells `detect.js` which versions exist. Their text is written by hand: don't generate thin pages from a template, which is what AdSense rejected.
 - **Dockerfile:** it lists the scripts one by one, so a new file in `scripts/` needs its own `COPY`.
+- **IndexNow:** with `INDEXNOW_KEY` and `SITE_URL`, the server sends every sitemap address to IndexNow a minute after each start (`scripts/indexnow.js`). A new page only needs to be in the sitemap; the next deploy announces it to Bing.
 - **Migrations:** applied by hand with the database owner role (`PG_MIGRATE=false`). The app uses another role, so a new table needs its `GRANT`, and the migration must be recorded in `schema_migrations`.
 
 ## Coffee

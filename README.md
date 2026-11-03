@@ -100,6 +100,7 @@ The production container runs as a non-root user, with a read-only file system, 
 |---|---|
 | `SITE_URL` | Public address — `https://iconlibrary.io` — used in `/sitemap.xml` and `/robots.txt`. Without it, the address of each request is used. |
 | `ADSENSE_PUBLISHER_ID` | Your `pub-…` ID. Enables `/ads.txt`, required by AdSense. |
+| `INDEXNOW_KEY` | 8–128 letters, digits or dashes (`openssl rand -hex 16`). With `SITE_URL`, serves `/<key>.txt` and, a minute after each start, sends the sitemap to IndexNow, so Bing, Yandex and others recrawl changed pages within days. The key is public by design. |
 
 ### Deploying
 
@@ -403,6 +404,7 @@ O container de produção roda sem root, com sistema de arquivos somente leitura
 |---|---|
 | `SITE_URL` | Endereço público — `https://iconlibrary.io` — usado em `/sitemap.xml` e `/robots.txt`. Sem ela, usa o endereço de cada requisição. |
 | `ADSENSE_PUBLISHER_ID` | Seu ID `pub-…`. Liga o `/ads.txt`, exigido pelo AdSense. |
+| `INDEXNOW_KEY` | De 8 a 128 letras, números ou hífens (`openssl rand -hex 16`). Com `SITE_URL`, serve `/<chave>.txt` e, um minuto depois de cada início, envia o sitemap ao IndexNow, para o Bing, o Yandex e outros lerem as páginas alteradas em dias. A chave é pública por natureza. |
 
 ### Publicação
 

@@ -27,6 +27,10 @@
  *                          moderator (n8n): list pending icons, PNG previews,
  *                          approve or reject — nothing else. At least 32
  *                          characters (openssl rand -hex 32).
+ *   INDEXNOW_KEY           with SITE_URL, serves /<key>.txt and, a minute
+ *                          after each start, sends the sitemap to IndexNow
+ *                          (Bing, Yandex…). 8–128 letters, digits or dashes
+ *                          (openssl rand -hex 16); see scripts/indexnow.js
  *
  * With PG_HOST set, the migrations in migrations/ are applied on start-up
  * (scripts/db.js), and Iconlibrary and the bug report form are on.
@@ -42,6 +46,7 @@ const { ReportError, createReports, postgresStore: reportsStore } = require("./r
 const { previewAvailable, previewSize, renderPng } = require("./preview");
 const { DEFAULT: DEFAULT_LANG, dictionary, homeLang, localizeHome } = require("./homeLang");
 const { loadVersion, versionHtml } = require("./version");
+const { indexNowKey, submitIndexNow, describeStatus } = require("./indexnow");
 
 // Commit and build date, shown in the footer of every page (<!--version-->)
 const VERSION = loadVersion();
@@ -527,6 +532,11 @@ function handle(req, res, ctx) {
     sendText(req, res, 400, "Bad request");
     return;
   }
+  // IndexNow checks that the site is ours by reading the key at /<key>.txt
+  if (ctx.indexNowKey && url === `/${ctx.indexNowKey}.txt`) {
+    send(req, res, 200, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-cache" }, ctx.indexNowKey);
+    return;
+  }
 
   // Main page in another language (/?lang=pt-BR): head adjusted for search
   // engines (scripts/homeLang.js)
@@ -605,9 +615,9 @@ function handle(req, res, ctx) {
 
 // coffee: scripts/coffee.js service; iconlibrary: scripts/iconlibrary.js
 // service; reports: scripts/reports.js service; adminPassword: enables
-// /admin. Each null/empty = feature off.
-function createServer({ coffee = null, iconlibrary = null, reports = null, adminPassword = "", moderationToken = "" } = {}) {
-  const ctx = { coffee, iconlibrary, reports, adminPassword, moderationToken, limit: createLimiter() };
+// /admin; indexNowKey: serves /<key>.txt. Each null/empty = feature off.
+function createServer({ coffee = null, iconlibrary = null, reports = null, adminPassword = "", moderationToken = "", indexNowKey = "" } = {}) {
+  const ctx = { coffee, iconlibrary, reports, adminPassword, moderationToken, indexNowKey, limit: createLimiter() };
   return http.createServer((req, res) => {
     try {
       handle(req, res, ctx);
@@ -620,7 +630,12 @@ function createServer({ coffee = null, iconlibrary = null, reports = null, admin
   });
 }
 
-module.exports = { createServer };
+// The full address of every page in the sitemap, for IndexNow
+function sitemapUrls(site) {
+  return sitemapPages().map((page) => `${site}${page}`);
+}
+
+module.exports = { createServer, sitemapUrls };
 
 if (require.main === module) {
   const PORT = Number(process.env.PORT) || 8080;
@@ -674,7 +689,12 @@ if (require.main === module) {
       console.error("[moderation] MODERATION_TOKEN must have at least 32 characters (openssl rand -hex 32) — moderation API is off");
       moderationToken = "";
     }
-    createServer({ coffee, iconlibrary, reports, adminPassword, moderationToken }).listen(PORT, HOST, () => {
+    // IndexNow needs the public address too: the key file is checked there
+    const indexNow = indexNowKey();
+    if (process.env.INDEXNOW_KEY && !indexNow)
+      console.error("[indexnow] INDEXNOW_KEY must have 8 to 128 letters, digits or dashes (openssl rand -hex 16) — IndexNow is off");
+    const site = (process.env.SITE_URL || "").replace(/\/+$/, "");
+    createServer({ coffee, iconlibrary, reports, adminPassword, moderationToken, indexNowKey: indexNow }).listen(PORT, HOST, () => {
       console.log(`Icon Library running at http://localhost:${PORT}`);
       console.log(`Buy me a coffee: ${coffee ? "on" : "off (Stripe or database not configured)"}`);
       console.log(`Iconlibrary: ${iconlibrary ? "on" : "off (needs the database and the coffee)"}`);
@@ -682,6 +702,20 @@ if (require.main === module) {
       console.log(`Admin (/admin): ${(iconlibrary || reports) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
       console.log(`Version: ${VERSION.commit ? VERSION.commit.slice(0, 7) : "unknown commit"}${VERSION.built ? `, built ${VERSION.built}` : ""}`);
       console.log(`Moderation API: ${iconlibrary && moderationToken ? `on${previewAvailable() ? "" : " (no PNG previews: renderer missing)"}` : "off (set MODERATION_TOKEN)"}`);
+      console.log(`IndexNow: ${indexNow && site ? "on, sitemap sent in a minute" : "off (set INDEXNOW_KEY and SITE_URL)"}`);
+      // A start is usually a deploy: tell the search engines once, after the
+      // proxy already reaches this container and can serve the key file
+      if (indexNow && site) {
+        setTimeout(async () => {
+          const urls = sitemapUrls(site);
+          try {
+            const status = await submitIndexNow({ site, key: indexNow, urls });
+            console.log(`[indexnow] ${urls.length} addresses sent: ${describeStatus(status)}`);
+          } catch (err) {
+            console.error(`[indexnow] ${err.message}`);
+          }
+        }, 60_000).unref();
+      }
     });
   })();
 }
