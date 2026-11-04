@@ -32,7 +32,7 @@ Site at https://iconlibrary.io. Plain ES modules with an MVC layout, no framewor
 
 ## Coffee
 
-Everything that leads to the coffee uses the same gold style (`.coffee-button`, `.site-footer__coffee`), in both themes. People who already support the site see the discreet green instead. Other pages link with `#coffee`, and `<!--cafe-->` in `pages/` becomes the button. Don't put a coffee link inside or next to an ad unit: it could be read as part of the ad, and AdSense restricts text around ads. AdSense turned the site down for low-value content on 2026-11-01, so no text may promise ad removal as if ads were already showing.
+Everything that leads to the coffee uses the same gold style (`.coffee-button`, `.site-footer__coffee`), in both themes. People who already support the site see the discreet green instead. Other pages link with `#coffee`, and `<!--cafe-->` in `pages/` becomes the button. Don't put a coffee link inside or next to an ad unit: it could be read as part of the ad, and AdSense restricts text around ads. AdSense turned the site down for low-value content on 2026-11-01, so no text may promise ad removal as if ads were already showing. A promotion (`COFFEE_PROMO`, `COFFEE_PRICE_REGULAR`, `COFFEE_PROMO_UNTIL`) adds a black badge to the header button and a strip in the coffee window, ending on its own after the last day; the price charged is always the Payment Link's, and supporters don't see the badge. Pages don't state a price, so a promotion never leaves them out of date.
 
 ## Footer
 

@@ -240,6 +240,18 @@ function postgresStore(pool) {
   };
 }
 
+// Promotion shown next to the price (COFFEE_PROMO, e.g. "Black Friday"), with
+// the regular price and the last day; after that day it disappears on its
+// own. The price charged is still the one set in the Payment Link
+function coffeePromo(env, now = new Date()) {
+  const label = (env.COFFEE_PROMO || "").trim();
+  if (!label) return null;
+  const until = /^\d{4}-\d{2}-\d{2}$/.test((env.COFFEE_PROMO_UNTIL || "").trim()) ? env.COFFEE_PROMO_UNTIL.trim() : null;
+  // The last day ends at midnight in Brasília (UTC-3)
+  if (until && now > new Date(`${until}T23:59:59.999-03:00`)) return null;
+  return { label, regular: (env.COFFEE_PRICE_REGULAR || "").trim() || null, until };
+}
+
 // Built from the environment and the shared pool (scripts/db.js); null
 // (feature off) when Stripe or the database is not configured
 function coffeeFromEnv(env, pool) {
@@ -265,5 +277,6 @@ module.exports = {
   memoryStore,
   postgresStore,
   coffeeFromEnv,
+  coffeePromo,
   normalizeCode,
 };

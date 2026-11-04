@@ -19,6 +19,9 @@
  *                          (see scripts/coffee.js and .env.example)
  *   COFFEE_PRICE           price shown on the button (default "US$ 3"; the
  *                          real price is the one set in the Stripe Payment Link)
+ *   COFFEE_PROMO           a promotion next to the price (e.g. "Black Friday");
+ *                          COFFEE_PRICE_REGULAR is the usual price and
+ *                          COFFEE_PROMO_UNTIL (YYYY-MM-DD) its last day
  *   TRUST_PROXY            "true" behind a reverse proxy: the client IP for
  *                          rate limiting comes from X-Forwarded-For
  *   ADMIN_PASSWORD         enables /admin (Iconlibrary review and bug
@@ -40,7 +43,7 @@ const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 const crypto = require("crypto");
-const { CoffeeError, coffeeFromEnv } = require("./coffee");
+const { CoffeeError, coffeeFromEnv, coffeePromo } = require("./coffee");
 const { IconlibraryError, createIconlibrary, postgresStore: iconlibraryStore } = require("./iconlibrary");
 const { ReportError, createReports, postgresStore: reportsStore } = require("./reports");
 const { previewAvailable, previewSize, renderPng } = require("./preview");
@@ -484,9 +487,9 @@ async function handleApi(req, res, url, ctx) {
   const { coffee } = ctx;
   if (url === "/api/coffee/config") {
     if (req.method !== "GET" && req.method !== "HEAD") return sendJson(req, res, 405, { error: "method" });
-    return sendJson(req, res, 200, coffee
-      ? { ...coffee.config(), price: process.env.COFFEE_PRICE || "US$ 3" }
-      : { enabled: false });
+    if (!coffee) return sendJson(req, res, 200, { enabled: false });
+    const promo = coffeePromo(process.env);
+    return sendJson(req, res, 200, { ...coffee.config(), price: process.env.COFFEE_PRICE || "US$ 3", ...(promo && { promo }) });
   }
   const actions = { "/api/coffee/redeem": "redeem", "/api/coffee/claim": "claim" };
   if (!actions[url]) return sendJson(req, res, 404, { error: "not_found" });

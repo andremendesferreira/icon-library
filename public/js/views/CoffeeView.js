@@ -1,4 +1,4 @@
-import { t } from "../i18n/i18n.js";
+import { idiomaAtual, t } from "../i18n/i18n.js";
 import { fecharAoClicarFora } from "./dialogo.js";
 
 const porId = (id) => document.getElementById(id);
@@ -9,6 +9,8 @@ export class CoffeeView {
   janela = porId("coffee");
   botoes = [...document.querySelectorAll("[data-coffee-open]")];
   textoBotao = porId("coffee-open-text");
+  seloPromocao = porId("coffee-open-promo");
+  promocao = porId("coffee-promo");
   pagar = porId("coffee-pay");
   convite = porId("coffee-invite");
   obrigado = porId("coffee-thanks");
@@ -36,10 +38,24 @@ export class CoffeeView {
     if (!config.enabled) return;
     this.config = config;
     this.pagar.textContent = t("coffee.pay", { price: config.price });
+    this.mostrarPromocao(config);
     this.explicacao.textContent = t("coffee.text", { days: config.days });
     this.devices = config.devices;
     this.renovarAntes.textContent = t("coffee.renewEarly", { days: config.days });
     this.usarCodigoNoPagamento(codigo);
+  }
+
+  // Promoção (ex.: Black Friday): selo no botão do topo e, na janela, o preço
+  // normal e o último dia. Sem promo no servidor, os dois ficam escondidos
+  mostrarPromocao({ promo, price }) {
+    this.seloPromocao.hidden = !promo || this.seloPromocao.dataset.apoiador === "sim";
+    this.promocao.hidden = !promo;
+    if (!promo) return;
+    this.seloPromocao.textContent = promo.label;
+    const texto = promo.regular ? t("coffee.promo", { label: promo.label, regular: promo.regular, price }) : promo.label;
+    // Meio-dia evita que o fuso mude o dia mostrado
+    const dia = promo.until && new Intl.DateTimeFormat(idiomaAtual(), { day: "numeric", month: "long" }).format(new Date(`${promo.until}T12:00:00`));
+    this.promocao.textContent = dia ? `${texto} · ${t("coffee.promoUntil", { date: dia })}` : texto;
   }
 
   // O Stripe devolve o client_reference_id na sessão: o servidor estende
@@ -63,6 +79,9 @@ export class CoffeeView {
 
   // Apoiador ativo: o botão vira um agradecimento (e reabre o código)
   mostrarApoiador(dataTexto) {
+    // Quem já apoia vê o verde discreto, sem o selo da promoção
+    this.seloPromocao.dataset.apoiador = "sim";
+    this.seloPromocao.hidden = true;
     for (const botao of this.botoes) {
       botao.hidden = false;
       botao.classList.add("coffee-button--supporter");

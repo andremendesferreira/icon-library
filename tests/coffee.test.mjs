@@ -198,6 +198,17 @@ test("API: configuração, resgate e código em outro aparelho", async () => {
   assert.equal((await outro.json()).code, code);
 });
 
+test("promoção: nome, preço normal e último dia; some depois do fim", () => {
+  assert.equal(cafe.coffeePromo({}), null);
+  const env = { COFFEE_PROMO: " Black Friday ", COFFEE_PRICE_REGULAR: "USD 3", COFFEE_PROMO_UNTIL: "2026-11-30" };
+  assert.deepEqual(cafe.coffeePromo(env, new Date("2026-11-20T12:00:00Z")), { label: "Black Friday", regular: "USD 3", until: "2026-11-30" });
+  // O último dia vale até a meia-noite de Brasília (03:00 UTC do dia seguinte)
+  assert.ok(cafe.coffeePromo(env, new Date("2026-12-01T02:59:00Z")));
+  assert.equal(cafe.coffeePromo(env, new Date("2026-12-01T03:01:00Z")), null);
+  // Sem data (ou com data inválida), fica até ser tirada do ambiente
+  assert.deepEqual(cafe.coffeePromo({ COFFEE_PROMO: "Black Friday", COFFEE_PROMO_UNTIL: "30/11" }), { label: "Black Friday", regular: null, until: null });
+});
+
 test("API: erros viram JSON com código; método e corpo são conferidos", async () => {
   const naoPago = await postar(base, "/api/coffee/redeem", { session: "cs_test_naoexiste1" });
   assert.equal(naoPago.status, 404);

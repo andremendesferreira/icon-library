@@ -291,6 +291,8 @@ export default {
   "coffee.error": "サーバーに接続できませんでした。少し待ってからもう一度お試しください。",
   "coffee.expiredText": "サポーター期間は {date} に終了しました。もう一杯のコーヒーでコード {code} がさらに {days} 日間更新され、このコードで公開したアイコンもそのままあなたのものです。",
   "coffee.renewPay": "コーヒーで更新 · {price}",
+  "coffee.promo": "{label}：{price}（通常 {regular}）",
+  "coffee.promoUntil": "{date}まで",
   "coffee.renewedElsewhere": "別の端末で更新済みです",
   "coffee.codeExpired": "このコードは期限切れです。ここでもう一杯コーヒーを買うと {days} 日間更新され、このコードで公開したアイコンもそのままあなたのものです。",
   "coffee.renewEarly": "もう一杯のコーヒーで {days} 日延長",

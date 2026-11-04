@@ -298,6 +298,8 @@ export default {
   "coffee.error": "Impossible de joindre le serveur. Réessayez dans un instant.",
   "coffee.expiredText": "Votre période de soutien s’est terminée le {date}. Un autre café renouvelle votre code {code} pour {days} jours de plus — et les icônes publiées avec lui restent les vôtres.",
   "coffee.renewPay": "Renouveler avec un café · {price}",
+  "coffee.promo": "{label} : {price} au lieu de {regular}",
+  "coffee.promoUntil": "jusqu’au {date}",
   "coffee.renewedElsewhere": "J’ai déjà renouvelé sur un autre appareil",
   "coffee.codeExpired": "Ce code a expiré. Offrez un autre café ici pour le renouveler pour {days} jours — les icônes publiées avec lui restent les vôtres.",
   "coffee.renewEarly": "Ajouter {days} jours avec un autre café",

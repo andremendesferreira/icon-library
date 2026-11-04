@@ -298,6 +298,8 @@ export default {
   "coffee.error": "No se pudo conectar con el servidor. Inténtalo de nuevo en un momento.",
   "coffee.expiredText": "Tu período de apoyo terminó el {date}. Otro café renueva tu código {code} por {days} días más, y los iconos que publicaste con él siguen siendo tuyos.",
   "coffee.renewPay": "Renovar con un café · {price}",
+  "coffee.promo": "{label}: de {regular} a {price}",
+  "coffee.promoUntil": "hasta el {date}",
   "coffee.renewedElsewhere": "Ya lo renové en otro dispositivo",
   "coffee.codeExpired": "Este código expiró. Compra otro café aquí para renovarlo por {days} días: los iconos publicados con él siguen siendo tuyos.",
   "coffee.renewEarly": "Suma {days} días más con otro café",

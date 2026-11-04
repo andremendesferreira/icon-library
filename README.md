@@ -129,7 +129,7 @@ With `cliente` empty no Google script is loaded; on `localhost` the areas show a
 
 ### Buy me a coffee (30 days as a supporter)
 
-Visitors can buy the developer a coffee (about US$ 3) through Stripe; in return, for 30 days they can publish and edit icons on Iconlibrary and see no ads when the site shows them. The button only appears when Stripe and the database are configured.
+Visitors can buy the developer a coffee (usually US$ 3) through Stripe; in return, for 30 days they can publish and edit icons on Iconlibrary and see no ads when the site shows them. The button only appears when Stripe and the database are configured.
 
 1. **Payment:** the button opens a Stripe **Payment Link**. In its settings, *After payment* → redirect to `https://iconlibrary.io/?coffee={CHECKOUT_SESSION_ID}`.
 2. **Confirmation:** back on the site, the page sends the session ID to `POST /api/coffee/redeem`. The server (`scripts/coffee.js`) asks Stripe whether it was paid and stores a row in PostgreSQL (table `coffee_supporters`, created automatically) with a **supporter code** valid until 30 days after the payment.
@@ -433,7 +433,7 @@ Com `cliente` vazio nenhum script do Google é carregado; em `localhost` as áre
 
 ### Pague um café (30 dias como apoiador)
 
-Quem visita pode pagar um café ao desenvolvedor (cerca de US$ 3) pelo Stripe e, em troca, por 30 dias pode publicar e editar ícones na Iconlibrary e não vê anúncios quando o site os exibir. O botão só aparece com o Stripe e o banco configurados.
+Quem visita pode pagar um café ao desenvolvedor (normalmente US$ 3) pelo Stripe e, em troca, por 30 dias pode publicar e editar ícones na Iconlibrary e não vê anúncios quando o site os exibir. O botão só aparece com o Stripe e o banco configurados.
 
 1. **Pagamento:** o botão abre um **Payment Link** do Stripe. Nas configurações dele, *Após o pagamento* → redirecionar para `https://iconlibrary.io/?coffee={CHECKOUT_SESSION_ID}`.
 2. **Confirmação:** de volta ao site, a página envia o ID da sessão para `POST /api/coffee/redeem`. O servidor (`scripts/coffee.js`) pergunta ao Stripe se foi pago e grava no PostgreSQL (tabela `coffee_supporters`, criada automaticamente) um **código de apoiador** válido até 30 dias depois do pagamento.
