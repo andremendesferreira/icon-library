@@ -25,8 +25,8 @@ MODERATION_TOKEN=<o valor gerado>
 Atualize a stack. No log deve aparecer `Moderation API: on`.
 
 O token só serve para a API de moderação: listar pendentes, baixar a prévia em
-PNG e aprovar/recusar **pendentes**. Ele não abre o `/admin`, não exclui nada
-e não lê os relatos de bug.
+PNG, aprovar/recusar **pendentes** e excluir o que nunca foi ao ar. Ele não
+abre o `/admin`, não exclui ícones aprovados e não lê os relatos de bug.
 
 ### A API
 
@@ -38,6 +38,12 @@ Todas as chamadas levam o cabeçalho `Authorization: Bearer <MODERATION_TOKEN>`.
 | `GET /api/moderation/icons/{id}/preview.png?size=256` | o ícone em PNG (escuro sobre branco, com margem); `size` de 16 a 512 |
 | `POST /api/moderation/icons/{id}/approve` | aprova (só se ainda estiver pendente) |
 | `POST /api/moderation/icons/{id}/reject` com `{ "note": "motivo" }` | recusa; a nota aparece no `/admin` |
+| `POST /api/moderation/icons/{id}/delete` | exclui um ícone pendente ou recusado; aprovado responde `409 approved` (só sai pelo `/admin`) |
+
+As três aceitam também `submittedAt` (a data do envio que você viu, em ISO ou
+milissegundos). Se o autor editou o ícone depois, a resposta é `409 changed` e
+nada acontece: a decisão cairia numa versão que ninguém viu. Os botões do
+Telegram (abaixo) sempre mandam essa data.
 
 Aprovar ou recusar age no que está esperando: o próprio ícone ou, num ícone já no
 ar, a edição (aprovar troca a versão no ar; recusar descarta a edição e o ícone
@@ -224,7 +230,43 @@ Quem já usava o workflow antes das edições: troque o código dos nós **Escol
 próximo** e **Decidir** pelo do arquivo atualizado. Na primeira execução depois
 disso, os pendentes já vistos são julgados mais uma vez (a forma de marcar mudou).
 
-## 4. As fases da autonomia
+## 4. Botões no Telegram
+
+Com o segundo fluxo, `docs/n8n-moderacao-telegram-botoes.json`, você decide pelo
+próprio Telegram. A mensagem de cada ícone chega com três botões:
+
+```
+[ ✅ Aprovar ]  [ ⛔ Recusar ]  [ 🗑️ Excluir ]
+```
+
+- **Aprovar** aprova na hora.
+- **Recusar** pergunta o motivo (marca/logotipo, ofensivo, nome não confere,
+  qualidade ou outro). A nota fica `Telegram: <motivo>` no `/admin`.
+- **Excluir** pede confirmação e só funciona com ícone pendente ou recusado.
+- O resultado chega como resposta à foto: aprovado, recusado, excluído, "o autor
+  mudou o ícone" (a versão nova chega numa mensagem nova) ou "já decidido".
+  As perguntas de motivo e de confirmação somem depois da resposta.
+
+Os botões da foto continuam lá depois da decisão; tocar de novo só responde
+"já decidido".
+
+### Instalar
+
+1. Importe a versão nova do primeiro fluxo (`docs/n8n-moderacao-iconlibrary.json`),
+   ou, para não reimportar, troque o código do nó **Decidir** e acrescente ao nó
+   **Telegram** o teclado com os três botões (`callback_data` como no arquivo).
+2. Importe `docs/n8n-moderacao-telegram-botoes.json`.
+3. No nó **Configuração** do fluxo novo, preencha `site` e `telegramUserId`, o
+   **seu** id numérico no Telegram (o bot @userinfobot mostra). Clique de outra
+   pessoa responde "Sem permissão" e não faz nada.
+4. Escolha a credencial **Telegram** (o mesmo bot do primeiro fluxo) no gatilho
+   **Clique no botão** e nos nós do Telegram, e a credencial **Header Auth** no
+   nó **Chamar o site**.
+5. **Ative** o fluxo. O gatilho registra no Telegram o endereço público do seu
+   n8n (precisa de HTTPS); um bot só aceita um destino por vez, então não use
+   esse bot em outro gatilho.
+
+## 5. As fases da autonomia
 
 Comece na fase 1 e só avance depois de ver que a IA concorda com você.
 

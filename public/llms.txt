@@ -54,7 +54,7 @@ Only produce base64url if you can encode it exactly; otherwise URL-encode the JS
 - Use only `path`, `line`, `circle`, `ellipse`, `rect`, `polyline` and `polygon` — these can be reshaped in the editor. `g`, `text`, `use`, `transform` attributes and other elements stay editable only as code.
 - Keep it simple: few shapes, at least 2 units between separate shapes, no detail smaller than the stroke.
 - A color on a single shape: give it its own `stroke` (or `fill` for filled shapes). It then keeps that color wherever the icon is pasted.
-- Never include scripts, event attributes (`onload`…), `javascript:` links or `foreignObject`: they are removed when the icon opens.
+- Never include scripts, event attributes (`onload`…), `foreignObject`, `<a>`, `<style>`, animations or comments: they are removed when the icon opens. Links (`href`) may only point inside the icon (`#id`).
 
 Bootstrap Icons use a different style: `viewBox="0 0 16 16"`, `fill="currentColor"`, filled shapes, no stroke.
 

@@ -28,7 +28,7 @@ Site at https://iconlibrary.io. Plain ES modules with an MVC layout, no framewor
 - **Set guides and articles are an exception to the 8 languages:** only English and Portuguese for now, the languages the maintainer can review. `data-languages` tells `detect.js` which versions exist. Their text is written by hand: don't generate thin pages from a template, which is what AdSense rejected.
 - **Dockerfile:** it lists the scripts one by one, so a new file in `scripts/` needs its own `COPY`.
 - **IndexNow:** with `INDEXNOW_KEY` and `SITE_URL`, the server sends every sitemap address to IndexNow a minute after each start (`scripts/indexnow.js`). A new page only needs to be in the sitemap; the next deploy announces it to Bing.
-- **Migrations:** applied by hand with the database owner role (`PG_MIGRATE=false`). The app uses another role, so a new table needs its `GRANT`, and the migration must be recorded in `schema_migrations`.
+- **Migrations:** applied by hand with the database owner role (`PG_MIGRATE=false`). The app uses another role, so a new table needs its `GRANT`, and the migration must be recorded in `schema_migrations`. At start-up the server compares `migrations/` with `schema_migrations` and checks each feature's tables and privileges (`FEATURE_TABLES` in `scripts/db.js`; add a new table there): anything missing turns the database features off and `/api/health`, the Docker healthcheck, answers 503.
 
 ## Coffee
 
@@ -50,4 +50,5 @@ Links use the same color and SVG icons (`.site-footer__icon`, Bootstrap Icons), 
 - **Editor buttons with an icon only** need `title` and `aria-label` through `data-i18n-attr`. `data-i18n` on a button would replace its icon. Combine buttons get their text from `mostrarCombinar`. They use `aria-disabled`, not `disabled`, so a tap on one can explain what is missing, because a phone has no hover.
 - **Join** has two modes in `EditorModel.unir`: two selected lines, or one open line (`uniaoDaForma`), which closes it or connects its nearest end to the selected point.
 - **Fill** (`alternarPreenchimento`) only works on closed shapes (`formaFechada`). Removing the fill of a shape with no stroke gives it a stroke, so it doesn't vanish.
+- **SVG from outside** (pasted code, `#svg=`/`#ile=` links, `.ile` files) goes through `lerSvg`, which keeps only the elements in `ELEMENTOS_SVG`, drops comments and `<?…?>` and keeps only `href="#…"`. Insert editor SVG into the page with `svgDoTexto` (XML parser), never `innerHTML`: the HTML parser reads comments and `<?…?>` differently, which was an XSS.
 - **Show layers** only changes how the canvas and the list are drawn (`EditorView.camadas`). The SVG never gets those colors. A group is one block with one color (`blocosDasCamadas`).

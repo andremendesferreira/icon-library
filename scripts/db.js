@@ -82,20 +82,47 @@ async function migrate(pool, { dir = MIGRATIONS, log = console.log } = {}) {
   }
 }
 
-// Reads the tables (by default, the ones coffee and Iconlibrary use) with the
-// application's user. Throws a clear message on a wrong password, a missing
-// table or a missing GRANT (the pg error message already says which).
-async function checkDatabase(pool, tables = ["coffee_supporters", "iconlibrary_icons"]) {
-  for (const table of tables) {
+// Migrations in migrations/ not recorded in schema_migrations (all of them
+// when the table does not exist). With PG_MIGRATE=false they are applied by
+// hand, so this is what tells a forgotten one at start-up instead of at the
+// first payment. The application user needs SELECT on schema_migrations.
+async function pendingMigrations(pool, dir = MIGRATIONS) {
+  const { rows: existe } = await pool.query("SELECT to_regclass('schema_migrations') AS t");
+  const done = new Set();
+  if (existe[0].t) for (const r of (await pool.query("SELECT name FROM schema_migrations")).rows) done.add(r.name);
+  return migrationFiles(dir).filter((f) => !done.has(f));
+}
+
+// The tables each feature uses and what it does with them. A missing table or
+// GRANT turns only that feature off, at start-up
+const FEATURE_TABLES = {
+  coffee: { coffee_supporters: ["SELECT", "INSERT", "UPDATE"], coffee_renewals: ["SELECT", "INSERT"] },
+  iconlibrary: { iconlibrary_icons: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
+  reports: { bug_reports: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
+};
+
+// With the application's user: connects (a wrong password fails here) and
+// checks that the feature's tables exist with every privilege it needs.
+// Throws a message that names the table or the missing privilege.
+async function checkDatabase(pool, feature) {
+  for (const [table, privileges] of Object.entries(FEATURE_TABLES[feature])) {
+    let missing;
     try {
-      await pool.query(`SELECT 1 FROM ${table} LIMIT 1`);
+      const { rows } = await pool.query("SELECT to_regclass($1) AS t", [table]);
+      if (!rows[0].t) throw Object.assign(new Error(`table ${table} does not exist`), { clear: true });
+      // Separate query: has_table_privilege errors on a table that does not exist
+      ({ rows: missing } = await pool.query(
+        "SELECT p FROM unnest($2::text[]) AS p WHERE NOT has_table_privilege($1, p)",
+        [table, privileges],
+      ));
     } catch (err) {
-      throw new Error(`cannot use the database (table ${table}): ${err.message}`);
+      throw err.clear ? err : new Error(`cannot use the database: ${err.message}`);
     }
+    if (missing.length) throw new Error(`no ${missing.map((r) => r.p).join(", ")} on ${table} (GRANT missing)`);
   }
 }
 
-module.exports = { poolFromEnv, migrate, migrationFiles, checkDatabase };
+module.exports = { poolFromEnv, migrate, migrationFiles, pendingMigrations, checkDatabase, FEATURE_TABLES };
 
 if (require.main === module) {
   const pool = poolFromEnv();

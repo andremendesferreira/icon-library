@@ -51,6 +51,23 @@ export function viewBoxDe(raiz) {
   return { x: x || 0, y: y || 0, w: w || 24, h: h || 24 };
 }
 
+// Elementos que um ícone usa. Fora desta lista, o elemento sai inteiro
+const ELEMENTOS_SVG = new Set([
+  ...FORMAS,
+  "g", "defs", "use", "symbol", "title", "desc", "text", "tspan",
+  "clipPath", "mask", "linearGradient", "radialGradient", "stop", "pattern", "marker",
+]);
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+// Tira de dentro de "no" tudo que não é texto nem elemento SVG da lista
+function limparNos(no) {
+  for (const filho of [...no.childNodes]) {
+    if (filho.nodeType === 3) continue;
+    if (filho.nodeType === 1 && filho.namespaceURI === SVG_NS && ELEMENTOS_SVG.has(filho.localName)) limparNos(filho);
+    else filho.remove();
+  }
+}
+
 // Texto SVG → documento do editor. Usa o DOMParser do navegador.
 // Elementos fora de FORMAS (g, text, use…) são mantidos como estão, em
 // "html", e só podem ser mudados pelo código.
@@ -64,19 +81,21 @@ export function lerSvg(texto) {
   const raiz = doc.documentElement;
   if (raiz.localName !== "svg")
     throw erroCom("error.svgRoot", "The code must start with <svg>");
-  // Nada que execute código: atributos de evento (onload, onclick…), links
-  // javascript:, <script> e <foreignObject> (que embute HTML). A prévia
-  // mostra o código como HTML de verdade, o código pode ter sido colado e um
-  // arquivo .ile pode ter vindo de outra pessoa — e um ícone não precisa
-  // de nada disso.
+  // Nada que execute código: o código pode ter sido colado, vir de um link
+  // #svg= ou de um .ile de outra pessoa, e o SVG final vai para innerHTML
+  // (lista de rascunho, prévias), onde o parser HTML lê diferente do XML.
+  // Por isso a limpeza é por lista do que fica, não do que sai:
+  // - comentários, <?…?> e CDATA saem — um "<img onerror>" escondido neles é
+  //   inerte em XML e vira HTML de verdade no innerHTML;
+  // - só ficam elementos SVG de desenho (sem <a>, <set>, <animate>, <meta>,
+  //   <script>, <foreignObject>…);
+  // - saem atributos de evento (onload…) e links que não apontam para dentro
+  //   do próprio SVG (href="#id" continua, para <use> e gradientes).
+  limparNos(raiz);
   for (const no of [raiz, ...raiz.querySelectorAll("*")])
     for (const at of [...no.attributes])
-      if (
-        /^on/i.test(at.name) ||
-        (/(^|:)href$/i.test(at.name) && /^\s*javascript:/i.test(at.value))
-      )
+      if (/^on/i.test(at.name) || (/(^|:)href$/i.test(at.name) && !/^\s*#/.test(at.value)))
         no.removeAttribute(at.name);
-  for (const perigoso of raiz.querySelectorAll("script, foreignObject")) perigoso.remove();
   const attrsDe = (no) =>
     Object.fromEntries([...no.attributes].map((at) => [at.name, at.value]));
   return {

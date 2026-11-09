@@ -173,7 +173,7 @@
         100
       ],
       "parameters": {
-        "jsCode": "const config = $('Configuração').first().json;\nconst icone = $('Escolher próximo').first().json;\nconst { analise } = $('Preparar etapa 2').first().json;\nconst texto = $input.first().json.message?.content ?? '';\nlet comparacao;\ntry {\n  comparacao = JSON.parse(texto);\n} catch {\n  throw new Error('A etapa 2 não devolveu JSON: ' + texto.slice(0, 300));\n}\n\nconst marca = String(analise.marca ?? '').trim();\nlet sugestao = 'aprovar';\nlet razao = 'Mostra: ' + analise.descricao;\nif (analise.ofensivo === true) {\n  sugestao = 'recusar';\n  razao = 'Conteúdo possivelmente ofensivo: ' + analise.descricao;\n} else if (marca && marca.toLowerCase() !== 'nenhuma') {\n  sugestao = 'recusar';\n  razao = 'Parece logotipo de marca: ' + marca;\n} else {\n  // Nome que não combina e crédito impróprio: os dois vão para você revisar\n  const problemas = [];\n  if (comparacao.combina !== true) problemas.push('O nome não combina com o desenho: ' + comparacao.motivo);\n  // Crédito vazio é sempre aceito (é opcional); o modelo só julga o que foi escrito\n  if (icone.author && comparacao.credito_ok !== true) problemas.push('Crédito impróprio: ' + comparacao.credito_motivo);\n  if (problemas.length) {\n    sugestao = 'revisar';\n    razao = problemas.join(' · ');\n  }\n}\n\nlet acao = '';\nif (config.fase >= 2 && sugestao === 'recusar') acao = 'reject';\nif (config.fase >= 3 && sugestao === 'aprovar') acao = 'approve';\n\n// Visto: não é julgado de novo (guarda os 500 mais recentes)\nconst dados = $getWorkflowStaticData('global');\ndados.vistos = [...(dados.vistos ?? []), icone.chave].slice(-500);\n\nconst rotulo = { aprovar: '✅ APROVAR', recusar: '⛔ RECUSAR', revisar: '👀 REVISAR' }[sugestao];\nconst linhas = [\n  (icone.kind === 'revision' ? '✏️ Edição de um ícone no ar — ' : 'Iconlibrary — ') + icone.name,\n  'Categorias: ' + (icone.categories ?? []).join(', '),\n  'Crédito: ' + (icone.author || '—'),\n  '',\n  'Sugestão: ' + rotulo,\n  razao,\n  '',\n  acao\n    ? 'Ação automática: ' + (acao === 'approve' ? 'aprovado' : 'recusado') + ' (fase ' + config.fase + ')'\n    : 'Decida em ' + config.site + '/admin',\n];\nreturn [{\n  json: {\n    id: icone.id,\n    acao,\n    nota: 'Moderação automática: ' + razao,\n    sugestao,\n    razao,\n    mensagem: linhas.join('\\n').slice(0, 1000),\n    previewUrl: icone.previewUrl,\n  },\n}];\n"
+        "jsCode": "const config = $('Configuração').first().json;\nconst icone = $('Escolher próximo').first().json;\nconst { analise } = $('Preparar etapa 2').first().json;\nconst texto = $input.first().json.message?.content ?? '';\nlet comparacao;\ntry {\n  comparacao = JSON.parse(texto);\n} catch {\n  throw new Error('A etapa 2 não devolveu JSON: ' + texto.slice(0, 300));\n}\n\nconst marca = String(analise.marca ?? '').trim();\nlet sugestao = 'aprovar';\nlet razao = 'Mostra: ' + analise.descricao;\nif (analise.ofensivo === true) {\n  sugestao = 'recusar';\n  razao = 'Conteúdo possivelmente ofensivo: ' + analise.descricao;\n} else if (marca && marca.toLowerCase() !== 'nenhuma') {\n  sugestao = 'recusar';\n  razao = 'Parece logotipo de marca: ' + marca;\n} else {\n  // Nome que não combina e crédito impróprio: os dois vão para você revisar\n  const problemas = [];\n  if (comparacao.combina !== true) problemas.push('O nome não combina com o desenho: ' + comparacao.motivo);\n  // Crédito vazio é sempre aceito (é opcional); o modelo só julga o que foi escrito\n  if (icone.author && comparacao.credito_ok !== true) problemas.push('Crédito impróprio: ' + comparacao.credito_motivo);\n  if (problemas.length) {\n    sugestao = 'revisar';\n    razao = problemas.join(' · ');\n  }\n}\n\nlet acao = '';\nif (config.fase >= 2 && sugestao === 'recusar') acao = 'reject';\nif (config.fase >= 3 && sugestao === 'aprovar') acao = 'approve';\n\n// Visto: não é julgado de novo (guarda os 500 mais recentes)\nconst dados = $getWorkflowStaticData('global');\ndados.vistos = [...(dados.vistos ?? []), icone.chave].slice(-500);\n\n// Versão que você vê na mensagem (segundos): o botão manda de volta e o site\n// recusa a decisão se o autor mudou o ícone depois\nconst t = Math.floor(new Date(icone.submittedAt ?? icone.createdAt).getTime() / 1000);\n\nconst rotulo = { aprovar: '✅ APROVAR', recusar: '⛔ RECUSAR', revisar: '👀 REVISAR' }[sugestao];\nconst linhas = [\n  (icone.kind === 'revision' ? '✏️ Edição de um ícone no ar — ' : 'Iconlibrary — ') + icone.name,\n  'Categorias: ' + (icone.categories ?? []).join(', '),\n  'Crédito: ' + (icone.author || '—'),\n  '',\n  'Sugestão: ' + rotulo,\n  razao,\n  '',\n  acao\n    ? 'Ação automática: ' + (acao === 'approve' ? 'aprovado' : 'recusado') + ' (fase ' + config.fase + ')'\n    : 'Decida pelos botões ou em ' + config.site + '/admin',\n];\nreturn [{\n  json: {\n    id: icone.id,\n    t,\n    acao,\n    nota: 'Moderação automática: ' + razao,\n    sugestao,\n    razao,\n    mensagem: linhas.join('\\n').slice(0, 1000),\n    previewUrl: icone.previewUrl,\n  },\n}];\n"
       }
     },
     {
@@ -269,6 +269,35 @@
         "binaryPropertyName": "data",
         "additionalFields": {
           "caption": "={{ $('Decidir').first().json.mensagem }}"
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Aprovar",
+                    "additionalFields": {
+                      "callback_data": "={{ 'a|' + $('Decidir').first().json.id + '|' + $('Decidir').first().json.t }}"
+                    }
+                  },
+                  {
+                    "text": "⛔ Recusar",
+                    "additionalFields": {
+                      "callback_data": "={{ 'r|' + $('Decidir').first().json.id + '|' + $('Decidir').first().json.t }}"
+                    }
+                  },
+                  {
+                    "text": "🗑️ Excluir",
+                    "additionalFields": {
+                      "callback_data": "={{ 'd|' + $('Decidir').first().json.id + '|' + $('Decidir').first().json.t }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
         }
       },
       "onError": "continueRegularOutput"

@@ -60,7 +60,7 @@ function withVersion(html) {
   const out = text.replace("<!--version-->", VERSION_HTML);
   return Buffer.isBuffer(html) ? Buffer.from(out) : out;
 }
-const { poolFromEnv, migrate, checkDatabase } = require("./db");
+const { poolFromEnv, migrate, pendingMigrations, checkDatabase } = require("./db");
 
 const ROOT = path.resolve(__dirname, "..", "public");
 
@@ -319,13 +319,15 @@ async function handleModeration(req, res, url, ctx) {
       const png = renderPng(iconlibrary.pendingSvg(icon), size);
       return send(req, res, 200, { "Content-Type": "image/png", "Cache-Control": "no-store", "Content-Length": png.length }, png);
     }
-    const decisao = /^\/api\/moderation\/icons\/(\d+)\/(approve|reject)$/.exec(url);
+    const decisao = /^\/api\/moderation\/icons\/(\d+)\/(approve|reject|delete)$/.exec(url);
     if (decisao) {
       if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
       const body = await readJson(req);
       // Only what is waiting (the icon or its edit): an automated moderator
-      // never undoes a human decision
-      return sendJson(req, res, 200, await iconlibrary.decidePending(decisao[1], decisao[2], body.note));
+      // never undoes a human decision. Delete only what never went live.
+      // submittedAt (optional): the version the moderator saw — 409
+      // "changed" if the author edited it since (Telegram buttons send it)
+      return sendJson(req, res, 200, await iconlibrary.decidePending(decisao[1], decisao[2], body.note, body.submittedAt));
     }
     return sendJson(req, res, 404, { error: "not_found" });
   } catch (err) {
@@ -473,6 +475,13 @@ async function handleReports(req, res, url, ctx) {
 }
 
 async function handleApi(req, res, url, ctx) {
+  // Docker's HEALTHCHECK: 503 when a database check failed at start-up (a
+  // pending migration, a missing table or GRANT), so the container shows as
+  // unhealthy in Portainer instead of failing quietly at the first payment
+  if (url === "/api/health") {
+    if (req.method !== "GET" && req.method !== "HEAD") return sendJson(req, res, 405, { error: "method" });
+    return sendJson(req, res, ctx.health.ok ? 200 : 503, { ...ctx.health, version: VERSION.commit ? VERSION.commit.slice(0, 7) : null });
+  }
   if (url.startsWith("/api/moderation/")) return handleModeration(req, res, url, ctx);
   if (url === "/api/reports" || url.startsWith("/api/reports/") || url.startsWith("/api/admin/reports")) {
     const handled = await handleReports(req, res, url, ctx);
@@ -619,8 +628,12 @@ function handle(req, res, ctx) {
 // coffee: scripts/coffee.js service; iconlibrary: scripts/iconlibrary.js
 // service; reports: scripts/reports.js service; adminPassword: enables
 // /admin; indexNowKey: serves /<key>.txt. Each null/empty = feature off.
-function createServer({ coffee = null, iconlibrary = null, reports = null, adminPassword = "", moderationToken = "", indexNowKey = "" } = {}) {
-  const ctx = { coffee, iconlibrary, reports, adminPassword, moderationToken, indexNowKey, limit: createLimiter() };
+// health: the start-up checks, for /api/health (default: healthy, no database).
+function createServer({ coffee = null, iconlibrary = null, reports = null, adminPassword = "", moderationToken = "", indexNowKey = "", health = null } = {}) {
+  const ctx = {
+    coffee, iconlibrary, reports, adminPassword, moderationToken, indexNowKey, limit: createLimiter(),
+    health: { ok: true, database: "off", pendingMigrations: [], ...health, coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports) },
+  };
   return http.createServer((req, res) => {
     try {
       handle(req, res, ctx);
@@ -650,41 +663,60 @@ if (require.main === module) {
     let pool = poolFromEnv();
     // PG_MIGRATE=false: the application user only reads and writes; the
     // database owner applies the migrations (npm run migrate)
+    // What /api/health reports; ok turns false on every database problem below
+    const health = { ok: true, database: pool ? "connected" : "off", pendingMigrations: [] };
+    const problem = (message) => {
+      console.error(`[db] ${message}`);
+      health.ok = false;
+      health.database = "error";
+    };
     if (pool && process.env.PG_MIGRATE !== "false") {
       try {
         await migrate(pool);
       } catch (err) {
-        console.error(`[db] ${err.message} — coffee and Iconlibrary are off`);
+        problem(`${err.message} — coffee, Iconlibrary and bug reports are off`);
         pool = null;
       }
     }
-    // Uses the database once now, as the application will: a wrong password,
-    // a missing table or a missing GRANT shows up here, in the log, instead
-    // of as an error 500 on the first visitor
+    // A migration not applied (PG_MIGRATE=false: applied by hand) means the
+    // code may query a table or column that is not there. Fail closed: with
+    // the features off nobody pays for a coffee the site cannot deliver
     if (pool) {
       try {
-        await checkDatabase(pool);
-        console.log("[db] connected");
+        const pending = await pendingMigrations(pool);
+        if (pending.length) {
+          health.pendingMigrations = pending;
+          problem(`PENDING MIGRATIONS: ${pending.join(", ")} — apply them with the owner role (npm run migrate) — coffee, Iconlibrary and bug reports are off`);
+          pool = null;
+        }
       } catch (err) {
-        console.error(`[db] ${err.message} — coffee and Iconlibrary are off`);
+        problem(`cannot read schema_migrations: ${err.message} — coffee, Iconlibrary and bug reports are off`);
         pool = null;
       }
     }
-    // Bug reports need only their own table: if migration 003 was not
-    // applied (or its GRANT is missing), only the form is off
-    let reports = null;
-    if (pool) {
+    // Uses each feature's tables once now, as the application will: a wrong
+    // password, a missing table or a missing GRANT shows up here, in the log,
+    // instead of as an error 500 on the first visitor. Only that feature is off
+    const usable = async (feature, off) => {
+      if (!pool) return false;
       try {
-        await checkDatabase(pool, ["bug_reports"]);
-        reports = createReports({ store: reportsStore(pool) });
+        await checkDatabase(pool, feature);
+        return true;
       } catch (err) {
-        console.error(`[db] ${err.message} — bug reports are off`);
+        problem(`${err.message} — ${off}`);
+        return false;
       }
-    }
-    const coffee = coffeeFromEnv(process.env, pool);
-    const iconlibrary = pool && coffee
+    };
+    const coffeeOk = await usable("coffee", "coffee and Iconlibrary are off");
+    const iconlibraryOk = coffeeOk && (await usable("iconlibrary", "Iconlibrary is off"));
+    const reports = (await usable("reports", "bug reports are off")) ? createReports({ store: reportsStore(pool) }) : null;
+    if (pool && health.ok) console.log("[db] connected");
+    // Without PG_HOST, coffeeFromEnv explains that the database is missing
+    const coffee = !process.env.PG_HOST || coffeeOk ? coffeeFromEnv(process.env, coffeeOk ? pool : null) : null;
+    const iconlibrary = iconlibraryOk && coffee
       ? createIconlibrary({ store: iconlibraryStore(pool), supporter: (code) => coffee.supporter(code) })
       : null;
+    Object.assign(health, { coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports) });
     const adminPassword = process.env.ADMIN_PASSWORD || "";
     // A short token would be easy to guess: below 32 characters it is ignored
     let moderationToken = process.env.MODERATION_TOKEN || "";
@@ -697,11 +729,13 @@ if (require.main === module) {
     if (process.env.INDEXNOW_KEY && !indexNow)
       console.error("[indexnow] INDEXNOW_KEY must have 8 to 128 letters, digits or dashes (openssl rand -hex 16) — IndexNow is off");
     const site = (process.env.SITE_URL || "").replace(/\/+$/, "");
-    createServer({ coffee, iconlibrary, reports, adminPassword, moderationToken, indexNowKey: indexNow }).listen(PORT, HOST, () => {
+    createServer({ coffee, iconlibrary, reports, adminPassword, moderationToken, indexNowKey: indexNow, health }).listen(PORT, HOST, () => {
       console.log(`Icon Library running at http://localhost:${PORT}`);
-      console.log(`Buy me a coffee: ${coffee ? "on" : "off (Stripe or database not configured)"}`);
-      console.log(`Iconlibrary: ${iconlibrary ? "on" : "off (needs the database and the coffee)"}`);
-      console.log(`Bug reports: ${reports ? "on" : "off (needs the database)"}`);
+      // Off because of a failed database check: point to the [db] line, not to the configuration
+      const off = (reason) => (health.ok ? `off (${reason})` : "OFF (database check failed, see [db] above)");
+      console.log(`Buy me a coffee: ${coffee ? "on" : off("Stripe or database not configured")}`);
+      console.log(`Iconlibrary: ${iconlibrary ? "on" : off("needs the database and the coffee")}`);
+      console.log(`Bug reports: ${reports ? "on" : off("needs the database")}`);
       console.log(`Admin (/admin): ${(iconlibrary || reports) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
       console.log(`Version: ${VERSION.commit ? VERSION.commit.slice(0, 7) : "unknown commit"}${VERSION.built ? `, built ${VERSION.built}` : ""}`);
       console.log(`Moderation API: ${iconlibrary && moderationToken ? `on${previewAvailable() ? "" : " (no PNG previews: renderer missing)"}` : "off (set MODERATION_TOKEN)"}`);

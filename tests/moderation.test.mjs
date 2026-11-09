@@ -97,7 +97,44 @@ test("moderação: aprova e recusa só pendentes; não exclui nada", async () =>
   assert.equal(repetido.status, 409);
   assert.deepEqual(await repetido.json(), { error: "not_pending", status: "approved" });
   assert.equal((await post(999999, "approve")).status, 404);
-  // Excluir não existe na API de moderação
-  assert.equal((await post(aprovar, "delete")).status, 404);
+  // Ícone aprovado não se exclui pela moderação (só no /admin)
+  const excluirAprovado = await post(aprovar, "delete");
+  assert.equal(excluirAprovado.status, 409);
+  assert.deepEqual(await excluirAprovado.json(), { error: "approved" });
+  assert.ok((await lib.review("approved")).some((i) => i.id === aprovar));
   assert.equal((await fetch(`${base}/api/moderation/icons/${aprovar}/approve`, { headers: comToken() })).status, 405);
+});
+
+test("moderação: exclui pendente ou recusado (botão do Telegram)", async () => {
+  const post = (id, acao, corpo = {}) =>
+    fetch(`${base}/api/moderation/icons/${id}/${acao}`, { method: "POST", headers: { ...comToken(), ...json }, body: JSON.stringify(corpo) });
+  const pendente = (await lib.submit(envio("Spam One"))).id;
+  const recusado = (await lib.submit(envio("Spam Two"))).id;
+  await lib.decide(recusado, "reject", "lixo");
+  assert.equal((await post(pendente, "delete")).status, 200);
+  assert.equal((await post(recusado, "delete")).status, 200);
+  for (const status of ["pending", "rejected"])
+    assert.ok(!(await lib.review(status)).some((i) => i.id === pendente || i.id === recusado));
+  assert.equal((await post(pendente, "delete")).status, 404);
+});
+
+test("moderação: com submittedAt, recusa decidir sobre versão que o autor já mudou", async () => {
+  const post = (id, acao, corpo = {}) =>
+    fetch(`${base}/api/moderation/icons/${id}/${acao}`, { method: "POST", headers: { ...comToken(), ...json }, body: JSON.stringify(corpo) });
+  const { id } = await lib.submit(envio("Ring Five"));
+  const versao = async () => (await (await fetch(`${base}/api/moderation/icons`, { headers: comToken() })).json()).icons.find((i) => i.id === id).submittedAt;
+  const vista = await versao();
+  // O autor edita depois que a mensagem chegou ao Telegram
+  await new Promise((r) => setTimeout(r, 1100));
+  await lib.edit(id, envio("Ring Five B"));
+  for (const acao of ["approve", "reject", "delete"]) {
+    const r = await post(id, acao, { submittedAt: vista });
+    assert.equal(r.status, 409, acao);
+    assert.deepEqual(await r.json(), { error: "changed" });
+  }
+  // Com a versão nova (ISO ou milissegundos), a decisão vale
+  const nova = await versao();
+  assert.notEqual(nova, vista);
+  assert.equal((await post(id, "approve", { submittedAt: new Date(nova).getTime() })).status, 200);
+  assert.equal((await post(id, "approve", { submittedAt: "ontem" })).status, 400);
 });

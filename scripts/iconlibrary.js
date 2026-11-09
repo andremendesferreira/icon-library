@@ -90,6 +90,8 @@ function createIconlibrary({ store, supporter, now = Date.now }) {
 
   // An approved icon's pending edit, in the same shape as an icon
   const pendingContent = (icon) => (icon.status === "approved" && icon.revision ? icon.revision : icon);
+  // When what is waiting (the icon or its edit) was sent
+  const pendingSince = (icon) => pendingContent(icon).submittedAt ?? icon.createdAt;
 
   return {
     config() {
@@ -229,7 +231,7 @@ function createIconlibrary({ store, supporter, now = Date.now }) {
           author: content.author,
           svg: content.svg,
           createdAt: i.createdAt,
-          submittedAt: (i.status === "pending" ? i.submittedAt : i.revision.submittedAt) ?? i.createdAt,
+          submittedAt: pendingSince(i),
           current: i.status === "pending" ? null : { name: i.name, svg: i.svg },
         };
       });
@@ -240,10 +242,25 @@ function createIconlibrary({ store, supporter, now = Date.now }) {
       return pendingContent(icon).svg;
     },
 
-    // Decide whatever is waiting for this icon (the icon itself or its edit)
-    async decidePending(id, action, note) {
+    // Decide whatever is waiting for this icon (the icon itself or its edit).
+    // seen: the submittedAt the moderator looked at (e.g. in a Telegram
+    // message). If the author changed the icon since, the decision would
+    // fall on a version nobody saw, so it is refused with "changed".
+    // delete: only what never went live (pending or rejected); an approved
+    // icon is removed only in /admin, so a leaked token cannot empty the set.
+    async decidePending(id, action, note, seen) {
       const icon = await store.byId(id);
       if (!icon) throw new IconlibraryError(404, "not_found");
+      if (seen != null) {
+        // Whole seconds: the moderator may get the time back in another format
+        const segundos = (d) => Math.floor(new Date(d).getTime() / 1000);
+        if (Number.isNaN(segundos(seen))) throw new IconlibraryError(400, "bad_seen");
+        if (segundos(seen) !== segundos(pendingSince(icon))) throw new IconlibraryError(409, "changed");
+      }
+      if (action === "delete") {
+        if (icon.status === "approved") throw new IconlibraryError(409, "approved");
+        return this.decide(id, "delete");
+      }
       if (icon.status === "pending") return this.decide(id, action, note);
       if (icon.status === "approved" && icon.revision) return this.decideRevision(id, action);
       throw new IconlibraryError(409, "not_pending", { status: icon.status });

@@ -1,4 +1,4 @@
-import { escapar } from "./html.js";
+import { escapar, svgDoTexto } from "./html.js";
 import { t } from "../i18n/i18n.js";
 
 const NS = "http://www.w3.org/2000/svg";
@@ -923,10 +923,15 @@ export class EditorView {
       .join("");
   }
 
+  // O SVG entra pelo parser XML, não por innerHTML: o que for inerte em XML
+  // continua inerte na página
   desenharPrevias(svg) {
     this.previas.innerHTML = PREVIAS.map(
       (tamanho) =>
-        `<figure class="editor__preview"><span style="width:${tamanho}px;height:${tamanho}px">${svg}</span><figcaption>${tamanho}</figcaption></figure>`,
+        `<figure class="editor__preview"><span style="width:${tamanho}px;height:${tamanho}px"></span><figcaption>${tamanho}</figcaption></figure>`,
     ).join("");
+    const desenho = svgDoTexto(svg);
+    if (desenho)
+      for (const caixa of this.previas.querySelectorAll("span")) caixa.append(desenho.cloneNode(true));
   }
 }

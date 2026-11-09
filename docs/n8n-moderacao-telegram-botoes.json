@@ -1,0 +1,533 @@
+{
+  "name": "Iconlibrary — botões do Telegram",
+  "nodes": [
+    {
+      "id": "eeb62dba-3fc1-40b2-a890-c1d7698daf2e",
+      "name": "Clique no botão",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "updates": [
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "webhookId": "ebe6f344-9ccc-4197-b656-e52941679678"
+    },
+    {
+      "id": "fabf157a-2947-4b5b-bc44-d24d6d946bb0",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Ajuste aqui (o mesmo site do fluxo de moderação).\n// telegramUserId: o SEU id no Telegram (o @userinfobot mostra). Clique de\n// qualquer outra pessoa é ignorado.\nreturn [{\n  json: {\n    site: \"https://iconlibrary.io\",\n    telegramUserId: \"\",\n  },\n}];\n"
+      }
+    },
+    {
+      "id": "a2c64d8f-9ec7-4af9-b970-75f6e1e636c5",
+      "name": "Interpretar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// O botão traz \"ação|id|versão\" (versão = submittedAt em segundos):\n//   a aprovar · r pede o motivo · m|…|k recusa com o motivo k\n//   d pede confirmação · x exclui (confirmado) · c cancela\n// A mensagem com a foto é a original; motivo e confirmação chegam como\n// resposta a ela e são apagados depois.\nconst config = $('Configuração').first().json;\nconst q = $('Clique no botão').first().json.callback_query;\nconst msg = q.message;\nconst base = {\n  queryId: q.id,\n  chatId: msg.chat.id,\n  fotoId: msg.reply_to_message?.message_id ?? msg.message_id,\n  pergunta: msg.reply_to_message ? msg.message_id : null,\n};\nif (!config.telegramUserId || String(q.from.id) !== String(config.telegramUserId))\n  return [{ json: { ...base, passo: 'negado', aviso: 'Sem permissão.' } }];\n\nconst [acao, id, t, k] = String(q.data ?? '').split('|');\n// Nome do ícone: 1ª linha da legenda da foto (\"Iconlibrary — nome\")\nconst legenda = (msg.reply_to_message ?? msg).caption ?? '';\nconst nome = (legenda.split('\\n')[0].split(' — ').pop() || 'ícone #' + id).trim();\nconst MOTIVOS = {\n  marca: 'Logotipo ou marca registrada',\n  ofensivo: 'Conteúdo ofensivo',\n  nome: 'O nome não corresponde ao desenho',\n  qualidade: 'Qualidade ou desenho incompleto',\n  outro: 'Recusado na moderação',\n};\nconst comum = { ...base, id, t, nome, submittedAt: Number(t) * 1000 };\nif (acao === 'r') return [{ json: { ...comum, passo: 'motivos', aviso: 'Escolha o motivo' } }];\nif (acao === 'd') return [{ json: { ...comum, passo: 'confirmar', aviso: 'Confirme a exclusão' } }];\nif (acao === 'c') return [{ json: { ...comum, passo: 'cancelar', aviso: 'Cancelado' } }];\nconst decisao = { a: 'approve', m: 'reject', x: 'delete' }[acao];\nif (!decisao || !/^\\d+$/.test(id ?? '')) return [{ json: { ...base, passo: 'negado', aviso: 'Botão inválido.' } }];\nreturn [{\n  json: {\n    ...comum,\n    passo: 'decidir',\n    acao: decisao,\n    nota: decisao === 'reject' ? 'Telegram: ' + (MOTIVOS[k] ?? MOTIVOS.outro) : undefined,\n    aviso: 'Enviando…',\n  },\n}];\n"
+      }
+    },
+    {
+      "id": "73d10a8c-c1f8-4a40-b2b1-78f76d7234fa",
+      "name": "Responder ao clique",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        680,
+        80
+      ],
+      "parameters": {
+        "resource": "callback",
+        "queryId": "={{ $json.queryId }}",
+        "additionalFields": {
+          "text": "={{ $json.aviso }}"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "7576ca0e-55b8-409b-b9cd-e35ee01bb3c1",
+      "name": "Passo",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        680,
+        360
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "303d8de1-4621-459a-82f8-2cbae6b99f23",
+                    "leftValue": "={{ $json.passo }}",
+                    "rightValue": "motivos",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "motivos"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "17c439fd-bbab-4937-9911-3aa1a6f55e65",
+                    "leftValue": "={{ $json.passo }}",
+                    "rightValue": "confirmar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "confirmar"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "363a1bb9-3f98-4c50-b558-221b478e58bb",
+                    "leftValue": "={{ $json.passo }}",
+                    "rightValue": "decidir",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "decidir"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "69923e75-b2f8-4ea2-9165-eaa5df11448a",
+                    "leftValue": "={{ $json.passo }}",
+                    "rightValue": "cancelar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cancelar"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "45397be6-00fc-44cd-99e7-e32df83f183d",
+      "name": "Pedir motivo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        940,
+        160
+      ],
+      "parameters": {
+        "chatId": "={{ $('Interpretar').first().json.chatId }}",
+        "text": "={{ 'Por que recusar \"' + $('Interpretar').first().json.nome + '\"?' }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $('Interpretar').first().json.fotoId }}"
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Marca / logotipo",
+                    "additionalFields": {
+                      "callback_data": "={{ 'm|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t + '|marca' }}"
+                    }
+                  },
+                  {
+                    "text": "Ofensivo",
+                    "additionalFields": {
+                      "callback_data": "={{ 'm|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t + '|ofensivo' }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Nome não confere",
+                    "additionalFields": {
+                      "callback_data": "={{ 'm|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t + '|nome' }}"
+                    }
+                  },
+                  {
+                    "text": "Qualidade",
+                    "additionalFields": {
+                      "callback_data": "={{ 'm|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t + '|qualidade' }}"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Outro motivo",
+                    "additionalFields": {
+                      "callback_data": "={{ 'm|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t + '|outro' }}"
+                    }
+                  },
+                  {
+                    "text": "Cancelar",
+                    "additionalFields": {
+                      "callback_data": "={{ 'c|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "a1173da8-9e40-4f8d-b709-b98116b07425",
+      "name": "Confirmar exclusão",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        940,
+        320
+      ],
+      "parameters": {
+        "chatId": "={{ $('Interpretar').first().json.chatId }}",
+        "text": "={{ 'Excluir \"' + $('Interpretar').first().json.nome + '\"? Não dá para desfazer.' }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $('Interpretar').first().json.fotoId }}"
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "🗑️ Sim, excluir",
+                    "additionalFields": {
+                      "callback_data": "={{ 'x|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t }}"
+                    }
+                  },
+                  {
+                    "text": "Cancelar",
+                    "additionalFields": {
+                      "callback_data": "={{ 'c|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "9e2dcd32-140c-414a-b62a-b43dcadb408b",
+      "name": "Chamar o site",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        480
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuração').first().json.site }}/api/moderation/icons/{{ $json.id }}/{{ $json.acao }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ note: $json.nota, submittedAt: $json.submittedAt }) }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "cbceff38-b5ff-4b81-b2e0-c82030e2edc6",
+      "name": "Resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// Resposta do site → texto curto em resposta à foto\nconst pedido = $('Interpretar').first().json;\nconst r = $input.first().json;\nconst status = r.statusCode;\nconst erro = r.body?.error;\nlet texto;\nif (status === 200) {\n  texto = {\n    approve: '✅ Aprovado: ' + pedido.nome,\n    reject: '⛔ Recusado: ' + pedido.nome + ' — ' + String(pedido.nota).replace(/^Telegram: /, ''),\n    delete: '🗑️ Excluído: ' + pedido.nome,\n  }[pedido.acao];\n} else if (erro === 'changed') {\n  texto = '⚠️ O autor mudou \"' + pedido.nome + '\" depois desta mensagem. Nada foi feito: a versão nova chega numa mensagem nova.';\n} else if (erro === 'not_pending') {\n  texto = 'ℹ️ \"' + pedido.nome + '\" já tinha sido decidido (' + (r.body.status ?? '?') + '). Nada mudou.';\n} else if (erro === 'approved') {\n  texto = 'ℹ️ \"' + pedido.nome + '\" está aprovado: excluir só pelo /admin.';\n} else if (status === 404) {\n  texto = 'ℹ️ \"' + pedido.nome + '\" não existe mais.';\n} else {\n  texto = '❌ Erro ' + status + ' (' + (erro ?? 'sem detalhe') + ') em \"' + pedido.nome + '\". Tente pelo /admin.';\n}\nreturn [{ json: { ...pedido, texto } }];\n"
+      }
+    },
+    {
+      "id": "0b42c012-be01-4a66-b587-3935c20d0b26",
+      "name": "Avisar resultado",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1380,
+        400
+      ],
+      "parameters": {
+        "chatId": "={{ $('Interpretar').first().json.chatId }}",
+        "text": "={{ $json.texto }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $('Interpretar').first().json.fotoId }}"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "47d3a511-977e-4efd-a0fc-c5d9215fc21e",
+      "name": "Veio de uma pergunta?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        580
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "11e79915-ff6d-4cd7-a8e8-2d4dc06c3052",
+              "leftValue": "={{ $('Interpretar').first().json.pergunta }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "30ce0369-99d0-49cb-8794-6bbeb7522638",
+      "name": "Apagar pergunta",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1600,
+        580
+      ],
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $('Interpretar').first().json.chatId }}",
+        "messageId": "={{ $('Interpretar').first().json.pergunta }}"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "d4a1b6c9-41ca-4a85-a65b-4e4e49c9700b",
+      "name": "Apagar pergunta (cancelar)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        940,
+        660
+      ],
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $('Interpretar').first().json.chatId }}",
+        "messageId": "={{ $('Interpretar').first().json.pergunta }}"
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Clique no botão": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Interpretar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interpretar": {
+      "main": [
+        [
+          {
+            "node": "Responder ao clique",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Passo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Passo": {
+      "main": [
+        [
+          {
+            "node": "Pedir motivo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Confirmar exclusão",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chamar o site",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Apagar pergunta (cancelar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chamar o site": {
+      "main": [
+        [
+          {
+            "node": "Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resultado": {
+      "main": [
+        [
+          {
+            "node": "Avisar resultado",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Veio de uma pergunta?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veio de uma pergunta?": {
+      "main": [
+        [
+          {
+            "node": "Apagar pergunta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

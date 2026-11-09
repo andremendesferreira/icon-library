@@ -1,4 +1,4 @@
-import { escapar } from "./html.js";
+import { escapar, svgDoTexto } from "./html.js";
 import { t } from "../i18n/i18n.js";
 import { fecharAoClicarFora } from "./dialogo.js";
 
@@ -80,7 +80,7 @@ export class PublishView {
   // Editando um ícone já publicado (edicao): título e botão de "edição", com
   // as categorias e o crédito dele já preenchidos.
   abrir({ svg, nome, codigo, categorias = [], autor = "", edicao = false }) {
-    this.previa.innerHTML = svg;
+    this.previa.replaceChildren(...[svgDoTexto(svg)].filter(Boolean));
     this.nome.value = nome || "";
     this.codigo.value = codigo || "";
     this.aviso.hidden = Boolean(codigo);

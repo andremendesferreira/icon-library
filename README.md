@@ -94,7 +94,7 @@ docker compose up -d --build                                              # prod
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build # development: serves local files, no rebuild
 ```
 
-The production container runs as a non-root user, with a read-only file system, no Linux capabilities, memory and process limits, and a healthcheck. Environment variables (in `docker-compose.yml`):
+The production container runs as a non-root user, with a read-only file system, no Linux capabilities, memory and process limits, and a healthcheck on `/api/health`, which answers 503 when a database check failed at start-up. Environment variables (in `docker-compose.yml`):
 
 | Variable | Purpose |
 |---|---|
@@ -150,7 +150,7 @@ A fifth set, **Iconlibrary**, holds icons published by supporters from the edito
 
 ### Moderation API (n8n)
 
-With `MODERATION_TOKEN` set (at least 32 characters, `openssl rand -hex 32`), an automated moderator can call `/api/moderation/…` with `Authorization: Bearer <token>`: `GET /api/moderation/icons` (pending icons), `GET /api/moderation/icons/:id/preview.png?size=256` (PNG preview, 16–512 px) and `POST /api/moderation/icons/:id/approve|reject` (`{ note }`; pending icons only — a decision already made answers 409). The token cannot open `/admin`, delete icons or read bug reports. [docs/moderacao-n8n.md](docs/moderacao-n8n.md) (Portuguese) describes an n8n + Ollama workflow that describes each icon without its name, compares it with the name and suggests a decision.
+With `MODERATION_TOKEN` set (at least 32 characters, `openssl rand -hex 32`), an automated moderator can call `/api/moderation/…` with `Authorization: Bearer <token>`: `GET /api/moderation/icons` (pending icons), `GET /api/moderation/icons/:id/preview.png?size=256` (PNG preview, 16–512 px) and `POST /api/moderation/icons/:id/approve|reject|delete` (`{ note, submittedAt }`; pending icons only — a decision already made answers 409). `delete` removes only icons that never went live (pending or rejected); an approved one answers `409 approved` and is removed only in `/admin`. With `submittedAt`, the version the moderator saw, a decision about an icon the author has edited since answers `409 changed`. The token cannot open `/admin`, delete approved icons or read bug reports. [docs/moderacao-n8n.md](docs/moderacao-n8n.md) (Portuguese) describes an n8n + Ollama workflow that describes each icon without its name, compares it with the name and suggests a decision, plus a second workflow that turns the Telegram message into Approve, Reject and Delete buttons.
 
 ### Bug reports
 
@@ -162,9 +162,9 @@ With `MODERATION_TOKEN` set (at least 32 characters, `openssl rand -hex 32`), an
 
 ### Database and migrations
 
-The numbered SQL files in `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`, `003_bug_reports.sql`…) are applied in order on start-up when `PG_HOST` is set, each in a transaction, under an advisory lock, and recorded in `schema_migrations`; `npm run migrate` applies them by hand. To change the schema, add a new file with the next number — never edit one that already ran. The `PG_USER` needs permission to create tables (on PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). If the migrations fail, the site still runs, with the coffee and Iconlibrary off.
+The numbered SQL files in `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`, `003_bug_reports.sql`…) are applied in order on start-up when `PG_HOST` is set, each in a transaction, under an advisory lock, and recorded in `schema_migrations`; `npm run migrate` applies them by hand. To change the schema, add a new file with the next number — never edit one that already ran. The `PG_USER` needs permission to create tables (on PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). If the migrations fail, the site still runs, with the coffee, Iconlibrary and bug reports off. On every start the server also compares `migrations/` with `schema_migrations` and checks that each feature's tables exist with the privileges it needs (`FEATURE_TABLES` in `scripts/db.js`): a pending migration or a missing `GRANT` turns the features off, is logged as `[db] PENDING MIGRATIONS: …` or `GRANT missing`, and makes `/api/health` answer 503, so the container shows as unhealthy instead of failing at the first payment.
 
-**Owner and application user (recommended):** let the owner role apply the migrations (`PG_USER=<owner> npm run migrate`) and run the site with an application role that only has `USAGE` on the schema, `SELECT, INSERT, UPDATE, DELETE` on the tables and `USAGE, SELECT` on the sequences; set `PG_MIGRATE=false` for it. Even without that flag, the server issues no `CREATE` when nothing is pending.
+**Owner and application user (recommended):** let the owner role apply the migrations (`PG_USER=<owner> npm run migrate`) and run the site with an application role that only has `USAGE` on the schema, `SELECT, INSERT, UPDATE, DELETE` on the tables, `USAGE, SELECT` on the sequences and `SELECT` on `schema_migrations`; set `PG_MIGRATE=false` for it. Each new migration that creates a table needs its `GRANT` for that role, and the start-up check says when one is missing. Even without that flag, the server issues no `CREATE` when nothing is pending.
 
 ### Icon versions
 
@@ -257,11 +257,11 @@ A `.ile` file is UTF-8 JSON text:
 
 - `raiz` holds the attributes of the `<svg>` tag; each element has its own attributes, the icon it belongs to (`grupo`, an index into `grupos`) and whether it is hidden. A group made with *Group* has `manual: true` in `grupos`. The exported SVG stays flat, with no `<g>`: groups exist only in the editor and in `.ile` files. Elements the editor cannot draw (`<g>`, `<text>`…) are kept as `html`.
 - `editavel` keeps the *Open in Lucide Studio* button for Lucide and Feather icons.
-- Opening validates the structure and passes everything through the same cleaning as pasted code: no `<script>`, `<foreignObject>`, event attributes or `javascript:` links. Files over 2 MB, or saved by a newer version (`versao` above 1), are refused with a message.
+- Opening validates the structure and passes everything through the same cleaning as pasted code: only SVG drawing elements stay (no `<script>`, `<foreignObject>`, `<a>`, `<style>`, animations, comments or processing instructions), event attributes are removed and links may only point inside the icon (`href="#…"`). Files over 2 MB, or saved by a newer version (`versao` above 1), are refused with a message.
 
 ### Tests and CI
 
-`npm test` runs the tests in `tests/` with Node's built-in runner — SVG transformations, the editor's geometry (path parsing for every command, points, rotations, flips, undo/redo), filters, HTML escaping, the scratchpad, pinned versions, and the server (malformed addresses, path traversal, headers, gzip, ETag, generated routes). On GitHub, `.github/workflows/ci.yml` runs them on every push and pull request, checks the syntax of every script, and builds the Docker image and waits for its healthcheck.
+`npm test` runs the tests in `tests/` with Node's built-in runner — SVG transformations, the editor's geometry (path parsing for every command, points, rotations, flips, undo/redo), filters, HTML escaping, the scratchpad, pinned versions, and the server (malformed addresses, path traversal, headers, gzip, ETag, generated routes, the start-up database checks and `/api/health`). On GitHub, `.github/workflows/ci.yml` runs them on every push and pull request, checks the syntax of every script, and builds the Docker image and waits for its healthcheck.
 
 ### Project structure
 
@@ -398,7 +398,7 @@ docker compose up -d --build                                              # prod
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build # desenvolvimento: serve os arquivos locais, sem rebuild
 ```
 
-O container de produção roda sem root, com sistema de arquivos somente leitura, sem capabilities do Linux, com limites de memória e de processos, e healthcheck. Variáveis de ambiente (no `docker-compose.yml`):
+O container de produção roda sem root, com sistema de arquivos somente leitura, sem capabilities do Linux, com limites de memória e de processos, e healthcheck em `/api/health`, que responde 503 quando uma checagem do banco falhou na subida. Variáveis de ambiente (no `docker-compose.yml`):
 
 | Variável | Para quê |
 |---|---|
@@ -454,7 +454,7 @@ Um quinto conjunto, **Iconlibrary**, reúne ícones publicados por apoiadores a 
 
 ### API de moderação (n8n)
 
-Com `MODERATION_TOKEN` definido (mínimo de 32 caracteres, `openssl rand -hex 32`), um moderador automático chama `/api/moderation/…` com `Authorization: Bearer <token>`: `GET /api/moderation/icons` (pendentes), `GET /api/moderation/icons/:id/preview.png?size=256` (prévia em PNG, de 16 a 512 px) e `POST /api/moderation/icons/:id/approve|reject` (`{ note }`; só pendentes — uma decisão já tomada responde 409). O token não abre o `/admin`, não exclui ícones e não lê os relatos de bug. O guia [docs/moderacao-n8n.md](docs/moderacao-n8n.md) monta um fluxo n8n + Ollama que descreve cada ícone sem o nome, compara com o nome enviado e sugere a decisão.
+Com `MODERATION_TOKEN` definido (mínimo de 32 caracteres, `openssl rand -hex 32`), um moderador automático chama `/api/moderation/…` com `Authorization: Bearer <token>`: `GET /api/moderation/icons` (pendentes), `GET /api/moderation/icons/:id/preview.png?size=256` (prévia em PNG, de 16 a 512 px) e `POST /api/moderation/icons/:id/approve|reject|delete` (`{ note, submittedAt }`; só pendentes — uma decisão já tomada responde 409). `delete` só remove o que nunca foi ao ar (pendente ou recusado); um ícone aprovado responde `409 approved` e só sai pelo `/admin`. Com `submittedAt`, a versão que o moderador viu, uma decisão sobre um ícone que o autor editou depois responde `409 changed`. O token não abre o `/admin`, não exclui ícones aprovados e não lê os relatos de bug. O guia [docs/moderacao-n8n.md](docs/moderacao-n8n.md) monta um fluxo n8n + Ollama que descreve cada ícone sem o nome, compara com o nome enviado e sugere a decisão, e um segundo fluxo que transforma a mensagem do Telegram em botões de Aprovar, Recusar e Excluir.
 
 ### Relatos de bug
 
@@ -466,9 +466,9 @@ Com `MODERATION_TOKEN` definido (mínimo de 32 caracteres, `openssl rand -hex 32
 
 ### Banco de dados e migrations
 
-Os arquivos SQL numerados em `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`, `003_bug_reports.sql`…) são aplicados em ordem na subida, quando `PG_HOST` está definido — cada um numa transação, sob um lock consultivo, e registrados em `schema_migrations`; `npm run migrate` os aplica manualmente. Para mudar o esquema, crie um arquivo novo com o próximo número — nunca edite um que já rodou. O `PG_USER` precisa de permissão para criar tabelas (no PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). Se as migrations falharem, o site continua no ar, com o café e a Iconlibrary desligados.
+Os arquivos SQL numerados em `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`, `003_bug_reports.sql`…) são aplicados em ordem na subida, quando `PG_HOST` está definido — cada um numa transação, sob um lock consultivo, e registrados em `schema_migrations`; `npm run migrate` os aplica manualmente. Para mudar o esquema, crie um arquivo novo com o próximo número — nunca edite um que já rodou. O `PG_USER` precisa de permissão para criar tabelas (no PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). Se as migrations falharem, o site continua no ar, com o café, a Iconlibrary e os relatórios de bug desligados. A cada subida o servidor também compara `migrations/` com `schema_migrations` e confere se as tabelas de cada recurso existem com os privilégios de que ele precisa (`FEATURE_TABLES` em `scripts/db.js`): uma migration pendente ou um `GRANT` faltando desliga os recursos, aparece no log como `[db] PENDING MIGRATIONS: …` ou `GRANT missing` e faz o `/api/health` responder 503 — o container fica *unhealthy* em vez de falhar no primeiro pagamento.
 
-**Dono e usuário da aplicação (recomendado):** deixe o papel dono aplicar as migrations (`PG_USER=<dono> npm run migrate`) e rode o site com um papel de aplicação que tenha só `USAGE` no schema, `SELECT, INSERT, UPDATE, DELETE` nas tabelas e `USAGE, SELECT` nas sequências; para ele, defina `PG_MIGRATE=false`. Mesmo sem essa opção, o servidor não executa nenhum `CREATE` quando não há migration pendente.
+**Dono e usuário da aplicação (recomendado):** deixe o papel dono aplicar as migrations (`PG_USER=<dono> npm run migrate`) e rode o site com um papel de aplicação que tenha só `USAGE` no schema, `SELECT, INSERT, UPDATE, DELETE` nas tabelas, `USAGE, SELECT` nas sequências e `SELECT` em `schema_migrations`; para ele, defina `PG_MIGRATE=false`. Cada migration nova que cria uma tabela precisa do `GRANT` para esse papel, e a checagem da subida avisa quando falta. Mesmo sem essa opção, o servidor não executa nenhum `CREATE` quando não há migration pendente.
 
 ### Versões dos ícones
 
@@ -545,11 +545,11 @@ Um arquivo `.ile` é texto JSON em UTF-8, com a estrutura do exemplo em [The .il
 
 - `raiz` guarda os atributos da tag `<svg>`; cada elemento tem seus atributos, o ícone a que pertence (`grupo`, posição em `grupos`) e se está oculto. Um grupo feito com *Agrupar* tem `manual: true` em `grupos`. O SVG exportado continua sem `<g>`: os grupos existem só no editor e nos arquivos `.ile`. Elementos que o editor não desenha (`<g>`, `<text>`…) ficam em `html`.
 - `editavel` mantém o botão *Open in Lucide Studio* para ícones do Lucide e do Feather.
-- Ao abrir, a estrutura é validada e tudo passa pela mesma limpeza do código colado: sem `<script>`, `<foreignObject>`, atributos de evento ou links `javascript:`. Arquivos acima de 2 MB, ou salvos por uma versão mais nova (`versao` acima de 1), são recusados com uma mensagem.
+- Ao abrir, a estrutura é validada e tudo passa pela mesma limpeza do código colado: só ficam elementos de desenho do SVG (sem `<script>`, `<foreignObject>`, `<a>`, `<style>`, animações, comentários ou instruções de processamento), os atributos de evento saem e os links só podem apontar para dentro do ícone (`href="#…"`). Arquivos acima de 2 MB, ou salvos por uma versão mais nova (`versao` acima de 1), são recusados com uma mensagem.
 
 ### Testes e CI
 
-`npm test` roda os testes de `tests/` com o executor nativo do Node — transformações de SVG, a geometria do editor (leitura de paths com todos os comandos, pontos, giros, espelhos, desfazer/refazer), filtros, escape de HTML, scratchpad, versões fixas e o servidor (endereços malformados, fuga de pasta, cabeçalhos, gzip, ETag, rotas geradas). No GitHub, `.github/workflows/ci.yml` roda os testes a cada push e pull request, confere a sintaxe de todos os scripts, faz o build da imagem Docker e espera o healthcheck.
+`npm test` roda os testes de `tests/` com o executor nativo do Node — transformações de SVG, a geometria do editor (leitura de paths com todos os comandos, pontos, giros, espelhos, desfazer/refazer), filtros, escape de HTML, scratchpad, versões fixas e o servidor (endereços malformados, fuga de pasta, cabeçalhos, gzip, ETag, rotas geradas, as checagens do banco na subida e o `/api/health`). No GitHub, `.github/workflows/ci.yml` roda os testes a cada push e pull request, confere a sintaxe de todos os scripts, faz o build da imagem Docker e espera o healthcheck.
 
 ### Estrutura
 
