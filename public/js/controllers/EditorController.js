@@ -3,11 +3,26 @@ import { linkDoStudio } from "../models/IconModel.js";
 import { lerFragmento, linkDoProjeto } from "../models/linkCodec.js";
 import { nomeDeArquivo } from "../models/svgTools.js";
 import { copiarTexto } from "./clipboard.js";
-import { t, tErro } from "../i18n/i18n.js";
+import { idiomaAtual, t, tErro } from "../i18n/i18n.js";
 import { baixarPngDeSvg, baixarSvg, baixarTexto } from "./download.js";
 
 // Cor de "currentColor" num PNG solto, onde não há texto para herdar a cor
 const COR_PNG = "#2c3e50";
+
+// Edição não salva, para recuperar depois de recarregar ou fechar a aba
+const CHAVE_RASCUNHO = "icon-library:editor-draft";
+const VALIDADE_RASCUNHO_MS = 7 * 24 * 60 * 60 * 1000;
+// Rascunho grande demais não vale o espaço do navegador
+const TAMANHO_MAXIMO_RASCUNHO = 512 * 1024;
+
+// "há 5 minutos", no idioma da página
+function haQuanto(quando) {
+  const segundos = Math.round((quando - Date.now()) / 1000);
+  const formato = new Intl.RelativeTimeFormat(idiomaAtual(), { numeric: "auto" });
+  for (const [unidade, s] of [["day", 86400], ["hour", 3600], ["minute", 60]])
+    if (Math.abs(segundos) >= s) return formato.format(Math.round(segundos / s), unidade);
+  return formato.format(segundos, "second");
+}
 
 // Liga o editor de ícones: cada ação do usuário muda o model e redesenha.
 export class EditorController {
@@ -95,13 +110,46 @@ export class EditorController {
           return false;
         }
         this.desenhar();
+        this.avisarDesfazivel(t("editor.splitDone"));
         return true;
+      },
+      aoDuplicar: () => {
+        if (!model.duplicar()) return false;
+        this.desenhar();
+        return true;
+      },
+      aoAlinhar: (operacao) => {
+        if (model.alinhar(operacao)) this.desenhar();
+        else if (operacao.startsWith("distribuir")) this.avisar(t("editor.distributeNeed"));
+      },
+      aoTracoAtributo: (atributo, valor) => {
+        if (model.definirAtributoDoTraco(atributo, valor)) this.desenhar();
+      },
+      aoCaixa: (valores) => {
+        if (model.definirCaixa(valores)) this.desenhar();
+        else this.desenhar({ atualizarCodigo: false });
+      },
+      aoOtimizar: () => {
+        const ganho = model.otimizar();
+        if (!ganho) {
+          this.avisar(t("editor.optimizedNone"));
+          return;
+        }
+        this.desenhar();
+        this.avisarDesfazivel(t("editor.optimized", { n: ganho }));
+      },
+      aoRecuperarRascunho: () => this.recuperarRascunho(),
+      aoDescartarRascunho: () => {
+        this.apagarRascunho();
+        this.view.mostrarRascunho(null);
       },
       // Devolve se agiu (Ctrl+J sem duas formas marcadas segue normal)
       aoUnir: () => {
         if (!model.quantidade) return false;
-        if (model.unir()) this.desenhar();
-        else this.avisar(t("editor.joinNeed"));
+        if (model.unir()) {
+          this.desenhar();
+          this.avisarDesfazivel(t("editor.joined"));
+        } else this.avisar(t("editor.joinNeed"));
         return true;
       },
       aoIniciarArraste: () => model.iniciarArraste(),
@@ -117,8 +165,11 @@ export class EditorController {
           else this.avisar(t("editor.pointCantRemove"));
           return;
         }
+        const n = i === null ? model.quantidade : 1;
+        const antes = model.elementos.length;
         model.remover(i);
         this.desenhar();
+        if (model.elementos.length < antes) this.avisarDesfazivel(t("editor.deleted", { n }));
       },
       aoSelecionarPonto: (id) => {
         model.selecionarPonto(id);
@@ -132,8 +183,8 @@ export class EditorController {
         if (model.adicionarPontoNoSelecionado()) this.desenhar();
       },
       aoOcultar: mudar((i) => model.alternarOculto(i)),
-      aoTransformar: (operacao) => {
-        const fixos = model.transformar(operacao);
+      aoTransformar: (operacao, opcoes) => {
+        const fixos = model.transformar(operacao, opcoes);
         this.desenhar();
         if (fixos)
           this.avisar(t("editor.codeOnlyChanged", { n: fixos }));
@@ -197,13 +248,99 @@ export class EditorController {
       aoSalvarArquivo: () => this.salvarArquivo(),
       aoAbrirArquivo: (arquivo) => this.abrirArquivo(arquivo),
       aoCompartilhar: () => this.compartilhar(),
-      aoFechar: () => this.limparEndereco(),
+      // Fechar é de propósito (sem alterações, ou confirmado): o rascunho sai
+      aoFechar: () => {
+        this.limparEndereco();
+        clearTimeout(this.esperaRascunho);
+        this.apagarRascunho();
+        this.view.mostrarRascunho(null);
+      },
       // Houve mudança desde que o ícone foi aberto (fechar pede confirmação)
       temAlteracoes: () => model.podeDesfazer,
     });
     // Link com #svg=… ou #ile=… (feito por uma pessoa ou por uma IA)
     this.abrirDoEndereco();
     window.addEventListener("hashchange", () => this.abrirDoEndereco());
+  }
+
+  // Aviso com "Desfazer": só desfaz se nada mudou depois da ação avisada
+  avisarDesfazivel(mensagem) {
+    const marca = this.model.historico.length;
+    this.avisar(mensagem, {
+      rotulo: t("editor.undo"),
+      fazer: () => {
+        if (this.model.historico.length !== marca) return;
+        this.model.desfazer();
+        this.desenhar();
+      },
+    });
+  }
+
+  // ── Rascunho: a edição em andamento, guardada no navegador ───────────────
+  lerRascunho() {
+    try {
+      const rascunho = JSON.parse(localStorage.getItem(CHAVE_RASCUNHO) ?? "null");
+      if (!rascunho?.projeto || !(Date.now() - rascunho.quando < VALIDADE_RASCUNHO_MS)) return null;
+      return rascunho;
+    } catch {
+      return null;
+    }
+  }
+
+  apagarRascunho() {
+    try {
+      localStorage.removeItem(CHAVE_RASCUNHO);
+    } catch {
+      // Sem acesso ao armazenamento: não havia rascunho
+    }
+  }
+
+  // Guarda pouco depois da última mudança (arrastar gera dezenas por segundo)
+  agendarRascunho() {
+    clearTimeout(this.esperaRascunho);
+    this.esperaRascunho = setTimeout(() => {
+      if (!this.view.aberto || !this.model.podeDesfazer) return;
+      const nome = this.item?.nome || "icon";
+      const texto = JSON.stringify({
+        quando: Date.now(),
+        projeto: this.model.exportarProjeto({ nome, editavel: Boolean(this.item?.editavel) }),
+      });
+      if (texto.length > TAMANHO_MAXIMO_RASCUNHO) return;
+      try {
+        localStorage.setItem(CHAVE_RASCUNHO, texto);
+      } catch {
+        // Armazenamento cheio ou bloqueado: segue sem rascunho
+      }
+    }, 600);
+  }
+
+  // Ao abrir o editor: se há uma edição de antes, diferente desta, oferece
+  oferecerRascunho() {
+    const rascunho = this.lerRascunho();
+    this.rascunhoOferecido = rascunho;
+    if (!rascunho) {
+      this.view.mostrarRascunho(null);
+      return;
+    }
+    this.view.mostrarRascunho(
+      t("editor.draftFound", { name: rascunho.projeto.nome || "icon", when: haQuanto(rascunho.quando) }),
+    );
+  }
+
+  recuperarRascunho() {
+    const rascunho = this.rascunhoOferecido ?? this.lerRascunho();
+    this.view.mostrarRascunho(null);
+    if (!rascunho) return;
+    try {
+      const { nome, editavel } = this.model.carregarProjeto(JSON.stringify(rascunho.projeto), { desfazivel: true });
+      this.item = { nome, editavel };
+      this.sairDaEdicao();
+      this.view.abrir(nome);
+      this.desenhar();
+      this.avisar(t("editor.draftRestored"));
+    } catch (erro) {
+      this.avisar(tErro(erro));
+    }
   }
 
   // ── Link que abre o editor ───────────────────────────────────────────────
@@ -233,7 +370,9 @@ export class EditorController {
         this.item = { nome: pedido.nome || nome, editavel };
         this.sairDaEdicao();
       }
+      const jaAberto = this.view.aberto;
       this.view.abrir(this.item.nome);
+      if (!jaAberto) this.oferecerRascunho();
       this.desenhar();
       this.avisar(t("editor.openedLink"));
     } catch (erro) {
@@ -288,6 +427,7 @@ export class EditorController {
       this.item = { nome, editavel };
       this.sairDaEdicao();
       this.view.abrir(nome);
+      if (!desfazivel) this.oferecerRascunho();
       this.desenhar();
       this.avisar(t("editor.opened", { file: arquivo.name }));
     } catch (erro) {
@@ -328,7 +468,9 @@ export class EditorController {
       this.avisar(tErro(erro));
       return;
     }
+    const jaAberto = this.view.aberto;
     this.view.abrir(item.nome);
+    if (!jaAberto) this.oferecerRascunho();
     this.desenhar();
   }
 
@@ -413,6 +555,7 @@ export class EditorController {
         linkStudio,
         quantidade: model.quantidade,
         caixa: model.quantidade > 1 ? model.limitesDe(model.alvos()) : null,
+        caixaSelecao: model.temSelecao ? model.caixaDaSelecao() : null,
         podeAgrupar: model.podeAgrupar,
         podeDesagrupar: model.podeDesagrupar,
         podeUnir: model.podeUnir,
@@ -426,5 +569,6 @@ export class EditorController {
       },
       { atualizarCodigo },
     );
+    this.agendarRascunho();
   }
 }

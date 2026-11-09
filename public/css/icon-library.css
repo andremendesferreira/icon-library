@@ -136,6 +136,29 @@ p {
      o aviso cobre a barra de botões) */
   pointer-events: none;
 }
+/* Aviso com ação (Desfazer): o botão recebe o clique e o aviso fica mais tempo */
+#toast .toast__acao {
+  pointer-events: auto;
+  margin-left: 14px;
+  padding: 2px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+}
+#toast .toast__acao:hover,
+#toast .toast__acao:focus-visible {
+  background: rgba(255, 255, 255, 0.18);
+  outline: none;
+}
+#toast.show.toast--acao {
+  animation:
+    0.3s fadein,
+    0.3s 5.7s fadeout;
+}
 #toast.show {
   visibility: visible;
   animation:
@@ -1734,6 +1757,105 @@ body:has(.scratchpad--open) .back-to-top {
   opacity: 0.45;
   cursor: not-allowed;
 }
+/* Alinhar: quatro por linha (esquerda, centro, direita, distribuir) */
+.editor__buttons--align {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.editor__buttons--align > button {
+  display: grid;
+  place-items: center;
+  padding: 6px 0;
+}
+/* Pontas e cantos do traço */
+.editor__style-row.editor__style-row--ends {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 8px;
+}
+.editor__style-row--ends[hidden] {
+  display: none;
+}
+.editor__style-row--ends select {
+  min-width: 0;
+  padding: 3px 4px;
+  border: 1px solid #c5d0dc;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12.5px;
+}
+/* X, Y, largura e altura da seleção */
+.editor__box {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 2px 0 10px;
+}
+.editor__box[hidden] {
+  display: none;
+}
+.editor__box label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--il-muted);
+}
+.editor__box input {
+  width: 100%;
+  min-width: 0;
+  padding: 3px 4px;
+  border: 1px solid #c5d0dc;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #2c3e50;
+  background: #fff;
+}
+.editor__code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+/* Edição não salva de antes: recuperar ou descartar */
+.editor__draft {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border: 1px solid #f3dcae;
+  border-radius: 10px;
+  background: #fff8e6;
+  font-size: 13px;
+  color: #3d2a00;
+}
+.editor__draft[hidden] {
+  display: none;
+}
+.editor__draft button {
+  padding: 4px 10px;
+  border: 1px solid #c5d0dc;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  color: #2c3e50;
+  cursor: pointer;
+}
+.editor__draft #editor-draft-restore {
+  border-color: var(--il-action);
+  background: var(--il-action);
+  color: #fff;
+  font-weight: 600;
+}
 .editor__snap {
   display: flex;
   align-items: center;
@@ -1957,6 +2079,10 @@ body:has(.scratchpad--open) .back-to-top {
     height: min(92vw, max(40dvh, calc(100dvh - 390px)));
     padding: 4px 8px;
   }
+  /* No celular a seleção ocupa a largura toda: X, Y, L e A cabem numa linha */
+  .editor__box {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
   /* Sempre com espaço para duas linhas: o desenho não muda de tamanho junto com a dica */
   .editor__hint {
     flex: none;
@@ -2150,6 +2276,23 @@ body:has(.scratchpad--open) .back-to-top {
 [data-theme="dark"] .editor__footer,
 [data-theme="dark"] .editor__previews {
   border-color: var(--dk-border);
+}
+[data-theme="dark"] .editor__box input,
+[data-theme="dark"] .editor__style-row--ends select,
+[data-theme="dark"] .editor__draft button {
+  background: var(--dk-surface-2);
+  border-color: var(--dk-border);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .editor__draft {
+  border-color: #6b5420;
+  background: #2a2414;
+  color: #f3dcae;
+}
+[data-theme="dark"] .editor__draft #editor-draft-restore {
+  border-color: var(--il-action);
+  background: var(--il-action);
+  color: #fff;
 }
 [data-theme="dark"] .editor__stage {
   background: var(--dk-bg);

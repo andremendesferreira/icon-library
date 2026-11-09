@@ -388,6 +388,7 @@
           <button type="button" class="editor__shape" id="editor-ungroup" aria-disabled="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="11" y="14" width="10" height="7" rx="2"/><rect x="3" y="3" width="10" height="7" rx="2"/></svg><span class="editor__rotulo" data-i18n="editor.ungroup">Ungroup</span></button>
           <button type="button" class="editor__shape" id="editor-join" aria-disabled="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 14v2"/><path d="M12 20v2"/><path d="M12 2v2"/><path d="M12 8v2"/><path d="M20.288 16.703A1 1 0 0022 16V8a1 1 0 00-1.712-.703l-3.99 3.991a1 1 0 00-.001 1.424z"/><path d="M3.712 16.703A1 1 0 012 16V8a1 1 0 011.712-.703l3.99 3.991a1 1 0 01.001 1.424z"/></svg><span class="editor__rotulo" data-i18n="editor.join">Join</span></button>
           <button type="button" class="editor__shape" id="editor-split" aria-pressed="false" aria-disabled="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 14v2"/><path d="M12 20v2"/><path d="M12 2v2"/><path d="M12 8v2"/><path d="M17.712 7.297A1 1 -180 0 0 16 8L16 16A1 1 -180 0 0 17.712 16.703L21.702 12.712A1 1 -180 0 0 21.703 11.288Z"/><path d="M6.288 16.703A1 1 -180 0 0 8 16L8 8A1 1 -180 0 0 6.288 7.297L2.298 11.288A1 1 -180 0 0 2.297 12.712Z"/></svg><span class="editor__rotulo" data-i18n="editor.split">Split</span></button>
+          <button type="button" class="editor__shape" id="editor-duplicate" aria-disabled="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="15" x2="15" y1="12" y2="18"/><line x1="12" x2="18" y1="15" y2="15"/><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg><span class="editor__rotulo" data-i18n="editor.duplicate">Duplicate</span></button>
         </div>
 
         <!-- Cor e espessura da forma (ou do ícone) selecionado -->
@@ -403,6 +404,26 @@
             <label for="editor-stroke" data-i18n="editor.stroke">Stroke</label>
             <input type="range" id="editor-stroke" min="0.25" max="4" step="0.25" value="2" />
             <output id="editor-stroke-value" for="editor-stroke">2</output>
+          </div>
+          <div class="editor__style-row editor__style-row--ends" id="editor-ends">
+            <label for="editor-linecap" data-i18n="editor.caps">Ends</label>
+            <select id="editor-linecap">
+              <option value="round" data-i18n="editor.capRound">Round</option>
+              <option value="butt" data-i18n="editor.capButt">Flat</option>
+              <option value="square" data-i18n="editor.capSquare">Square</option>
+            </select>
+            <label for="editor-linejoin" data-i18n="editor.joins">Corners</label>
+            <select id="editor-linejoin">
+              <option value="round" data-i18n="editor.joinRound">Round</option>
+              <option value="miter" data-i18n="editor.joinMiter">Sharp</option>
+              <option value="bevel" data-i18n="editor.joinBevel">Beveled</option>
+            </select>
+          </div>
+          <div class="editor__box" id="editor-box" title="Position and size of the selection, in icon units. The size keeps the proportions." data-i18n-attr="title:editor.boxTitle">
+            <label><span>X</span><input type="number" id="editor-box-x" step="0.5" inputmode="decimal" /></label>
+            <label><span>Y</span><input type="number" id="editor-box-y" step="0.5" inputmode="decimal" /></label>
+            <label><span data-i18n="editor.boxW">W</span><input type="number" id="editor-box-w" step="0.5" min="0.5" inputmode="decimal" /></label>
+            <label><span data-i18n="editor.boxH">H</span><input type="number" id="editor-box-h" step="0.5" min="0.5" inputmode="decimal" /></label>
           </div>
           <!-- Preencher: só em formas fechadas; usa a cor do traço -->
           <div class="editor__buttons">
@@ -438,6 +459,19 @@
           <button type="button" class="editor__shape" data-ordem="topo" title="Bring to front" aria-label="Bring to front" data-i18n-attr="title:editor.bringToFront;aria-label:editor.bringToFront"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="8" y="8" width="8" height="8" rx="2"/><path d="M4 10a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2"/><path d="M14 20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2"/></svg></button>
         </div>
 
+        <h3 class="editor__heading" data-i18n="editor.align">Align</h3>
+        <p class="editor__note" data-i18n="editor.alignNote">Several shapes align with each other; one shape, a group or the whole icon aligns with the icon area.</p>
+        <div class="editor__buttons editor__buttons--align">
+          <button type="button" class="editor__shape" data-alinhar="esquerda" data-i18n-attr="title:editor.alignLeft;aria-label:editor.alignLeft"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="9" height="6" x="6" y="14" rx="2"/><rect width="16" height="6" x="6" y="4" rx="2"/><path d="M2 2v20"/></svg></button>
+          <button type="button" class="editor__shape" data-alinhar="centroH" data-i18n-attr="title:editor.alignCenterH;aria-label:editor.alignCenterH"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2v20"/><path d="M8 10H4a2 2 0 0 1-2-2V6c0-1.1.9-2 2-2h4"/><path d="M16 10h4a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-4"/><path d="M8 20H7a2 2 0 0 1-2-2v-2c0-1.1.9-2 2-2h1"/><path d="M16 14h1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1"/></svg></button>
+          <button type="button" class="editor__shape" data-alinhar="direita" data-i18n-attr="title:editor.alignRight;aria-label:editor.alignRight"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="16" height="6" x="2" y="4" rx="2"/><rect width="9" height="6" x="9" y="14" rx="2"/><path d="M22 22V2"/></svg></button>
+          <button type="button" class="editor__shape" data-alinhar="distribuirH" data-i18n-attr="title:editor.distributeH;aria-label:editor.distributeH"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="6" height="10" x="9" y="7" rx="2"/><path d="M4 22V2"/><path d="M20 22V2"/></svg></button>
+          <button type="button" class="editor__shape" data-alinhar="topo" data-i18n-attr="title:editor.alignTop;aria-label:editor.alignTop"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="6" height="16" x="4" y="6" rx="2"/><rect width="6" height="9" x="14" y="6" rx="2"/><path d="M22 2H2"/></svg></button>
+          <button type="button" class="editor__shape" data-alinhar="centroV" data-i18n-attr="title:editor.alignCenterV;aria-label:editor.alignCenterV"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 12h20"/><path d="M10 16v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/><path d="M10 8V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4"/><path d="M20 16v1a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-1"/><path d="M14 8V7c0-1.1.9-2 2-2h2a2 2 0 0 1 2 2v1"/></svg></button>
+          <button type="button" class="editor__shape" data-alinhar="base" data-i18n-attr="title:editor.alignBottom;aria-label:editor.alignBottom"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="6" height="16" x="4" y="2" rx="2"/><rect width="6" height="9" x="14" y="9" rx="2"/><path d="M22 22H2"/></svg></button>
+          <button type="button" class="editor__shape" data-alinhar="distribuirV" data-i18n-attr="title:editor.distributeV;aria-label:editor.distributeV"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="10" height="6" x="7" y="9" rx="2"/><path d="M22 20H2"/><path d="M22 4H2"/></svg></button>
+        </div>
+
         <label class="editor__snap">
           <span data-i18n="editor.snap">Snap to grid</span>
           <select id="editor-snap">
@@ -451,6 +485,11 @@
       </aside>
 
       <div class="editor__stage">
+        <div id="editor-draft" class="editor__draft" role="status" data-clarity-mask="true" hidden>
+          <span id="editor-draft-text"></span>
+          <button type="button" id="editor-draft-restore" data-i18n="editor.draftRestore">Recover</button>
+          <button type="button" id="editor-draft-discard" data-i18n="editor.draftDiscard">Discard</button>
+        </div>
         <svg id="editor-canvas" class="editor__canvas" tabindex="0" role="img" aria-label="Icon being edited" data-i18n-attr="aria-label:editor.canvas"></svg>
         <p id="editor-hint" class="editor__hint" role="status"></p>
       </div>
@@ -482,7 +521,10 @@
         <ul id="editor-elements" class="editor__elements" aria-label="Elements" data-i18n-attr="aria-label:editor.elements"></ul>
         </div>
         <div class="editor__painel" data-painel="exportar">
-        <label class="editor__heading" for="editor-code" data-i18n="editor.code">SVG code</label>
+        <div class="editor__code-head">
+          <label class="editor__heading" for="editor-code" data-i18n="editor.code">SVG code</label>
+          <button type="button" id="editor-optimize" class="editor__layers" title="Removes what does not change the drawing: empty and redundant attributes, longer paths" data-i18n="editor.optimize" data-i18n-attr="title:editor.optimizeTitle">Optimize</button>
+        </div>
         <textarea id="editor-code" class="editor__textarea" data-clarity-mask="true" spellcheck="false" wrap="soft"></textarea>
         <p id="editor-error" class="editor__error" role="status"></p>
         </div>

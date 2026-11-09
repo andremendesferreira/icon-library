@@ -69,6 +69,14 @@ export class EditorView {
   botaoDesagrupar = porId("editor-ungroup");
   botaoUnir = porId("editor-join");
   botaoSeparar = porId("editor-split");
+  botaoDuplicar = porId("editor-duplicate");
+  // Pontas e cantos do traço, e a caixa (X, Y, largura, altura) da seleção
+  linhaPontas = porId("editor-ends");
+  pontas = porId("editor-linecap");
+  cantos = porId("editor-linejoin");
+  campoCaixa = porId("editor-box");
+  // Edição não salva de antes, para recuperar
+  rascunho = porId("editor-draft");
   // Modo de corte (Separar): o próximo clique no desenho corta a forma ali
   cortando = false;
   dica = porId("editor-hint");
@@ -185,9 +193,10 @@ export class EditorView {
       else acoes.aoSelecionar(i);
     });
     this.janela.addEventListener("click", (evento) => {
-      const botao = evento.target.closest("[data-add], [data-op], [data-ordem]");
+      const botao = evento.target.closest("[data-add], [data-op], [data-ordem], [data-alinhar]");
       if (!botao) return;
-      if (botao.dataset.add) acoes.aoAdicionar(botao.dataset.add);
+      if (botao.dataset.alinhar) acoes.aoAlinhar(botao.dataset.alinhar);
+      else if (botao.dataset.add) acoes.aoAdicionar(botao.dataset.add);
       else if (botao.dataset.ordem) acoes.aoOrdenar(botao.dataset.ordem);
       else acoes.aoTransformar(botao.dataset.op);
     });
@@ -229,6 +238,10 @@ export class EditorView {
     seAtivo(this.botaoAgrupar, acoes.aoAgrupar);
     seAtivo(this.botaoDesagrupar, acoes.aoDesagrupar);
     seAtivo(this.botaoUnir, acoes.aoUnir);
+    seAtivo(this.botaoDuplicar, acoes.aoDuplicar);
+    porId("editor-optimize").addEventListener("click", acoes.aoOtimizar);
+    porId("editor-draft-restore").addEventListener("click", acoes.aoRecuperarRascunho);
+    porId("editor-draft-discard").addEventListener("click", acoes.aoDescartarRascunho);
     this.botaoCamadas.addEventListener("click", () => this.modoCamadas(!this.camadas));
     porId("editor-help-open").addEventListener("click", () => this.abrirAjuda());
     porId("editor-help-close").addEventListener("click", () => this.ajuda.close());
@@ -263,6 +276,16 @@ export class EditorView {
     porId("editor-color-reset").addEventListener("click", () =>
       this.acoes.aoCor(null, { inicio: true }),
     );
+    this.pontas.addEventListener("change", () => this.acoes.aoTracoAtributo("stroke-linecap", this.pontas.value));
+    this.cantos.addEventListener("change", () => this.acoes.aoTracoAtributo("stroke-linejoin", this.cantos.value));
+    // X, Y, largura e altura: valem ao confirmar (Enter ou sair do campo)
+    for (const [eixo, id] of [["x", "editor-box-x"], ["y", "editor-box-y"], ["w", "editor-box-w"], ["h", "editor-box-h"]]) {
+      const campo = porId(id);
+      campo.addEventListener("change", () => {
+        const valor = Number(campo.value);
+        if (campo.value !== "" && Number.isFinite(valor)) this.acoes.aoCaixa({ [eixo]: valor });
+      });
+    }
     let tracoEmUso = false;
     this.traco.addEventListener("input", () => {
       this.acoes.aoTraco(Number(this.traco.value), { inicio: !tracoEmUso });
@@ -396,6 +419,9 @@ export class EditorView {
       if (!acoes.aoCopiarForma()) return;
     } else if (ctrl && tecla === "v" && !evento.shiftKey) {
       if (!acoes.aoColarForma()) return;
+    } else if (ctrl && tecla === "d" && !evento.shiftKey) {
+      // Ctrl+D: duplica (sem seleção, fica com o navegador)
+      if (!acoes.aoDuplicar()) return;
     } else if (ctrl && tecla === "a" && !evento.shiftKey) {
       acoes.aoSelecionarTudo();
     } else if (ctrl && tecla === "g") {
@@ -410,8 +436,10 @@ export class EditorView {
     else if (evento.key === "Delete" || evento.key === "Backspace")
       acoes.aoRemover(null);
     else if (evento.key.startsWith("Arrow"))
+      // Shift+seta anda 10 passos da grade
       acoes.aoTransformar(
         { ArrowLeft: "esquerda", ArrowRight: "direita", ArrowUp: "cima", ArrowDown: "baixo" }[evento.key],
+        { vezes: evento.shiftKey ? 10 : 1 },
       );
     else return;
     evento.preventDefault();
@@ -575,6 +603,7 @@ export class EditorView {
     this.desenharLista(estado);
     this.desenharPrevias(estado.svg);
     this.mostrarEstiloSelecao(estado.estiloSelecao);
+    this.mostrarCaixa(estado.estiloSelecao ? estado.caixaSelecao : null);
     this.mostrarPontos(estado);
     this.mostrarCombinar(estado);
     this.botaoPreencher.setAttribute("aria-disabled", String(!estado.podePreencher));
@@ -598,7 +627,7 @@ export class EditorView {
 
   // Agrupar, Desagrupar, Unir e Separar ficam sempre no lugar: sem poder ser
   // usados, ficam apagados e a dica diz o que falta
-  mostrarCombinar({ podeAgrupar, podeDesagrupar, podeUnir, podeSeparar }) {
+  mostrarCombinar({ podeAgrupar, podeDesagrupar, podeUnir, podeSeparar, quantidade }) {
     const botao = (no, pode, chave, chaveFalta) => {
       const texto = t(pode ? chave : chaveFalta);
       no.setAttribute("aria-disabled", String(!pode));
@@ -609,6 +638,7 @@ export class EditorView {
     botao(this.botaoDesagrupar, podeDesagrupar, "editor.ungroupTitle", "editor.ungroupNeed");
     botao(this.botaoUnir, podeUnir, "editor.joinTitle", "editor.joinNeed");
     botao(this.botaoSeparar, podeSeparar, "editor.splitTitle", "editor.splitNeed");
+    botao(this.botaoDuplicar, quantidade > 0, "editor.duplicateTitle", "editor.duplicateNeed");
     if (this.cortando && !podeSeparar) this.modoCorte(false);
   }
 
@@ -741,10 +771,31 @@ export class EditorView {
     this.cor.value = paraHex(estilo.cor) || "#2c3e50";
     this.corValor.textContent = estilo.cor ? estilo.cor : t("style.textColor");
     this.campoTraco.hidden = estilo.traco === null;
+    this.linhaPontas.hidden = estilo.traco === null;
     if (estilo.traco !== null) {
       this.traco.value = estilo.traco;
       this.tracoValor.textContent = String(estilo.traco);
+      this.pontas.value = estilo.pontas;
+      this.cantos.value = estilo.cantos;
     }
+  }
+
+  // X, Y, largura e altura da seleção; o campo em que a pessoa está
+  // digitando não é sobrescrito
+  mostrarCaixa(caixa) {
+    this.campoCaixa.hidden = !caixa;
+    if (!caixa) return;
+    const arredondar = (v) => String(Math.round(v * 100) / 100);
+    for (const [eixo, id] of [["x", "editor-box-x"], ["y", "editor-box-y"], ["w", "editor-box-w"], ["h", "editor-box-h"]]) {
+      const campo = porId(id);
+      if (document.activeElement !== campo) campo.value = arredondar(caixa[eixo]);
+    }
+  }
+
+  // texto: a frase sobre a edição não salva; null esconde
+  mostrarRascunho(texto) {
+    this.rascunho.hidden = !texto;
+    if (texto) porId("editor-draft-text").textContent = texto;
   }
 
   desenharCanvas({ raiz, elementos, selecionados, pontos, pontoSelecionado, viewBox, fora, caixa, ligacao, blocos }) {

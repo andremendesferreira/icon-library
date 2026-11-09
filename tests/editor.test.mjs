@@ -344,7 +344,7 @@ test("cor: só na seleção, traço vira stroke e preenchimento vira fill", () =
   assert.equal(model.elementos[0].attrs.stroke, "#ff0000");
   assert.equal(model.elementos[0].attrs.fill, undefined, "linha sem fill não ganha fill");
   assert.equal(model.elementos[1].attrs.stroke, undefined, "a outra forma não muda");
-  assert.deepEqual(model.estiloDaSelecao(), { cor: "#ff0000", traco: 1 });
+  assert.deepEqual(model.estiloDaSelecao(), { cor: "#ff0000", traco: 1, pontas: "butt", cantos: "miter" });
   assert.ok(model.misturado);
   // Voltar à cor do texto remove o atributo (a raiz já é currentColor)
   model.definirCor(null);
@@ -995,4 +995,102 @@ test("corCss: só cores simples vão para o style da amostra", async () => {
     assert.equal(corCss(cor), cor);
   for (const cor of ["red;background:url(https://x.test/a)", "url(#g)", "expression(alert(1))", "", null])
     assert.equal(corCss(cor), null);
+});
+
+// ── Lote A: duplicar, alinhar, caixa, pontas e cantos, otimizar ─────────────
+const tres = () => {
+  const model = new EditorModel();
+  model.definirDocumento({
+    raiz: { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-linecap": "round" },
+    elementos: [
+      { tag: "line", attrs: { x1: "2", y1: "4", x2: "6", y2: "4" } },
+      { tag: "line", attrs: { x1: "10", y1: "8", x2: "12", y2: "8" } },
+      { tag: "line", attrs: { x1: "18", y1: "12", x2: "20", y2: "12" } },
+    ],
+  });
+  return model;
+};
+
+test("EditorModel: duplicar deixa a cópia selecionada e não mexe no Ctrl+C", () => {
+  const model = tres();
+  model.selecionar(2);
+  model.copiar();
+  model.selecionar(0);
+  assert.equal(model.duplicar(), true);
+  assert.equal(model.elementos.length, 4);
+  assert.deepEqual(model.alvos(), [3]);
+  assert.equal(model.elementos[3].attrs.x1, "3"); // um passo ao lado (passo 0,5 × 2)
+  // O que foi copiado antes continua no Ctrl+V
+  model.colar();
+  assert.equal(model.elementos[4].attrs.x1, "19");
+  model.limparSelecao();
+  assert.equal(model.duplicar(), false);
+});
+
+test("EditorModel: Shift+seta anda dez passos", () => {
+  const model = tres();
+  model.selecionar(0);
+  model.transformar("direita", { vezes: 10 });
+  assert.equal(model.elementos[0].attrs.x1, "7");
+});
+
+test("EditorModel: alinhar entre formas e com a área do ícone", () => {
+  const model = tres();
+  model.definirSelecao([0, 1, 2]);
+  model.alinhar("esquerda");
+  assert.deepEqual(model.elementos.map((el) => el.attrs.x1), ["2", "2", "2"]);
+  model.desfazer();
+  model.alinhar("distribuirH");
+  // Larguras 4, 2 e 2 entre x=2 e x=20: vão de 5 entre elas
+  assert.deepEqual(model.elementos.map((el) => el.attrs.x1), ["2", "11", "18"]);
+  // Uma forma só: centraliza no ícone
+  model.selecionar(1);
+  model.alinhar("centroH");
+  model.alinhar("centroV");
+  assert.deepEqual([model.elementos[1].attrs.x1, model.elementos[1].attrs.y1], ["11", "12"]);
+  assert.equal(model.alinhar("centroV"), false); // já está no centro
+  // Distribuir precisa de três
+  model.definirSelecao([0, 1]);
+  assert.equal(model.alinhar("distribuirH"), false);
+});
+
+test("EditorModel: posição e tamanho exatos da seleção", () => {
+  const model = tres();
+  model.selecionar(0);
+  assert.deepEqual(model.caixaDaSelecao(), { x: 2, y: 4, w: 4, h: 0 });
+  model.definirCaixa({ x: 5 });
+  assert.equal(model.elementos[0].attrs.x1, "5");
+  model.definirCaixa({ w: 8 });
+  assert.deepEqual([model.elementos[0].attrs.x1, model.elementos[0].attrs.x2], ["5", "13"]);
+  // Altura zero (linha reta) não pode crescer na proporção
+  assert.equal(model.definirCaixa({ h: 3 }), false);
+});
+
+test("EditorModel: pontas e cantos do traço, herdados quando iguais ao <svg>", () => {
+  const model = tres();
+  model.selecionar(0);
+  assert.equal(model.estiloDaSelecao().pontas, "round");
+  model.definirAtributoDoTraco("stroke-linecap", "square");
+  assert.equal(model.elementos[0].attrs["stroke-linecap"], "square");
+  model.definirAtributoDoTraco("stroke-linecap", "round");
+  assert.equal(model.elementos[0].attrs["stroke-linecap"], undefined);
+  assert.equal(model.definirAtributoDoTraco("stroke-linecap", "round"), false);
+  assert.equal(model.definirAtributoDoTraco("fill", "red"), false);
+});
+
+test("EditorModel: otimizar tira o que não muda o desenho, com desfazer", () => {
+  const model = new EditorModel();
+  model.definirDocumento({
+    raiz: { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", version: "1.1", "data-x": "1" },
+    elementos: [
+      { tag: "path", attrs: { d: "M 2.000 2.000 L 10.000 10.000", stroke: "currentColor", class: "" } },
+      { tag: "circle", attrs: { cx: "12", cy: "12", r: "3", fill: "none" } },
+    ],
+  });
+  const ganho = model.otimizar();
+  assert.ok(ganho > 0);
+  assert.equal(model.svg(), '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 2L10 10"/><circle cx="12" cy="12" r="3"/></svg>');
+  assert.equal(model.otimizar(), 0); // nada mais a tirar, sem passo novo
+  model.desfazer();
+  assert.ok(model.svg().includes('version="1.1"'));
 });

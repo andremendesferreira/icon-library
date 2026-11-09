@@ -473,16 +473,32 @@ export class IconView {
   }
 
   // ── Aviso ──────────────────────────────────────────────────────────────────
-  mostrarToast(mensagem) {
+  // acao (opcional): { rotulo, fazer } — um botão no aviso (Desfazer), que
+  // então fica mais tempo na tela
+  mostrarToast(mensagem, acao = null) {
     clearTimeout(this.toastTimer);
     // Uma janela modal (o editor) fica por cima de tudo: o aviso vai para
     // dentro dela enquanto estiver aberta
     const dono = document.querySelector("dialog[open]") || document.body;
     if (this.toast.parentElement !== dono) dono.appendChild(this.toast);
     this.toast.innerText = mensagem;
-    this.toast.className = "show";
+    if (acao) {
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.className = "toast__acao";
+      botao.textContent = acao.rotulo;
+      botao.addEventListener("click", () => {
+        this.toast.className = "";
+        acao.fazer();
+      });
+      this.toast.append(botao);
+    }
+    // Reinicia a animação mesmo se o aviso anterior ainda estava na tela
+    this.toast.className = "";
+    void this.toast.offsetWidth;
+    this.toast.className = acao ? "show toast--acao" : "show";
     this.toastTimer = setTimeout(() => {
       this.toast.className = "";
-    }, 2500);
+    }, acao ? 6000 : 2500);
   }
 }

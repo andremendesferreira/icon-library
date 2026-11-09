@@ -1,5 +1,6 @@
 import {
   FORMAS,
+  escreverPath,
   adicionarPonto,
   aplicarUniaoInterna,
   formaTocaRetangulo,
@@ -210,6 +211,8 @@ export class EditorModel {
   // Copiar e colar: { elementos, nome } e quantas vezes já foi colado
   copiados = null;
   colagens = 0;
+  // O SVG como foi aberto, para comparar com o atual
+  original = "";
 
   // Com desfazivel, abrir vira um passo do histórico (Undo volta ao ícone
   // anterior); sem, o histórico começa do zero
@@ -221,6 +224,7 @@ export class EditorModel {
       this.refazer = [];
     }
     this.definirDocumento(doc, nome);
+    this.original = this.svg();
   }
 
   // Troca o documento sem mexer no histórico
@@ -888,11 +892,12 @@ export class EditorModel {
   // Giro, espelho, deslocamento e escala: na forma ou ícone selecionado (em
   // volta do centro dele) ou, sem seleção, no desenho inteiro. Devolve
   // quantos elementos não puderam mudar (os que só existem no código).
-  transformar(operacao) {
+  // vezes: quantos passos da grade o deslocamento anda (Shift+seta = 10)
+  transformar(operacao, { vezes = 1 } = {}) {
     if (this.arrastando) return 0;
     const alvos = this.alvos();
     const { cx, cy } = this.temSelecao ? this.centroDe(alvos) : this.centro;
-    const passo = this.passo || 1;
+    const passo = (this.passo || 1) * vezes;
     const m = {
       girar: () => matrizes.girar90(cx, cy),
       girar45: () => matrizes.girar(45, cx, cy),
@@ -913,6 +918,181 @@ export class EditorModel {
     for (const i of alvos)
       if (this.editavel(i)) this.elementos[i] = transformarElemento(this.elementos[i], m);
     return fixos;
+  }
+
+  // ── Duplicar (Ctrl+D) ────────────────────────────────────────────────────
+  // Uma cópia da seleção logo ao lado, já selecionada, sem mexer no que foi
+  // copiado com Ctrl+C. Devolve se duplicou.
+  duplicar() {
+    if (!this.temSelecao || this.arrastando) return false;
+    const guardados = [this.copiados, this.colagens];
+    this.copiar();
+    this.colar();
+    [this.copiados, this.colagens] = guardados;
+    return true;
+  }
+
+  // ── Alinhar e distribuir ─────────────────────────────────────────────────
+  // Unidades da seleção: um grupo inteiro anda junto; as outras formas, cada
+  // uma por si. Sem seleção, o desenho todo é uma unidade.
+  unidadesDaSelecao() {
+    const alvos = this.alvos().filter((i) => this.editavel(i));
+    if (!this.temSelecao || this.grupoSelecionado !== null) return alvos.length ? [alvos] : [];
+    const marcadas = new Set(alvos);
+    const unidades = [];
+    const vistas = new Set();
+    for (const i of alvos) {
+      if (vistas.has(i)) continue;
+      const bloco = this.blocoDe(i).filter((k) => this.editavel(k));
+      const unidade = bloco.every((k) => marcadas.has(k)) ? bloco : [i];
+      unidade.forEach((k) => vistas.add(k));
+      unidades.push(unidade);
+    }
+    return unidades;
+  }
+
+  // operacao: esquerda, centroH, direita, topo, centroV, base (alinha), ou
+  // distribuirH, distribuirV (mesmo espaço entre as unidades, com 3 ou mais).
+  // Com uma unidade só, ela se alinha à área do ícone (centroH + centroV
+  // centralizam). Devolve se algo mudou.
+  alinhar(operacao) {
+    if (this.arrastando) return false;
+    const unidades = this.unidadesDaSelecao()
+      .map((indices) => ({ indices, caixa: this.limitesDe(indices) }))
+      .filter((u) => u.caixa);
+    if (!unidades.length) return false;
+    const { x, y, w, h } = this.viewBox;
+    const area = unidades.length > 1
+      ? this.limitesDe(unidades.flatMap((u) => u.indices))
+      : { minX: x, minY: y, maxX: x + w, maxY: y + h };
+    const desvios = new Map();
+    if (operacao === "distribuirH" || operacao === "distribuirV") {
+      if (unidades.length < 3) return false;
+      const [ini, fim] = operacao === "distribuirH" ? ["minX", "maxX"] : ["minY", "maxY"];
+      const ordem = [...unidades].sort((a, b) => a.caixa[ini] + a.caixa[fim] - (b.caixa[ini] + b.caixa[fim]));
+      const ocupado = ordem.reduce((soma, u) => soma + u.caixa[fim] - u.caixa[ini], 0);
+      const vao = (ordem.at(-1).caixa[fim] - ordem[0].caixa[ini] - ocupado) / (ordem.length - 1);
+      let pos = ordem[0].caixa[ini];
+      for (const u of ordem) {
+        const d = pos - u.caixa[ini];
+        desvios.set(u, operacao === "distribuirH" ? [d, 0] : [0, d]);
+        pos += u.caixa[fim] - u.caixa[ini] + vao;
+      }
+    } else {
+      const alvo = {
+        esquerda: (c) => [area.minX - c.minX, 0],
+        direita: (c) => [area.maxX - c.maxX, 0],
+        centroH: (c) => [(area.minX + area.maxX - c.minX - c.maxX) / 2, 0],
+        topo: (c) => [0, area.minY - c.minY],
+        base: (c) => [0, area.maxY - c.maxY],
+        centroV: (c) => [0, (area.minY + area.maxY - c.minY - c.maxY) / 2],
+      }[operacao];
+      if (!alvo) return false;
+      for (const u of unidades) desvios.set(u, alvo(u.caixa));
+    }
+    const mudam = [...desvios].filter(([, [dx, dy]]) => Math.abs(dx) > 1e-9 || Math.abs(dy) > 1e-9);
+    if (!mudam.length) return false;
+    this.registrar();
+    for (const [u, [dx, dy]] of mudam) {
+      const m = matrizes.mover(dx, dy);
+      for (const i of u.indices) this.elementos[i] = transformarElemento(this.elementos[i], m);
+    }
+    return true;
+  }
+
+  // ── Posição e tamanho exatos ─────────────────────────────────────────────
+  // Caixa da seleção (ou do desenho todo): { x, y, w, h }, ou null
+  caixaDaSelecao() {
+    const c = this.limitesDe(this.alvos());
+    return c ? { x: c.minX, y: c.minY, w: c.maxX - c.minX, h: c.maxY - c.minY } : null;
+  }
+
+  // Muda x, y, w ou h da caixa. O tamanho muda na proporção (assim círculos
+  // e arcos continuam certos), a partir do canto de cima à esquerda.
+  definirCaixa({ x, y, w, h }) {
+    const c = this.caixaDaSelecao();
+    if (!c || this.arrastando) return false;
+    let m;
+    if (x !== undefined || y !== undefined) m = matrizes.mover((x ?? c.x) - c.x, (y ?? c.y) - c.y);
+    else {
+      const k = w !== undefined ? (c.w ? w / c.w : 0) : c.h ? h / c.h : 0;
+      if (!(k > 0) || !Number.isFinite(k)) return false;
+      m = matrizes.escalar(k, c.x, c.y);
+    }
+    if (m.a === 1 && m.d === 1 && !m.e && !m.f) return false;
+    this.registrar();
+    for (const i of this.alvos())
+      if (this.editavel(i)) this.elementos[i] = transformarElemento(this.elementos[i], m);
+    return true;
+  }
+
+  // Durante um arraste: aplica a matriz às formas como estavam no início
+  // (as alças da caixa de seleção mudam o tamanho e giram por aqui)
+  arrastarComMatriz(m) {
+    if (!this.base) return;
+    for (const [i, el] of this.base) this.elementos[i] = transformarElemento(el, m);
+  }
+
+  // ── Pontas e cantos do traço ─────────────────────────────────────────────
+  // atributo: stroke-linecap (round, butt, square) ou stroke-linejoin
+  // (round, miter, bevel). Só nas formas com traço. Devolve se mudou.
+  definirAtributoDoTraco(atributo, valor) {
+    if (!this.temSelecao || !["stroke-linecap", "stroke-linejoin"].includes(atributo)) return false;
+    const herdado = this.raiz[atributo] ?? PADRAO_DESENHO[atributo];
+    const mudar = this.alvos().filter((i) => {
+      const el = this.elementos[i];
+      return !el.html && this.efetivo(el, "stroke") !== "none" && this.efetivo(el, atributo) !== valor;
+    });
+    if (!mudar.length) return false;
+    this.registrar();
+    for (const i of mudar) {
+      const attrs = { ...this.elementos[i].attrs };
+      if (valor === herdado) delete attrs[atributo];
+      else attrs[atributo] = valor;
+      this.elementos[i] = { ...this.elementos[i], attrs };
+    }
+    return true;
+  }
+
+  // ── Otimizar o SVG ───────────────────────────────────────────────────────
+  // Tira o que não muda o desenho: atributos vazios, data-*, version e
+  // xml:space, atributos de desenho iguais ao que a forma já herda, e
+  // reescreve os paths que ficam menores. Devolve quantos bytes o SVG perdeu
+  // (0 = nada a fazer, sem passo no histórico).
+  otimizar() {
+    if (this.arrastando) return 0;
+    const inutil = (nome, valor) => valor === "" || /^data-/.test(nome) || nome === "version" || nome === "xml:space";
+    const limpar = (attrs, herdar) => {
+      const novo = {};
+      for (const [nome, valor] of Object.entries(attrs)) {
+        if (inutil(nome, valor)) continue;
+        if (herdar && nome in PADRAO_DESENHO && valor === (this.raiz[nome] ?? PADRAO_DESENHO[nome])) continue;
+        novo[nome] = valor;
+      }
+      return novo;
+    };
+    const antes = this.svg().length;
+    const estado = this.instantaneo();
+    const [raizAntes, elementosAntes] = [this.raiz, this.elementos];
+    this.raiz = limpar(this.raiz, false);
+    this.elementos = elementosAntes.map((el, i) => {
+      if (el.html) return el;
+      const attrs = limpar(el.attrs, true);
+      if (el.tag === "path" && this.editavel(i)) {
+        const curto = escreverPath(lerPath(attrs.d ?? ""));
+        if (curto.length < (attrs.d ?? "").length) attrs.d = curto;
+      }
+      return { ...el, attrs };
+    });
+    const ganho = antes - this.svg().length;
+    if (ganho <= 0) {
+      [this.raiz, this.elementos] = [raizAntes, elementosAntes];
+      return 0;
+    }
+    this.historico.push(estado);
+    if (this.historico.length > LIMITE_HISTORICO) this.historico.shift();
+    this.refazer = [];
+    return ganho;
   }
 
   // ── Outro ícone por cima ─────────────────────────────────────────────────
@@ -1032,6 +1212,7 @@ export class EditorModel {
       oculto: alinhado ? projeto.elementos[i].oculto : false,
     }));
     this.limparSelecao();
+    this.original = this.svg();
     return { nome: projeto.nome, editavel: projeto.editavel };
   }
 
@@ -1124,6 +1305,8 @@ export class EditorModel {
     return {
       cor: cor === "currentColor" || cor === "none" ? null : cor,
       traco: temTraco ? parseFloat(this.efetivo(el, "stroke-width")) : null,
+      pontas: temTraco ? this.efetivo(el, "stroke-linecap") : null,
+      cantos: temTraco ? this.efetivo(el, "stroke-linejoin") : null,
     };
   }
 

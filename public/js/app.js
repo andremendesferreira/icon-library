@@ -27,7 +27,7 @@ traduzirPagina();
 
 const iconModel = new IconModel();
 const iconView = new IconView();
-const avisar = (mensagem) => iconView.mostrarToast(mensagem);
+const avisar = (mensagem, acao) => iconView.mostrarToast(mensagem, acao);
 
 // Os ícones da página, para o editor pôr um segundo ícone por cima.
 // Só os conjuntos vetoriais (emoji é texto, não tem formas para editar).
