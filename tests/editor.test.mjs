@@ -16,6 +16,7 @@ import {
 import { adicionarPonto, dividirTrecho, removerPonto } from "../public/js/models/svgGeometry.js";
 import {
   EditorModel,
+  tamanhoDoPng,
   FORMATO_ILE,
   VERSAO_ILE,
   validarProjeto,
@@ -564,6 +565,7 @@ test("EditorModel: mudar a ordem de um ícone inteiro", () => {
   assert.deepEqual(model.elementos.map((el) => el.grupo), [1, 1, 0, 0, 0]);
   assert.deepEqual(model.gruposEmUso().map((g) => g.grupo), [1, 0]);
   assert.equal(model.grupoSelecionado, 1);
+  // As três soltas ficaram seguidas: são um bloco só, e um degrau passa por elas
   model.ordenar("frente");
   assert.deepEqual(model.elementos.map((el) => el.grupo), [0, 0, 0, 1, 1]);
 });
@@ -919,4 +921,78 @@ test("EditorModel: tirar o preenchimento de uma forma sem traço não a faz sumi
   assert.equal(model.elementos[0].attrs.stroke, "currentColor");
   model.alternarPreenchimento();
   assert.equal(model.preenchida, true);
+});
+
+// ── Bugs corrigidos ─────────────────────────────────────────────────────────
+const reta = (x) => ({ tag: "line", attrs: { x1: String(x), y1: "2", x2: String(x), y2: "20" } });
+const ordemDe = (model) => model.elementos.map((el) => el.attrs.x1 + (el.grupo ? `g${el.grupo}` : "")).join(" ");
+
+test("EditorModel: mover um grupo um degrau não mexe na ordem das outras camadas", () => {
+  const model = new EditorModel();
+  model.definirDocumento({ raiz: { viewBox: "0 0 24 24" }, elementos: [reta(1), reta(2), reta(3), reta(4)] });
+  model.grupos.push({ nome: "G", manual: true }, { nome: "H", manual: true });
+  model.elementos[1].grupo = 1;
+  model.elementos[3].grupo = 2;
+  model.selecionarGrupo(2);
+  model.ordenar("tras");
+  assert.equal(ordemDe(model), "1 2g1 4g2 3");
+  model.ordenar("tras");
+  assert.equal(ordemDe(model), "1 4g2 2g1 3");
+  model.ordenar("fundo");
+  assert.equal(ordemDe(model), "4g2 1 2g1 3");
+});
+
+test("EditorModel: editar o código mantém as formas ocultas e os grupos", () => {
+  const model = new EditorModel();
+  model.definirDocumento({ raiz: { viewBox: "0 0 24 24" }, elementos: [reta(1), reta(2), reta(3)] });
+  model.grupos.push({ nome: "G", manual: true });
+  model.elementos[2].grupo = 1;
+  model.alternarOculto(0);
+  // O código mostra só as visíveis (2 e 3); a pessoa muda a 3 para 5
+  model.aplicarDocumento({ raiz: { viewBox: "0 0 24 24" }, elementos: [reta(2), reta(5)] });
+  assert.equal(ordemDe(model), "1 2 5g1");
+  assert.equal(model.elementos[0].oculto, true);
+  // Forma a mais no código entra no primeiro ícone; a menos, sai
+  model.aplicarDocumento({ raiz: { viewBox: "0 0 24 24" }, elementos: [reta(2), reta(5), reta(7)] });
+  assert.equal(ordemDe(model), "1 2 5g1 7");
+  model.aplicarDocumento({ raiz: { viewBox: "0 0 24 24" }, elementos: [reta(2)] });
+  assert.equal(ordemDe(model), "1 2");
+  model.desfazer();
+  assert.equal(ordemDe(model), "1 2 5g1 7");
+});
+
+test("EditorModel: desfazer, apagar e setas esperam o fim do arraste", () => {
+  const model = new EditorModel();
+  model.definirDocumento({ raiz: { viewBox: "0 0 24 24" }, elementos: [reta(1), reta(2)] });
+  model.selecionar(0);
+  model.transformar("direita"); // um passo no histórico antes do arraste
+  model.iniciarArraste();
+  model.arrastarElemento(3, 0);
+  model.desfazer();
+  model.remover();
+  assert.equal(model.transformar("direita"), 0);
+  assert.equal(model.elementos.length, 2);
+  model.terminarArraste();
+  assert.equal(model.elementos[0].attrs.x1, "4.5");
+  // Desfazer agora volta o arraste, e depois a seta
+  model.desfazer();
+  assert.equal(model.elementos[0].attrs.x1, "1.5");
+  model.desfazer();
+  assert.equal(model.elementos[0].attrs.x1, "1");
+});
+
+test("tamanhoDoPng: largura em pixels, ou a do viewBox", () => {
+  assert.equal(tamanhoDoPng({ width: "24", viewBox: "0 0 24 24" }), 24);
+  assert.equal(tamanhoDoPng({ width: "32px" }), 32);
+  assert.equal(tamanhoDoPng({ width: "1em", viewBox: "0 0 16 16" }), 16);
+  assert.equal(tamanhoDoPng({ width: "100%", viewBox: "0 0 512 512" }), 512);
+  assert.equal(tamanhoDoPng({}), 24);
+});
+
+test("corCss: só cores simples vão para o style da amostra", async () => {
+  const { corCss } = await import("../public/js/views/html.js");
+  for (const cor of ["#e11d48", "#fff", "red", "rgb(1, 2, 3)", "hsla(10deg 50% 50% / 0.5)"])
+    assert.equal(corCss(cor), cor);
+  for (const cor of ["red;background:url(https://x.test/a)", "url(#g)", "expression(alert(1))", "", null])
+    assert.equal(corCss(cor), null);
 });

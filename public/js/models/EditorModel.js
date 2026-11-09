@@ -51,6 +51,14 @@ export function viewBoxDe(raiz) {
   return { x: x || 0, y: y || 0, w: w || 24, h: h || 24 };
 }
 
+// Tamanho sugerido para o PNG, em pixels: a largura do <svg> quando é um
+// número (ou "24px"); "1em", "100%" e afins usam a largura do viewBox
+export function tamanhoDoPng(raiz) {
+  const largura = /^\s*(\d+(?:\.\d+)?)\s*(?:px)?\s*$/i.exec(raiz.width ?? "");
+  const tamanho = largura ? Number(largura[1]) : viewBoxDe(raiz).w;
+  return Math.round(tamanho) || 24;
+}
+
 // Elementos que um ícone usa. Fora desta lista, o elemento sai inteiro
 const ELEMENTOS_SVG = new Set([
   ...FORMAS,
@@ -236,16 +244,24 @@ export class EditorModel {
         throw erroCom("error.path", `Path ${i + 1}: ${erro.message}`, { n: i + 1, detail: erro });
       }
     });
+    this.aplicarDocumento(doc);
+  }
+
+  // O documento lido do código entra no lugar do atual. O código mostra só
+  // as formas visíveis: elas casam pela posição entre as visíveis e mantêm o
+  // grupo; as ocultas continuam onde estavam; as novas vão para o primeiro
+  // ícone e as que sumiram do código saem.
+  aplicarDocumento(doc) {
     this.registrar();
-    // O código não guarda a que ícone cada forma pertence: as formas mantêm
-    // o grupo pela posição, e as novas ficam no primeiro
-    const anteriores = this.elementos;
+    const novos = [...doc.elementos];
+    const elementos = [];
+    for (const anterior of this.elementos) {
+      if (anterior.oculto) elementos.push(anterior);
+      else if (novos.length) elementos.push({ ...novos.shift(), grupo: anterior.grupo, oculto: false });
+    }
+    for (const el of novos) elementos.push({ ...el, grupo: 0, oculto: false });
     this.raiz = doc.raiz;
-    this.elementos = doc.elementos.map((el, i) => ({
-      ...el,
-      grupo: anteriores[i]?.grupo ?? 0,
-      oculto: false,
-    }));
+    this.elementos = elementos;
     this.limparSelecao();
   }
 
@@ -317,14 +333,21 @@ export class EditorModel {
     return this.refazer.length > 0;
   }
 
+  // Durante um arraste, desfazer, refazer e apagar esperam: o arraste ainda
+  // escreve nas formas a partir da cópia do início, e o histórico ficaria
+  // sem o passo dele
+  get arrastando() {
+    return this.base !== null;
+  }
+
   desfazer() {
-    if (!this.podeDesfazer) return;
+    if (!this.podeDesfazer || this.arrastando) return;
     this.refazer.push(this.instantaneo());
     this.restaurar(this.historico.pop());
   }
 
   refazerUltimo() {
-    if (!this.podeRefazer) return;
+    if (!this.podeRefazer || this.arrastando) return;
     this.historico.push(this.instantaneo());
     this.restaurar(this.refazer.pop());
   }
@@ -591,15 +614,32 @@ export class EditorModel {
       return true;
     }
     if (this.grupoSelecionado === null) return false;
-    const grupos = this.gruposEmUso();
-    const atual = grupos.findIndex((g) => g.grupo === this.grupoSelecionado);
-    const destino = Math.max(0, Math.min(grupos.length - 1, atual + passo));
-    if (destino === atual) return false;
+    // Blocos na ordem do desenho: cada grupo é um, e cada sequência de formas
+    // soltas é outra. O grupo troca de lugar só com o bloco vizinho — juntar
+    // todas as soltas num bloco só mudava a ordem de quem nem foi mexido.
+    const blocos = this.blocosDeOrdem();
+    const atual = blocos.findIndex((b) => b.grupo === this.grupoSelecionado);
+    const destino = Math.max(0, Math.min(blocos.length - 1, atual + passo));
+    if (atual < 0 || destino === atual) return false;
     this.registrar();
-    grupos.splice(destino, 0, ...grupos.splice(atual, 1));
-    // Cada ícone vira um bloco seguido, na ordem nova
-    this.elementos = grupos.flatMap((g) => g.indices.map((i) => this.elementos[i]));
+    blocos.splice(destino, 0, ...blocos.splice(atual, 1));
+    this.elementos = blocos.flatMap((b) => b.indices.map((i) => this.elementos[i]));
     return true;
+  }
+
+  // [{ grupo, indices }]: um bloco por grupo (na posição da primeira forma
+  // dele) e um por sequência seguida de formas soltas
+  blocosDeOrdem() {
+    const blocos = [];
+    const doGrupo = new Map();
+    this.elementos.forEach((el, i) => {
+      if (el.grupo) {
+        if (!doGrupo.has(el.grupo)) doGrupo.set(el.grupo, blocos.push({ grupo: el.grupo, indices: [] }) - 1);
+        blocos[doGrupo.get(el.grupo)].indices.push(i);
+      } else if (blocos.at(-1)?.grupo === 0) blocos.at(-1).indices.push(i);
+      else blocos.push({ grupo: 0, indices: [i] });
+    });
+    return blocos;
   }
 
   ordenarConjunto(passo) {
@@ -778,6 +818,7 @@ export class EditorModel {
 
   // Apaga a forma indicada, ou a seleção (forma ou ícone inteiro)
   remover(indice = null) {
+    if (this.arrastando) return;
     const indices =
       indice !== null
         ? [indice]
@@ -848,6 +889,7 @@ export class EditorModel {
   // volta do centro dele) ou, sem seleção, no desenho inteiro. Devolve
   // quantos elementos não puderam mudar (os que só existem no código).
   transformar(operacao) {
+    if (this.arrastando) return 0;
     const alvos = this.alvos();
     const { cx, cy } = this.temSelecao ? this.centroDe(alvos) : this.centro;
     const passo = this.passo || 1;

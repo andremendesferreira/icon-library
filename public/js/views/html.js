@@ -8,6 +8,14 @@ const ENTIDADES = {
   "'": "&#39;",
 };
 
+// Cor que pode ir para um style="": #hex, um nome (red) ou rgb()/hsl() com
+// números. Qualquer outra coisa — "red;background:url(…)", vinda de um link
+// #ile= de outra pessoa — vira null, para a página não buscar endereço nenhum.
+export function corCss(cor) {
+  const valor = String(cor ?? "").trim();
+  return /^(#[0-9a-f]{3,8}|[a-z]+|(rgb|hsl)a?\([\d\s.,%deg/+-]+\))$/i.test(valor) ? valor : null;
+}
+
 export function escapar(texto) {
   return String(texto).replace(/[&<>"']/g, (char) => ENTIDADES[char]);
 }

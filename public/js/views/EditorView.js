@@ -1,4 +1,4 @@
-import { escapar, svgDoTexto } from "./html.js";
+import { corCss, escapar, svgDoTexto } from "./html.js";
 import { t } from "../i18n/i18n.js";
 
 const NS = "http://www.w3.org/2000/svg";
@@ -370,6 +370,12 @@ export class EditorView {
     const { acoes } = this;
     // Dentro do código e dos campos, as teclas são do texto
     if (evento.target.closest("textarea, select, input")) return;
+    // Com o botão ainda apertado (arraste ou seleção por área), as teclas
+    // esperam o fim do gesto
+    if (this.arraste || this.area) {
+      evento.preventDefault();
+      return;
+    }
     const ctrl = evento.ctrlKey || evento.metaKey;
     const tecla = evento.key.toLowerCase();
     // Esc: primeiro cancela o corte, depois limpa a seleção; sem nada disso,
@@ -880,7 +886,7 @@ export class EditorView {
       return texto ? `<em class="editor__layer">${escapar(texto)}</em>` : "";
     };
     const amostraDe = (cor) =>
-      cor ? `<i class="editor__swatch" style="background:${escapar(cor)}" aria-hidden="true"></i>` : "";
+      corCss(cor) ? `<i class="editor__swatch" style="background:${escapar(corCss(cor))}" aria-hidden="true"></i>` : "";
     if (!elementos.length) {
       this.lista.innerHTML = `<li class="editor__empty">${escapar(t("editor.noElements"))}</li>`;
       return;

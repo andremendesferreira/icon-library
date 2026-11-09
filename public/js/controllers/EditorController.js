@@ -1,4 +1,4 @@
-import { TAMANHO_MAXIMO_ILE } from "../models/EditorModel.js";
+import { TAMANHO_MAXIMO_ILE, tamanhoDoPng } from "../models/EditorModel.js";
 import { linkDoStudio } from "../models/IconModel.js";
 import { lerFragmento, linkDoProjeto } from "../models/linkCodec.js";
 import { nomeDeArquivo } from "../models/svgTools.js";
@@ -185,7 +185,7 @@ export class EditorController {
       },
       aoBaixarPng: async () => {
         // Pergunta o tamanho; o do próprio SVG é a sugestão
-        const sugerido = parseInt(model.raiz.width, 10) || 24;
+        const sugerido = tamanhoDoPng(model.raiz);
         const tamanho = this.escolherTamanhoPng ? await this.escolherTamanhoPng(sugerido) : sugerido;
         if (!tamanho) return;
         baixarPngDeSvg(model.svg(), tamanho, COR_PNG, this.arquivo).then(
