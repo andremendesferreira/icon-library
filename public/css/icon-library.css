@@ -2774,9 +2774,19 @@ body:has(.scratchpad--open) .back-to-top {
   font-size: 17px;
 }
 .editor-help__sections {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 8px 24px;
+  /* Colunas de jornal: as seções seguem uma embaixo da outra e se dividem
+     entre as colunas, sem o buraco que a grade deixava embaixo da mais longa */
+  columns: 3 260px;
+  column-gap: 24px;
+}
+.editor-help__sections > section {
+  display: contents;
+}
+.editor-help__sections .editor__heading {
+  break-after: avoid;
+}
+.editor-help__list > li {
+  break-inside: avoid;
 }
 .editor-help__list {
   margin: 0;
