@@ -10,3 +10,5 @@ stack.env
 linkedin/
 divulgacao/
 tests/mobile/video/
+# Relatórios de análise do plugin grill (locais)
+grill-report-*.md
