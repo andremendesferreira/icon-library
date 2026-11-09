@@ -799,6 +799,29 @@ export function novaForma(tag, { x, y, w, h }) {
   }
 }
 
+// ── Caneta ───────────────────────────────────────────────────────────────────
+// Pontos clicados → path. Cada ponto pode ter uma alça h (para onde o
+// ponteiro foi arrastado ao pôr o ponto): o trecho que sai dele curva na
+// direção da alça, e o que chega curva pelo lado espelhado, como nas
+// ferramentas de desenho. Sem alças, os trechos são retas. fechar liga o
+// último ponto ao primeiro e fecha o path.
+export function caminhoDaCaneta(pontos, fechar = false) {
+  if (pontos.length < 2) return null;
+  const espelho = (p) => (p.h ? { x: 2 * p.x - p.h.x, y: 2 * p.y - p.h.y } : p);
+  const trecho = (de, ate) =>
+    de.h || ate.h
+      ? { t: "C", x1: (de.h ?? de).x, y1: (de.h ?? de).y, x2: espelho(ate).x, y2: espelho(ate).y, x: ate.x, y: ate.y }
+      : { t: "L", x: ate.x, y: ate.y };
+  const cmds = [{ t: "M", x: pontos[0].x, y: pontos[0].y }];
+  for (let i = 1; i < pontos.length; i++) cmds.push(trecho(pontos[i - 1], pontos[i]));
+  if (fechar) {
+    const [primeiro, ultimo] = [pontos[0], pontos.at(-1)];
+    if (primeiro.h || ultimo.h) cmds.push(trecho(ultimo, primeiro));
+    cmds.push({ t: "Z" });
+  }
+  return escreverPath(cmds);
+}
+
 // ── Unir dois traços ─────────────────────────────────────────────────────────
 // Traço aberto (line, polyline ou path sem Z, mesmo com vários trechos) → comandos
 // absolutos começando num M; null para o resto (formas fechadas, círculos…)

@@ -786,24 +786,110 @@ export class EditorModel {
     const indices = this.alvos().filter((i) => this.editavel(i));
     if (!indices.length) return false;
     this.registrar();
+    this.alvosDoArraste = null;
+    this.guias = [];
     this.base = new Map(indices.map((i) => [i, this.elementos[i]]));
     return true;
   }
 
-  arrastarPonto(id, x, y) {
-    if (!this.base || this.selecionado === null) return;
-    this.elementos[this.selecionado] = moverPonto(
-      this.base.get(this.selecionado),
-      id,
-      this.encaixar(x),
-      this.encaixar(y),
-    );
+  // ── Encaixe em outras formas, com linhas-guia ────────────────────────────
+  // Durante um arraste, o ponto (ou a caixa do que se move) gruda nos pontos
+  // e nas caixas das outras formas e no centro e nas bordas do ícone quando
+  // chega a menos de "tolerancia" unidades. As linhas-guia ficam em guias:
+  // [{ x }] ou [{ y }]. Sem tolerância, vale só a grade.
+  guias = [];
+
+  // Valores de x e de y em que vale grudar: calculados uma vez por arraste
+  alvosDeEncaixe(idIgnorado = null) {
+    if (this.alvosDoArraste) return this.alvosDoArraste;
+    const { x, y, w, h } = this.viewBox;
+    const xs = [x, x + w / 2, x + w];
+    const ys = [y, y + h / 2, y + h];
+    this.elementos.forEach((el, i) => {
+      if (el.oculto || !this.editavel(i)) return;
+      if (this.base.has(i)) {
+        // A própria forma: os outros pontos dela (para alinhar um com outro)
+        if (idIgnorado === null) return;
+        for (const p of pontosDoElemento(this.base.get(i)))
+          if (p.id !== idIgnorado && p.tipo === "end") xs.push(p.x), ys.push(p.y);
+        return;
+      }
+      const c = limitesDoElemento(el);
+      if (c) xs.push(c.minX, (c.minX + c.maxX) / 2, c.maxX), ys.push(c.minY, (c.minY + c.maxY) / 2, c.maxY);
+      for (const p of pontosDoElemento(el)) if (p.tipo === "end") xs.push(p.x), ys.push(p.y);
+    });
+    this.alvosDoArraste = { xs, ys };
+    return this.alvosDoArraste;
   }
 
-  arrastarElemento(dx, dy) {
+  // O alvo mais perto de algum dos valores, se estiver dentro da tolerância:
+  // { desvio, alvo } (somar o desvio ao valor gruda nele), ou null
+  static maisPerto(valores, alvos, tolerancia) {
+    let melhor = null;
+    for (const v of valores)
+      for (const a of alvos) {
+        const d = a - v;
+        if (Math.abs(d) <= tolerancia && (!melhor || Math.abs(d) < Math.abs(melhor.desvio))) melhor = { desvio: d, alvo: a };
+      }
+    return melhor;
+  }
+
+  arrastarPonto(id, x, y, { tolerancia = 0 } = {}) {
+    if (!this.base || this.selecionado === null) return;
+    let [px, py] = [this.encaixar(x), this.encaixar(y)];
+    this.guias = [];
+    if (tolerancia > 0) {
+      const { xs, ys } = this.alvosDeEncaixe(id);
+      const gx = EditorModel.maisPerto([x], xs, tolerancia);
+      const gy = EditorModel.maisPerto([y], ys, tolerancia);
+      if (gx) (px = gx.alvo), this.guias.push({ x: gx.alvo });
+      if (gy) (py = gy.alvo), this.guias.push({ y: gy.alvo });
+    }
+    this.elementos[this.selecionado] = moverPonto(this.base.get(this.selecionado), id, px, py);
+  }
+
+  arrastarElemento(dx, dy, { tolerancia = 0 } = {}) {
     if (!this.base) return;
-    const m = matrizes.mover(this.encaixar(dx), this.encaixar(dy));
+    let [mx, my] = [this.encaixar(dx), this.encaixar(dy)];
+    this.guias = [];
+    if (tolerancia > 0) {
+      const c = this.caixaDaBase();
+      if (c) {
+        const { xs, ys } = this.alvosDeEncaixe();
+        const bordas = (a, b, d) => [a + d, (a + b) / 2 + d, b + d];
+        const gx = EditorModel.maisPerto(bordas(c.minX, c.maxX, dx), xs, tolerancia);
+        const gy = EditorModel.maisPerto(bordas(c.minY, c.maxY, dy), ys, tolerancia);
+        if (gx) (mx = dx + gx.desvio), this.guias.push({ x: gx.alvo });
+        if (gy) (my = dy + gy.desvio), this.guias.push({ y: gy.alvo });
+      }
+    }
+    const m = matrizes.mover(mx, my);
     for (const [i, el] of this.base) this.elementos[i] = transformarElemento(el, m);
+  }
+
+  // Caixa das formas como estavam no início do arraste
+  caixaDaBase() {
+    if (!this.base) return null;
+    let c = null;
+    for (const el of this.base.values()) {
+      const l = limitesDoElemento(el);
+      if (!l) continue;
+      c = c
+        ? { minX: Math.min(c.minX, l.minX), minY: Math.min(c.minY, l.minY), maxX: Math.max(c.maxX, l.maxX), maxY: Math.max(c.maxY, l.maxY) }
+        : l;
+    }
+    return c;
+  }
+
+  // Alças da caixa de seleção: k vezes o tamanho a partir do ponto fixo
+  // (o canto oposto), e giro em graus em volta do centro
+  arrastarEscala(k, fx, fy) {
+    if (!(k > 0)) return;
+    this.arrastarComMatriz(matrizes.escalar(k, fx, fy));
+  }
+
+  arrastarGiro(graus, cx, cy) {
+    this.arrastarComMatriz(matrizes.girar(graus, cx, cy));
   }
 
   terminarArraste() {
@@ -811,6 +897,61 @@ export class EditorModel {
     if (this.base && [...this.base].every(([i, el]) => this.elementos[i] === el))
       this.historico.pop();
     this.base = null;
+    this.alvosDoArraste = null;
+    this.guias = [];
+  }
+
+  // Tab no desenho: a forma visível seguinte (passo 1) ou anterior (-1). Sem
+  // forma selecionada, a primeira (ou a última). Devolve o índice escolhido,
+  // ou null depois da última (o Tab segue para o próximo controle da janela).
+  selecionarVizinha(passo) {
+    const visiveis = this.elementos.flatMap((el, i) => (el.oculto ? [] : [i]));
+    if (!visiveis.length) return null;
+    const atual = this.selecionado !== null && !this.extras.length ? visiveis.indexOf(this.selecionado) : -1;
+    const proxima = atual < 0 ? (passo > 0 ? visiveis[0] : visiveis.at(-1)) : visiveis[atual + passo];
+    if (proxima === undefined) return null;
+    this.selecionar(proxima);
+    return proxima;
+  }
+
+  // ── Caneta ───────────────────────────────────────────────────────────────
+  // Um path desenhado ponto a ponto entra como forma nova, já selecionada
+  adicionarPath(d) {
+    try {
+      lerPath(d);
+    } catch {
+      return false;
+    }
+    this.registrar();
+    this.elementos.push({ tag: "path", attrs: { d }, grupo: 0, oculto: false });
+    this.selecionar(this.elementos.length - 1);
+    return true;
+  }
+
+  // ── Lista de formas ──────────────────────────────────────────────────────
+  // Arrastar na lista: a forma "de" vai para o lugar da forma "para", só
+  // entre formas do mesmo ícone ou grupo. Devolve se mudou.
+  moverForma(de, para) {
+    const a = this.elementos[de];
+    const b = this.elementos[para];
+    if (!a || !b || de === para || a.grupo !== b.grupo || this.arrastando) return false;
+    const irmaos = this.indicesDoGrupo(a.grupo);
+    const ordem = irmaos.map((i) => this.elementos[i]);
+    const [origem, destino] = [irmaos.indexOf(de), irmaos.indexOf(para)];
+    this.registrar();
+    ordem.splice(destino, 0, ...ordem.splice(origem, 1));
+    irmaos.forEach((i, k) => (this.elementos[i] = ordem[k]));
+    this.selecionar(irmaos[destino]);
+    return true;
+  }
+
+  // Nome de um grupo (o ícone aberto, grupo 0, leva o nome do arquivo)
+  renomearGrupo(grupo, nome) {
+    const limpo = String(nome ?? "").trim().slice(0, 60);
+    if (!grupo || !this.grupos[grupo] || !limpo || this.grupos[grupo].nome === limpo) return false;
+    this.registrar();
+    this.grupos = this.grupos.map((g, i) => (i === grupo ? { ...g, nome: limpo } : g));
+    return true;
   }
 
   // ── Elementos ────────────────────────────────────────────────────────────

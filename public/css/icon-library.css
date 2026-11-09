@@ -1856,6 +1856,171 @@ body:has(.scratchpad--open) .back-to-top {
   color: #fff;
   font-weight: 600;
 }
+/* Barra em cima do desenho: zoom, original e concluir a caneta */
+.editor__ferramentas {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin: 0 0 6px;
+}
+.editor__ferramenta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 30px;
+  padding: 4px 9px;
+  border: 1px solid #c5d0dc;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  color: #42505e;
+  cursor: pointer;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+.editor__ferramenta[hidden] {
+  display: none;
+}
+.editor__ferramenta:hover,
+.editor__ferramenta:focus-visible {
+  border-color: var(--il-blue);
+  color: var(--il-blue-dark);
+  outline: none;
+}
+.editor__zoom {
+  min-width: 56px;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+.editor__ferramenta[aria-pressed="true"],
+.editor__ferramenta--primaria {
+  border-color: var(--il-action);
+  background: var(--il-action);
+  color: #fff;
+}
+.editor__ferramenta--primaria:hover,
+.editor__ferramenta--primaria:focus-visible {
+  background: var(--il-action-hover);
+  color: #fff;
+}
+/* Caneta ligada */
+.editor__buttons #editor-pen[aria-pressed="true"] {
+  border-color: var(--il-action);
+  background: var(--il-action);
+  color: #fff;
+}
+.editor__canvas--caneta,
+.editor__canvas--caneta * {
+  cursor: crosshair !important;
+}
+/* Espaço apertado (ou botão do meio): arrastar move a vista */
+.editor__canvas--mao,
+.editor__canvas--mao * {
+  cursor: grab !important;
+}
+/* Caixa da seleção: alças de tamanho nos cantos e de giro em cima */
+.editor__caixa-sel {
+  fill: none;
+  stroke: var(--il-blue);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
+}
+.editor__alca {
+  fill: #fff;
+  stroke: var(--il-blue);
+  stroke-width: 1.5;
+}
+.editor__alca[data-alca="nw"],
+.editor__alca[data-alca="se"] {
+  cursor: nwse-resize;
+}
+.editor__alca[data-alca="ne"],
+.editor__alca[data-alca="sw"] {
+  cursor: nesw-resize;
+}
+.editor__alca[data-alca="girar"] {
+  cursor: grab;
+}
+.editor__alca-linha {
+  stroke: var(--il-blue);
+  stroke-width: 1;
+  pointer-events: none;
+}
+/* Linhas-guia do encaixe em outras formas */
+.editor__guia {
+  stroke: #d6336c;
+  stroke-width: 1;
+  pointer-events: none;
+}
+/* Caneta: o path em desenho e os pontos já postos */
+.editor__caneta {
+  fill: none;
+  stroke: var(--il-blue);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+.editor__caneta--elastico {
+  stroke-dasharray: 4 3;
+  opacity: 0.7;
+}
+.editor__caneta-ponto {
+  fill: #fff;
+  stroke: var(--il-blue);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+.editor__caneta-ponto--primeiro {
+  fill: var(--il-blue);
+}
+/* Nome do grupo em edição, na lista */
+.editor__group-input {
+  flex: 1;
+  min-width: 0;
+  margin: 2px 4px;
+  padding: 4px 6px;
+  border: 1px solid var(--il-blue);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12.5px;
+}
+/* Arrastar na lista: onde a forma vai cair */
+.editor__element--alvo {
+  box-shadow: inset 0 2px 0 var(--il-blue);
+}
+.editor__element[draggable="true"] {
+  cursor: grab;
+}
+/* Prévias: uma linha em fundo claro e outra em fundo escuro */
+.editor__previews-linha {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 4px;
+  border-radius: 8px;
+  color: #2c3e50;
+}
+.editor__previews-linha--escura {
+  background: #172031;
+  color: #e5e9f0;
+}
+/* Só para leitores de tela */
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 .editor__snap {
   display: flex;
   align-items: center;
@@ -1965,10 +2130,10 @@ body:has(.scratchpad--open) .back-to-top {
 }
 .editor__previews {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  gap: 8px;
-  padding: 12px 8px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 8px;
   border: 1px solid #e4e9f0;
   border-radius: 10px;
   color: #2c3e50;
@@ -2277,6 +2442,28 @@ body:has(.scratchpad--open) .back-to-top {
 [data-theme="dark"] .editor__previews {
   border-color: var(--dk-border);
 }
+[data-theme="dark"] .editor__ferramenta {
+  background: var(--dk-surface-2);
+  border-color: var(--dk-border);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .editor__ferramenta[aria-pressed="true"],
+[data-theme="dark"] .editor__ferramenta--primaria {
+  border-color: var(--il-action);
+  background: var(--il-action);
+  color: #fff;
+}
+[data-theme="dark"] .editor__previews-linha:not(.editor__previews-linha--escura) {
+  background: #f5f7fb;
+  color: #2c3e50;
+}
+[data-theme="dark"] .editor__group-input {
+  background: var(--dk-surface-2);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .editor__alca {
+  fill: var(--dk-surface);
+}
 [data-theme="dark"] .editor__box input,
 [data-theme="dark"] .editor__style-row--ends select,
 [data-theme="dark"] .editor__draft button {
@@ -2353,6 +2540,9 @@ body:has(.scratchpad--open) .back-to-top {
 
 /* Lista agrupada por ícone */
 .editor__group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
   margin-top: 6px;
 }
 .editor__group:first-child {
@@ -2363,7 +2553,8 @@ body:has(.scratchpad--open) .back-to-top {
   align-items: baseline;
   justify-content: space-between;
   gap: 8px;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 6px 8px;
   border: none;
   border-radius: 8px;
@@ -2410,6 +2601,14 @@ body:has(.scratchpad--open) .back-to-top {
 .editor__shape svg {
   display: block;
   flex-shrink: 0;
+}
+/* Formas prontas + caneta: seis botões na mesma linha da coluna lateral */
+.editor__buttons:has(#editor-pen) {
+  gap: 4px;
+}
+.editor__buttons:has(#editor-pen) > .editor__shape {
+  min-width: 0;
+  padding: 5px 2px;
 }
 
 /* Agrupar, Desagrupar, Unir e Separar: sem poder ser usados, ficam apagados */

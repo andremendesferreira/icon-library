@@ -153,8 +153,34 @@ export class EditorController {
         return true;
       },
       aoIniciarArraste: () => model.iniciarArraste(),
-      aoArrastarPonto: mudar((id, x, y) => model.arrastarPonto(id, x, y)),
-      aoArrastarElemento: mudar((dx, dy) => model.arrastarElemento(dx, dy)),
+      aoArrastarPonto: mudar((id, x, y, opcoes) => model.arrastarPonto(id, x, y, opcoes)),
+      aoArrastarElemento: mudar((dx, dy, opcoes) => model.arrastarElemento(dx, dy, opcoes)),
+      aoArrastarEscala: mudar((k, x, y) => model.arrastarEscala(k, x, y)),
+      aoArrastarGiro: mudar((graus, x, y) => model.arrastarGiro(graus, x, y)),
+      aoCriarPath: (d) => {
+        if (model.adicionarPath(d)) this.desenhar();
+      },
+      aoMoverForma: (de, para) => {
+        if (model.moverForma(de, para)) this.desenhar();
+        else if (model.elementos[de]?.grupo !== model.elementos[para]?.grupo) this.avisar(t("editor.reorderSameGroup"));
+      },
+      aoRenomearGrupo: (grupo, nome) => {
+        model.renomearGrupo(grupo, nome);
+        this.desenhar({ atualizarCodigo: false });
+      },
+      // Tab no desenho: devolve se escolheu uma forma (senão o foco segue)
+      aoSelecionarVizinha: (passo) => {
+        const i = model.selecionarVizinha(passo);
+        if (i === null) return false;
+        this.desenhar({ atualizarCodigo: false });
+        const visiveis = model.elementos.filter((el) => !el.oculto);
+        this.view.anunciar(t("editor.announceShape", {
+          tag: model.elementos[i].tag,
+          n: visiveis.indexOf(model.elementos[i]) + 1,
+          total: visiveis.length,
+        }));
+        return true;
+      },
       aoTerminarArraste: mudar(() => model.terminarArraste()),
       aoAdicionar: mudar((tag) => model.adicionar(tag)),
       // Sem índice: apaga a seleção (forma ou ícone inteiro)
@@ -556,6 +582,8 @@ export class EditorController {
         quantidade: model.quantidade,
         caixa: model.quantidade > 1 ? model.limitesDe(model.alvos()) : null,
         caixaSelecao: model.temSelecao ? model.caixaDaSelecao() : null,
+        guias: model.guias,
+        original: model.original,
         podeAgrupar: model.podeAgrupar,
         podeDesagrupar: model.podeDesagrupar,
         podeUnir: model.podeUnir,

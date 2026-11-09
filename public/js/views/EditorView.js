@@ -1,5 +1,6 @@
 import { corCss, escapar, svgDoTexto } from "./html.js";
 import { t } from "../i18n/i18n.js";
+import { caminhoDaCaneta } from "../models/svgGeometry.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const porId = (id) => document.getElementById(id);
@@ -28,6 +29,15 @@ const DUPLO_CLIQUE_MS = 350;
 const MOVIMENTO_MINIMO = 4;
 
 const PREVIAS = [16, 24, 32, 48];
+// Zoom da vista: de "cabe tudo" (1) até 16 vezes
+const ZOOM_MAXIMO = 16;
+// Em pixels de tela: a que distância um ponto gruda em outra forma, e o
+// tamanho das alças da caixa de seleção
+const ENCAIXE_PX = 6;
+const ALCA_PX = 9;
+const ALCA_TOQUE_PX = 16;
+// Giro pelas alças: de 15 em 15 graus (Shift solta)
+const GIRO_PASSO = 15;
 
 // <input type="color"> só aceita #rrggbb: converte nomes e formatos curtos
 // pelo próprio navegador. Nulo (cor do texto) devolve nulo.
@@ -112,6 +122,22 @@ export class EditorView {
   arquivo = porId("editor-file");
   arraste = null;
   acoes = null;
+  // Zoom e deslocamento da vista: só a tela muda, o ícone não
+  zoom = 1;
+  centroVista = null;
+  // Dedos na tela (pinça) e espaço apertado (arrastar move a vista)
+  ponteiros = new Map();
+  pinca = null;
+  espaco = false;
+  // Caneta: { pontos: [{ x, y, h }], cursor, puxando } ou null
+  caneta = null;
+  // Segurando "Original": o desenho mostra o ícone como foi aberto
+  comparando = false;
+  botaoCaneta = porId("editor-pen");
+  botaoConcluirCaneta = porId("editor-pen-done");
+  botaoOriginal = porId("editor-compare");
+  rotuloZoom = porId("editor-zoom-fit");
+  anuncio = porId("editor-announce");
 
   constructor() {
     // O editor não fecha com clique no fundo escuro: um clique fora da caixa
@@ -120,7 +146,11 @@ export class EditorView {
     porId("editor-close").addEventListener("click", () => this.fechar());
     this.janela.addEventListener("cancel", (evento) => {
       evento.preventDefault();
-      // No modo de corte, o Esc só cancela o corte
+      // Com a caneta, o Esc só sai dela; no modo de corte, só cancela o corte
+      if (this.caneta) {
+        this.sairDaCaneta();
+        return;
+      }
       if (this.cortando) {
         this.modoCorte(false);
         return;
@@ -142,6 +172,8 @@ export class EditorView {
   }
 
   abrir(nome) {
+    this.zoom = 1;
+    this.centroVista = null;
     this.nome.textContent = nome;
     this.erro.textContent = "";
     this.mostrarPainelBusca(false);
@@ -155,6 +187,9 @@ export class EditorView {
     this.janela.close();
     this.modoCorte(false);
     this.modoVarias(false);
+    this.sairDaCaneta();
+    this.zoom = 1;
+    this.centroVista = null;
     this.camadas = false;
     this.botaoCamadas.setAttribute("aria-pressed", "false");
     this.acoes?.aoFechar();
@@ -178,6 +213,11 @@ export class EditorView {
     this.ligarArquivo();
 
     this.lista.addEventListener("click", (evento) => {
+      const renomear = evento.target.closest("[data-renomear]");
+      if (renomear) {
+        this.renomearGrupo(Number(renomear.dataset.renomear));
+        return;
+      }
       const cabecalho = evento.target.closest("[data-grupo]");
       if (cabecalho) {
         acoes.aoSelecionarGrupo(Number(cabecalho.dataset.grupo));
@@ -243,6 +283,16 @@ export class EditorView {
     porId("editor-draft-restore").addEventListener("click", acoes.aoRecuperarRascunho);
     porId("editor-draft-discard").addEventListener("click", acoes.aoDescartarRascunho);
     this.botaoCamadas.addEventListener("click", () => this.modoCamadas(!this.camadas));
+    porId("editor-zoom-in").addEventListener("click", () => this.ampliar(1.5));
+    porId("editor-zoom-out").addEventListener("click", () => this.ampliar(1 / 1.5));
+    this.rotuloZoom.addEventListener("click", () => this.ajustarVista());
+    this.ligarOriginal();
+    this.botaoCaneta.addEventListener("click", () => {
+      if (this.caneta) this.terminarCaneta();
+      else this.entrarNaCaneta();
+    });
+    this.botaoConcluirCaneta.addEventListener("click", () => this.terminarCaneta());
+    this.ligarLista();
     porId("editor-help-open").addEventListener("click", () => this.abrirAjuda());
     porId("editor-help-close").addEventListener("click", () => this.ajuda.close());
     // Clique no fundo escuro fecha a ajuda
@@ -260,6 +310,12 @@ export class EditorView {
       this.canvas.focus();
     });
     this.janela.addEventListener("keydown", (evento) => this.teclado(evento));
+    this.janela.addEventListener("keyup", (evento) => {
+      if (evento.key === " " && this.espaco) {
+        this.espaco = false;
+        this.canvas.classList.remove("editor__canvas--mao");
+      }
+    });
   }
 
   // Cor e espessura: cada arraste do seletor é um passo só no histórico
@@ -393,6 +449,7 @@ export class EditorView {
     const { acoes } = this;
     // Dentro do código e dos campos, as teclas são do texto
     if (evento.target.closest("textarea, select, input")) return;
+    const ctrlOuAlt = (e) => e.ctrlKey || e.metaKey || e.altKey;
     // Com o botão ainda apertado (arraste ou seleção por área), as teclas
     // esperam o fim do gesto
     if (this.arraste || this.area) {
@@ -404,8 +461,35 @@ export class EditorView {
     // Esc: primeiro cancela o corte, depois limpa a seleção; sem nada disso,
     // segue para a janela, que pergunta se deve fechar
     if (evento.key === "Escape") {
-      if (this.cortando) this.modoCorte(false);
+      if (this.caneta) this.sairDaCaneta();
+      else if (this.cortando) this.modoCorte(false);
       else if (!acoes.aoLimparSelecao()) return;
+      evento.preventDefault();
+      return;
+    }
+    // Caneta: Enter termina o path aberto
+    if (this.caneta && evento.key === "Enter") {
+      this.terminarCaneta();
+      evento.preventDefault();
+      return;
+    }
+    // Tab no desenho escolhe a forma seguinte; depois da última, o foco segue
+    if (evento.key === "Tab" && evento.target === this.canvas && !ctrlOuAlt(evento)) {
+      if (acoes.aoSelecionarVizinha(evento.shiftKey ? -1 : 1)) evento.preventDefault();
+      return;
+    }
+    // Espaço segurado: arrastar move a vista
+    if (evento.key === " " && evento.target === this.canvas) {
+      if (!this.espaco) {
+        this.espaco = true;
+        this.canvas.classList.add("editor__canvas--mao");
+      }
+      evento.preventDefault();
+      return;
+    }
+    if (!evento.ctrlKey && !evento.metaKey && !evento.altKey && ["+", "=", "-", "0"].includes(evento.key)) {
+      if (evento.key === "0") this.ajustarVista();
+      else this.ampliar(evento.key === "-" ? 1 / 1.5 : 1.5);
       evento.preventDefault();
       return;
     }
@@ -487,14 +571,65 @@ export class EditorView {
   }
 
   ligarCanvas() {
+    // Roda do mouse (ou pinça no touchpad): zoom em volta do ponteiro
+    this.canvas.addEventListener("wheel", (evento) => {
+      evento.preventDefault();
+      const fator = Math.min(1.5, Math.max(1 / 1.5, Math.exp(-evento.deltaY * 0.0025)));
+      this.ampliar(fator, this.pontoDoPonteiro(evento));
+    }, { passive: false });
     this.canvas.addEventListener("pointerdown", (evento) => {
+      // Dois dedos: pinça (zoom) e arraste da vista; o gesto de um dedo para
+      if (evento.pointerType === "touch") {
+        this.ponteiros.set(evento.pointerId, { x: evento.clientX, y: evento.clientY });
+        if (this.ponteiros.size >= 2) {
+          evento.preventDefault();
+          this.cancelarGesto();
+          this.iniciarPinca();
+          return;
+        }
+      }
+      // Espaço segurado ou botão do meio: arrastar move a vista
+      if (this.espaco || evento.button === 1) {
+        evento.preventDefault();
+        try {
+          this.canvas.setPointerCapture(evento.pointerId);
+        } catch {
+          // Sem captura, o arraste para quando o ponteiro sai do canvas
+        }
+        this.pan = { id: evento.pointerId, x: evento.clientX, y: evento.clientY };
+        return;
+      }
       if (evento.button !== 0) return;
+      if (this.caneta) {
+        evento.preventDefault();
+        this.porPontoDaCaneta(evento);
+        return;
+      }
       // Modo de corte: o clique corta a forma ali (fora do traço, avisa e
       // continua no modo)
       if (this.cortando) {
         evento.preventDefault();
         const p = this.pontoDoPonteiro(evento);
         if (this.acoes.aoSeparar(p.x, p.y)) this.modoCorte(false);
+        return;
+      }
+      // Alças da caixa: mudar o tamanho (cantos) ou girar
+      const alca = evento.target.closest("[data-alca]");
+      if (alca && this.ultimoEstado?.caixaSelecao) {
+        evento.preventDefault();
+        if (!this.acoes.aoIniciarArraste()) return;
+        try {
+          this.canvas.setPointerCapture(evento.pointerId);
+        } catch {
+          // Sem captura, o arraste para quando o ponteiro sai do canvas
+        }
+        this.arraste = {
+          id: evento.pointerId,
+          alca: alca.dataset.alca,
+          caixa: { ...this.ultimoEstado.caixaSelecao },
+          inicio: this.pontoDoPonteiro(evento),
+          solto: true,
+        };
         return;
       }
       const ponto = evento.target.closest("[data-ponto]");
@@ -548,6 +683,22 @@ export class EditorView {
       };
     });
     this.canvas.addEventListener("pointermove", (evento) => {
+      if (this.ponteiros.has(evento.pointerId))
+        this.ponteiros.set(evento.pointerId, { x: evento.clientX, y: evento.clientY });
+      if (this.pinca) {
+        this.moverPinca();
+        return;
+      }
+      if (this.pan && evento.pointerId === this.pan.id) {
+        this.deslocarVista((evento.clientX - this.pan.x) / this.escala, (evento.clientY - this.pan.y) / this.escala);
+        this.pan.x = evento.clientX;
+        this.pan.y = evento.clientY;
+        return;
+      }
+      if (this.caneta) {
+        this.moverCaneta(evento);
+        return;
+      }
       if (this.area && evento.pointerId === this.area.id) {
         this.moverArea(evento);
         return;
@@ -564,14 +715,31 @@ export class EditorView {
         this.arraste.solto = true;
         this.arraste.inicio = p;
       }
-      if (this.arraste.ponto) this.acoes.aoArrastarPonto(this.arraste.ponto, p.x, p.y);
+      // Alt solta do encaixe nas outras formas
+      const opcoes = { tolerancia: evento.altKey ? 0 : ENCAIXE_PX / this.escala };
+      if (this.arraste.alca) this.arrastarAlca(p, evento.shiftKey);
+      else if (this.arraste.ponto) this.acoes.aoArrastarPonto(this.arraste.ponto, p.x, p.y, opcoes);
       else
         this.acoes.aoArrastarElemento(
           p.x - this.arraste.inicio.x,
           p.y - this.arraste.inicio.y,
+          opcoes,
         );
     });
     const terminar = (evento) => {
+      this.ponteiros.delete(evento.pointerId);
+      if (this.pinca) {
+        if (this.ponteiros.size < 2) this.pinca = null;
+        return;
+      }
+      if (this.pan && evento.pointerId === this.pan.id) {
+        this.pan = null;
+        return;
+      }
+      if (this.caneta) {
+        this.caneta.puxando = null;
+        return;
+      }
       if (this.area && evento.pointerId === this.area.id) {
         this.terminarArea(evento);
         return;
@@ -644,7 +812,9 @@ export class EditorView {
 
   // Uma frase para o momento, em vez de todos os atalhos de uma vez
   mostrarDica({ quantidade, grupoSelecionado, podeUnir, linhaAberta, uniaoDaForma }) {
-    const chave = !quantidade
+    const chave = this.caneta
+      ? "editor.penHint"
+      : !quantidade
       ? "editor.hintNone"
       : uniaoDaForma && !grupoSelecionado
         ? uniaoDaForma.fecha ? "editor.hintClose" : "editor.hintLink"
@@ -798,7 +968,7 @@ export class EditorView {
     if (texto) porId("editor-draft-text").textContent = texto;
   }
 
-  desenharCanvas({ raiz, elementos, selecionados, pontos, pontoSelecionado, viewBox, fora, caixa, ligacao, blocos }) {
+  desenharCanvas({ raiz, elementos, selecionados, pontos, pontoSelecionado, viewBox, fora, caixa, ligacao, blocos, caixaSelecao, guias, original }) {
     const { x, y, w, h } = viewBox;
     // A margem abre espaço para pontos de controle fora da área do ícone
     // (comuns em curvas), para todos poderem ser pegos. Durante um arraste
@@ -806,16 +976,20 @@ export class EditorView {
     if (!this.arraste || this.margem === undefined)
       this.margem = Math.max(w, h) * 0.06 + fora;
     const margem = this.margem;
-    this.canvas.setAttribute(
-      "viewBox",
-      `${x - margem} ${y - margem} ${w + 2 * margem} ${h + 2 * margem}`,
-    );
+    // Vista: o ícone com a margem (zoom 1) ou um pedaço dele, ampliado
+    const base = { x: x - margem, y: y - margem, w: w + 2 * margem, h: h + 2 * margem };
+    this.vistaBase = base;
+    this.limitarVista();
+    const vista = this.vista();
+    this.canvas.setAttribute("viewBox", `${vista.x} ${vista.y} ${vista.w} ${vista.h}`);
+    this.rotuloZoom.textContent = `${Math.round(this.zoom * 100)}%`;
     // Pixels de tela por unidade do ícone: mantém pontos e linhas da grade
-    // do mesmo tamanho em qualquer ícone (24×24, 16×16…)
+    // do mesmo tamanho em qualquer ícone (24×24, 16×16…) e em qualquer zoom
     // (o desenho é quadrado e centralizado: vale o menor lado do canvas)
     const lado =
       Math.min(this.canvas.clientWidth, this.canvas.clientHeight) || 480;
-    const escala = lado / (w + 2 * margem);
+    const escala = lado / vista.w;
+    this.escala = escala;
     this.canvas.replaceChildren();
 
     // Grade: uma linha por unidade (ou por 1/24 da largura em ícones grandes)
@@ -831,6 +1005,11 @@ export class EditorView {
       grade.append(criar("line", { x1: x, y1: gy, x2: x + w, y2: gy, class: k % 4 ? "" : "editor__grid-major" }));
     }
     this.canvas.append(grade);
+
+    if (this.comparando && original) {
+      this.desenharOriginal(original);
+      return;
+    }
 
     // O ícone, com os atributos de desenho da tag <svg>
     const desenho = {};
@@ -905,6 +1084,334 @@ export class EditorView {
         }));
       this.canvas.append(camada);
     }
+    if (caixaSelecao && !this.caneta && !this.cortando) this.desenharAlcas(caixaSelecao, escala);
+    for (const guia of guias ?? []) {
+      const v = this.vista();
+      this.canvas.append(criar("line", "x" in guia
+        ? { x1: guia.x, y1: v.y, x2: guia.x, y2: v.y + v.h, class: "editor__guia", "vector-effect": "non-scaling-stroke" }
+        : { x1: v.x, y1: guia.y, x2: v.x + v.w, y2: guia.y, class: "editor__guia", "vector-effect": "non-scaling-stroke" }));
+    }
+    if (this.caneta) this.desenharCaneta(escala);
+  }
+
+  // Caixa da seleção com as alças: os quatro cantos mudam o tamanho (na
+  // proporção) e a bolinha em cima gira. Ficam um pouco para fora, para não
+  // cobrir os pontos da forma.
+  desenharAlcas({ x, y, w, h }, escala) {
+    if (w <= 0 && h <= 0) return;
+    const fora = 6 / escala;
+    const lado = (this.toque ? ALCA_TOQUE_PX : ALCA_PX) / escala;
+    const [x0, y0, x1, y1] = [x - fora, y - fora, x + w + fora, y + h + fora];
+    const g = criar("g", { class: "editor__alcas" });
+    g.append(criar("rect", { x: x0, y: y0, width: x1 - x0, height: y1 - y0, class: "editor__caixa-sel", "vector-effect": "non-scaling-stroke" }));
+    const topo = { x: (x0 + x1) / 2, y: y0 - 22 / escala };
+    g.append(criar("line", { x1: topo.x, y1: y0, x2: topo.x, y2: topo.y, class: "editor__alca-linha", "vector-effect": "non-scaling-stroke" }));
+    for (const [nome, cx, cy] of [["nw", x0, y0], ["ne", x1, y0], ["sw", x0, y1], ["se", x1, y1]])
+      g.append(criar("rect", { x: cx - lado / 2, y: cy - lado / 2, width: lado, height: lado, class: "editor__alca", "data-alca": nome, "vector-effect": "non-scaling-stroke" }));
+    g.append(criar("circle", { cx: topo.x, cy: topo.y, r: lado / 2 + 1 / escala, class: "editor__alca", "data-alca": "girar", "vector-effect": "non-scaling-stroke" }));
+    this.canvas.append(g);
+  }
+
+  // Arraste de uma alça: canto = tamanho a partir do canto oposto; bolinha =
+  // giro em volta do centro. livre (Shift): sem degraus no giro e no tamanho.
+  arrastarAlca(p, livre) {
+    const { alca, caixa, inicio } = this.arraste;
+    const centro = { x: caixa.x + caixa.w / 2, y: caixa.y + caixa.h / 2 };
+    if (alca === "girar") {
+      const angulo = (a) => (Math.atan2(a.y - centro.y, a.x - centro.x) * 180) / Math.PI;
+      let graus = angulo(p) - angulo(inicio);
+      if (!livre) graus = Math.round(graus / GIRO_PASSO) * GIRO_PASSO;
+      this.acoes.aoArrastarGiro(graus, centro.x, centro.y);
+      return;
+    }
+    const canto = { x: alca.includes("w") ? caixa.x : caixa.x + caixa.w, y: alca.includes("n") ? caixa.y : caixa.y + caixa.h };
+    const fixo = { x: 2 * centro.x - canto.x, y: 2 * centro.y - canto.y };
+    const v = { x: canto.x - fixo.x, y: canto.y - fixo.y };
+    const comprimento = v.x * v.x + v.y * v.y;
+    if (!comprimento) return;
+    let k = ((p.x - fixo.x) * v.x + (p.y - fixo.y) * v.y) / comprimento;
+    // Na grade: o lado maior para em múltiplos do passo
+    const passo = this.ultimoEstado?.passo;
+    const maior = Math.max(caixa.w, caixa.h);
+    if (!livre && passo && maior) k = (Math.round((maior * k) / passo) * passo) / maior;
+    this.acoes.aoArrastarEscala(Math.max(k, 0.05), fixo.x, fixo.y);
+  }
+
+  // ── Zoom e deslocamento da vista ─────────────────────────────────────────
+  vista() {
+    const base = this.vistaBase;
+    const w = base.w / this.zoom;
+    const h = base.h / this.zoom;
+    const c = this.centroVista ?? { x: base.x + base.w / 2, y: base.y + base.h / 2 };
+    return { x: c.x - w / 2, y: c.y - h / 2, w, h };
+  }
+
+  // O centro da vista nunca sai da área do ícone com a margem
+  limitarVista() {
+    if (!this.vistaBase || !this.centroVista) return;
+    const b = this.vistaBase;
+    this.centroVista = {
+      x: Math.min(b.x + b.w, Math.max(b.x, this.centroVista.x)),
+      y: Math.min(b.y + b.h, Math.max(b.y, this.centroVista.y)),
+    };
+  }
+
+  // fator > 1 aproxima; foco (em unidades do ícone) fica parado na tela
+  ampliar(fator, foco = null) {
+    if (!this.vistaBase) return;
+    const novo = Math.min(ZOOM_MAXIMO, Math.max(1, this.zoom * fator));
+    if (Math.abs(novo - this.zoom) < 1e-9) return;
+    const v = this.vista();
+    const centro = { x: v.x + v.w / 2, y: v.y + v.h / 2 };
+    const f = foco ?? centro;
+    const k = this.zoom / novo;
+    this.zoom = novo;
+    this.centroVista = novo === 1 ? null : { x: f.x + (centro.x - f.x) * k, y: f.y + (centro.y - f.y) * k };
+    this.redesenhar();
+  }
+
+  ajustarVista() {
+    this.zoom = 1;
+    this.centroVista = null;
+    this.redesenhar();
+  }
+
+  // dx, dy em unidades do ícone (arrastar para a direita mostra o que está à esquerda)
+  deslocarVista(dx, dy) {
+    if (this.zoom === 1) return;
+    const v = this.vista();
+    this.centroVista = { x: v.x + v.w / 2 - dx, y: v.y + v.h / 2 - dy };
+    this.redesenhar();
+  }
+
+  redesenhar() {
+    if (this.ultimoEstado) this.mostrar(this.ultimoEstado, { atualizarCodigo: false });
+  }
+
+  // Pinça: a distância entre os dedos muda o zoom, e o meio deles arrasta a vista
+  iniciarPinca() {
+    const [a, b] = [...this.ponteiros.values()];
+    this.pinca = { distancia: Math.hypot(a.x - b.x, a.y - b.y) || 1, meio: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } };
+  }
+
+  moverPinca() {
+    const [a, b] = [...this.ponteiros.values()];
+    if (!b) return;
+    const distancia = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+    const meio = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    this.deslocarVista((meio.x - this.pinca.meio.x) / this.escala, (meio.y - this.pinca.meio.y) / this.escala);
+    this.ampliar(distancia / this.pinca.distancia, this.pontoDoPonteiro({ clientX: meio.x, clientY: meio.y }));
+    this.pinca = { distancia, meio };
+  }
+
+  // O segundo dedo chegou: o que o primeiro começou (arraste, retângulo,
+  // toque numa forma) para sem efeito novo
+  cancelarGesto() {
+    if (this.toqueForma) {
+      clearTimeout(this.toqueForma.temporizador);
+      this.toqueForma = null;
+    }
+    if (this.area) {
+      this.area.no?.remove();
+      this.area = null;
+    }
+    if (this.arraste) {
+      this.arraste = null;
+      this.acoes.aoTerminarArraste();
+    }
+    if (this.caneta) this.caneta.puxando = null;
+  }
+
+  // ── Original: segurar o botão mostra o ícone como foi aberto ─────────────
+  ligarOriginal() {
+    const botao = this.botaoOriginal;
+    const ligar = (ligado) => {
+      if (this.comparando === ligado) return;
+      this.comparando = ligado;
+      botao.setAttribute("aria-pressed", String(ligado));
+      this.redesenhar();
+    };
+    botao.addEventListener("pointerdown", (evento) => {
+      evento.preventDefault();
+      try {
+        botao.setPointerCapture(evento.pointerId);
+      } catch {
+        // Sem captura, soltar fora do botão também desliga (pointerleave)
+      }
+      ligar(true);
+    });
+    for (const tipo of ["pointerup", "pointercancel", "pointerleave", "blur"]) botao.addEventListener(tipo, () => ligar(false));
+    botao.addEventListener("keydown", (evento) => {
+      if (evento.key === " " || evento.key === "Enter") {
+        evento.preventDefault();
+        ligar(true);
+      }
+    });
+    botao.addEventListener("keyup", () => ligar(false));
+    botao.addEventListener("contextmenu", (evento) => evento.preventDefault());
+  }
+
+  desenharOriginal(texto) {
+    const raiz = svgDoTexto(texto);
+    if (!raiz) return;
+    const desenho = {};
+    for (const nome of ATRIBUTOS_DE_DESENHO) if (raiz.hasAttribute(nome)) desenho[nome] = raiz.getAttribute(nome);
+    const g = criar("g", { ...desenho, class: "editor__icon" });
+    g.append(...raiz.childNodes);
+    this.canvas.append(g);
+  }
+
+  // ── Caneta: clicar põe pontos, arrastar curva ────────────────────────────
+  entrarNaCaneta() {
+    this.modoCorte(false);
+    this.caneta = { pontos: [], cursor: null, puxando: null };
+    this.botaoCaneta.setAttribute("aria-pressed", "true");
+    this.botaoConcluirCaneta.hidden = false;
+    this.canvas.classList.add("editor__canvas--caneta");
+    this.acoes.aoLimparSelecao();
+    this.canvas.focus({ preventScroll: true });
+    this.redesenhar();
+  }
+
+  sairDaCaneta() {
+    if (!this.caneta) return;
+    this.caneta = null;
+    this.botaoCaneta.setAttribute("aria-pressed", "false");
+    this.botaoConcluirCaneta.hidden = true;
+    this.canvas.classList.remove("editor__canvas--caneta");
+    this.redesenhar();
+  }
+
+  // Termina o path (aberto, ou fechado ao clicar no primeiro ponto)
+  terminarCaneta(fechar = false) {
+    const pontos = this.caneta?.pontos ?? [];
+    this.sairDaCaneta();
+    if (pontos.length >= 2) this.acoes.aoCriarPath(caminhoDaCaneta(pontos, fechar));
+    else if (pontos.length) this.acoes.aoAvisar(t("editor.penNeed"));
+  }
+
+  encaixarNaGrade(p) {
+    const passo = this.ultimoEstado?.passo;
+    const f = (v) => (passo ? Math.round(v / passo) * passo : Math.round(v * 100) / 100);
+    return { x: f(p.x), y: f(p.y) };
+  }
+
+  porPontoDaCaneta(evento) {
+    try {
+      this.canvas.setPointerCapture(evento.pointerId);
+    } catch {
+      // Sem captura, a curva só segue o ponteiro dentro do canvas
+    }
+    const p = this.encaixarNaGrade(this.pontoDoPonteiro(evento));
+    const { pontos } = this.caneta;
+    // Clicar no primeiro ponto fecha o path
+    if (pontos.length >= 2 && Math.hypot(p.x - pontos[0].x, p.y - pontos[0].y) * this.escala <= 10) {
+      this.terminarCaneta(true);
+      return;
+    }
+    pontos.push({ x: p.x, y: p.y, h: null });
+    this.caneta.puxando = { id: evento.pointerId, tela: { x: evento.clientX, y: evento.clientY } };
+    this.redesenhar();
+  }
+
+  moverCaneta(evento) {
+    const p = this.pontoDoPonteiro(evento);
+    this.caneta.cursor = this.encaixarNaGrade(p);
+    const { puxando, pontos } = this.caneta;
+    // Arrastar ao pôr o ponto: a alça segue o ponteiro (vira curva)
+    if (puxando && evento.pointerId === puxando.id) {
+      const longe = Math.hypot(evento.clientX - puxando.tela.x, evento.clientY - puxando.tela.y) >= MOVIMENTO_MINIMO;
+      pontos.at(-1).h = longe ? this.encaixarNaGrade(p) : null;
+    }
+    this.redesenhar();
+  }
+
+  desenharCaneta(escala) {
+    const { pontos, cursor, puxando } = this.caneta;
+    if (pontos.length >= 2)
+      this.canvas.append(criar("path", { d: caminhoDaCaneta(pontos), class: "editor__caneta", "vector-effect": "non-scaling-stroke" }));
+    // Até onde o próximo ponto iria
+    if (pontos.length && cursor && !puxando)
+      this.canvas.append(criar("path", { d: caminhoDaCaneta([pontos.at(-1), { ...cursor, h: null }]), class: "editor__caneta editor__caneta--elastico", "vector-effect": "non-scaling-stroke" }));
+    const ultimo = pontos.at(-1);
+    if (ultimo?.h) {
+      const espelho = { x: 2 * ultimo.x - ultimo.h.x, y: 2 * ultimo.y - ultimo.h.y };
+      this.canvas.append(criar("line", { x1: espelho.x, y1: espelho.y, x2: ultimo.h.x, y2: ultimo.h.y, class: "editor__handle-line", "vector-effect": "non-scaling-stroke" }));
+    }
+    pontos.forEach((p, k) =>
+      this.canvas.append(criar("circle", {
+        cx: p.x, cy: p.y, r: (this.toque ? RAIO_PONTO_TOQUE : RAIO_PONTO) / escala,
+        class: `editor__caneta-ponto${k === 0 ? " editor__caneta-ponto--primeiro" : ""}`,
+        "vector-effect": "non-scaling-stroke",
+      })),
+    );
+  }
+
+  // ── Lista de formas: arrastar para reordenar, renomear grupos ────────────
+  ligarLista() {
+    let arrastada = null;
+    this.lista.addEventListener("dragstart", (evento) => {
+      const item = evento.target.closest("[data-i]");
+      if (!item) return;
+      arrastada = Number(item.dataset.i);
+      evento.dataTransfer.effectAllowed = "move";
+      evento.dataTransfer.setData("text/plain", String(arrastada));
+    });
+    this.lista.addEventListener("dragover", (evento) => {
+      const item = evento.target.closest("[data-i]");
+      if (arrastada === null || !item) return;
+      evento.preventDefault();
+      for (const outro of this.lista.querySelectorAll(".editor__element--alvo")) outro.classList.remove("editor__element--alvo");
+      item.classList.add("editor__element--alvo");
+    });
+    this.lista.addEventListener("drop", (evento) => {
+      const item = evento.target.closest("[data-i]");
+      if (arrastada === null || !item) return;
+      evento.preventDefault();
+      this.acoes.aoMoverForma(arrastada, Number(item.dataset.i));
+    });
+    this.lista.addEventListener("dragend", () => {
+      arrastada = null;
+      for (const outro of this.lista.querySelectorAll(".editor__element--alvo")) outro.classList.remove("editor__element--alvo");
+    });
+  }
+
+  renomearGrupo(grupo) {
+    const cabecalho = this.lista.querySelector(`.editor__group-name[data-grupo="${grupo}"]`);
+    const nome = this.ultimoEstado?.grupos.find((g) => g.grupo === grupo)?.nome ?? "";
+    if (!cabecalho) return;
+    const campo = document.createElement("input");
+    campo.className = "editor__group-input";
+    campo.value = nome;
+    campo.maxLength = 60;
+    campo.setAttribute("aria-label", t("editor.renameGroup"));
+    cabecalho.replaceWith(campo);
+    campo.focus();
+    campo.select();
+    let feito = false;
+    const concluir = (salvar) => {
+      if (feito) return;
+      feito = true;
+      if (salvar && campo.value.trim() && campo.value.trim() !== nome) this.acoes.aoRenomearGrupo(grupo, campo.value);
+      else this.redesenhar();
+    };
+    campo.addEventListener("keydown", (evento) => {
+      if (evento.key === "Enter") concluir(true);
+      else if (evento.key === "Escape") {
+        // O Esc fica no campo: não fecha o editor
+        evento.preventDefault();
+        evento.stopPropagation();
+        concluir(false);
+      }
+    });
+    campo.addEventListener("blur", () => concluir(true));
+  }
+
+  // Frase para leitores de tela (sem aparecer na tela)
+  anunciar(texto) {
+    this.anuncio.textContent = "";
+    // Trocar o texto num quadro seguinte faz o leitor repetir frases iguais
+    requestAnimationFrame(() => (this.anuncio.textContent = texto));
   }
 
   // Atributos da forma com a cor da camada, sem tocar no que é "none"
@@ -959,7 +1466,7 @@ export class EditorView {
       const rotulo = el.grupo ? "" : rotuloDaCamada([i]);
       // A forma selecionada e a marcada com Shift (num ícone inteiro, só o cabeçalho)
       const marcada = grupoSelecionado === null && selecionados.has(i);
-      return `<li class="editor__element${marcada ? " editor__element--selected" : ""}${el.oculto ? " editor__element--hidden" : ""}" data-i="${i}">
+      return `<li class="editor__element${marcada ? " editor__element--selected" : ""}${el.oculto ? " editor__element--hidden" : ""}" data-i="${i}" draggable="true">
           <button type="button" class="editor__element-name" aria-pressed="${marcada}">${amostra}<strong>${escapar(el.tag)}</strong>${rotulo}<span>${escapar(resumo || "")}</span></button>
           <button type="button" class="editor__element-action" data-acao="ocultar" title="${escapar(t(el.oculto ? "editor.show" : "editor.hide"))}" aria-label="${escapar(t(el.oculto ? "editor.showLabel" : "editor.hideLabel", { tag: el.tag }))}">${el.oculto ? "◌" : "●"}</button>
           <button type="button" class="editor__element-action" data-acao="remover" title="${escapar(t("editor.delete"))}" aria-label="${escapar(t("editor.deleteLabel", { tag: el.tag }))}">×</button>
@@ -975,6 +1482,7 @@ export class EditorView {
         const marcado = grupo === grupoSelecionado;
         return `<li class="editor__group${marcado ? " editor__group--selected" : ""}">
           <button type="button" class="editor__group-name" data-grupo="${grupo}" aria-pressed="${marcado}" title="${escapar(t("editor.selectGroup"))}">${grupo ? amostraDe(this.camadas ? corDaCamada(blocos[indices[0]]) : null) : ""}${escapar(nome)}${grupo ? rotuloDaCamada(indices) : ""}<span>${escapar(t("editor.shapes", { n: indices.length }))}</span></button>
+          ${grupo ? `<button type="button" class="editor__element-action" data-renomear="${grupo}" title="${escapar(t("editor.renameGroup"))}" aria-label="${escapar(t("editor.renameGroupLabel", { name: nome }))}">✎</button>` : ""}
         </li>${indices.map((i) => linha(elementos[i], i)).join("")}`;
       })
       .join("");
@@ -983,10 +1491,12 @@ export class EditorView {
   // O SVG entra pelo parser XML, não por innerHTML: o que for inerte em XML
   // continua inerte na página
   desenharPrevias(svg) {
-    this.previas.innerHTML = PREVIAS.map(
-      (tamanho) =>
-        `<figure class="editor__preview"><span style="width:${tamanho}px;height:${tamanho}px"></span><figcaption>${tamanho}</figcaption></figure>`,
-    ).join("");
+    const linha = (escura) =>
+      `<div class="editor__previews-linha${escura ? " editor__previews-linha--escura" : ""}" aria-label="${escapar(t(escura ? "editor.previewDark" : "editor.previewLight"))}">${PREVIAS.map(
+        (tamanho) =>
+          `<figure class="editor__preview"><span style="width:${tamanho}px;height:${tamanho}px"></span>${escura ? "" : `<figcaption>${tamanho}</figcaption>`}</figure>`,
+      ).join("")}</div>`;
+    this.previas.innerHTML = linha(false) + linha(true);
     const desenho = svgDoTexto(svg);
     if (desenho)
       for (const caixa of this.previas.querySelectorAll("span")) caixa.append(desenho.cloneNode(true));

@@ -1094,3 +1094,90 @@ test("EditorModel: otimizar tira o que não muda o desenho, com desfazer", () =>
   model.desfazer();
   assert.ok(model.svg().includes('version="1.1"'));
 });
+
+// ── Lote B: encaixe com guias, alças, caneta, lista, Tab ────────────────────
+test("EditorModel: arrastar um ponto gruda nos pontos de outra forma, com guia", () => {
+  const model = tres();
+  model.passo = 0;
+  model.selecionar(1);
+  model.iniciarArraste();
+  // O ponto p1 da segunda linha (10, 8) vai para perto de (6.2, 4.1): gruda em (6, 4)
+  model.arrastarPonto("p1", 6.2, 4.1, { tolerancia: 0.5 });
+  assert.equal(model.elementos[1].attrs.x1, "6");
+  assert.equal(model.elementos[1].attrs.y1, "4");
+  assert.deepEqual(model.guias, [{ x: 6 }, { y: 4 }]);
+  // Sem tolerância (Alt), só a grade
+  model.arrastarPonto("p1", 6.2, 4.1);
+  assert.equal(model.elementos[1].attrs.x1, "6.2");
+  assert.deepEqual(model.guias, []);
+  model.terminarArraste();
+});
+
+test("EditorModel: arrastar uma forma gruda a borda dela no centro do ícone", () => {
+  const model = tres();
+  model.passo = 0;
+  model.selecionar(1); // x de 10 a 12: centro 11
+  model.iniciarArraste();
+  model.arrastarElemento(0.8, 0, { tolerancia: 0.5 }); // centro iria a 11.8 → gruda no 12
+  assert.equal(model.elementos[1].attrs.x1, "11");
+  assert.ok(model.guias.some((g) => g.x === 12));
+  model.terminarArraste();
+  assert.deepEqual(model.guias, []);
+});
+
+test("EditorModel: alças mudam o tamanho e giram, num passo só", () => {
+  const model = tres();
+  model.selecionar(0); // de (2, 4) a (6, 4)
+  model.iniciarArraste();
+  model.arrastarEscala(2, 2, 4);
+  model.arrastarEscala(1.5, 2, 4); // cada movimento parte do início
+  assert.equal(model.elementos[0].attrs.x2, "8");
+  model.terminarArraste();
+  model.iniciarArraste();
+  model.arrastarGiro(90, 5, 4);
+  model.terminarArraste();
+  assert.deepEqual([model.elementos[0].attrs.x1, model.elementos[0].attrs.y1], ["5", "1"]);
+  model.desfazer();
+  model.desfazer();
+  assert.equal(model.elementos[0].attrs.x2, "6");
+});
+
+test("caminhoDaCaneta: retas, curvas pelas alças e fechar", async () => {
+  const { caminhoDaCaneta } = await import("../public/js/models/svgGeometry.js");
+  assert.equal(caminhoDaCaneta([{ x: 2, y: 2 }]), null);
+  assert.equal(caminhoDaCaneta([{ x: 2, y: 2 }, { x: 10, y: 2 }]), "M2 2L10 2");
+  assert.equal(caminhoDaCaneta([{ x: 2, y: 2 }, { x: 10, y: 2 }, { x: 10, y: 10 }], true), "M2 2L10 2L10 10Z");
+  // Alça no segundo ponto: o trecho chega pelo lado espelhado e sai pela alça
+  assert.equal(
+    caminhoDaCaneta([{ x: 2, y: 12 }, { x: 12, y: 2, h: { x: 16, y: 2 } }, { x: 22, y: 12 }]),
+    "M2 12C2 12 8 2 12 2C16 2 22 12 22 12",
+  );
+});
+
+test("EditorModel: caneta, reordenar na lista, renomear grupo e Tab", () => {
+  const model = tres();
+  assert.equal(model.adicionarPath("M2 2L10 10"), true);
+  assert.deepEqual(model.alvos(), [3]);
+  assert.equal(model.adicionarPath("M2 2 Q"), false);
+  // Lista: a forma 3 vai para o lugar da 0
+  model.moverForma(3, 0);
+  assert.equal(model.elementos[0].tag, "path");
+  assert.deepEqual(model.alvos(), [0]);
+  // Só dentro do mesmo grupo
+  model.grupos.push({ nome: "G", manual: true });
+  model.elementos[3].grupo = 1;
+  assert.equal(model.moverForma(3, 1), false);
+  // Renomear: só grupos, sem nome vazio
+  assert.equal(model.renomearGrupo(1, "  Seta  "), true);
+  assert.equal(model.grupos[1].nome, "Seta");
+  assert.equal(model.renomearGrupo(1, "   "), false);
+  assert.equal(model.renomearGrupo(0, "x"), false);
+  // Tab: a seguinte; depois da última, null
+  model.limparSelecao();
+  assert.equal(model.selecionarVizinha(1), 0);
+  assert.equal(model.selecionarVizinha(1), 1);
+  model.selecionar(3);
+  assert.equal(model.selecionarVizinha(1), null);
+  model.limparSelecao();
+  assert.equal(model.selecionarVizinha(-1), 3);
+});

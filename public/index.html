@@ -351,6 +351,7 @@
           <button type="button" class="editor__shape" data-add="rect" title="Add a rectangle" aria-label="Add a rectangle" data-i18n-attr="title:editor.addRect;aria-label:editor.addRect"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M22 10L22 18A2 2 0 0 1 20 20L4 20A2 2 0 0 1 2 18L2 8A2 2 0 0 1 4 6L12.536 6"/></svg></button>
           <button type="button" class="editor__shape" data-add="triangle" title="Add a triangle" aria-label="Add a triangle" data-i18n-attr="title:editor.addTriangle;aria-label:editor.addTriangle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.5 3.5A2 2 0 0 0 10.27 4L2.27 18A2 2 0 0 0 4 21L20 21A2 2 0 0 0 21.73 18L18 11.5"/><path d="M16 5h6"/><path d="M19 2v6"/></svg></button>
           <button type="button" class="editor__shape" data-add="path" title="Add a curve" aria-label="Add a curve" data-i18n-attr="title:editor.addCurve;aria-label:editor.addCurve"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8.5 13A0.403 0.403 0 0 1 8.5 13L16 13A0.405 0.405 0 0 1 16 13L13 15.5A0.81 0.81 0 0 0 13 15.5L13 19.5A0.405 0.405 0 0 1 13 19.5Z" stroke-width="1.5"/><path d="M3.5 18A9.72 9.72 0 0 1 8 6.5"/><circle cx="10.5" cy="5.5" r="2"/><circle cx="4.5" cy="20" r="2"/><path d="M16 5L22 5"/><path d="M19 2L19 8"/></svg></button>
+          <button type="button" class="editor__shape" id="editor-pen" aria-pressed="false" data-i18n-attr="title:editor.penTitle;aria-label:editor.pen"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z"/><path d="m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18"/><path d="m2.3 2.3 7.286 7.286"/><circle cx="11" cy="11" r="2"/></svg></button>
           <button
             type="button"
             id="editor-add-icon"
@@ -490,8 +491,17 @@
           <button type="button" id="editor-draft-restore" data-i18n="editor.draftRestore">Recover</button>
           <button type="button" id="editor-draft-discard" data-i18n="editor.draftDiscard">Discard</button>
         </div>
+        <div class="editor__ferramentas">
+          <button type="button" id="editor-zoom-out" class="editor__ferramenta" data-i18n-attr="title:editor.zoomOut;aria-label:editor.zoomOut"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg></button>
+          <button type="button" id="editor-zoom-fit" class="editor__ferramenta editor__zoom" data-i18n-attr="title:editor.zoomFit">100%</button>
+          <button type="button" id="editor-zoom-in" class="editor__ferramenta" data-i18n-attr="title:editor.zoomIn;aria-label:editor.zoomIn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg></button>
+          <span class="editor__spacer"></span>
+          <button type="button" id="editor-pen-done" class="editor__ferramenta editor__ferramenta--primaria" data-i18n="editor.penDone" hidden>Done</button>
+          <button type="button" id="editor-compare" class="editor__ferramenta" aria-pressed="false" data-i18n-attr="title:editor.compareTitle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg><span data-i18n="editor.compare">Original</span></button>
+        </div>
         <svg id="editor-canvas" class="editor__canvas" tabindex="0" role="img" aria-label="Icon being edited" data-i18n-attr="aria-label:editor.canvas"></svg>
         <p id="editor-hint" class="editor__hint" role="status"></p>
+        <p id="editor-announce" class="so-leitor" aria-live="polite"></p>
       </div>
 
       <!-- Celular: o que precisa estar sempre à mão, junto do desenho -->
@@ -742,7 +752,7 @@
     </p>
     <p class="site-footer__owner">© 2026 André M. Ferreira<span class="site-footer__version"><!--version--></span></p>
   </footer>
-  <div id="toast">Copied!</div>
+  <div id="toast" role="status" aria-live="polite">Copied!</div>
   <script type="module" src="js/app.js"></script>
   <script src="js/views/goTop.js" defer></script>
 </body>
