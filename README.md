@@ -127,6 +127,10 @@ They stay off until configured. To turn them on:
 
 With `cliente` empty no Google script is loaded; on `localhost` the areas show as dashed previews.
 
+### Usage analytics (Microsoft Clarity)
+
+`public/js/views/clarity.js` loads Microsoft Clarity on every public page (`public/index.html` and the template in `scripts/build-pages.mjs`), but not on `localhost` or in `/admin`. To use your own project, change the ID at the end of the file. Anything that would expose a visitor's data in the session replays — the publish, coffee, *My icons* and bug report dialogs, the scratchpad and the editor's SVG code — carries `data-clarity-mask="true"`; keep the masking mode in the Clarity panel on *Balanced* or *Strict*. The site sends no consent signal, so in the EEA, the UK and Switzerland Clarity runs without cookies. The privacy policy describes it in all 8 languages.
+
 ### Buy me a coffee (30 days as a supporter)
 
 Visitors can buy the developer a coffee (usually US$ 3) through Stripe; in return, for 30 days they can publish and edit icons on Iconlibrary and see no ads when the site shows them. The button only appears when Stripe and the database are configured.
@@ -261,7 +265,7 @@ A `.ile` file is UTF-8 JSON text:
 
 ### Tests and CI
 
-`npm test` runs the tests in `tests/` with Node's built-in runner — SVG transformations, the editor's geometry (path parsing for every command, points, rotations, flips, undo/redo), filters, HTML escaping, the scratchpad, pinned versions, and the server (malformed addresses, path traversal, headers, gzip, ETag, generated routes, the start-up database checks and `/api/health`). On GitHub, `.github/workflows/ci.yml` runs them on every push and pull request, checks the syntax of every script, and builds the Docker image and waits for its healthcheck.
+`npm test` runs the tests in `tests/` with Node's built-in runner — SVG transformations, the editor's geometry (path parsing for every command, points, rotations, flips, undo/redo), filters, HTML escaping, the scratchpad, pinned versions, and the server (malformed addresses, path traversal, headers, gzip, ETag, generated routes, the start-up database checks and `/api/health`), and that every page loads Clarity with the sensitive areas masked. On GitHub, `.github/workflows/ci.yml` runs them on every push and pull request, checks the syntax of every script, and builds the Docker image and waits for its healthcheck.
 
 ### Project structure
 
@@ -293,7 +297,8 @@ icon-library/
 │   │   ├── AdsView.js                  ad areas
 │   │   ├── html.js                     HTML escaping
 │   │   ├── theme.js                    light/dark theme (all pages)
-│   │   └── goTop.js                    "back to top" button
+│   │   ├── goTop.js                    "back to top" button
+│   │   └── clarity.js                  Microsoft Clarity (all pages, not localhost)
 │   ├── js/controllers/
 │   │   ├── IconController.js           user actions → model → view, address state
 │   │   ├── EditorController.js         editor actions → model → view
@@ -431,6 +436,10 @@ Elas ficam desligadas até serem configuradas. Para ligar:
 
 Com `cliente` vazio nenhum script do Google é carregado; em `localhost` as áreas aparecem como prévias tracejadas.
 
+### Estatísticas de uso (Microsoft Clarity)
+
+`public/js/views/clarity.js` carrega o Microsoft Clarity em todas as páginas públicas (`public/index.html` e o modelo em `scripts/build-pages.mjs`), mas não em `localhost` nem no `/admin`. Para usar o seu próprio projeto, troque o ID no fim do arquivo. Tudo que exporia dados de quem visita nas gravações — as janelas de publicar, do café, de *Meus ícones* e de relato de bug, o scratchpad e o código SVG do editor — leva `data-clarity-mask="true"`; deixe o mascaramento no painel do Clarity em *Balanced* ou *Strict*. O site não envia sinal de consentimento, então no Espaço Econômico Europeu, no Reino Unido e na Suíça o Clarity roda sem cookies. A política de privacidade descreve isso nas 8 línguas.
+
 ### Pague um café (30 dias como apoiador)
 
 Quem visita pode pagar um café ao desenvolvedor (normalmente US$ 3) pelo Stripe e, em troca, por 30 dias pode publicar e editar ícones na Iconlibrary e não vê anúncios quando o site os exibir. O botão só aparece com o Stripe e o banco configurados.
@@ -549,7 +558,7 @@ Um arquivo `.ile` é texto JSON em UTF-8, com a estrutura do exemplo em [The .il
 
 ### Testes e CI
 
-`npm test` roda os testes de `tests/` com o executor nativo do Node — transformações de SVG, a geometria do editor (leitura de paths com todos os comandos, pontos, giros, espelhos, desfazer/refazer), filtros, escape de HTML, scratchpad, versões fixas e o servidor (endereços malformados, fuga de pasta, cabeçalhos, gzip, ETag, rotas geradas, as checagens do banco na subida e o `/api/health`). No GitHub, `.github/workflows/ci.yml` roda os testes a cada push e pull request, confere a sintaxe de todos os scripts, faz o build da imagem Docker e espera o healthcheck.
+`npm test` roda os testes de `tests/` com o executor nativo do Node — transformações de SVG, a geometria do editor (leitura de paths com todos os comandos, pontos, giros, espelhos, desfazer/refazer), filtros, escape de HTML, scratchpad, versões fixas e o servidor (endereços malformados, fuga de pasta, cabeçalhos, gzip, ETag, rotas geradas, as checagens do banco na subida e o `/api/health`), e que todas as páginas carregam o Clarity com as áreas sensíveis mascaradas. No GitHub, `.github/workflows/ci.yml` roda os testes a cada push e pull request, confere a sintaxe de todos os scripts, faz o build da imagem Docker e espera o healthcheck.
 
 ### Estrutura
 
@@ -581,7 +590,8 @@ icon-library/
 │   │   ├── AdsView.js                  áreas de publicidade
 │   │   ├── html.js                     escape de HTML
 │   │   ├── theme.js                    tema claro/escuro (todas as páginas)
-│   │   └── goTop.js                    botão "voltar ao topo"
+│   │   ├── goTop.js                    botão "voltar ao topo"
+│   │   └── clarity.js                  Microsoft Clarity (todas as páginas, fora de localhost)
 │   ├── js/controllers/
 │   │   ├── IconController.js           ações do usuário → model → view, estado no endereço
 │   │   ├── EditorController.js         ações do editor → model → view

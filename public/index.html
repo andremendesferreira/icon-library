@@ -60,6 +60,7 @@
   <link rel="stylesheet" href="css/icon-library.css" />
   <script src="js/i18n/detect.js"></script>
   <script src="js/views/theme.js"></script>
+  <script src="js/views/clarity.js" async></script>
 </head>
 <body>
   <header class="header">
@@ -297,6 +298,7 @@
       <div class="scratchpad__main">
         <textarea
           id="scratchpad-text"
+          data-clarity-mask="true"
           class="scratchpad__text"
           wrap="off"
           spellcheck="false"
@@ -481,7 +483,7 @@
         </div>
         <div class="editor__painel" data-painel="exportar">
         <label class="editor__heading" for="editor-code" data-i18n="editor.code">SVG code</label>
-        <textarea id="editor-code" class="editor__textarea" spellcheck="false" wrap="soft"></textarea>
+        <textarea id="editor-code" class="editor__textarea" data-clarity-mask="true" spellcheck="false" wrap="soft"></textarea>
         <p id="editor-error" class="editor__error" role="status"></p>
         </div>
       </div>
@@ -556,7 +558,7 @@
     </div>
   </dialog>
   <!-- Publicar na Iconlibrary (fonte da comunidade): abre por cima do editor -->
-  <dialog id="publish" class="publish" aria-labelledby="publish-title">
+  <dialog id="publish" class="publish" data-clarity-mask="true" aria-labelledby="publish-title">
     <button type="button" id="publish-close" class="coffee__close" aria-label="Close" data-i18n-attr="aria-label:coffee.close">×</button>
     <h2 id="publish-title" class="coffee__title" data-i18n="publish.title">Publish to Iconlibrary</h2>
     <p class="coffee__note" data-i18n="publish.intro">Share this icon in Iconlibrary, the community set. Every icon is reviewed before it appears.</p>
@@ -594,7 +596,7 @@
     <p id="publish-status" class="coffee__status" role="status"></p>
   </dialog>
   <!-- Pague um café: pagamento no Stripe e código de apoiador válido por 30 dias -->
-  <dialog id="coffee" class="coffee" aria-labelledby="coffee-title">
+  <dialog id="coffee" class="coffee" data-clarity-mask="true" aria-labelledby="coffee-title">
     <button type="button" id="coffee-close" class="coffee__close" aria-label="Close" data-i18n-attr="aria-label:coffee.close">×</button>
     <div class="coffee__cup" aria-hidden="true">☕</div>
     <section id="coffee-invite">
@@ -628,7 +630,7 @@
     <p id="coffee-status" class="coffee__status" role="status"></p>
   </dialog>
   <!-- Meus ícones: o que o apoiador publicou na Iconlibrary, para editar -->
-  <dialog id="mine" class="publish mine" aria-labelledby="mine-title">
+  <dialog id="mine" class="publish mine" data-clarity-mask="true" aria-labelledby="mine-title">
     <button type="button" id="mine-close" class="coffee__close" aria-label="Close" data-i18n-attr="aria-label:coffee.close">×</button>
     <h2 id="mine-title" class="coffee__title" data-i18n="mine.title">My Iconlibrary icons</h2>
     <p class="coffee__note" data-i18n="mine.intro">The icons you published with your supporter code. Edit one to send a new version for review — an approved icon stays live as it is until the edit is approved.</p>
@@ -657,7 +659,7 @@
   </dialog>
   <!-- Reportar bug (rodapé): vai para o servidor e é lido em /admin; ou vira
        um issue no GitHub -->
-  <dialog id="report" class="publish report" aria-labelledby="report-title">
+  <dialog id="report" class="publish report" data-clarity-mask="true" aria-labelledby="report-title">
     <button type="button" id="report-close" class="coffee__close" aria-label="Close" data-i18n-attr="aria-label:coffee.close">×</button>
     <h2 id="report-title" class="coffee__title" data-i18n="report.title">Report a bug</h2>
     <p class="coffee__note" data-i18n="report.intro">Something not working right? Tell us what happened — every report is read.</p>
