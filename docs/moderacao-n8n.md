@@ -233,35 +233,47 @@ disso, os pendentes já vistos são julgados mais uma vez (a forma de marcar mud
 ## 4. Botões no Telegram
 
 Com o segundo fluxo, `docs/n8n-moderacao-telegram-botoes.json`, você decide pelo
-próprio Telegram. A mensagem de cada ícone chega com três botões:
+próprio Telegram. A foto de cada ícone chega com a legenda de sempre e, logo
+embaixo, respondendo a ela, um **painel** com três botões:
 
 ```
+Decida sobre "Watch White":
 [ ✅ Aprovar ]  [ ⛔ Recusar ]  [ 🗑️ Excluir ]
 ```
 
-- **Aprovar** aprova na hora.
-- **Recusar** pergunta o motivo (marca/logotipo, ofensivo, nome não confere,
-  qualidade ou outro). A nota fica `Telegram: <motivo>` no `/admin`.
-- **Excluir** pede confirmação e só funciona com ícone pendente ou recusado.
-- O resultado chega como resposta à foto: aprovado, recusado, excluído, "o autor
-  mudou o ícone" (a versão nova chega numa mensagem nova) ou "já decidido".
-  As perguntas de motivo e de confirmação somem depois da resposta.
+Cada toque edita esse mesmo painel; nada de mensagens novas no fim da conversa:
 
-Os botões da foto continuam lá depois da decisão; tocar de novo só responde
-"já decidido".
+- **Aprovar** aprova na hora.
+- **Recusar** troca os botões pelos motivos (marca/logotipo, ofensivo, nome não
+  confere, qualidade ou outro) e **↩️ Voltar**. A nota fica
+  `Telegram: <motivo>` no `/admin`.
+- **Excluir** troca os botões por **🗑️ Sim, excluir** e **↩️ Voltar**. Só
+  funciona com ícone pendente ou recusado.
+- No fim, o painel vira o resultado, sem botões: aprovado, recusado, excluído,
+  "o autor mudou o ícone" (a versão nova chega numa mensagem nova) ou "já
+  decidido". Num erro inesperado, os botões voltam para tentar de novo.
+
+O painel é uma mensagem à parte porque o nó do Telegram no n8n só edita
+mensagens de texto: a foto e a legenda não mudam. Botões que ficaram na própria
+foto, de antes do painel, respondem "Mensagem antiga: decida no /admin".
 
 ### Instalar
 
 1. Importe a versão nova do primeiro fluxo (`docs/n8n-moderacao-iconlibrary.json`),
-   ou, para não reimportar, troque o código do nó **Decidir** e acrescente ao nó
-   **Telegram** o teclado com os três botões (`callback_data` como no arquivo).
+   ou, para não reimportar, troque o código do nó **Decidir**, tire o teclado do
+   nó **Telegram** e ligue depois dele um nó **Painel** como o do arquivo (envia a
+   mensagem com os botões em resposta à foto).
 2. Importe `docs/n8n-moderacao-telegram-botoes.json`.
 3. No nó **Configuração** do fluxo novo, preencha `site` e `telegramUserId`, o
-   **seu** id numérico no Telegram (o bot @userinfobot mostra). Clique de outra
-   pessoa responde "Sem permissão" e não faz nada.
+   **seu** id numérico no Telegram (o bot @userinfobot mostra; numa conversa
+   privada com o bot, é o mesmo número do `chatId` do primeiro fluxo). Sem ele,
+   ou com outro número, tocar num botão responde "Sem permissão" com o id de
+   quem tocou, e nada acontece: é esse número que vai em `telegramUserId`.
 4. Escolha a credencial **Telegram** (o mesmo bot do primeiro fluxo) no gatilho
-   **Clique no botão** e nos nós do Telegram, e a credencial **Header Auth** no
-   nó **Chamar o site**.
+   **Clique no botão** e em todos os nós do Telegram (**Responder ao clique** e
+   os quatro **Painel: …**), e a credencial **Header Auth** no nó **Chamar o
+   site**. Nó do Telegram sem credencial falha em silêncio: o toque responde,
+   mas o painel não muda.
 5. **Ative** o fluxo. O gatilho registra no Telegram o endereço público do seu
    n8n (precisa de HTTPS); um bot só aceita um destino por vez, então não use
    esse bot em outro gatilho.

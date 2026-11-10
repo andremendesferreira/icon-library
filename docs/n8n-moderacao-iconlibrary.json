@@ -269,6 +269,17 @@
         "binaryPropertyName": "data",
         "additionalFields": {
           "caption": "={{ $('Decidir').first().json.mensagem }}"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Configuração').first().json.telegramChatId }}",
+        "text": "={{ 'Decida sobre \"' + $('Escolher próximo').first().json.name + '\":' }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $json.result?.message_id ?? $json.message_id }}"
         },
         "replyMarkup": "inlineKeyboard",
         "inlineKeyboard": {
@@ -300,6 +311,15 @@
           ]
         }
       },
+      "id": "b87215ca-98ba-4c7f-8e70-4ade2534c1d9",
+      "name": "Painel",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2640,
+        200
+      ],
+      "webhookId": "7e69f450-4d0f-473a-9f32-d60e270376f0",
       "onError": "continueRegularOutput"
     }
   ],
@@ -446,6 +466,17 @@
         [
           {
             "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "Painel",
             "type": "main",
             "index": 0
           }

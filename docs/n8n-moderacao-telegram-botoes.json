@@ -8,7 +8,7 @@
       "typeVersion": 1.2,
       "position": [
         0,
-        300
+        200
       ],
       "parameters": {
         "updates": [
@@ -25,7 +25,7 @@
       "typeVersion": 2,
       "position": [
         220,
-        300
+        200
       ],
       "parameters": {
         "jsCode": "// Ajuste aqui (o mesmo site do fluxo de moderação).\n// telegramUserId: o SEU id no Telegram (o @userinfobot mostra). Clique de\n// qualquer outra pessoa é ignorado.\nreturn [{\n  json: {\n    site: \"https://iconlibrary.io\",\n    telegramUserId: \"\",\n  },\n}];\n"
@@ -38,10 +38,10 @@
       "typeVersion": 2,
       "position": [
         440,
-        300
+        200
       ],
       "parameters": {
-        "jsCode": "// O botão traz \"ação|id|versão\" (versão = submittedAt em segundos):\n//   a aprovar · r pede o motivo · m|…|k recusa com o motivo k\n//   d pede confirmação · x exclui (confirmado) · c cancela\n// A mensagem com a foto é a original; motivo e confirmação chegam como\n// resposta a ela e são apagados depois.\nconst config = $('Configuração').first().json;\nconst q = $('Clique no botão').first().json.callback_query;\nconst msg = q.message;\nconst base = {\n  queryId: q.id,\n  chatId: msg.chat.id,\n  fotoId: msg.reply_to_message?.message_id ?? msg.message_id,\n  pergunta: msg.reply_to_message ? msg.message_id : null,\n};\nif (!config.telegramUserId || String(q.from.id) !== String(config.telegramUserId))\n  return [{ json: { ...base, passo: 'negado', aviso: 'Sem permissão.' } }];\n\nconst [acao, id, t, k] = String(q.data ?? '').split('|');\n// Nome do ícone: 1ª linha da legenda da foto (\"Iconlibrary — nome\")\nconst legenda = (msg.reply_to_message ?? msg).caption ?? '';\nconst nome = (legenda.split('\\n')[0].split(' — ').pop() || 'ícone #' + id).trim();\nconst MOTIVOS = {\n  marca: 'Logotipo ou marca registrada',\n  ofensivo: 'Conteúdo ofensivo',\n  nome: 'O nome não corresponde ao desenho',\n  qualidade: 'Qualidade ou desenho incompleto',\n  outro: 'Recusado na moderação',\n};\nconst comum = { ...base, id, t, nome, submittedAt: Number(t) * 1000 };\nif (acao === 'r') return [{ json: { ...comum, passo: 'motivos', aviso: 'Escolha o motivo' } }];\nif (acao === 'd') return [{ json: { ...comum, passo: 'confirmar', aviso: 'Confirme a exclusão' } }];\nif (acao === 'c') return [{ json: { ...comum, passo: 'cancelar', aviso: 'Cancelado' } }];\nconst decisao = { a: 'approve', m: 'reject', x: 'delete' }[acao];\nif (!decisao || !/^\\d+$/.test(id ?? '')) return [{ json: { ...base, passo: 'negado', aviso: 'Botão inválido.' } }];\nreturn [{\n  json: {\n    ...comum,\n    passo: 'decidir',\n    acao: decisao,\n    nota: decisao === 'reject' ? 'Telegram: ' + (MOTIVOS[k] ?? MOTIVOS.outro) : undefined,\n    aviso: 'Enviando…',\n  },\n}];\n"
+        "jsCode": "// O toque chega do painel (a mensagem com botões logo abaixo da foto):\n// \"ação|id|versão\" (versão = submittedAt em segundos)\n//   a aprova · r mostra os motivos · m|…|k recusa com o motivo k\n//   d pede confirmação · x exclui · v volta ao painel · c cancela\n// Cada passo edita o próprio painel (painelId); o nome do ícone vem da\n// legenda da foto, a que o painel responde.\nconst config = $('Configuração').first().json;\nconst q = $('Clique no botão').first().json.callback_query;\nconst msg = q.message;\nconst base = { queryId: q.id, chatId: msg.chat.id, painelId: msg.message_id };\n// O aviso mostra o id de quem tocou (só essa pessoa vê): é o número que\n// vai em telegramUserId, na Configuração\nif (!config.telegramUserId || String(q.from.id) !== String(config.telegramUserId))\n  return [{ json: { ...base, passo: 'negado', aviso: config.telegramUserId\n    ? 'Sem permissão (seu id: ' + q.from.id + ').'\n    : 'Falta o telegramUserId na Configuração. Seu id: ' + q.from.id } }];\n// Mensagens de antes do painel tinham os botões na própria foto, que o nó\n// do Telegram não consegue editar\nif (msg.photo) return [{ json: { ...base, passo: 'negado', aviso: 'Mensagem antiga: decida no /admin.' } }];\n\nconst [acao, id, t, k] = String(q.data ?? '').split('|');\nif (!/^\\d+$/.test(id ?? '')) return [{ json: { ...base, passo: 'negado', aviso: 'Botão inválido.' } }];\nconst legenda = msg.reply_to_message?.caption ?? '';\nconst nome = (legenda.split('\\n')[0].split(' — ').pop() || 'ícone #' + id).trim();\nconst MOTIVOS = {\n  marca: 'Logotipo ou marca registrada',\n  ofensivo: 'Conteúdo ofensivo',\n  nome: 'O nome não corresponde ao desenho',\n  qualidade: 'Qualidade ou desenho incompleto',\n  outro: 'Recusado na moderação',\n};\nconst comum = { ...base, id, t, nome, submittedAt: Number(t) * 1000 };\nconst passo = (p, aviso, textoPainel, extra = {}) => [{ json: { ...comum, passo: p, aviso, textoPainel, ...extra } }];\nif (acao === 'r') return passo('motivos', 'Escolha o motivo', 'Por que recusar \"' + nome + '\"?');\nif (acao === 'd') return passo('confirmar', 'Confirme a exclusão', 'Excluir \"' + nome + '\"? Não dá para desfazer.');\nif (acao === 'v') return passo('principal', 'Voltou', 'Decida sobre \"' + nome + '\":');\nif (acao === 'c') return passo('final', 'Cancelado', 'Cancelado.');\nconst decisao = { a: 'approve', m: 'reject', x: 'delete' }[acao];\nif (!decisao) return [{ json: { ...base, passo: 'negado', aviso: 'Botão inválido.' } }];\nreturn passo('decidir', 'Enviando…', '', {\n  acao: decisao,\n  nota: decisao === 'reject' ? 'Telegram: ' + (MOTIVOS[k] ?? MOTIVOS.outro) : undefined,\n});\n"
       }
     },
     {
@@ -50,8 +50,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        680,
-        80
+        660,
+        40
       ],
       "parameters": {
         "resource": "callback",
@@ -63,14 +63,6 @@
       "onError": "continueRegularOutput"
     },
     {
-      "id": "7576ca0e-55b8-409b-b9cd-e35ee01bb3c1",
-      "name": "Passo",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.2,
-      "position": [
-        680,
-        360
-      ],
       "parameters": {
         "rules": {
           "values": [
@@ -83,7 +75,30 @@
                 },
                 "conditions": [
                   {
-                    "id": "303d8de1-4621-459a-82f8-2cbae6b99f23",
+                    "id": "e8797cd2-c70f-4801-98be-b4e3506ccd44",
+                    "leftValue": "={{ $json.passo }}",
+                    "rightValue": "principal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "principal"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "99fd7d1c-2d6f-42ee-9a16-e146ea0eb9bc",
                     "leftValue": "={{ $json.passo }}",
                     "rightValue": "motivos",
                     "operator": {
@@ -106,7 +121,7 @@
                 },
                 "conditions": [
                   {
-                    "id": "17c439fd-bbab-4937-9911-3aa1a6f55e65",
+                    "id": "312422b1-13ad-4343-92f5-0d70c339edcb",
                     "leftValue": "={{ $json.passo }}",
                     "rightValue": "confirmar",
                     "operator": {
@@ -129,7 +144,7 @@
                 },
                 "conditions": [
                   {
-                    "id": "363a1bb9-3f98-4c50-b558-221b478e58bb",
+                    "id": "ceb67928-c23e-480f-b84a-98a1876e4cca",
                     "leftValue": "={{ $json.passo }}",
                     "rightValue": "decidir",
                     "operator": {
@@ -152,9 +167,9 @@
                 },
                 "conditions": [
                   {
-                    "id": "69923e75-b2f8-4ea2-9165-eaa5df11448a",
+                    "id": "bc88a7ca-0de2-491d-82e5-afd7672d664c",
                     "leftValue": "={{ $json.passo }}",
-                    "rightValue": "cancelar",
+                    "rightValue": "final",
                     "operator": {
                       "type": "string",
                       "operation": "equals"
@@ -164,29 +179,76 @@
                 "combinator": "and"
               },
               "renameOutput": true,
-              "outputKey": "cancelar"
+              "outputKey": "final"
             }
           ]
         },
         "options": {}
-      }
+      },
+      "id": "de765b02-d0ff-4930-9959-f9897204f236",
+      "name": "Passo",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        660,
+        300
+      ]
     },
     {
-      "id": "45397be6-00fc-44cd-99e7-e32df83f183d",
-      "name": "Pedir motivo",
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $('Interpretar').first().json.chatId }}",
+        "messageId": "={{ $('Interpretar').first().json.painelId }}",
+        "text": "={{ $json.textoPainel }}",
+        "additionalFields": {},
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Aprovar",
+                    "additionalFields": {
+                      "callback_data": "={{ 'a|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t }}"
+                    }
+                  },
+                  {
+                    "text": "⛔ Recusar",
+                    "additionalFields": {
+                      "callback_data": "={{ 'r|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t }}"
+                    }
+                  },
+                  {
+                    "text": "🗑️ Excluir",
+                    "additionalFields": {
+                      "callback_data": "={{ 'd|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "id": "06aee156-e918-46d2-b258-60090b546706",
+      "name": "Painel: decidir",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        940,
-        160
+        1320,
+        120
       ],
+      "webhookId": "cabcc438-331b-4fb9-8fde-fd4784bc1aad",
+      "onError": "continueRegularOutput"
+    },
+    {
       "parameters": {
+        "operation": "editMessageText",
         "chatId": "={{ $('Interpretar').first().json.chatId }}",
-        "text": "={{ 'Por que recusar \"' + $('Interpretar').first().json.nome + '\"?' }}",
-        "additionalFields": {
-          "appendAttribution": false,
-          "reply_to_message_id": "={{ $('Interpretar').first().json.fotoId }}"
-        },
+        "messageId": "={{ $('Interpretar').first().json.painelId }}",
+        "text": "={{ $json.textoPainel }}",
+        "additionalFields": {},
         "replyMarkup": "inlineKeyboard",
         "inlineKeyboard": {
           "rows": [
@@ -236,9 +298,9 @@
                     }
                   },
                   {
-                    "text": "Cancelar",
+                    "text": "↩️ Voltar",
                     "additionalFields": {
-                      "callback_data": "={{ 'c|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t }}"
+                      "callback_data": "={{ 'v|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t }}"
                     }
                   }
                 ]
@@ -247,24 +309,24 @@
           ]
         }
       },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "id": "a1173da8-9e40-4f8d-b709-b98116b07425",
-      "name": "Confirmar exclusão",
+      "id": "3b7ddbf8-de35-47d8-8ff6-6154d4c0f2c0",
+      "name": "Painel: motivos",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        940,
-        320
+        900,
+        260
       ],
+      "webhookId": "f3347c0d-65a6-4ab2-83da-d88b7b685665",
+      "onError": "continueRegularOutput"
+    },
+    {
       "parameters": {
+        "operation": "editMessageText",
         "chatId": "={{ $('Interpretar').first().json.chatId }}",
-        "text": "={{ 'Excluir \"' + $('Interpretar').first().json.nome + '\"? Não dá para desfazer.' }}",
-        "additionalFields": {
-          "appendAttribution": false,
-          "reply_to_message_id": "={{ $('Interpretar').first().json.fotoId }}"
-        },
+        "messageId": "={{ $('Interpretar').first().json.painelId }}",
+        "text": "={{ $json.textoPainel }}",
+        "additionalFields": {},
         "replyMarkup": "inlineKeyboard",
         "inlineKeyboard": {
           "rows": [
@@ -278,9 +340,9 @@
                     }
                   },
                   {
-                    "text": "Cancelar",
+                    "text": "↩️ Voltar",
                     "additionalFields": {
-                      "callback_data": "={{ 'c|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t }}"
+                      "callback_data": "={{ 'v|' + $('Interpretar').first().json.id + '|' + $('Interpretar').first().json.t }}"
                     }
                   }
                 ]
@@ -289,6 +351,15 @@
           ]
         }
       },
+      "id": "8bb4dbeb-d6a4-4d51-95bd-f74444233781",
+      "name": "Painel: confirmar",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        900,
+        400
+      ],
+      "webhookId": "0e5a5964-77ee-41b0-a160-b4ee80cbfd1e",
       "onError": "continueRegularOutput"
     },
     {
@@ -297,8 +368,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        940,
-        480
+        900,
+        540
       ],
       "parameters": {
         "method": "POST",
@@ -324,41 +395,14 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1160,
-        480
+        1120,
+        540
       ],
       "parameters": {
-        "jsCode": "// Resposta do site → texto curto em resposta à foto\nconst pedido = $('Interpretar').first().json;\nconst r = $input.first().json;\nconst status = r.statusCode;\nconst erro = r.body?.error;\nlet texto;\nif (status === 200) {\n  texto = {\n    approve: '✅ Aprovado: ' + pedido.nome,\n    reject: '⛔ Recusado: ' + pedido.nome + ' — ' + String(pedido.nota).replace(/^Telegram: /, ''),\n    delete: '🗑️ Excluído: ' + pedido.nome,\n  }[pedido.acao];\n} else if (erro === 'changed') {\n  texto = '⚠️ O autor mudou \"' + pedido.nome + '\" depois desta mensagem. Nada foi feito: a versão nova chega numa mensagem nova.';\n} else if (erro === 'not_pending') {\n  texto = 'ℹ️ \"' + pedido.nome + '\" já tinha sido decidido (' + (r.body.status ?? '?') + '). Nada mudou.';\n} else if (erro === 'approved') {\n  texto = 'ℹ️ \"' + pedido.nome + '\" está aprovado: excluir só pelo /admin.';\n} else if (status === 404) {\n  texto = 'ℹ️ \"' + pedido.nome + '\" não existe mais.';\n} else {\n  texto = '❌ Erro ' + status + ' (' + (erro ?? 'sem detalhe') + ') em \"' + pedido.nome + '\". Tente pelo /admin.';\n}\nreturn [{ json: { ...pedido, texto } }];\n"
+        "jsCode": "// Resposta do site → o texto final do painel. Erro inesperado devolve os\n// botões (tentar de novo); o resto encerra o painel.\nconst pedido = $('Interpretar').first().json;\nconst r = $input.first().json;\nconst status = r.statusCode;\nconst erro = r.body?.error;\nlet textoPainel;\nlet tentarDeNovo = false;\nif (status === 200) {\n  textoPainel = {\n    approve: '✅ Aprovado: ' + pedido.nome,\n    reject: '⛔ Recusado: ' + pedido.nome + ' — ' + String(pedido.nota).replace(/^Telegram: /, ''),\n    delete: '🗑️ Excluído: ' + pedido.nome,\n  }[pedido.acao];\n} else if (erro === 'changed') {\n  textoPainel = '⚠️ O autor mudou \"' + pedido.nome + '\" depois desta mensagem. Nada foi feito: a versão nova chega numa mensagem nova.';\n} else if (erro === 'not_pending') {\n  textoPainel = 'ℹ️ \"' + pedido.nome + '\" já tinha sido decidido (' + (r.body.status ?? '?') + ').';\n} else if (erro === 'approved') {\n  textoPainel = 'ℹ️ \"' + pedido.nome + '\" está aprovado: excluir só pelo /admin.';\n} else if (status === 404) {\n  textoPainel = 'ℹ️ \"' + pedido.nome + '\" não existe mais.';\n} else {\n  textoPainel = '❌ Erro ' + status + ' (' + (erro ?? 'sem detalhe') + ') em \"' + pedido.nome + '\". Tente de novo ou decida no /admin.';\n  tentarDeNovo = true;\n}\nreturn [{ json: { ...pedido, textoPainel, tentarDeNovo } }];\n"
       }
     },
     {
-      "id": "0b42c012-be01-4a66-b587-3935c20d0b26",
-      "name": "Avisar resultado",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        1380,
-        400
-      ],
-      "parameters": {
-        "chatId": "={{ $('Interpretar').first().json.chatId }}",
-        "text": "={{ $json.texto }}",
-        "additionalFields": {
-          "appendAttribution": false,
-          "reply_to_message_id": "={{ $('Interpretar').first().json.fotoId }}"
-        }
-      },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "id": "47d3a511-977e-4efd-a0fc-c5d9215fc21e",
-      "name": "Veio de uma pergunta?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        1380,
-        580
-      ],
       "parameters": {
         "conditions": {
           "options": {
@@ -368,12 +412,12 @@
           },
           "conditions": [
             {
-              "id": "11e79915-ff6d-4cd7-a8e8-2d4dc06c3052",
-              "leftValue": "={{ $('Interpretar').first().json.pergunta }}",
+              "id": "5fba2e80-cedf-45e6-bda2-2f85cbeffa5f",
+              "leftValue": "={{ $json.tentarDeNovo }}",
               "rightValue": "",
               "operator": {
-                "type": "number",
-                "operation": "exists",
+                "type": "boolean",
+                "operation": "true",
                 "singleValue": true
               }
             }
@@ -381,38 +425,33 @@
           "combinator": "and"
         },
         "options": {}
-      }
+      },
+      "id": "f3b0b322-ebf1-4332-97a4-b02a7f7a2b7b",
+      "name": "Tentar de novo?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        540
+      ]
     },
     {
-      "id": "30ce0369-99d0-49cb-8794-6bbeb7522638",
-      "name": "Apagar pergunta",
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $('Interpretar').first().json.chatId }}",
+        "messageId": "={{ $('Interpretar').first().json.painelId }}",
+        "text": "={{ $json.textoPainel }}",
+        "additionalFields": {}
+      },
+      "id": "d043d18c-d2f9-4044-aa58-71917f55958a",
+      "name": "Painel: resultado",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1600,
-        580
+        1540,
+        640
       ],
-      "parameters": {
-        "operation": "deleteMessage",
-        "chatId": "={{ $('Interpretar').first().json.chatId }}",
-        "messageId": "={{ $('Interpretar').first().json.pergunta }}"
-      },
-      "onError": "continueRegularOutput"
-    },
-    {
-      "id": "d4a1b6c9-41ca-4a85-a65b-4e4e49c9700b",
-      "name": "Apagar pergunta (cancelar)",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        940,
-        660
-      ],
-      "parameters": {
-        "operation": "deleteMessage",
-        "chatId": "={{ $('Interpretar').first().json.chatId }}",
-        "messageId": "={{ $('Interpretar').first().json.pergunta }}"
-      },
+      "webhookId": "1c72e10c-1dcb-4da2-abec-fd8184507051",
       "onError": "continueRegularOutput"
     }
   ],
@@ -459,14 +498,21 @@
       "main": [
         [
           {
-            "node": "Pedir motivo",
+            "node": "Painel: decidir",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Confirmar exclusão",
+            "node": "Painel: motivos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Painel: confirmar",
             "type": "main",
             "index": 0
           }
@@ -480,7 +526,7 @@
         ],
         [
           {
-            "node": "Apagar pergunta (cancelar)",
+            "node": "Painel: resultado",
             "type": "main",
             "index": 0
           }
@@ -502,23 +548,25 @@
       "main": [
         [
           {
-            "node": "Avisar resultado",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Veio de uma pergunta?",
+            "node": "Tentar de novo?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Veio de uma pergunta?": {
+    "Tentar de novo?": {
       "main": [
         [
           {
-            "node": "Apagar pergunta",
+            "node": "Painel: decidir",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Painel: resultado",
             "type": "main",
             "index": 0
           }
