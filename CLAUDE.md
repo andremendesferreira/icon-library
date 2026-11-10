@@ -4,7 +4,7 @@ Site at https://iconlibrary.io. Plain ES modules with an MVC layout, no framewor
 
 ## Working rules
 
-- Reply in Portuguese (pt-BR), the maintainer's language. Code comments are in Portuguese; commit messages in English.
+- Reply in Portuguese (pt-BR), the maintainer's language. Code comments are in Portuguese, except `scripts/*.js` (English); commit messages in English.
 - Commit only when asked. The maintainer runs `git push` and updates the Portainer stack.
 - Secrets live only in `stack.env`, which is gitignored. Never paste or print tokens, keys or supporter codes.
 - **At the end of every change, update everything it touches before reporting it as done:**
@@ -15,23 +15,40 @@ Site at https://iconlibrary.io. Plain ES modules with an MVC layout, no framewor
   - `docs/img/*` when the interface in a screenshot changes;
   - this file, when a rule or an architecture note changes.
 
+## Commands
+
+```bash
+npm test                      # all tests (node --test, tests/)
+PORT=3123 npm start           # local server (no database: coffee, Iconlibrary and reports are off)
+npm run pages                 # rebuild public/*.html from pages/
+npm run tags                  # rebuild public/json/icons-tags.json after a set version change
+npm run generate              # rebuild public/json/icons-categories.json
+docker build -t icon-library:teste . && docker run -d -p 3999:3000 icon-library:teste   # then wait for "healthy"
+```
+
 ## Before calling a change ready
 
 - `npm test` (Node's built-in runner, in `tests/`).
-- Interface changes: open the real page in a browser, in light and dark themes and at phone width (360 px upward).
+- Interface changes: open the real page in a browser (Chrome DevTools MCP when available), in light and dark themes and at phone width (360 px upward). In editor links, `#svg=`/`#ile=` must be the last parameter; headless Chrome blocks the clipboard, so stub `navigator.clipboard` to read what was copied.
 - Server changes: build and run the Docker image and wait for its healthcheck.
 
 ## Rules that are easy to miss
 
 - **8 languages:** `en`, `es`, `fr`, `de`, `ru`, `zh-CN`, `pt-BR`, `ja`. Every key in `public/js/i18n/` must exist in all of them (`tests/i18n.test.mjs` enforces it).
-- **Generated pages:** `public/{about,guide,privacy,license}*.html` (`PAGINAS` in `scripts/build-pages.mjs`; a new one also goes in the sitemap regex in `scripts/server.js`), the set guides (`lucide-icons`, `feather-icons`, `bootstrap-icons`, `emoji-icons`) and the articles (`ARTIGOS` in `scripts/build-pages.mjs`, also listed in the sitemap regex in `scripts/server.js`) come from `pages/`. Edit `pages/` and run `npm run pages`.
+- **Generated pages:** `public/{about,guide,privacy,license}*.html` (`PAGINAS`), the set guides (`CONJUNTOS`) and the articles (`ARTIGOS`) come from `pages/` through `scripts/build-pages.mjs`. Edit `pages/` and run `npm run pages`; a new page also goes in the sitemap regex in `scripts/server.js` (and its count in `tests/server.test.mjs`).
+- **Browser storage:** every `localStorage` key (`icon-library:*`) is listed in the privacy policy in all 8 languages; a new key goes there too.
+- **Plurals in i18n:** each plural form must carry the same `{placeholders}` as the first English form (`tests/i18n.test.mjs`).
 - **Set guides and articles are an exception to the 8 languages:** only English and Portuguese for now, the languages the maintainer can review. `data-languages` tells `detect.js` which versions exist. Their text is written by hand: don't generate thin pages from a template, which is what AdSense rejected.
 - **Icon versions and tags:** the pinned versions in `public/js/models/iconSets.js` must match `scripts/generate-icon-categories.js` and `scripts/generate-icon-tags.js`; after a version change, run `npm run tags` to rebuild `public/json/icons-tags.json` (Feather and Bootstrap keywords). Tag sources are `extra: true`: if they fail, search falls back to names and the categories stay.
 - **Search on text pages:** the header of every generated page has a search form (`./?q=…`, plus `lang` outside English) and `js/views/pageSearch.js` makes `/` focus it; the home applies `?q=` even without `?set=`.
 - **Default set:** with no `?set=`, the page opens the last set chosen (`icon-library:set`) or Lucide, without writing `?set=` to the address, so the home stays `/` for search engines.
-- **Dockerfile:** it lists the scripts one by one, so a new file in `scripts/` needs its own `COPY`.
+- **Dockerfile:** it lists the runtime scripts one by one, so a new file the server loads needs its own `COPY`; generators (`generate-*`, `build-pages.mjs`) stay out of the image.
 - **IndexNow:** with `INDEXNOW_KEY` and `SITE_URL`, the server sends every sitemap address to IndexNow a minute after each start (`scripts/indexnow.js`). A new page only needs to be in the sitemap; the next deploy announces it to Bing.
 - **Migrations:** applied by hand with the database owner role (`PG_MIGRATE=false`). The app uses another role, so a new table needs its `GRANT`, and the migration must be recorded in `schema_migrations`. At start-up the server compares `migrations/` with `schema_migrations` and checks each feature's tables and privileges (`FEATURE_TABLES` in `scripts/db.js`; add a new table there): anything missing turns the database features off and `/api/health`, the Docker healthcheck, answers 503.
+
+## Moderation workflows (n8n)
+
+`docs/n8n-*.json` are imported into the maintainer's n8n: ship them without `credentials` (n8n 2.x refuses unknown references) and with `telegramUserId` empty. The Telegram node cannot edit a photo, so the buttons live in a separate text "panel" that each tap edits (`docs/moderacao-n8n.md`).
 
 ## Coffee
 
@@ -57,7 +74,7 @@ Links use the same color and SVG icons (`.site-footer__icon`, Bootstrap Icons), 
 - **Canvas nodes are recreated on every draw**, so `dblclick` never arrives: the double click is counted in `pointerdown`.
 - **Phone layout (up to 900 px wide):** the drawing stays in view, with the tools in tabs below it. `data-painel` blocks use `display: contents` on larger screens, and `data-aba` on `#editor-layout` picks the visible one. A new tool needs its place in a panel, and a keyboard-only action needs a touch path too (`.editor__barra`). Publish and Copy SVG stay in a fixed footer on every tab; the rest of the footer shows only in the Export tab.
 - **Touch (`pointer: coarse`, `EditorView.toque`):** larger targets; a touch on a shape only acts when the finger lifts, moves or holds for 500 ms (long press adds or removes it), because selecting on `pointerdown` would clear the selection first. Moving a shape requires it to be selected already. Hints use the `…Touch` keys, and the help shows `.editor-help__toque` rows instead of `.editor-help__teclado`.
-- **Esc** goes in order: cancel the split mode, clear the selection, then ask to close the editor.
+- **Esc** goes in order: leave the pen, cancel the split mode, clear the selection, then ask to close the editor.
 - **Editor buttons with an icon only** need `title` and `aria-label` through `data-i18n-attr`. `data-i18n` on a button would replace its icon. Combine buttons get their text from `mostrarCombinar`. They use `aria-disabled`, not `disabled`, so a tap on one can explain what is missing, because a phone has no hover.
 - **Join** has two modes in `EditorModel.unir`: two selected lines, or one open line (`uniaoDaForma`), which closes it or connects its nearest end to the selected point.
 - **Fill** (`alternarPreenchimento`) only works on closed shapes (`formaFechada`). Removing the fill of a shape with no stroke gives it a stroke, so it doesn't vanish.
