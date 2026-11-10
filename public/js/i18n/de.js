@@ -23,7 +23,7 @@ export default {
   "categories.clear": "Auswahl aufheben",
   "categories.count": { one: "{n} Kategorie", other: "{n} Kategorien" },
   "search.placeholder": "Zum Filtern tippen (z. B. home, book, heart)...",
-  "search.label": "Icons nach Namen suchen",
+  "search.label": "Icons nach Name oder Schlagwort suchen (Taste /)",
   "scratchpad.open": "Scratchpad öffnen",
   "scratchpad.close": "Scratchpad schließen",
   "ile.open": ".ile öffnen",
@@ -471,4 +471,9 @@ export default {
   "help.touchZoom": "Mit zwei Fingern zoomen und die Ansicht verschieben",
   "help.pan": "Leertaste halten und ziehen verschiebt die Ansicht",
   "help.compare": "Original gedrückt halten zeigt das Icon wie beim Öffnen",
+  "grid.noMatch": "Kein Icon für „{q}“.",
+  "grid.englishTip": "Namen und Schlagwörter der Icons sind englisch: Versuche „trash“ oder „delete“ statt „Papierkorb“.",
+  "grid.clearSearch": "Suche leeren",
+  "grid.allCategories": "Alle Kategorien zeigen",
+  "grid.otherSets": "„{q}“ in einem anderen Set suchen:",
 };

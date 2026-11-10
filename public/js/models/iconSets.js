@@ -3,7 +3,8 @@
 
 // Versões fixas dos pacotes: uma versão nova só entra quando for trocada aqui
 // (e testada), em vez de chegar sozinha e quebrar a página. Mantenha iguais às
-// de scripts/generate-icon-categories.js.
+// de scripts/generate-icon-categories.js e scripts/generate-icon-tags.js
+// (depois de trocar, rode npm run tags).
 export const VERSOES = {
   emoji: "0.9.0", // unicode-emoji-json
   lucide: "1.59.0", // lucide-static
@@ -15,6 +16,10 @@ const porLetra = (nome) => {
   const letra = nome.trim()[0]?.toUpperCase() || "#";
   return /[A-Z]/.test(letra) ? letra : "#";
 };
+
+// Palavras-chave para a busca ("delete" acha trash). Opcionais e "extra": se
+// não chegarem, a busca segue só pelo nome e as categorias não mudam.
+const TAGS_LOCAIS = { endereco: "json/icons-tags.json", opcional: true, extra: true };
 
 function envelopeTraco(conteudo) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${conteudo}</svg>`;
@@ -49,12 +54,14 @@ export const FONTES = {
     url: [
       `https://unpkg.com/lucide-static@${VERSOES.lucide}/icon-nodes.json`,
       { endereco: "https://lucide.dev/api/categories", opcional: true },
+      { endereco: `https://unpkg.com/lucide-static@${VERSOES.lucide}/tags.json`, opcional: true, extra: true },
     ],
-    montar: ([icones, categorias]) =>
+    montar: ([icones, categorias, tags]) =>
       Object.entries(icones).map(([nome, nos]) => ({
         nome: nome.replace(/-/g, " "),
         tipo: "svg",
         editavel: true,
+        tags: tags?.[nome] ?? [],
         grupo: categorias
           ? categorias[nome]?.[0] || "without category"
           : porLetra(nome),
@@ -79,12 +86,14 @@ export const FONTES = {
     url: [
       `https://unpkg.com/feather-icons@${VERSOES.feather}/dist/icons.json`,
       { endereco: "json/icons-categories.json", opcional: true },
+      TAGS_LOCAIS,
     ],
-    montar: ([icones, categorias]) =>
+    montar: ([icones, categorias, tags]) =>
       Object.entries(icones).map(([nome, conteudo]) => ({
         nome: nome.replace(/-/g, " "),
         tipo: "svg",
         editavel: true,
+        tags: tags?.feather?.[nome] ?? [],
         grupo:
           categorias?.feather?.[nome]?.[0] ||
           (categorias ? "others" : porLetra(nome)),
@@ -103,8 +112,9 @@ export const FONTES = {
         resposta: "texto",
       },
       { endereco: "json/icons-categories.json", opcional: true },
+      TAGS_LOCAIS,
     ],
-    montar: ([sprite, categorias]) =>
+    montar: ([sprite, categorias, tags]) =>
       [
         ...new DOMParser()
           .parseFromString(sprite, "image/svg+xml")
@@ -112,6 +122,7 @@ export const FONTES = {
       ].map((simbolo) => ({
         nome: simbolo.id.replace(/-/g, " "),
         tipo: "svg",
+        tags: tags?.bootstrap?.[simbolo.id] ?? [],
         grupo:
           categorias?.bootstrap?.[simbolo.id]?.[0] ||
           (categorias ? "others" : porLetra(simbolo.id)),
@@ -139,6 +150,7 @@ export const FONTES = {
         tipo: "svg",
         grupo: icone.categories[0],
         categorias: icone.categories,
+        tags: icone.categories,
         autor: icone.author,
         svg: icone.svg,
       })),

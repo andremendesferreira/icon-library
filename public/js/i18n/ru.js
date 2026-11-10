@@ -28,7 +28,7 @@ export default {
     other: "{n} категории",
   },
   "search.placeholder": "Введите для фильтра (например, home, book, heart)...",
-  "search.label": "Поиск иконок по названию",
+  "search.label": "Поиск иконок по названию или ключевому слову (клавиша /)",
   "scratchpad.open": "Открыть Scratchpad",
   "scratchpad.close": "Закрыть Scratchpad",
   "ile.open": "Открыть .ile",
@@ -485,4 +485,9 @@ export default {
   "help.touchZoom": "Двумя пальцами меняйте масштаб и сдвигайте вид",
   "help.pan": "Удерживайте Пробел и тяните, чтобы сдвинуть вид",
   "help.compare": "Удерживайте «Оригинал», чтобы увидеть иконку такой, какой она была открыта",
+  "grid.noMatch": "Нет иконок по запросу «{q}».",
+  "grid.englishTip": "Названия и ключевые слова иконок на английском: попробуйте «trash» или «delete» вместо «корзина».",
+  "grid.clearSearch": "Очистить поиск",
+  "grid.allCategories": "Показать все категории",
+  "grid.otherSets": "Искать «{q}» в другом наборе:",
 };

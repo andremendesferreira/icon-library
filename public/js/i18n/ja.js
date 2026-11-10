@@ -23,7 +23,7 @@ export default {
   "categories.clear": "選択を解除",
   "categories.count": { other: "{n} カテゴリ" },
   "search.placeholder": "入力して絞り込み（例：home、book、heart）...",
-  "search.label": "名前でアイコンを検索",
+  "search.label": "名前やキーワードでアイコンを検索（/ キー）",
   "scratchpad.open": "Scratchpad を開く",
   "scratchpad.close": "Scratchpad を閉じる",
   "ile.open": ".ile を開く",
@@ -464,4 +464,9 @@ export default {
   "help.touchZoom": "2 本の指でピンチしてズームと表示の移動",
   "help.pan": "Space を押しながらドラッグで表示を移動",
   "help.compare": "元の図を押し続けると開いたときのアイコンを表示",
+  "grid.noMatch": "「{q}」に一致するアイコンはありません。",
+  "grid.englishTip": "アイコンの名前とキーワードは英語です。「ゴミ箱」ではなく「trash」や「delete」で探してみてください。",
+  "grid.clearSearch": "検索をクリア",
+  "grid.allCategories": "すべてのカテゴリを表示",
+  "grid.otherSets": "ほかのセットで「{q}」を探す：",
 };

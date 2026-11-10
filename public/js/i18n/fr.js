@@ -23,7 +23,7 @@ export default {
   "categories.clear": "Effacer la sélection",
   "categories.count": { one: "{n} catégorie", other: "{n} catégories" },
   "search.placeholder": "Tapez pour filtrer (ex. : home, book, heart)...",
-  "search.label": "Rechercher des icônes par nom",
+  "search.label": "Rechercher des icônes par nom ou mot-clé (touche /)",
   "scratchpad.open": "Ouvrir le Scratchpad",
   "scratchpad.close": "Fermer le Scratchpad",
   "ile.open": "Ouvrir .ile",
@@ -471,4 +471,9 @@ export default {
   "help.touchZoom": "Pincez avec deux doigts pour zoomer et déplacer la vue",
   "help.pan": "Maintenez Espace et glissez pour déplacer la vue",
   "help.compare": "Maintenez Original pour voir l’icône telle qu’elle a été ouverte",
+  "grid.noMatch": "Aucune icône pour « {q} ».",
+  "grid.englishTip": "Les noms et mots-clés des icônes sont en anglais : essayez « trash » ou « delete » plutôt que « corbeille ».",
+  "grid.clearSearch": "Effacer la recherche",
+  "grid.allCategories": "Afficher toutes les catégories",
+  "grid.otherSets": "Chercher « {q} » dans un autre jeu :",
 };

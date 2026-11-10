@@ -23,7 +23,7 @@ export default {
   "categories.clear": "清除选择",
   "categories.count": { other: "{n} 个类别" },
   "search.placeholder": "输入以筛选（例如 home、book、heart）...",
-  "search.label": "按名称搜索图标",
+  "search.label": "按名称或关键词搜索图标（按 / 键）",
   "scratchpad.open": "打开 Scratchpad",
   "scratchpad.close": "关闭 Scratchpad",
   "ile.open": "打开 .ile",
@@ -464,4 +464,9 @@ export default {
   "help.touchZoom": "两指捏合可缩放和平移视图",
   "help.pan": "按住空格键拖动可平移视图",
   "help.compare": "按住“原图”可查看打开时的图标",
+  "grid.noMatch": "没有与“{q}”匹配的图标。",
+  "grid.englishTip": "图标的名称和关键词是英文：可以试试“trash”或“delete”，而不是“垃圾桶”。",
+  "grid.clearSearch": "清除搜索",
+  "grid.allCategories": "显示所有类别",
+  "grid.otherSets": "在其他图标集中搜索“{q}”：",
 };

@@ -23,7 +23,7 @@ export default {
   "categories.clear": "Limpar seleção",
   "categories.count": { one: "{n} categoria", other: "{n} categorias" },
   "search.placeholder": "Digite para filtrar (ex.: home, book, heart)...",
-  "search.label": "Buscar ícones pelo nome",
+  "search.label": "Buscar ícones pelo nome ou palavra-chave (tecla /)",
   "scratchpad.open": "Abrir Scratchpad",
   "scratchpad.close": "Fechar Scratchpad",
   "ile.open": "Abrir .ile",
@@ -471,4 +471,9 @@ export default {
   "help.touchZoom": "Faça a pinça com dois dedos para dar zoom e mover a vista",
   "help.pan": "Segure Espaço e arraste para mover a vista",
   "help.compare": "Segure Original para ver o ícone como foi aberto",
+  "grid.noMatch": "Nenhum ícone para “{q}”.",
+  "grid.englishTip": "Os nomes e as palavras-chave dos ícones estão em inglês: tente “trash” ou “delete” em vez de “lixeira”.",
+  "grid.clearSearch": "Limpar busca",
+  "grid.allCategories": "Mostrar todas as categorias",
+  "grid.otherSets": "Procurar “{q}” em outro conjunto:",
 };

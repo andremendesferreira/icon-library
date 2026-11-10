@@ -26,7 +26,7 @@ export default {
   "categories.clear": "Clear selection",
   "categories.count": { one: "{n} category", other: "{n} categories" },
   "search.placeholder": "Type to filter (e.g., home, book, heart)...",
-  "search.label": "Search icons by name",
+  "search.label": "Search icons by name or keyword (press /)",
   "scratchpad.open": "Open Scratchpad",
   "scratchpad.close": "Close Scratchpad",
   "ile.open": "Open .ile",
@@ -474,4 +474,9 @@ export default {
   "help.touchZoom": "Pinch with two fingers to zoom and move the view",
   "help.pan": "Hold Space and drag to move the view",
   "help.compare": "Hold Original to see the icon as it was opened",
+  "grid.noMatch": "No icon for “{q}”.",
+  "grid.englishTip": "Try a shorter word or a synonym — “bin” or “delete” also find trash.",
+  "grid.clearSearch": "Clear search",
+  "grid.allCategories": "Show all categories",
+  "grid.otherSets": "Search “{q}” in another set:",
 };

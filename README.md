@@ -43,8 +43,8 @@ No framework, no build step and two runtime dependencies on the server (the Post
 
 ### Features
 
-- **Four icon sets** in one place, loaded on demand and cached after the first load. Package versions are pinned (see [Icon versions](#icon-versions)).
-- **Categories** with multi-select, and **search** by name.
+- **Four icon sets** in one place, loaded on demand and cached after the first load. The page opens with Lucide, or with the set chosen last time (`icon-library:set`), without writing `?set=` to the address. Package versions are pinned (see [Icon versions](#icon-versions)).
+- **Categories** with multi-select, and **search** by name and keyword (`/` jumps to it): Lucide's tags come from `lucide-static/tags.json`, and Feather's and Bootstrap's from `public/json/icons-tags.json`, generated from their repositories by `npm run tags` (run it again when a set version changes). Name matches come first, then exact tags, then partial ones. A search with no result offers to clear the search or the categories and to try the word in the other sets, with the count for sets already loaded.
 - **Style before copying:** size, stroke width (Lucide, Feather) and color (all vector sets). Applied to everything copied, downloaded or sent to the scratchpad; the preview follows stroke and color. Remembered between visits.
 - **Card buttons:**
   - **+** adds the icon to the scratchpad;
@@ -174,8 +174,8 @@ The numbered SQL files in `migrations/` (`001_coffee_supporters.sql`, `002_iconl
 
 The packages are pinned in `VERSOES` at the top of `public/js/models/iconSets.js`, so a new release cannot break the page on its own. To upgrade:
 
-1. Change the version in `VERSOES` and, for Feather and Bootstrap, the same version in `scripts/generate-icon-categories.js`.
-2. Run `npm run generate` (refreshes the categories) and `npm test` — a test fails if the two files disagree.
+1. Change the version in `VERSOES` and, for Feather and Bootstrap, the same version in `scripts/generate-icon-categories.js` and `scripts/generate-icon-tags.js`.
+2. Run `npm run generate` (refreshes the categories), `npm run tags` (refreshes the search keywords) and `npm test` — a test fails if the files disagree.
 3. Check the page in the browser.
 
 ### Categories for Feather and Bootstrap
@@ -320,6 +320,7 @@ icon-library/
 ├── .env.example                        Stripe and PostgreSQL settings (copy to .env)
 ├── pages/                              text page content, one file per language
 ├── scripts/generate-icon-categories.js category generator
+├── scripts/generate-icon-tags.js     search keywords for Feather and Bootstrap
 ├── tests/                              npm test
 ├── BACKLOG.md                          AI service and paid plan (next steps)
 ├── .github/workflows/ci.yml            continuous integration
@@ -352,8 +353,8 @@ Sem framework, sem build e com duas dependências no servidor (o driver do Postg
 
 ### Recursos
 
-- **Quatro conjuntos** num só lugar, carregados sob demanda e guardados em cache depois da primeira carga. As versões dos pacotes são fixas (veja [Versões dos ícones](#versões-dos-ícones)).
-- **Categorias** com seleção múltipla e **busca** pelo nome.
+- **Quatro conjuntos** num só lugar, carregados sob demanda e guardados em cache depois da primeira carga. A página abre com o Lucide, ou com o último conjunto escolhido (`icon-library:set`), sem escrever `?set=` no endereço. As versões dos pacotes são fixas (veja [Versões dos ícones](#versões-dos-ícones)).
+- **Categorias** com seleção múltipla e **busca** pelo nome e pelas palavras-chave (`/` leva até ela): as tags do Lucide vêm do `lucide-static/tags.json`, e as do Feather e do Bootstrap do `public/json/icons-tags.json`, gerado a partir dos repositórios por `npm run tags` (rode de novo quando a versão de um conjunto mudar). Acertos no nome vêm primeiro, depois tag igual, depois tag parcial. Uma busca sem resultado oferece limpar a busca ou as categorias e tentar a palavra nos outros conjuntos, com a contagem dos que já foram carregados.
 - **Estilo antes de copiar:** tamanho, espessura do traço (Lucide, Feather) e cor (todos os vetoriais). Vale para tudo o que é copiado, baixado ou enviado ao scratchpad; a prévia acompanha traço e cor. Fica lembrado entre visitas.
 - **Botões do card:**
   - **+** envia o ícone ao scratchpad;
@@ -483,8 +484,8 @@ Os arquivos SQL numerados em `migrations/` (`001_coffee_supporters.sql`, `002_ic
 
 Os pacotes ficam fixos em `VERSOES`, no início de `public/js/models/iconSets.js`, para que uma versão nova não quebre a página sozinha. Para atualizar:
 
-1. Troque a versão em `VERSOES` e, para Feather e Bootstrap, a mesma versão em `scripts/generate-icon-categories.js`.
-2. Rode `npm run generate` (atualiza as categorias) e `npm test` — um teste falha se os dois arquivos discordarem.
+1. Troque a versão em `VERSOES` e, para Feather e Bootstrap, a mesma versão em `scripts/generate-icon-categories.js` e `scripts/generate-icon-tags.js`.
+2. Rode `npm run generate` (atualiza as categorias), `npm run tags` (atualiza as palavras-chave da busca) e `npm test` — um teste falha se os arquivos discordarem.
 3. Confira a página no navegador.
 
 ### Categorias do Feather e do Bootstrap
@@ -613,6 +614,7 @@ icon-library/
 ├── .env.example                        configurações do Stripe e do PostgreSQL (copie para .env)
 ├── pages/                              conteúdo das páginas de texto, um arquivo por idioma
 ├── scripts/generate-icon-categories.js gerador de categorias
+├── scripts/generate-icon-tags.js     palavras-chave da busca do Feather e do Bootstrap
 ├── tests/                              npm test
 ├── BACKLOG.md                          serviço para IAs e plano pago (próximos passos)
 ├── .github/workflows/ci.yml            integração contínua

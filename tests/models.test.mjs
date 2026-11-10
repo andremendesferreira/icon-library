@@ -157,4 +157,11 @@ test("Versões: fixas no site e iguais no gerador de categorias", () => {
   );
   assert.ok(gerador.includes(`feather-icons@${VERSOES.feather}/`));
   assert.ok(gerador.includes(`bootstrap-icons@${VERSOES.bootstrap}/`));
+
+  // As tags do Feather e do Bootstrap: mesmas versões, no script e no arquivo gerado
+  const tags = readFileSync(new URL("../scripts/generate-icon-tags.js", import.meta.url), "utf8");
+  assert.ok(tags.includes(`feather: "${VERSOES.feather}"`), "generate-icon-tags.js: versão do Feather");
+  assert.ok(tags.includes(`bootstrap: "${VERSOES.bootstrap}"`), "generate-icon-tags.js: versão do Bootstrap");
+  const gerado = JSON.parse(readFileSync(new URL("../public/json/icons-tags.json", import.meta.url), "utf8"));
+  assert.deepEqual(gerado.versoes, { feather: VERSOES.feather, bootstrap: VERSOES.bootstrap }, "rode npm run tags");
 });

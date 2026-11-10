@@ -44,7 +44,12 @@ const catalogo = {
     const { itens } = await iconModel.carregar(chave);
     const busca = termo.trim().toLowerCase();
     return itens
-      .filter((item) => !busca || item.nome.toLowerCase().includes(busca))
+      .filter(
+        (item) =>
+          !busca ||
+          item.nome.toLowerCase().includes(busca) ||
+          item.tags?.some((tag) => tag.toLowerCase().includes(busca)),
+      )
       .slice(0, LIMITE_BUSCA);
   },
   svg: (item) => iconModel.svgFinal(item),

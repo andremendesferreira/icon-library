@@ -6,6 +6,11 @@ import { baixarPngDeEmoji, baixarPngDeSvg, baixarSvg } from "./download.js";
 // Cor de "currentColor" num PNG solto, onde não há texto para herdar a cor
 const COR_PNG = "#2c3e50";
 
+// Sem ?set= no endereço, a página abre o último conjunto escolhido (guardado
+// no navegador) ou este
+const CONJUNTO_PADRAO = "lucide";
+const CHAVE_CONJUNTO = "icon-library:set";
+
 // Liga a view ao model: recebe as ações do usuário, atualiza o estado e manda
 // redesenhar.
 export class IconController {
@@ -26,16 +31,19 @@ export class IconController {
       this.aplicarFiltros();
       this.salvarNoEndereco();
     });
-    view.aoEscolherFonte((chave) => this.escolherFonte(chave));
+    view.aoEscolherFonte((chave) => {
+      this.escolherFonte(chave);
+      try {
+        localStorage.setItem(CHAVE_CONJUNTO, chave);
+      } catch {
+        // Sem armazenamento: a próxima visita abre o padrão
+      }
+    });
     view.aoAlternarGrupo((grupo, marcado) => {
       model.alternarGrupo(grupo, marcado);
       this.atualizarGrupos();
     });
-    view.aoLimparGrupos(() => {
-      model.limparGrupos();
-      view.desmarcarGrupos();
-      this.atualizarGrupos();
-    });
+    view.aoLimparGrupos(() => this.limparGrupos());
     view.aoMudarEstilo((mudancas) => {
       model.definirEstilo(mudancas);
       view.mostrarEstilo(model.estilo);
@@ -52,12 +60,30 @@ export class IconController {
 
   // ── Estado no endereço (?set=lucide&q=heart) ───────────────────────────────
   // Uma busca pode ser compartilhada ou salva nos favoritos
+  // Sem conjunto no endereço, abre o último escolhido ou o Lucide, sem
+  // escrever ?set= no endereço: a home continua sendo "/" até a pessoa mexer
   lerDoEndereco() {
     const parametros = new URLSearchParams(location.search);
-    const chave = parametros.get("set");
-    if (!chave || !Object.hasOwn(this.model.fontes, chave)) return;
-    this.view.busca = parametros.get("q") || "";
-    this.escolherFonte(chave, { focar: false });
+    const pedido = parametros.get("set");
+    const valido = (chave) => chave && Object.hasOwn(this.model.fontes, chave);
+    if (valido(pedido)) {
+      this.view.busca = parametros.get("q") || "";
+      this.escolherFonte(pedido, { focar: false });
+      return;
+    }
+    let salvo = null;
+    try {
+      salvo = localStorage.getItem(CHAVE_CONJUNTO);
+    } catch {
+      // Sem armazenamento: vale o padrão
+    }
+    this.escolherFonte(valido(salvo) ? salvo : CONJUNTO_PADRAO, { focar: false, implicito: true });
+  }
+
+  limparGrupos() {
+    this.model.limparGrupos();
+    this.view.desmarcarGrupos();
+    this.atualizarGrupos();
   }
 
   salvarNoEndereco() {
@@ -78,15 +104,16 @@ export class IconController {
     );
   }
 
-  escolherFonte(chave, { focar = true } = {}) {
+  escolherFonte(chave, { focar = true, implicito = false } = {}) {
     this.view.marcarFonte(chave, this.model.fontes[chave].rotulo, { focar });
-    if (chave !== this.model.fonteAtual) this.trocarFonte(chave);
+    if (chave !== this.model.fonteAtual) this.trocarFonte(chave, { implicito });
   }
 
-  async trocarFonte(chave) {
+  // implicito: o conjunto padrão da primeira visita, que não vai para o endereço
+  async trocarFonte(chave, { implicito = false } = {}) {
     const { model, view } = this;
     model.fonteAtual = chave;
-    this.salvarNoEndereco();
+    if (!implicito) this.salvarNoEndereco();
     try {
       if (!model.emCache(chave))
         view.mostrarCarregando(model.fontes[chave].rotulo);
@@ -128,7 +155,34 @@ export class IconController {
       aoEditar: (item) => this.aoEditar(item, this.model.svgFinal(item)),
       // Conjunto sem nenhum ícone (Iconlibrary no começo): mensagem própria
       vazio: this.model.itens.length ? null : this.model.fonteExibida?.vazio,
+      semResultado: this.semResultado(),
+      aoLimparBusca: () => {
+        this.view.busca = "";
+        this.aplicarFiltros();
+        this.salvarNoEndereco();
+        this.view.focarBusca();
+      },
+      aoLimparGrupos: () => this.limparGrupos(),
+      aoProcurarEm: (chave) => this.escolherFonte(chave),
     });
+  }
+
+  // Busca sem resultado: o que dá para fazer (limpar a busca, as categorias,
+  // procurar nos outros conjuntos, com a contagem dos que já foram baixados)
+  semResultado() {
+    const { model, view } = this;
+    if (!model.itens.length) return null;
+    const busca = view.busca.trim();
+    return {
+      busca,
+      comGrupos: model.gruposEscolhidos.size > 0,
+      outros: busca
+        ? Object.entries(model.fontes)
+            .filter(([chave]) => chave !== model.fonteAtual)
+            .map(([chave, fonte]) => ({ chave, rotulo: fonte.rotulo, n: model.contarEm(chave, busca) }))
+            .filter((outro) => outro.n !== 0)
+        : [],
+    };
   }
 
   copiarPrincipal(item) {

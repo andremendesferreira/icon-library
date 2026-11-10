@@ -71,6 +71,11 @@ export class IconView {
   }
 
   // ── Ações do usuário ───────────────────────────────────────────────────────
+  focarBusca() {
+    this.searchBar.focus();
+    this.searchBar.select();
+  }
+
   aoFiltrar(acao) {
     this.searchBar.addEventListener("input", acao);
     this.filtroSup.addEventListener("change", acao);
@@ -139,6 +144,15 @@ export class IconView {
       this.abrirPainelGrupos(false);
       this.abrirPainelFontes(false);
       this.fecharMenu();
+    });
+    // "/" em qualquer lugar da página leva à busca, como em outros sites de
+    // ícones e no GitHub (menos ao digitar num campo ou com uma janela aberta)
+    document.addEventListener("keydown", (evento) => {
+      if (evento.key !== "/" || evento.ctrlKey || evento.metaKey || evento.altKey) return;
+      if (evento.target.closest?.("input, textarea, select, [contenteditable]")) return;
+      if (document.querySelector("dialog[open]") || this.searchBar.disabled) return;
+      evento.preventDefault();
+      this.focarBusca();
     });
     document.addEventListener("keydown", (evento) => {
       if (evento.key !== "Escape") return;
@@ -300,8 +314,8 @@ export class IconView {
     this.limparGrade();
     this.acoes = acoes;
     if (!grupos.length) {
-      this.container.innerHTML =
-        `<p class="empty">${escapar(t(acoes.vazio || "grid.empty"))}</p>`;
+      if (acoes.semResultado) this.mostrarSemResultado(acoes.semResultado, acoes);
+      else this.container.innerHTML = `<p class="empty">${escapar(t(acoes.vazio || "grid.empty"))}</p>`;
       return;
     }
     const colunas = Math.max(
@@ -333,6 +347,35 @@ export class IconView {
     );
     for (const secao of this.container.querySelectorAll(".group"))
       this.observador.observe(secao);
+  }
+
+  // Busca sem resultado: a frase, a dica do inglês e os caminhos possíveis
+  mostrarSemResultado({ busca, comGrupos, outros }, acoes) {
+    const botao = (acao, texto, extra = "") =>
+      `<button type="button" class="empty__botao" data-vazio="${acao}"${extra}>${texto}</button>`;
+    const titulo = busca ? t("grid.noMatch", { q: busca }) : t("grid.empty");
+    const passos = [
+      busca ? botao("busca", escapar(t("grid.clearSearch"))) : "",
+      comGrupos ? botao("grupos", escapar(t("grid.allCategories"))) : "",
+    ].join("");
+    const conjuntos = outros
+      .map(({ chave, rotulo, n }) =>
+        botao("conjunto", `${escapar(rotulo)}${n ? ` <span class="empty__contagem">${n}</span>` : ""}`, ` data-conjunto="${escapar(chave)}"`),
+      )
+      .join("");
+    this.container.innerHTML = `<div class="empty empty--acoes" role="status">
+      <p class="empty__titulo">${escapar(titulo)}</p>
+      ${busca ? `<p class="empty__dica">${escapar(t("grid.englishTip"))}</p>` : ""}
+      ${passos ? `<div class="empty__botoes">${passos}</div>` : ""}
+      ${conjuntos ? `<p class="empty__dica">${escapar(t("grid.otherSets", { q: busca }))}</p><div class="empty__botoes">${conjuntos}</div>` : ""}
+    </div>`;
+    this.container.querySelector(".empty--acoes").addEventListener("click", (evento) => {
+      const alvo = evento.target.closest("[data-vazio]");
+      if (!alvo) return;
+      if (alvo.dataset.vazio === "busca") acoes.aoLimparBusca();
+      else if (alvo.dataset.vazio === "grupos") acoes.aoLimparGrupos();
+      else acoes.aoProcurarEm(alvo.dataset.conjunto);
+    });
   }
 
   limparGrade() {

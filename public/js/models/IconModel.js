@@ -38,6 +38,15 @@ export function linkDoStudio(item) {
   return `${STUDIO}?value=${encodeURIComponent(interno)}&name=${encodeURIComponent(nome)}`;
 }
 
+// Quão bem um item acha a busca: 0 pelo nome, 1 por uma tag igual, 2 por uma
+// tag que contém o termo; null se não acha
+function acertoDaBusca(item, termo) {
+  if (item.nome.toLowerCase().includes(termo)) return 0;
+  const tags = (item.tags ?? []).map((tag) => tag.toLowerCase());
+  if (tags.includes(termo)) return 1;
+  return tags.some((tag) => tag.includes(termo)) ? 2 : null;
+}
+
 // Ordem alfabética, com "others" sempre por último
 function ordenarGrupos(mapa) {
   return [...mapa.entries()].sort(
@@ -118,8 +127,9 @@ export class IconModel {
 
     const dados = {
       itens,
-      // Alguma fonte opcional (as categorias) falhou
-      usouAlternativa: varias && respostas.some((r) => r === undefined),
+      // Alguma fonte opcional que muda a tela (as categorias) falhou; as
+      // "extra" (tags da busca) não contam
+      usouAlternativa: varias && respostas.some((r, i) => r === undefined && !urls[i]?.extra),
     };
     this.cache.set(chave, dados);
     return dados;
@@ -166,19 +176,39 @@ export class IconModel {
     return ordenarGrupos(contagem);
   }
 
-  // [grupo, itens] dos itens que passam pelos filtros
+  // [grupo, itens] dos itens que passam pelos filtros. A busca vale para o
+  // nome e as palavras-chave (tags). Com busca, os melhores acertos vêm
+  // primeiro — nome, depois tag igual, depois tag que contém —, dentro de
+  // cada categoria e na ordem das categorias.
   filtrar({ busca, apenasSuportados }) {
-    const termo = busca.toLowerCase();
+    const termo = busca.trim().toLowerCase();
     const grupos = new Map();
+    const nota = new Map();
     for (const item of this.itens) {
-      if (termo && !item.nome.toLowerCase().includes(termo)) continue;
+      const acerto = termo ? acertoDaBusca(item, termo) : 0;
+      if (acerto === null) continue;
       if (this.gruposEscolhidos.size && !this.gruposEscolhidos.has(item.grupo))
         continue;
       if (this.detectaGlifo && apenasSuportados && !item.suportado) continue;
       if (!grupos.has(item.grupo)) grupos.set(item.grupo, []);
       grupos.get(item.grupo).push(item);
+      nota.set(item, acerto);
     }
-    return ordenarGrupos(grupos);
+    const ordem = ordenarGrupos(grupos);
+    if (!termo) return ordem;
+    for (const [, itens] of ordem) itens.sort((a, b) => nota.get(a) - nota.get(b));
+    const melhor = ([, itens]) => nota.get(itens[0]);
+    // sort é estável: empatadas, as categorias seguem em ordem alfabética
+    return ordem.sort((a, b) => melhor(a) - melhor(b));
+  }
+
+  // Quantos itens de um conjunto já carregado acham esta busca (nome ou tag);
+  // null se o conjunto ainda não foi baixado
+  contarEm(chave, busca) {
+    const termo = busca.trim().toLowerCase();
+    const dados = this.cache.get(chave);
+    if (!dados || dados instanceof Promise || !termo) return null;
+    return dados.itens.filter((item) => acertoDaBusca(item, termo) !== null).length;
   }
 
   resumo() {
