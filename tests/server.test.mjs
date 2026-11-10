@@ -114,7 +114,10 @@ test("robots.txt e sitemap.xml com o endereço do site", async () => {
     // Cada idioma: a página principal (?lang=) e as páginas de texto
     assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/\?lang=pt-BR<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/about\.ja\.html<\/loc>/);
-    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 24 + 8 + 2);
+    assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/license\.de\.html<\/loc>/);
+    // Home em 8 idiomas, guia/sobre/privacidade/licenças em 8, guias dos
+    // conjuntos (4) e o artigo em inglês e português
+    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 32 + 8 + 2);
   } finally {
     delete process.env.SITE_URL;
   }

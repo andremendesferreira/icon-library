@@ -1290,6 +1290,18 @@ body:has(.scratchpad--open) .back-to-top {
   background: none;
   cursor: pointer;
 }
+/* Decorativo: caixinha com o rótulo do lado */
+.customize__field--check {
+  gap: 6px;
+  cursor: pointer;
+}
+.customize__field--check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--il-action);
+  cursor: pointer;
+}
 .customize__field input:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -3296,6 +3308,39 @@ html.i18n-pendente body {
 }
 .page__top .page__back {
   margin-top: 0;
+}
+/* Busca no topo das páginas de texto: leva aos ícones já filtrados */
+.page__busca {
+  display: flex;
+  flex: 1 1 200px;
+  align-items: center;
+  gap: 6px;
+  max-width: 320px;
+  padding: 6px 12px;
+  border: 1px solid #c5d0dc;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--il-muted);
+}
+.page__busca:focus-within {
+  border-color: var(--il-blue);
+}
+.page__busca input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  color: #2c3e50;
+}
+[data-theme="dark"] .page__busca {
+  background: var(--dk-surface);
+  border-color: var(--dk-border);
+}
+[data-theme="dark"] .page__busca input {
+  color: var(--dk-text);
 }
 [data-theme="dark"] .lang-select {
   background: var(--dk-surface);

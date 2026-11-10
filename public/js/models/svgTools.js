@@ -1,15 +1,18 @@
 // Transformações do texto SVG que vai para a cópia, o download e o scratchpad.
 // Funções puras: não tocam o DOM (testadas em tests/).
 
-export const ESTILO_PADRAO = Object.freeze({ tamanho: 24, traco: 2, cor: null });
+export const ESTILO_PADRAO = Object.freeze({ tamanho: 24, traco: 2, cor: null, decorativo: false });
 
 // Tamanho, espessura do traço e cor escolhidos pelo usuário. Só a tag <svg>
 // de fora muda; cor nula mantém "currentColor" (herda a cor do texto).
-export function aplicarEstilo(svg, { tamanho, traco, cor } = ESTILO_PADRAO) {
+// decorativo: aria-hidden="true", para leitores de tela pularem o ícone que
+// fica ao lado de um texto (o rótulo já diz o que ele é).
+export function aplicarEstilo(svg, { tamanho, traco, cor, decorativo } = ESTILO_PADRAO) {
   let resultado = svg.replace(/^<svg\b[^>]*>/, (tag) => {
     tag = tag
       .replace(/\swidth="[^"]*"/, ` width="${tamanho}"`)
       .replace(/\sheight="[^"]*"/, ` height="${tamanho}"`);
+    if (decorativo && !/\saria-hidden=/.test(tag)) tag = tag.replace(/>$/, ' aria-hidden="true">');
     // Só ícones de traço têm stroke-width na tag de fora
     return tag.replace(/\sstroke-width="[^"]*"/, ` stroke-width="${traco}"`);
   });
@@ -40,6 +43,49 @@ export function paraReact(svg, nome) {
     .replace(/\sclass=/g, " className=")
     .replace(/^<svg\b([^>]*)>/, "<svg$1 {...props}>");
   return `export function ${nomeDeComponente(nome)}(props) {\n  return (\n    ${jsx}\n  );\n}\n`;
+}
+
+// SVG → componente Vue (arquivo .vue): atributos e classes passados ao
+// componente caem no <svg>, que é a raiz do template
+export function paraVue(svg) {
+  return `<template>\n  ${svg}\n</template>\n`;
+}
+
+// SVG → componente Svelte (arquivo .svelte): as props vão para o <svg>
+export function paraSvelte(svg) {
+  // Função no replace: num texto de troca, "$$" viraria "$"
+  return `${svg.replace(/^<svg\b([^>]*)>/, (_, atributos) => `<svg${atributos} {...$$restProps}>`)}\n`;
+}
+
+// SVG → data URI para url(…) no CSS ou src de <img>. Fora do HTML não há
+// texto para herdar a cor: "currentColor" vira a cor dada. Aspas duplas viram
+// simples e só o que quebraria a URL é codificado, para o texto continuar legível.
+export function paraDataUri(svg, cor = "#2c3e50") {
+  const texto = svg.replaceAll("currentColor", cor).replace(/"/g, "'").replace(/>\s+</g, "><");
+  return `data:image/svg+xml,${texto.replace(/[\r\n%#()<>?[\\\]^`{|}]/g, encodeURIComponent)}`;
+}
+
+// SVG → classe CSS. Ícones vetoriais usam mask: o desenho recorta a cor do
+// fundo, e background-color: currentColor herda a cor do texto, como o SVG.
+// Emoji (colorido) vai como background-image.
+export function paraCss(svg, nome, { mascara = true, tamanho = 24 } = {}) {
+  const url = `url("${paraDataUri(svg)}")`;
+  const corpo = mascara
+    ? [
+        "  background-color: currentColor;",
+        `  -webkit-mask: ${url} no-repeat center / contain;`,
+        `  mask: ${url} no-repeat center / contain;`,
+      ]
+    : [`  background: ${url} no-repeat center / contain;`];
+  return [
+    `.icon-${nomeDeArquivo(nome)} {`,
+    "  display: inline-block;",
+    `  width: ${tamanho}px;`,
+    `  height: ${tamanho}px;`,
+    ...corpo,
+    "}",
+    "",
+  ].join("\n");
 }
 
 // Nome de arquivo para download: "arrow up" → "arrow-up"

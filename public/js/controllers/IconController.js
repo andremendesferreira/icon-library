@@ -1,4 +1,4 @@
-import { nomeDeArquivo, paraReact } from "../models/svgTools.js";
+import { nomeDeArquivo, paraCss, paraDataUri, paraReact, paraSvelte, paraVue } from "../models/svgTools.js";
 import { copiarTexto } from "./clipboard.js";
 import { t, tErro } from "../i18n/i18n.js";
 import { baixarPngDeEmoji, baixarPngDeSvg, baixarSvg } from "./download.js";
@@ -71,6 +71,8 @@ export class IconController {
       this.escolherFonte(pedido, { focar: false });
       return;
     }
+    // ?q= sem conjunto (a busca das páginas de texto): o padrão, já filtrado
+    this.view.busca = parametros.get("q") || "";
     let salvo = null;
     try {
       salvo = localStorage.getItem(CHAVE_CONJUNTO);
@@ -229,6 +231,14 @@ export class IconController {
       );
     } else if (acao === "react") {
       this.copiar(paraReact(svg, item.nome), t("toast.reactCopied"));
+    } else if (acao === "vue") {
+      this.copiar(paraVue(svg), t("toast.vueCopied"));
+    } else if (acao === "svelte") {
+      this.copiar(paraSvelte(svg), t("toast.svelteCopied"));
+    } else if (acao === "dataUri") {
+      this.copiar(paraDataUri(svg, cor || COR_PNG), t("toast.dataUriCopied"));
+    } else if (acao === "css") {
+      this.copiar(paraCss(svg, item.nome, { mascara: item.tipo === "svg", tamanho }), t("toast.cssCopied"));
     }
   }
 

@@ -104,3 +104,12 @@ test("filtrar: com busca, a categoria com o melhor acerto vem primeiro", () => {
   // Sem busca, a ordem alfabética de sempre
   assert.deepEqual(model.filtrar({ busca: "", apenasSuportados: false }).map(([g]) => g), ["account", "files", "text"]);
 });
+
+test("filtrar: nome igual antes de nome que começa com a palavra, antes de nome que a contém", () => {
+  const model = new IconModel();
+  model.exibir("lucide", {
+    itens: [item("trash off", "a"), item("bin trash", "b"), item("trash", "c")],
+    usouAlternativa: false,
+  });
+  assert.deepEqual(model.filtrar({ busca: "trash", apenasSuportados: false }).map(([, [i]]) => i.nome), ["trash", "trash off", "bin trash"]);
+});

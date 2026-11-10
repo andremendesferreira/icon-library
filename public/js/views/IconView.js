@@ -42,6 +42,7 @@ export class IconView {
   cor = porId("style-color");
   corValor = porId("style-color-value");
   estiloRestaurar = porId("style-reset");
+  decorativo = porId("style-decorative");
   toastTimer = null;
 
   // Itens da grade atual, na ordem dos cards (data-i aponta para cá)
@@ -106,6 +107,7 @@ export class IconView {
       acao({ traco: Number(this.traco.value) }),
     );
     this.cor.addEventListener("input", () => acao({ cor: this.cor.value }));
+    this.decorativo.addEventListener("change", () => acao({ decorativo: this.decorativo.checked }));
   }
 
   aoRestaurarEstilo(acao) {
@@ -213,7 +215,8 @@ export class IconView {
   }
 
   // ── Personalização (tamanho, traço, cor) ───────────────────────────────────
-  mostrarEstilo({ tamanho, traco, cor }) {
+  mostrarEstilo({ tamanho, traco, cor, decorativo }) {
+    this.decorativo.checked = Boolean(decorativo);
     this.tamanho.value = tamanho;
     this.tamanhoValor.textContent = `${tamanho}px`;
     this.traco.value = traco;
@@ -471,7 +474,11 @@ export class IconView {
     this.menu.innerHTML = `
       <button type="button" role="menuitem" data-acao="svg">${escapar(t("menu.svg"))}</button>
       <button type="button" role="menuitem" data-acao="png">${escapar(t("menu.png"))}</button>
-      <button type="button" role="menuitem" data-acao="react">${escapar(t("menu.react"))}</button>`;
+      <button type="button" role="menuitem" data-acao="react">${escapar(t("menu.react"))}</button>
+      <button type="button" role="menuitem" data-acao="vue">${escapar(t("menu.vue"))}</button>
+      <button type="button" role="menuitem" data-acao="svelte">${escapar(t("menu.svelte"))}</button>
+      <button type="button" role="menuitem" data-acao="dataUri">${escapar(t("menu.dataUri"))}</button>
+      <button type="button" role="menuitem" data-acao="css">${escapar(t("menu.css"))}</button>`;
     document.body.appendChild(this.menu);
     this.menu.addEventListener("click", (evento) => {
       evento.stopPropagation();

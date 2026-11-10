@@ -34,11 +34,17 @@
   <script src="js/i18n/detect.js"></script>
   <script src="js/views/theme.js"></script>
   <script src="js/views/clarity.js" async></script>
+  <script src="js/views/pageSearch.js" defer></script>
 </head>
 <body>
   <main class="page">
     <div class="page__top">
       <a class="page__back" href="./">← Back to the icons</a>
+      <form class="page__busca" action="./" role="search">
+        
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+        <input type="search" id="page-search" name="q" required aria-keyshortcuts="/" placeholder="Search icons…" aria-label="Search icons by name or keyword (press /)" />
+      </form>
       <label class="lang-select">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
         <select id="lang-select" aria-label="Language"></select>
@@ -161,6 +167,7 @@
       <a href="guide.html">Guide</a>
       <a href="about.html">About</a>
       <a href="privacy.html">Privacy</a>
+      <a href="license.html">Licenses</a>
       <a class="site-footer__coffee" href="./#coffee">☕ Buy me a coffee</a>
       <span class="site-footer__quebra"></span>
       <a href="./#report"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A5 5 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A5 5 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623M4 7v4a4 4 0 0 0 3.5 3.97V7zm4.5 0v7.97A4 4 0 0 0 12 11V7zM12 6a4 4 0 0 0-1.334-2.982A3.98 3.98 0 0 0 8 2a3.98 3.98 0 0 0-2.667 1.018A4 4 0 0 0 4 6z"/></svg>Report a bug</a>

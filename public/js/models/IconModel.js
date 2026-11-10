@@ -38,13 +38,17 @@ export function linkDoStudio(item) {
   return `${STUDIO}?value=${encodeURIComponent(interno)}&name=${encodeURIComponent(nome)}`;
 }
 
-// Quão bem um item acha a busca: 0 pelo nome, 1 por uma tag igual, 2 por uma
-// tag que contém o termo; null se não acha
+// Quão bem um item acha a busca (menor é melhor): o nome igual, o nome que
+// começa com o termo, o nome que o contém, uma tag igual, uma tag que o
+// contém; null se não acha
 function acertoDaBusca(item, termo) {
-  if (item.nome.toLowerCase().includes(termo)) return 0;
+  const nome = item.nome.toLowerCase();
+  if (nome === termo) return 0;
+  if (nome.startsWith(termo)) return 1;
+  if (nome.includes(termo)) return 2;
   const tags = (item.tags ?? []).map((tag) => tag.toLowerCase());
-  if (tags.includes(termo)) return 1;
-  return tags.some((tag) => tag.includes(termo)) ? 2 : null;
+  if (tags.includes(termo)) return 3;
+  return tags.some((tag) => tag.includes(termo)) ? 4 : null;
 }
 
 // Ordem alfabética, com "others" sempre por último
@@ -178,8 +182,8 @@ export class IconModel {
 
   // [grupo, itens] dos itens que passam pelos filtros. A busca vale para o
   // nome e as palavras-chave (tags). Com busca, os melhores acertos vêm
-  // primeiro — nome, depois tag igual, depois tag que contém —, dentro de
-  // cada categoria e na ordem das categorias.
+  // primeiro (veja acertoDaBusca), dentro de cada categoria e na ordem das
+  // categorias.
   filtrar({ busca, apenasSuportados }) {
     const termo = busca.trim().toLowerCase();
     const grupos = new Map();
