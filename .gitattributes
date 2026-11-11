@@ -1,0 +1,3 @@
+
+# Third-party files kept byte-for-byte (tests/booleanas.test.mjs compares them with the npm package)
+public/js/vendor/** -text
