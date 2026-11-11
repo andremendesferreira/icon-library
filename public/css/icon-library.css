@@ -5191,3 +5191,17 @@ body {
 ) {
   border-color: var(--cor-borda-forte);
 }
+
+/* Fechar o editor: o X é um SVG (22 px, traço 2,5), maior que o texto do
+   editor, e o botão fica com 40 px para o dedo */
+#editor-close,
+#editor-help-open {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+}
+#editor #editor-help-open {
+  font-size: 20px;
+  font-weight: 700;
+}
