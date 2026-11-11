@@ -1,6 +1,6 @@
 {
   "name": "icon-library",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Browse, customize and copy icons from Lucide, Feather, Bootstrap Icons and Emoji — with an in-browser SVG editor, a scratchpad, PNG export at any size and a community icon set.",
   "private": true,
   "scripts": {
