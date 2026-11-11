@@ -12,6 +12,8 @@ a camada "Design minimalista" no fim de `public/css/icon-library.css` as aplica.
   só para ações (botão principal, link, foco, item marcado).
 - **Dourado** (`--il-gold`): só o café. Verde (#1e8449): só o "deu certo".
 - **Âmbar** (`--il-warn`): estrelas das avaliações (página Sobre) e avisos.
+- **Degradê** só no que a pessoa desenha no editor (as oito sugestões de
+  `models/degrade.js`), nunca na interface.
 - O resto é neutro: fundo `--cor-fundo`, superfícies `--cor-superficie`,
   bordas `--cor-borda`, texto `--cor-texto` e `--il-muted` (secundário).
 - Nada de gradiente em texto nem sombras pesadas; sombra só na busca presa
