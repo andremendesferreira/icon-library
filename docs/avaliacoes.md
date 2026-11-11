@@ -61,6 +61,10 @@ da página Sobre (8 idiomas).
     no envio;
   - antes de sair para o login, o formulário guarda o que foi escrito no
     `sessionStorage` (`icon-library:review-draft`) e apaga ao voltar.
+- Nome **todo em maiúsculas** (do provedor ou digitado) vira nome legível:
+  "ANDRE MENDES FERREIRA" → "Andre Mendes Ferreira", com "de", "da", "dos",
+  "e"… em minúsculas (`readableName`). Nomes com alguma minúscula ficam como
+  estão ("McDonald", "André M. Ferreira").
 - O nome digitado vale mais que o do provedor. "Não usar o login" volta a
   anônimo. A pessoa marca a autorização para publicar (LGPD).
 

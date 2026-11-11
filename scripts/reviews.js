@@ -56,6 +56,27 @@ function clean(value, max, { lines = false } = {}) {
 }
 const length = (text) => [...text].length;
 
+// Words kept lowercase inside a name ("Ana de Souza", "João e Maria")
+const PARTICLES = new Set(["de", "da", "do", "das", "dos", "e", "y", "del", "della", "di", "du", "la", "le", "van", "von", "der", "den"]);
+
+// A name typed or sent ALL IN CAPITALS ("ANDRE MENDES FERREIRA", as Google
+// sends some profiles) reads as shouting on the page: it becomes "Andre
+// Mendes Ferreira". Names with any lowercase letter are left as they are, so
+// "McDonald" or "André M. Ferreira" keep their own capitals.
+function readableName(name) {
+  const text = String(name ?? "");
+  if (!/\p{Lu}/u.test(text) || /\p{Ll}/u.test(text)) return text;
+  return text
+    .toLocaleLowerCase("pt-BR")
+    .split(" ")
+    .map((word, i) =>
+      i > 0 && PARTICLES.has(word)
+        ? word
+        : word.replace(/(^|[-'’])(\p{L})/gu, (_, sep, letter) => sep + letter.toLocaleUpperCase("pt-BR")),
+    )
+    .join(" ");
+}
+
 // Only PNG and JPEG reach the renderer: the page converts anything else
 // (WebP, HEIC…) to JPEG in a canvas before sending
 function imageType(buf) {
@@ -168,7 +189,7 @@ function createReviews({ store, supporter, identity = () => null, render = avata
       const comment = clean(body.comment, MAX_COMMENT + 1, { lines: true });
       if (length(comment) < MIN_COMMENT) throw new ReviewError(400, "too_short");
       if (length(comment) > MAX_COMMENT) throw new ReviewError(400, "too_long");
-      const displayName = clean(body.name, MAX_NAME + 1);
+      const displayName = readableName(clean(body.name, MAX_NAME + 1));
       if (!displayName) throw new ReviewError(400, "no_name");
       if (length(displayName) > MAX_NAME) throw new ReviewError(400, "name_too_long");
       if (body.consent !== true) throw new ReviewError(400, "consent");
@@ -494,4 +515,5 @@ module.exports = {
   memoryStore,
   postgresStore,
   providerHash,
+  readableName,
 };

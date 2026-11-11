@@ -397,3 +397,16 @@ test("oauth: o erro do provedor vai para o log com o código, sem segredo", asyn
   assert.match(linhas.join("\n"), /answered 401 \(invalid_client: AADSTS7000215: Invalid client secret provided\.\)/);
   assert.doesNotMatch(linhas.join("\n"), /segredo-nao-pode-ir-ao-log|Trace ID/);
 });
+
+test("nome todo em maiúsculas vira nome legível; os outros ficam como estão", async () => {
+  const r = avaliacoes.readableName;
+  assert.equal(r("ANDRE MENDES FERREIRA"), "Andre Mendes Ferreira");
+  assert.equal(r("MARIA DA SILVA E SOUZA"), "Maria da Silva e Souza");
+  assert.equal(r("JOÃO D'ÁVILA"), "João D'Ávila");
+  assert.equal(r("ANA-LUÍSA DOS SANTOS"), "Ana-Luísa dos Santos");
+  for (const igual of ["André M. Ferreira", "McDonald", "ana", "李 小龙"]) assert.equal(r(igual), igual);
+  // No envio também
+  const rev = avaliacoes.createReviews({ store: avaliacoes.memoryStore(), supporter: apoiador });
+  await rev.submit(envio({ name: "ANDRE MENDES FERREIRA" }));
+  assert.equal((await rev.review("pending"))[0].name, "Andre Mendes Ferreira");
+});

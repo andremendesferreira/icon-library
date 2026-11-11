@@ -21,7 +21,7 @@
  *   <SITE_URL>/api/reviews/auth/<github|google|microsoft>/callback
  */
 const crypto = require("crypto");
-const { providerHash } = require("./reviews");
+const { providerHash, readableName } = require("./reviews");
 
 const STATE_TTL = 10 * 60 * 1000;
 const TICKET_TTL = 30 * 60 * 1000;
@@ -229,7 +229,8 @@ function createOAuth({ credentials, render, fetch = globalThis.fetch, now = Date
           browser,
           provider,
           providerHash: providerHash(provider, profile.id),
-          name: String(profile.name || "").replace(/\p{Cc}/gu, " ").trim().slice(0, 40),
+          // "ANDRE MENDES FERREIRA" (some Google profiles) → "Andre Mendes Ferreira"
+          name: readableName(String(profile.name || "").replace(/\p{Cc}/gu, " ").trim().slice(0, 40)),
           // Provider photos are small; 2048 px leaves room for a large one
           avatar: photo ? render(photo, { maxSide: 2048 }) : null,
         });
