@@ -5,9 +5,10 @@ const porId = (id) => document.getElementById(id);
 
 // Altura estimada de um card e espaço entre eles: reservam o lugar das
 // categorias ainda não desenhadas, para a barra de rolagem já ter o tamanho certo
-const ALTURA_CARD = 106;
-const ESPACO = 15;
-const LARGURA_MIN_CARD = 110;
+// Rolagem infinita: quantos cards entram de cada vez, e a que distância do
+// fim da grade o próximo lote é pedido
+const LOTE = 96;
+const ANTECEDENCIA = "900px 0px";
 
 const ICONE_MAIS =
   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
@@ -239,7 +240,10 @@ export class IconView {
     // <input type="color"> não aceita "currentColor": mostra a cor do texto
     this.cor.value = cor || "#2c3e50";
     this.corValor.textContent = cor || t("style.textColor");
-    // A prévia dos cards acompanha traço e cor (o tamanho fica fixo na grade)
+    // A prévia dos cards acompanha tamanho, traço e cor. O card cresce com o
+    // ícone (no mínimo 96 px), e a grade refaz as colunas sozinha (CSS).
+    this.container.style.setProperty("--icon-size", `${tamanho}px`);
+    this.container.style.setProperty("--card-largura", `${Math.max(96, tamanho + 56)}px`);
     this.container.style.setProperty("--icon-stroke", traco);
     if (cor) this.container.style.setProperty("--icon-color", cor);
     else this.container.style.removeProperty("--icon-color");
@@ -336,35 +340,53 @@ export class IconView {
       else this.container.innerHTML = `<p class="empty">${escapar(t(acoes.vazio || "grid.empty"))}</p>`;
       return;
     }
-    const colunas = Math.max(
-      1,
-      Math.floor(
-        (this.container.clientWidth + ESPACO) / (LARGURA_MIN_CARD + ESPACO),
-      ),
-    );
-    this.container.innerHTML = grupos
-      .map(([grupo, itens]) => {
-        const inicio = this.itensGrade.length;
-        this.itensGrade.push(...itens);
-        const linhas = Math.ceil(itens.length / colunas);
-        const reserva = linhas * ALTURA_CARD + (linhas - 1) * ESPACO;
-        return `<section class="group" data-inicio="${inicio}" data-fim="${this.itensGrade.length}"><h2 class="group__title">${escapar(grupo)}<span class="group__count">${itens.length}</span></h2><div class="emoji-grid" style="min-height:${reserva}px"></div></section>`;
-      })
-      .join("");
-
+    // Rolagem infinita: a página cresce em lotes de cards conforme a pessoa
+    // desce. Um marcador no fim da grade pede o lote seguinte; uma categoria
+    // maior que o lote continua na mesma seção.
+    this.pendentes = grupos.map(([grupo, itens]) => ({ grupo, itens, feitos: 0 }));
+    this.fim = document.createElement("div");
+    this.fim.className = "grade-fim";
+    this.container.append(this.fim);
     this.observador = new IntersectionObserver(
       (entradas) => {
-        for (const entrada of entradas) {
-          if (!entrada.isIntersecting) continue;
-          this.observador.unobserve(entrada.target);
-          this.preencherGrupo(entrada.target);
-        }
+        if (entradas.some((e) => e.isIntersecting)) this.proximoLote();
       },
-      // Começa a desenhar um pouco antes de a categoria aparecer
-      { rootMargin: "800px 0px" },
+      { rootMargin: ANTECEDENCIA },
     );
-    for (const secao of this.container.querySelectorAll(".group"))
-      this.observador.observe(secao);
+    this.proximoLote();
+    this.observador.observe(this.fim);
+  }
+
+  // Acrescenta até LOTE cards, continuando de onde parou
+  proximoLote() {
+    let restante = LOTE;
+    while (restante > 0 && this.pendentes.length) {
+      const atual = this.pendentes[0];
+      let grade = this.container.querySelector(`.group[data-grupo-n="${atual.n ?? -1}"] .emoji-grid`);
+      if (!grade) {
+        atual.n = this.secoes = (this.secoes ?? 0) + 1;
+        const secao = document.createElement("section");
+        secao.className = "group";
+        secao.dataset.grupoN = String(atual.n);
+        secao.innerHTML = `<h2 class="group__title">${escapar(atual.grupo)}<span class="group__count">${atual.itens.length}</span></h2><div class="emoji-grid"></div>`;
+        this.fim.before(secao);
+        grade = secao.querySelector(".emoji-grid");
+      }
+      const parte = atual.itens.slice(atual.feitos, atual.feitos + restante);
+      let html = "";
+      for (const item of parte) {
+        html += this.htmlDoCard(item, this.itensGrade.length);
+        this.itensGrade.push(item);
+      }
+      grade.insertAdjacentHTML("beforeend", html);
+      atual.feitos += parte.length;
+      restante -= parte.length;
+      if (atual.feitos >= atual.itens.length) this.pendentes.shift();
+    }
+    if (!this.pendentes.length) {
+      this.observador?.disconnect();
+      this.fim?.remove();
+    }
   }
 
   // Busca sem resultado: a frase, a dica do inglês e os caminhos possíveis
@@ -399,20 +421,11 @@ export class IconView {
   limparGrade() {
     this.observador?.disconnect();
     this.observador = null;
+    this.pendentes = [];
+    this.secoes = 0;
     this.itensGrade = [];
     this.container.innerHTML = "";
     this.fecharMenu();
-  }
-
-  preencherGrupo(secao) {
-    const inicio = Number(secao.dataset.inicio);
-    const fim = Number(secao.dataset.fim);
-    const grade = secao.querySelector(".emoji-grid");
-    let html = "";
-    for (let i = inicio; i < fim; i++)
-      html += this.htmlDoCard(this.itensGrade[i], i);
-    grade.innerHTML = html;
-    grade.style.minHeight = "";
   }
 
   htmlDoCard(item, indice) {
@@ -447,8 +460,23 @@ export class IconView {
       </div>`;
   }
 
+  // A busca fica presa no topo (CSS sticky); presa, ganha uma sombra
+  ligarBuscaFixa() {
+    const caixa = this.searchBar.closest(".search-container");
+    if (!caixa) return;
+    const atualizar = () => caixa.classList.toggle("search-container--presa", caixa.getBoundingClientRect().top <= 0 && scrollY > 0);
+    // O título de cada categoria gruda logo abaixo da busca
+    const medir = () => document.documentElement.style.setProperty("--altura-busca", `${caixa.offsetHeight}px`);
+    addEventListener("scroll", atualizar, { passive: true });
+    addEventListener("resize", medir);
+    new ResizeObserver(medir).observe(caixa);
+    atualizar();
+    medir();
+  }
+
   // Um ouvinte para a grade inteira, em vez de três por card
   ligarGrade() {
+    this.ligarBuscaFixa();
     const itemDe = (alvo) => {
       const card = alvo.closest(".emoji-card");
       return card ? this.itensGrade[Number(card.dataset.i)] : null;

@@ -77,7 +77,8 @@ export function traduzirPagina(raiz = document) {
     }
   if (deteccao)
     for (const el of raiz.querySelectorAll("[data-i18n-page]"))
-      el.setAttribute("href", deteccao.pagina(el.dataset.i18nPage, idioma));
+      // A âncora (#editor…) continua: o link leva à seção certa no idioma
+      el.setAttribute("href", deteccao.pagina(el.dataset.i18nPage, idioma) + (new URL(el.getAttribute("href") || "", location.href).hash));
 
   if (raiz !== document) return;
   const html = document.documentElement;

@@ -68,6 +68,10 @@ The text is the source of truth: the grid above it is rebuilt from `<!-- name --
 
 Everything that leads to the coffee uses the same gold style (`.coffee-button`, `.site-footer__coffee`), in both themes. People who already support the site see the discreet green instead. Other pages link with `#coffee`, and `<!--cafe-->` in `pages/` becomes the button. Don't put a coffee link inside or next to an ad unit: it could be read as part of the ad, and AdSense restricts text around ads. AdSense turned the site down for low-value content on 2026-11-01, so no text may promise ad removal as if ads were already showing. A promotion (`COFFEE_PROMO`, `COFFEE_PRICE_REGULAR`, `COFFEE_PROMO_UNTIL`) adds a black badge to the header button and a strip in the coffee window, ending on its own after the last day; the price charged is always the Payment Link's, and supporters don't see the badge. Pages don't state a price, so a promotion never leaves them out of date.
 
+## Design
+
+`docs/design.md` has the rules: neutral interface, brand blue only for actions and focus, gold only for the coffee. Reading text and controls use 18 px or more (`--fs-texto`), the editor 16 px at least. New styles use the tokens in the "Design minimalista" layer at the end of `public/css/icon-library.css`, which comes last and wins. The home starts with the search (sticky at the top, focused with a mouse) and the three illustrated steps; the grid loads in batches of 96 as you scroll.
+
 ## Text contrast
 
 Text must reach 4.5:1 (WCAG AA) in both themes. Secondary text uses `var(--il-muted)` and blue text `var(--il-blue-dark)`; both have a dark-theme value, so never hardcode a gray for text. White text on blue sits on `var(--il-action)` / `--il-action-hover`, which stay the same in both themes. `tests/contrast.test.mjs` blocks the old low-contrast colors.

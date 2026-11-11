@@ -4265,3 +4265,452 @@ kbd {
   background: #2a2414;
   color: #f5c141;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Design minimalista (2026-11) — regras em docs/design.md
+   Interface neutra (branco, cinzas), o azul da marca só para ações e foco, o
+   dourado só para o café. Texto de leitura e controles com 18 px ou mais;
+   o editor, 16 px no mínimo. Esta camada vem por último e prevalece.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --fonte: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fs-texto: 18px;
+  --fs-mais: 20px;
+  --fs-h2: 24px;
+  --fs-titulo: clamp(30px, 5vw, 44px);
+  --fs-editor: 16px;
+  --cor-fundo: #f7f8fa;
+  --cor-superficie: #fff;
+  --cor-borda: #dfe5ec;
+  --cor-borda-forte: #b8c4d2;
+  --cor-texto: #1f2a37;
+  --raio: 12px;
+  --sombra: 0 1px 2px rgba(15, 23, 42, 0.06);
+  /* Ilustrações dos passos */
+  --ilus-fundo: #f1f5fb;
+  --ilus-linha: #9aaabd;
+  --ilus-card: #fff;
+}
+[data-theme="dark"] {
+  --cor-fundo: var(--dk-bg);
+  --cor-superficie: var(--dk-surface);
+  --cor-borda: var(--dk-border);
+  --cor-borda-forte: #44546d;
+  --cor-texto: var(--dk-text);
+  --ilus-fundo: var(--dk-surface-2);
+  --ilus-linha: #7d8ca3;
+  --ilus-card: var(--dk-surface);
+}
+body {
+  font-family: var(--fonte);
+  font-size: var(--fs-texto);
+  line-height: 1.6;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+/* Foco sempre visível, no azul da marca */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--il-action);
+  outline-offset: 2px;
+}
+
+/* ── Cabeçalho enxuto ─────────────────────────────────────────────────────── */
+.topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 8px;
+  text-align: left;
+}
+.topo__marca {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cor-texto);
+  text-decoration: none;
+}
+.topo__logo {
+  width: 40px;
+  height: 40px;
+}
+.topo__nome {
+  font-size: var(--fs-mais);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.topo__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.topo__link {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: var(--fs-texto);
+  font-weight: 600;
+  color: var(--il-blue-dark);
+  text-decoration: none;
+}
+.topo__link:hover {
+  background: var(--cor-superficie);
+  text-decoration: underline;
+}
+.topo .lang-select select,
+.topo .coffee-button {
+  font-size: var(--fs-texto);
+}
+
+/* ── O começo: título, busca e os três passos ─────────────────────────────── */
+.principal {
+  display: block;
+}
+.heroi {
+  text-align: center;
+  padding: 28px 0 8px;
+}
+.heroi__titulo {
+  margin: 0;
+  font-size: var(--fs-titulo);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--cor-texto);
+}
+.heroi__sub {
+  max-width: 640px;
+  margin: 10px auto 0;
+  font-size: var(--fs-mais);
+  color: var(--il-muted);
+}
+/* A busca fica presa no topo ao rolar a grade */
+.search-container {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin: 0 -20px;
+  padding: 12px 20px;
+  background: var(--cor-fundo);
+}
+.search-container--presa {
+  box-shadow: 0 6px 12px -10px rgba(15, 23, 42, 0.35);
+}
+.busca-principal {
+  display: flex;
+  gap: 10px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.busca-principal .search {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.busca-principal #search-bar {
+  height: 60px;
+  padding: 0 20px 0 52px;
+  border: 2px solid var(--cor-borda-forte);
+  border-radius: 999px;
+  background: var(--cor-superficie);
+  font-size: var(--fs-mais);
+  box-shadow: var(--sombra);
+}
+.busca-principal #search-bar:focus {
+  border-color: var(--il-action);
+}
+.busca-principal .search-icon {
+  left: 20px;
+  width: 22px;
+  height: 22px;
+}
+.busca-principal .icon-set {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 170px;
+}
+.busca-principal .icon-set__button {
+  height: 60px;
+  min-width: 170px;
+  font-size: var(--fs-texto);
+}
+.passos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 980px;
+  margin: 20px auto 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.passo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+.passo__ilustracao {
+  width: 100%;
+  height: auto;
+  max-height: 110px;
+}
+.passo__titulo {
+  margin: 4px 0 0;
+  font-size: var(--fs-mais);
+  line-height: 1.3;
+  color: var(--cor-texto);
+}
+.passo__texto {
+  margin: 0;
+  font-size: var(--fs-texto);
+  line-height: 1.5;
+  color: var(--il-muted);
+}
+.heroi__guia {
+  margin: 14px 0 0;
+  font-size: var(--fs-texto);
+}
+.heroi__guia a {
+  font-weight: 600;
+  color: var(--il-blue-dark);
+}
+/* Ilustrações: só linhas e um toque da marca, nos dois temas */
+.ilus-fundo { fill: var(--ilus-fundo); }
+.ilus-campo { fill: var(--ilus-card); stroke: var(--ilus-linha); stroke-width: 1.5; }
+.ilus-card { fill: var(--ilus-card); stroke: var(--ilus-linha); stroke-width: 1.5; }
+.ilus-card--ativo { stroke: var(--il-action); stroke-width: 2.5; }
+.ilus-traco { fill: none; stroke: var(--ilus-linha); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.ilus-traco--marca { stroke: var(--il-action); }
+.ilus-texto { fill: none; stroke: var(--ilus-linha); stroke-width: 3; stroke-linecap: round; opacity: 0.6; }
+.ilus-cursor { fill: var(--cor-texto); stroke: var(--ilus-card); stroke-width: 1.5; stroke-linejoin: round; }
+.ilus-ok { fill: #1e8449; }
+.ilus-ok-traco { fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.ilus-grade { fill: none; stroke: var(--ilus-linha); stroke-width: 1; opacity: 0.35; }
+.ilus-ponto { fill: var(--ilus-card); stroke: var(--il-action); stroke-width: 2.5; }
+.ilus-ponto--alca { stroke: var(--il-purple); }
+.ilus-alca { fill: none; stroke: var(--il-purple); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.ilus-lapis { fill: var(--il-gold); stroke: var(--cor-texto); stroke-width: 1.5; stroke-linejoin: round; }
+
+/* ── Ferramentas: categorias, estilo e filtros ────────────────────────────── */
+.ferramentas {
+  max-width: 980px;
+  margin: 24px auto 0;
+}
+.ferramentas .controls {
+  justify-content: center;
+  gap: 10px;
+}
+.ferramentas .groups-menu,
+.ferramentas .groups-menu__button {
+  width: auto;
+}
+.pill-control,
+.groups-menu__button,
+.icon-set__button {
+  font-size: var(--fs-texto);
+}
+.customize,
+.customize__reset,
+.supported-filter,
+.variant-filter span,
+.summary,
+.groups-menu__item,
+.groups-menu__clear,
+.icon-set__option,
+.card-menu button,
+#toast {
+  font-size: var(--fs-texto);
+}
+.group__title {
+  font-size: var(--fs-mais);
+}
+.groups-menu__count,
+.group__count,
+.empty__contagem {
+  font-size: 16px;
+}
+
+/* ── Cards: o nome vira dica; a prévia segue o tamanho escolhido ──────────── */
+.emoji-grid {
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-largura, 96px), 1fr));
+  gap: 12px;
+}
+.emoji-card {
+  overflow: visible;
+}
+.svg-icon {
+  height: calc(var(--icon-size, 24px) + 8px);
+  min-height: 32px;
+}
+.svg-icon svg {
+  width: var(--icon-size, 24px);
+  height: var(--icon-size, 24px);
+}
+/* O nome continua para leitores de tela; na tela, aparece ao passar o mouse
+   ou focar, maior e por cima do card */
+.emoji-name {
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  z-index: 5;
+  max-width: 220px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: var(--cor-texto);
+  color: var(--cor-superficie);
+  font-size: var(--fs-texto);
+  line-height: 1.3;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.12s, transform 0.12s;
+}
+.emoji-card:hover .emoji-name,
+.emoji-card:focus-within .emoji-name {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+/* Rolagem infinita: o marcador no fim da grade pede o próximo lote */
+.grade-fim {
+  height: 1px;
+}
+
+/* ── Fim da home e rodapé ─────────────────────────────────────────────────── */
+.site-about,
+.sources-note {
+  font-size: var(--fs-texto);
+}
+.site-about h2 {
+  font-size: var(--fs-h2);
+}
+.site-about h3 {
+  font-size: var(--fs-mais);
+}
+.site-footer,
+.site-footer nav a,
+.site-footer nav > .site-footer__report,
+.site-footer p {
+  font-size: var(--fs-texto);
+}
+
+/* ── Páginas de texto (Guia, Sobre, Privacidade, Licenças, guias, artigos) ── */
+.page {
+  font-size: var(--fs-texto);
+  line-height: 1.7;
+}
+.page__lead {
+  font-size: var(--fs-mais);
+}
+.page__meta,
+.page__figure figcaption,
+.page__table table,
+.page__busca input,
+.page__back {
+  font-size: var(--fs-texto);
+}
+.page h2 {
+  font-size: var(--fs-h2);
+}
+.page h3 {
+  font-size: var(--fs-mais);
+}
+
+/* ── Celular ──────────────────────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .passos {
+    grid-template-columns: 1fr;
+  }
+  .passo {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: 12px;
+    row-gap: 2px;
+    align-items: start;
+  }
+  .passo__ilustracao {
+    grid-row: span 2;
+  }
+  .passo__titulo {
+    margin: 0;
+  }
+  .busca-principal {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .busca-principal #search-bar,
+  .busca-principal .icon-set__button {
+    height: 52px;
+  }
+  .busca-principal .icon-set,
+  .busca-principal .icon-set__button {
+    width: 100%;
+  }
+  .search-container {
+    margin: 0 -12px;
+    padding: 8px 12px;
+  }
+  .topo__nome {
+    font-size: var(--fs-texto);
+  }
+}
+/* Ajustes da home nova: lupa dentro do campo, tema no cabeçalho, ferramentas juntas */
+.busca-principal .search {
+  position: relative;
+}
+.busca-principal .search .search-icon {
+  left: 22px;
+}
+.topo .theme-toggle {
+  position: static;
+}
+.ferramentas .controls > * {
+  margin-left: 0;
+  margin-right: 0;
+}
+.group__title {
+  top: var(--altura-busca, 0px);
+}
+.como-usar {
+  text-align: center;
+}
+.ferramentas .groups-menu {
+  flex: 0 0 auto;
+  min-width: 240px;
+}
+/* O CSS antigo tinha bottom: 10px, que com sticky prende a busca também no rodapé */
+.search-container {
+  bottom: auto;
+}
+@media (max-width: 760px) {
+  .topo {
+    flex-wrap: nowrap;
+  }
+  .topo__logo {
+    width: 32px;
+    height: 32px;
+  }
+  .topo__nav {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .topo__link {
+    padding: 6px 8px;
+  }
+  /* Só o globo e o idioma curto cabem ao lado do nome */
+  .topo .lang-select select {
+    max-width: 92px;
+    text-overflow: ellipsis;
+  }
+}
+@media (max-width: 400px) {
+  .topo__nome {
+    display: none;
+  }
+}
+.ferramentas .groups-menu {
+  width: max-content;
+}

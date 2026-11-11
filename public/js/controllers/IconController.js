@@ -81,6 +81,9 @@ export class IconController {
       // Sem armazenamento: vale o padrão
     }
     this.escolherFonte(valido(salvo) ? salvo : CONJUNTO_PADRAO, { focar: false, implicito: true });
+    // O começo é a busca: com mouse, o cursor já fica nela. No celular, não
+    // (abriria o teclado e cobriria a página), nem com um ícone aberto por link.
+    if (matchMedia("(pointer: fine)").matches && !location.hash) this.view.focarBusca();
   }
 
   limparGrupos() {

@@ -63,8 +63,14 @@
   <script src="js/views/clarity.js" async></script>
 </head>
 <body>
-  <header class="header">
-    <div class="header__tools">
+  <!-- Cabeçalho enxuto: a marca, o Guia e as preferências -->
+  <header class="topo">
+    <a class="topo__marca" href="./">
+      <img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="40" height="40" alt="" class="topo__logo" />
+      <span class="topo__nome">Icon Library</span>
+    </a>
+    <nav class="topo__nav" aria-label="Site" data-i18n-attr="aria-label:nav.label">
+      <a class="topo__link" href="guide.html" data-i18n-page="guide" data-i18n="footer.guide">Guide</a>
     <!-- "Pague um café": aparece só com o Stripe configurado no servidor -->
     <button type="button" id="coffee-open" class="coffee-button" data-coffee-open hidden>
       <span aria-hidden="true">☕</span>
@@ -86,39 +92,47 @@
       <svg class="theme-toggle__moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
       <svg class="theme-toggle__sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" /></svg>
     </button>
-    </div>
-    <img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="180" height="180" alt="Icon Library logo" data-i18n-attr="alt:header.logoAlt" class="header__logo" />
-    <div>
-      <h1 class="header__title">Icon Library</h1>
-      <div class="header__subtitle">
-        <p data-i18n="header.intro">A reference for choosing menu and interface icons:</p>
-        <ul class="header__subtitle-list">
-          <li data-i18n-html="header.clickHtml"><strong>Click</strong> to copy;</li>
-          <li data-i18n-html="header.rightClickHtml"><strong>Right-click</strong> copies the alternative (SVG).</li>
-          <li data-i18n-html="header.editHtml"><strong>Pencil</strong> opens the editor: reshape, recolor and combine icons.</li>
-        </ul>
-      </div>
-    </div>
+    </nav>
   </header>
   <!-- Publicidade (Google AdSense): configurada em js/models/adsConfig.js.
        Laterais flutuantes; faixa horizontal quando elas não cabem na janela. -->
-  <aside class="ad ad--banner" data-ad="banner" hidden>
-    <div class="ad__unit"></div>
-  </aside>
   <aside class="ad ad--rail ad--rail-left" data-ad="railLeft" hidden>
     <div class="ad__unit"></div>
   </aside>
   <aside class="ad ad--rail ad--rail-right" data-ad="railRight" hidden>
     <div class="ad__unit"></div>
   </aside>
-  <p class="sources-note" data-i18n-html="sources.noteHtml">
-    The <strong>vector</strong> sets provide copy-and-paste-ready SVG, inherit
-    the text color, and do not rely on installed fonts. The
-    <strong>emojis</strong> depend on the system font — the newest ones do not
-    yet have designs in any of them and appear flagged.
-  </p>
+  <main class="principal">
+  <!-- O começo é a busca: grande, no centro, com o conjunto ao lado -->
+  <section class="heroi" aria-labelledby="heroi-titulo">
+    <h1 id="heroi-titulo" class="heroi__titulo" data-i18n="hero.title">Find the right icon</h1>
+    <p class="heroi__sub" data-i18n="hero.subtitle">Search Lucide, Feather, Bootstrap Icons and emoji. Click an icon to copy its SVG.</p>
+  </section>
+  <!-- Fora da seção do título: o sticky vale até o fim do <main> -->
   <div class="search-container">
-    <div class="controls">
+    <div class="busca-principal">
+      <div class="search">
+        <svg
+          class="search-icon"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          id="search-bar"
+          aria-keyshortcuts="/"
+          placeholder="Type to filter (e.g., home, book, heart)..."
+          aria-label="Search icons by name or keyword (press /)"
+          data-i18n-attr="placeholder:search.placeholder;aria-label:search.label"
+        />
+      </div>
       <div class="icon-set">
         <button
           type="button"
@@ -140,6 +154,57 @@
           hidden
         ></div>
       </div>
+    </div>
+  </div>
+  <section class="como-usar">
+    <ol class="passos" aria-label="How to use it in three steps" data-i18n-attr="aria-label:steps.label">
+      <li class="passo">
+        <svg class="passo__ilustracao" viewBox="0 0 160 96" aria-hidden="true" focusable="false">
+            <rect class="ilus-fundo" x="1" y="1" width="158" height="94" rx="12"/>
+            <rect class="ilus-campo" x="16" y="14" width="128" height="22" rx="11"/>
+            <circle class="ilus-traco" cx="30" cy="25" r="5"/><path class="ilus-traco" d="m34 29 4 4"/>
+            <path class="ilus-texto" d="M44 25h40"/>
+            <rect class="ilus-card" x="16" y="48" width="36" height="34" rx="8"/>
+            <rect class="ilus-card ilus-card--ativo" x="62" y="48" width="36" height="34" rx="8"/>
+            <rect class="ilus-card" x="108" y="48" width="36" height="34" rx="8"/>
+            <path class="ilus-traco" d="M27 59h14v14H27z"/>
+            <path class="ilus-traco ilus-traco--marca" d="M80 74s-9-5-9-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-9 11-9 11z"/>
+            <circle class="ilus-traco" cx="126" cy="65" r="7"/>
+          </svg>
+        <h2 class="passo__titulo" data-i18n="steps.searchTitle">Search</h2>
+        <p class="passo__texto" data-i18n="steps.searchText">Type a name or a keyword, in English: “trash” also finds “delete”.</p>
+      </li>
+      <li class="passo">
+        <svg class="passo__ilustracao" viewBox="0 0 160 96" aria-hidden="true" focusable="false">
+            <rect class="ilus-fundo" x="1" y="1" width="158" height="94" rx="12"/>
+            <rect class="ilus-card ilus-card--ativo" x="22" y="18" width="52" height="52" rx="10"/>
+            <path class="ilus-traco ilus-traco--marca" d="M48 56s-12-7-12-15a7 7 0 0 1 12-4 7 7 0 0 1 12 4c0 8-12 15-12 15z"/>
+            <path class="ilus-cursor" d="M64 54l0 22 6-6 5 10 5-2-5-10h9z"/>
+            <rect class="ilus-campo" x="94" y="22" width="52" height="44" rx="8"/>
+            <path class="ilus-texto" d="M102 34h30M102 44h36M102 54h22"/>
+            <circle class="ilus-ok" cx="140" cy="20" r="10"/><path class="ilus-ok-traco" d="m135 20 4 4 6-7"/>
+          </svg>
+        <h2 class="passo__titulo" data-i18n="steps.copyTitle">Click to copy</h2>
+        <p class="passo__texto" data-i18n="steps.copyText">The SVG goes to your clipboard with the size, stroke and color you set.</p>
+      </li>
+      <li class="passo">
+        <svg class="passo__ilustracao" viewBox="0 0 160 96" aria-hidden="true" focusable="false">
+            <rect class="ilus-fundo" x="1" y="1" width="158" height="94" rx="12"/>
+            <path class="ilus-grade" d="M30 14v68M50 14v68M70 14v68M90 14v68M110 14v68M130 14v68M20 24h120M20 44h120M20 64h120"/>
+            <path class="ilus-traco ilus-traco--marca" d="M36 70C46 30 86 24 104 50"/>
+            <circle class="ilus-ponto" cx="36" cy="70" r="5"/><circle class="ilus-ponto" cx="104" cy="50" r="5"/>
+            <path class="ilus-alca" d="M36 70 52 34M104 50 92 28"/>
+            <circle class="ilus-ponto ilus-ponto--alca" cx="52" cy="34" r="4"/><circle class="ilus-ponto ilus-ponto--alca" cx="92" cy="28" r="4"/>
+            <path class="ilus-lapis" d="m118 78 4-14 18-18 10 10-18 18z"/><path class="ilus-traco" d="m132 50 10 10"/>
+          </svg>
+        <h2 class="passo__titulo" data-i18n="steps.editTitle">Edit with the pencil</h2>
+        <p class="passo__texto" data-i18n="steps.editText">Drag points, recolor or combine two icons, then copy or download.</p>
+      </li>
+    </ol>
+    <p class="heroi__guia"><a href="guide.html" data-i18n-page="guide" data-i18n="steps.more">See the full guide →</a></p>
+  </section>
+  <div class="ferramentas">
+    <div class="controls">
       <div class="groups-menu">
         <button
           type="button"
@@ -164,28 +229,6 @@
           </div>
           <div class="groups-menu__list" id="groups-list"></div>
         </div>
-      </div>
-      <div class="search">
-        <svg
-          class="search-icon"
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-        >
-          <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
-        <input
-          id="search-bar"
-          aria-keyshortcuts="/"
-          placeholder="Type to filter (e.g., home, book, heart)..."
-          aria-label="Search icons by name or keyword (press /)"
-          data-i18n-attr="placeholder:search.placeholder;aria-label:search.label"
-        />
       </div>
       <button
         type="button"
@@ -242,6 +285,11 @@
       <span data-i18n="filter.supported">Only those with a design on this machine</span></label
     >
   </div>
+  <!-- Anúncio em faixa: depois da busca e das ferramentas, antes da grade,
+       para não afastar a busca do topo da página -->
+  <aside class="ad ad--banner" data-ad="banner" hidden>
+    <div class="ad__unit"></div>
+  </aside>
   <p id="summary" class="summary"></p>
   <div id="loader" class="loading" style="display: none">
     <div class="fan" aria-hidden="true">
@@ -257,6 +305,12 @@
   <!-- O que é a ferramenta, em texto: está no HTML (sem depender do
        JavaScript), para quem chega por busca e para os robôs -->
   <section class="site-about" aria-labelledby="site-about-title">
+  <p class="sources-note" data-i18n-html="sources.noteHtml">
+      The <strong>vector</strong> sets provide copy-and-paste-ready SVG, inherit
+      the text color, and do not rely on installed fonts. The
+      <strong>emojis</strong> depend on the system font — the newest ones do not
+      yet have designs in any of them and appear flagged.
+    </p>
     <h2 id="site-about-title" data-i18n="home.title">A free icon toolkit for designers and developers</h2>
     <p data-i18n="home.p1">Icon Library brings thousands of open-source icons together on one searchable page: Lucide, Feather, Bootstrap Icons and the full Unicode emoji set. Pick a set, filter by category or name, and set the size, stroke width and color before copying, so each icon arrives in your project already styled.</p>
     <p data-i18n="home.p2">It is a working tool, not just a catalog. One click copies clean SVG, and the card menu exports SVG, PNG or a React component. The built-in editor lets you drag points, rotate, flip and resize shapes, give each part its own color and stack two icons into a new one. Projects can be saved as .ile files and reopened later, and the scratchpad collects several icons to copy at once.</p>
@@ -275,6 +329,7 @@
     <p><span data-i18n="articles.label">Articles:</span>
       <a href="lgpd-icon.html" data-i18n="articles.lgpd">Designing an icon when none fits: an LGPD case study</a></p>
   </section>
+  </main>
   <!-- Scratchpad: gaveta no canto direito; a aba fica sempre à vista -->
   <aside class="scratchpad" id="scratchpad" aria-label="Scratchpad" data-i18n-attr="aria-label:scratchpad.title">
     <button
