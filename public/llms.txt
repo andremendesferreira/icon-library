@@ -68,7 +68,7 @@ Icon packages, pinned to the versions the site uses (one SVG per icon, named in 
 - Feather (MIT): https://unpkg.com/feather-icons@4.29.2/dist/icons/<name>.svg
 - Bootstrap Icons (MIT): https://unpkg.com/bootstrap-icons@1.13.2/icons/<name>.svg — e.g. heart-fill
 
-To let the user browse, link a search: `https://iconlibrary.io/?set=lucide&q=<words>` (sets: `lucide`, `feather`, `bootstrap`, `emoji`).
+To let the user browse, link a search: `https://iconlibrary.io/?q=<words>` searches every set at once, and `https://iconlibrary.io/?set=lucide&q=<words>` only one (sets: `lucide`, `feather`, `bootstrap`, `emoji`, `iconlibrary`, or `all`).
 
 When you base an icon on one of these, keep the license notice of its set (Lucide: ISC; Feather and Bootstrap Icons: MIT).
 

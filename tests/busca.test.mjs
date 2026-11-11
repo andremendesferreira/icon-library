@@ -135,3 +135,33 @@ test("só o Bootstrap tem contorno e preenchido para filtrar", () => {
   // A leitura do sprite (montar) usa o DOMParser do navegador: conferida no navegador
   assert.deepEqual(Object.keys(FONTES).filter((chave) => FONTES[chave].temVariantes), ["bootstrap"]);
 });
+
+test("Todos os conjuntos: junta os já baixados, agrupa por conjunto e ordena pelo melhor acerto", async () => {
+  const { TODOS } = await import("../public/js/models/IconModel.js");
+  const model = new IconModel();
+  const com = (chave, itens) => itens.map((i) => ({ ...i, conjunto: chave }));
+  // Iconlibrary sem servidor: falha e fica de fora; os outros vêm do cache
+  for (const chave of Object.keys(FONTES)) if (chave !== "iconlibrary") model.cache.set(chave, { itens: [], usouAlternativa: false });
+  model.cache.set("lucide", { itens: com("lucide", [item("house", "home"), item("trash", "ui")]), usouAlternativa: false });
+  model.cache.set("bootstrap", { itens: com("bootstrap", [item("trash", "x"), item("trash fill", "x")]), usouAlternativa: false });
+  model.carregar = async (chave) => {
+    if (!model.cache.has(chave)) throw new Error("offline");
+    return model.cache.get(chave);
+  };
+  const dados = await model.carregarTodos();
+  assert.equal(dados.itens.length, 4);
+  model.exibir(TODOS, dados);
+  assert.ok(model.modoTodos);
+  assert.deepEqual(model.contarGrupos(), [["Bootstrap", 2], ["Lucide", 2]]);
+  // "house" só no Lucide: ele vem primeiro; "trash" empata e fica na ordem alfabética
+  assert.deepEqual(model.filtrar({ busca: "house", apenasSuportados: false }).map(([g]) => g), ["Lucide"]);
+  assert.deepEqual(model.filtrar({ busca: "trash", apenasSuportados: false }).map(([g, i]) => [g, i.length]), [["Bootstrap", 2], ["Lucide", 1]]);
+  // A categoria vira o conjunto
+  model.alternarGrupo("Lucide", true);
+  assert.deepEqual(model.filtrar({ busca: "trash", apenasSuportados: false }).map(([g]) => g), ["Lucide"]);
+  assert.deepEqual(model.resumo(), { total: 4, todos: true });
+  // Nenhum conjunto disponível: erro
+  const vazio = new IconModel();
+  vazio.carregar = async () => { throw new Error("offline"); };
+  await assert.rejects(vazio.carregarTodos(), /offline/);
+});

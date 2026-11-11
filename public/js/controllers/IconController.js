@@ -2,6 +2,7 @@ import { nomeDeArquivo, paraCss, paraDataUri, paraReact, paraSvelte, paraVue } f
 import { copiarTexto } from "./clipboard.js";
 import { idiomaAtual, t, tErro } from "../i18n/i18n.js";
 import { baixarPngDeEmoji, baixarPngDeSvg, baixarSvg } from "./download.js";
+import { TODOS } from "../models/IconModel.js";
 
 // Cor de "currentColor" num PNG solto, onde não há texto para herdar a cor
 const COR_PNG = "#2c3e50";
@@ -28,11 +29,18 @@ export class IconController {
   iniciar() {
     const { model, view } = this;
     view.aoFiltrar(() => {
+      if (this.seguirBusca()) return;
       this.aplicarFiltros();
       this.salvarNoEndereco();
     });
     view.aoEscolherFonte((chave) => {
+      // Escolha da pessoa: com busca, ela vale só nesse conjunto até a busca
+      // ser apagada
+      this.todosAutomatico = false;
+      this.origem = null;
       this.escolherFonte(chave);
+      // "Todos" não vira o conjunto da próxima visita: ele baixa tudo
+      if (chave === TODOS) return;
       try {
         localStorage.setItem(CHAVE_CONJUNTO, chave);
       } catch {
@@ -52,10 +60,61 @@ export class IconController {
       model.restaurarEstilo();
       view.mostrarEstilo(model.estilo);
     });
-    view.estadoInicial(model.fontes);
+    view.estadoInicial(this.opcoesDoSeletor());
     view.mostrarEstilo(model.estilo);
     view.habilitarEstilo({ traco: false, cor: false });
     this.lerDoEndereco();
+  }
+
+  // As opções do seletor: "Todos os conjuntos" primeiro, depois cada fonte
+  opcoesDoSeletor() {
+    return { [TODOS]: { rotulo: t("sets.all") }, ...this.model.fontes };
+  }
+
+  rotuloDe(chave) {
+    return chave === TODOS ? t("sets.all") : this.model.fontes[chave].rotulo;
+  }
+
+  // Busca em todos os conjuntos: ao começar a digitar, a página troca sozinha
+  // para "Todos" (e lembra de onde veio); ao apagar a busca, volta. Se a
+  // pessoa escolheu um conjunto com a busca já digitada, fica nele.
+  // Devolve true quando trocou (a troca já refaz a grade).
+  seguirBusca() {
+    const temBusca = this.view.busca.trim() !== "";
+    const atual = this.model.fonteAtual;
+    if (temBusca && atual !== TODOS && !this.fixado) {
+      this.origem = atual;
+      // A home sem ?set= (conjunto implícito) volta a ficar sem ele
+      this.origemImplicita = !new URLSearchParams(location.search).has("set");
+      this.model.conjuntoPreferido = atual;
+      this.todosAutomatico = true;
+      this.escolherFonte(TODOS, { focar: false, implicito: true });
+      this.salvarNoEndereco();
+      return true;
+    }
+    if (!temBusca) {
+      this.fixado = false;
+      if (this.todosAutomatico && this.origem) {
+        const volta = this.origem;
+        this.todosAutomatico = false;
+        this.origem = null;
+        this.escolherFonte(volta, { focar: false, implicito: true });
+        this.salvarNoEndereco({ semConjunto: this.origemImplicita });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // O conjunto da próxima visita (ou o padrão)
+  conjuntoSalvo() {
+    let salvo = null;
+    try {
+      salvo = localStorage.getItem(CHAVE_CONJUNTO);
+    } catch {
+      // Sem armazenamento: vale o padrão
+    }
+    return salvo && Object.hasOwn(this.model.fontes, salvo) ? salvo : CONJUNTO_PADRAO;
   }
 
   // ── Estado no endereço (?set=lucide&q=heart) ───────────────────────────────
@@ -65,22 +124,25 @@ export class IconController {
   lerDoEndereco() {
     const parametros = new URLSearchParams(location.search);
     const pedido = parametros.get("set");
-    const valido = (chave) => chave && Object.hasOwn(this.model.fontes, chave);
+    const valido = (chave) => chave && (chave === TODOS || Object.hasOwn(this.model.fontes, chave));
     this.view.variante = { outline: "contorno", filled: "preenchido" }[parametros.get("style")] ?? "todos";
+    const busca = parametros.get("q") || "";
+    this.view.busca = busca;
     if (valido(pedido)) {
-      this.view.busca = parametros.get("q") || "";
+      // Conjunto e busca no endereço: a busca fica nesse conjunto
+      this.fixado = Boolean(busca) && pedido !== TODOS;
       this.escolherFonte(pedido, { focar: false });
       return;
     }
-    // ?q= sem conjunto (a busca das páginas de texto): o padrão, já filtrado
-    this.view.busca = parametros.get("q") || "";
-    let salvo = null;
-    try {
-      salvo = localStorage.getItem(CHAVE_CONJUNTO);
-    } catch {
-      // Sem armazenamento: vale o padrão
-    }
-    this.escolherFonte(valido(salvo) ? salvo : CONJUNTO_PADRAO, { focar: false, implicito: true });
+    if (busca) {
+      // ?q= sem conjunto (a busca das páginas de texto): em todos os
+      // conjuntos; apagar a busca leva ao conjunto de sempre
+      this.origem = this.conjuntoSalvo();
+      this.origemImplicita = true;
+      this.model.conjuntoPreferido = this.origem;
+      this.todosAutomatico = true;
+      this.escolherFonte(TODOS, { focar: false, implicito: true });
+    } else this.escolherFonte(this.conjuntoSalvo(), { focar: false, implicito: true });
     // O começo é a busca: com mouse, o cursor já fica nela. No celular, não
     // (abriria o teclado e cobriria a página), nem com um ícone aberto por link.
     if (matchMedia("(pointer: fine)").matches && !location.hash) this.view.focarBusca();
@@ -92,12 +154,15 @@ export class IconController {
     this.atualizarGrupos();
   }
 
-  salvarNoEndereco() {
+  // semConjunto: sem ?set= (a home volta a ser "/")
+  salvarNoEndereco({ semConjunto = false } = {}) {
     const parametros = new URLSearchParams();
     // Um ?lang= de quem chegou por link (ou buscador) fica no endereço
     const idioma = new URLSearchParams(location.search).get("lang");
     if (idioma) parametros.set("lang", idioma);
-    if (this.model.fonteAtual) parametros.set("set", this.model.fonteAtual);
+    // "Todos" escolhido por digitar não vai para o endereço: ?q= sozinho já
+    // quer dizer todos os conjuntos
+    if (this.model.fonteAtual && !this.todosAutomatico && !semConjunto) parametros.set("set", this.model.fonteAtual);
     const busca = this.view.busca.trim();
     if (busca) parametros.set("q", busca);
     // O conjunto escolhido, não o exibido: este ainda pode estar carregando
@@ -115,7 +180,9 @@ export class IconController {
   }
 
   escolherFonte(chave, { focar = true, implicito = false } = {}) {
-    this.view.marcarFonte(chave, this.model.fontes[chave].rotulo, { focar });
+    // Um conjunto escolhido com a busca já digitada fica fixo para ela
+    if (!implicito && chave !== TODOS && this.view.busca.trim()) this.fixado = true;
+    this.view.marcarFonte(chave, this.rotuloDe(chave), { focar });
     if (chave !== this.model.fonteAtual) this.trocarFonte(chave, { implicito });
   }
 
@@ -125,9 +192,10 @@ export class IconController {
     model.fonteAtual = chave;
     if (!implicito) this.salvarNoEndereco();
     try {
-      if (!model.emCache(chave))
-        view.mostrarCarregando(model.fontes[chave].rotulo);
-      const dados = await model.carregar(chave);
+      const todos = chave === TODOS;
+      if (todos ? !model.todosEmCache : !model.emCache(chave))
+        view.mostrarCarregando(this.rotuloDe(chave), { todos });
+      const dados = todos ? await model.carregarTodos() : await model.carregar(chave);
       // O usuário trocou de conjunto enquanto este carregava
       if (chave !== model.fonteAtual) return;
 
@@ -214,7 +282,7 @@ export class IconController {
     return {
       busca,
       comGrupos: model.gruposEscolhidos.size > 0,
-      outros: busca
+      outros: busca && !model.modoTodos
         ? Object.entries(model.fontes)
             .filter(([chave]) => chave !== model.fonteAtual)
             .map(([chave, fonte]) => ({ chave, rotulo: fonte.rotulo, n: model.contarEm(chave, busca) }))

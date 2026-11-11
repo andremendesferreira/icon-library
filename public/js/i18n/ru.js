@@ -18,6 +18,8 @@ export default {
 
   "set.select": "Выбрать",
   "set.label": "Набор иконок",
+  "sets.all": "Все наборы",
+  "summary.allHtml": "Иконок и эмодзи из всех наборов: <strong>{total}</strong>, по разделу на каждый набор. Выберите набор, чтобы искать только в нём.",
   "categories.all": "Все категории",
   "letters.all": "Все буквы",
   "categories.clear": "Сбросить выбор",
@@ -44,6 +46,7 @@ export default {
 
   "loading.icons": "Загрузка иконок…",
   "loading.set": "Загрузка {set}…",
+  "loading.all": "Загрузка всех наборов…",
   "loading.error": "Ошибка загрузки набора иконок: {message}",
   "grid.start": "Выберите набор иконок выше, чтобы начать.",
   "grid.empty": "Нет иконок для этого фильтра.",

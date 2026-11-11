@@ -18,6 +18,8 @@ export default {
 
   "set.select": "选择",
   "set.label": "图标集",
+  "sets.all": "全部图标集",
+  "summary.allHtml": "来自全部图标集的 <strong>{total}</strong> 个图标和表情，每个图标集一个分区。选择一个图标集即可只在其中搜索。",
   "categories.all": "全部类别",
   "letters.all": "全部字母",
   "categories.clear": "清除选择",
@@ -39,6 +41,7 @@ export default {
 
   "loading.icons": "正在加载图标…",
   "loading.set": "正在加载 {set}…",
+  "loading.all": "正在加载全部图标集…",
   "loading.error": "加载图标集出错：{message}",
   "grid.start": "请在上方选择一个图标集开始。",
   "grid.empty": "没有符合此筛选的图标。",

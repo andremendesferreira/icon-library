@@ -18,6 +18,8 @@ export default {
 
   "set.select": "選択",
   "set.label": "アイコンセット",
+  "sets.all": "すべてのセット",
+  "summary.allHtml": "すべてのセットのアイコンと絵文字 <strong>{total}</strong> 個を、セットごとに表示しています。セットを選ぶと、その中だけを検索します。",
   "categories.all": "すべてのカテゴリ",
   "letters.all": "すべての文字",
   "categories.clear": "選択を解除",
@@ -39,6 +41,7 @@ export default {
 
   "loading.icons": "アイコンを読み込み中…",
   "loading.set": "{set} を読み込み中…",
+  "loading.all": "すべてのセットを読み込んでいます…",
   "loading.error": "アイコンセットの読み込みエラー：{message}",
   "grid.start": "上でアイコンセットを選んで始めましょう。",
   "grid.empty": "この条件に合うアイコンはありません。",

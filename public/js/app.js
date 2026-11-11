@@ -37,8 +37,11 @@ const catalogo = {
     Object.entries(iconModel.fontes)
       .filter(([, fonte]) => !fonte.detectaGlifo)
       .map(([chave, fonte]) => ({ chave, rotulo: fonte.rotulo })),
-  atual: () =>
-    iconModel.fontes[iconModel.fonteAtual]?.detectaGlifo ? null : iconModel.fonteAtual,
+  // Em "Todos os conjuntos" (ou no emoji) o editor abre a busca no primeiro
+  atual: () => {
+    const fonte = iconModel.fontes[iconModel.fonteAtual];
+    return fonte && !fonte.detectaGlifo ? iconModel.fonteAtual : null;
+  },
   rotulo: (chave) => iconModel.fontes[chave]?.rotulo ?? chave,
   async buscar(chave, termo) {
     const { itens } = await iconModel.carregar(chave);

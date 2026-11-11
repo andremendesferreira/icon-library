@@ -18,6 +18,8 @@ export default {
 
   "set.select": "Elegir",
   "set.label": "Conjunto de iconos",
+  "sets.all": "Todos los conjuntos",
+  "summary.allHtml": "<strong>{total}</strong> iconos y emojis de todos los conjuntos, en una sección para cada uno. Elige un conjunto para buscar solo en él.",
   "categories.all": "Todas las categorías",
   "letters.all": "Todas las letras",
   "categories.clear": "Borrar selección",
@@ -39,6 +41,7 @@ export default {
 
   "loading.icons": "Cargando iconos…",
   "loading.set": "Cargando {set}…",
+  "loading.all": "Cargando todos los conjuntos…",
   "loading.error": "Error al cargar el conjunto de iconos: {message}",
   "grid.start": "Elige un conjunto de iconos arriba para empezar.",
   "grid.empty": "Ningún icono para este filtro.",

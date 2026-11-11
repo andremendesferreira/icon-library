@@ -18,6 +18,8 @@ export default {
 
   "set.select": "Choisir",
   "set.label": "Jeu d’icônes",
+  "sets.all": "Tous les jeux",
+  "summary.allHtml": "<strong>{total}</strong> icônes et emojis de tous les jeux, une section par jeu. Choisissez un jeu pour ne chercher que dans celui-ci.",
   "categories.all": "Toutes les catégories",
   "letters.all": "Toutes les lettres",
   "categories.clear": "Effacer la sélection",
@@ -39,6 +41,7 @@ export default {
 
   "loading.icons": "Chargement des icônes…",
   "loading.set": "Chargement de {set}…",
+  "loading.all": "Chargement de tous les jeux…",
   "loading.error": "Erreur de chargement du jeu d’icônes : {message}",
   "grid.start": "Choisissez un jeu d’icônes ci-dessus pour commencer.",
   "grid.empty": "Aucune icône pour ce filtre.",

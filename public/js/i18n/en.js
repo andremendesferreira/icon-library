@@ -21,6 +21,8 @@ export default {
 
   "set.select": "Select",
   "set.label": "Icon set",
+  "sets.all": "All sets",
+  "summary.allHtml": "<strong>{total}</strong> icons and emoji from every set, in one section per set. Choose a set to search only in it.",
   "categories.all": "All categories",
   "letters.all": "All letters",
   "categories.clear": "Clear selection",
@@ -42,6 +44,7 @@ export default {
 
   "loading.icons": "Loading icons…",
   "loading.set": "Loading {set}…",
+  "loading.all": "Loading all sets…",
   "loading.error": "Error loading icon set: {message}",
   "grid.start": "Select an icon set above to start.",
   "grid.empty": "No icon for this filter.",

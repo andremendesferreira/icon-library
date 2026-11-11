@@ -16,6 +16,20 @@ function lerEstilo() {
 
 const OUTROS = "others";
 
+// "Todos os conjuntos": a busca em todas as fontes de uma vez. Não é uma
+// fonte de verdade: junta os itens das outras, cada um com o seu conjunto
+// (item.conjunto), e os grupos da grade passam a ser os conjuntos.
+export const TODOS = "all";
+const FONTE_TODAS = {
+  rotuloGrupo: "sets.all",
+  // Os controles valem para os itens a que se aplicam: traço no Lucide e no
+  // Feather, cor nos vetoriais, "só com desenho" nos emojis
+  temTraco: true,
+  temCor: true,
+  detectaGlifo: true,
+  todas: true,
+};
+
 // SVG de um item. O emoji vira um <text> dentro do SVG — ainda depende da
 // fonte do sistema para aparecer.
 export function svgDoItem(item) {
@@ -122,6 +136,9 @@ export class IconModel {
   itens = [];
   usouAlternativa = false;
   gruposEscolhidos = new Set();
+  // Em "Todos os conjuntos", o conjunto de onde a pessoa veio vem primeiro
+  // quando o acerto empata
+  conjuntoPreferido = null;
   // Sinônimos do idioma da página (Map), ou null em inglês ou sem o arquivo
   sinonimos = null;
   // Tamanho, traço e cor aplicados ao que é copiado/baixado; lembrados
@@ -164,6 +181,7 @@ export class IconModel {
       const temGlifo = criarDetector();
       for (const item of itens) item.suportado = temGlifo(item.char);
     } else for (const item of itens) item.suportado = true;
+    for (const item of itens) item.conjunto = chave;
 
     const dados = {
       itens,
@@ -175,8 +193,31 @@ export class IconModel {
     return dados;
   }
 
+  // Todos os conjuntos, na ordem do seletor. Um que falhe (a Iconlibrary
+  // sem servidor, a rede) fica de fora; só dá erro se nenhum vier.
+  async carregarTodos() {
+    const chaves = Object.keys(this.fontes);
+    const resultados = await Promise.allSettled(chaves.map((chave) => this.carregar(chave)));
+    const certos = resultados.filter((r) => r.status === "fulfilled");
+    if (!certos.length) throw resultados[0].reason;
+    return { itens: certos.flatMap((r) => r.value.itens), usouAlternativa: false };
+  }
+
+  get todosEmCache() {
+    return Object.keys(this.fontes).every((chave) => this.cache.has(chave));
+  }
+
+  get modoTodos() {
+    return Boolean(this.fonteExibida?.todas);
+  }
+
+  // O grupo de um item na grade: a categoria, ou o conjunto em "Todos"
+  grupoDe(item) {
+    return this.modoTodos ? (this.fontes[item.conjunto]?.rotulo ?? item.conjunto) : item.grupo;
+  }
+
   exibir(chave, { itens, usouAlternativa }) {
-    this.fonteExibida = this.fontes[chave];
+    this.fonteExibida = chave === TODOS ? FONTE_TODAS : this.fontes[chave];
     this.itens = itens;
     this.usouAlternativa = usouAlternativa;
     this.gruposEscolhidos.clear();
@@ -211,8 +252,10 @@ export class IconModel {
   // [grupo, quantidade] de todos os itens do conjunto
   contarGrupos() {
     const contagem = new Map();
-    for (const item of this.itens)
-      contagem.set(item.grupo, (contagem.get(item.grupo) || 0) + 1);
+    for (const item of this.itens) {
+      const grupo = this.grupoDe(item);
+      contagem.set(grupo, (contagem.get(grupo) || 0) + 1);
+    }
     return ordenarGrupos(contagem);
   }
 
@@ -235,20 +278,24 @@ export class IconModel {
     for (const item of this.itens) {
       const acerto = termo ? acertoComSinonimos(item, termo, extras) : 0;
       if (acerto === null) continue;
-      if (this.gruposEscolhidos.size && !this.gruposEscolhidos.has(item.grupo))
+      const grupo = this.grupoDe(item);
+      if (this.gruposEscolhidos.size && !this.gruposEscolhidos.has(grupo))
         continue;
       if (this.detectaGlifo && apenasSuportados && !item.suportado) continue;
       if (porVariante && item.variante !== variante) continue;
-      if (!grupos.has(item.grupo)) grupos.set(item.grupo, []);
-      grupos.get(item.grupo).push(item);
+      if (!grupos.has(grupo)) grupos.set(grupo, []);
+      grupos.get(grupo).push(item);
       nota.set(item, acerto);
     }
     const ordem = ordenarGrupos(grupos);
-    if (!termo) return ordem;
+    // Em "Todos", o conjunto de onde a pessoa veio vai na frente nos empates
+    const preferido = this.modoTodos ? this.fontes[this.conjuntoPreferido]?.rotulo : null;
+    const antes = ([grupo]) => (grupo === preferido ? 0 : 1);
+    if (!termo) return preferido ? ordem.sort((a, b) => antes(a) - antes(b)) : ordem;
     for (const [, itens] of ordem) itens.sort((a, b) => nota.get(a) - nota.get(b));
     const melhor = ([, itens]) => nota.get(itens[0]);
     // sort é estável: empatadas, as categorias seguem em ordem alfabética
-    return ordem.sort((a, b) => melhor(a) - melhor(b));
+    return ordem.sort((a, b) => melhor(a) - melhor(b) || antes(a) - antes(b));
   }
 
   // Quantos itens de um conjunto já carregado acham esta busca (nome ou tag);
@@ -272,6 +319,7 @@ export class IconModel {
 
   resumo() {
     const semDesenho = this.itens.filter((item) => !item.suportado);
+    if (this.modoTodos) return { total: this.itens.length, todos: true };
     return {
       total: this.itens.length,
       emoji: this.detectaGlifo,

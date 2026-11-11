@@ -256,11 +256,11 @@ export class IconView {
   }
 
   // ── Carregamento ───────────────────────────────────────────────────────────
-  mostrarCarregando(rotulo) {
+  mostrarCarregando(rotulo, { todos = false } = {}) {
     this.limparGrade();
     this.loader.style.display = "";
     this.loaderTexto.style.color = "";
-    this.loaderTexto.textContent = t("loading.set", { set: rotulo });
+    this.loaderTexto.textContent = todos ? t("loading.all") : t("loading.set", { set: rotulo });
   }
 
   esconderCarregando() {
@@ -312,7 +312,11 @@ export class IconView {
   }
 
   // ── Resumo ─────────────────────────────────────────────────────────────────
-  renderResumo({ total, emoji, semDesenho, versoes }) {
+  renderResumo({ total, emoji, semDesenho, versoes, todos }) {
+    if (todos) {
+      this.resumo.innerHTML = t("summary.allHtml", { total: numero(total) });
+      return;
+    }
     if (!emoji) {
       this.resumo.innerHTML = t("summary.vectorHtml", { total: numero(total) });
       return;

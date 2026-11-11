@@ -10,7 +10,8 @@
  *
  * Table search_misses: migrations/007_search_misses.sql
  */
-const SETS = ["lucide", "feather", "bootstrap", "emoji", "iconlibrary"];
+// "all": a search across every set at once (the default when typing)
+const SETS = ["lucide", "feather", "bootstrap", "emoji", "iconlibrary", "all"];
 const LANGS = ["en", "es", "fr", "de", "ru", "zh-CN", "pt-BR", "ja"];
 const MAX_TERM = 40;
 // The table stays small: past this many different terms, new ones are ignored

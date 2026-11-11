@@ -18,6 +18,8 @@ export default {
 
   "set.select": "Auswählen",
   "set.label": "Icon-Set",
+  "sets.all": "Alle Sets",
+  "summary.allHtml": "<strong>{total}</strong> Icons und Emojis aus allen Sets, ein Abschnitt pro Set. Wähle ein Set, um nur darin zu suchen.",
   "categories.all": "Alle Kategorien",
   "letters.all": "Alle Buchstaben",
   "categories.clear": "Auswahl aufheben",
@@ -39,6 +41,7 @@ export default {
 
   "loading.icons": "Icons werden geladen…",
   "loading.set": "{set} wird geladen…",
+  "loading.all": "Alle Sets werden geladen…",
   "loading.error": "Fehler beim Laden des Icon-Sets: {message}",
   "grid.start": "Wähle oben ein Icon-Set, um zu beginnen.",
   "grid.empty": "Kein Icon für diesen Filter.",
