@@ -51,6 +51,7 @@
     <button type="button" data-area="icones" aria-pressed="true">Ícones da Iconlibrary</button>
     <button type="button" data-area="avaliacoes" aria-pressed="false">Avaliações</button>
     <button type="button" data-area="bugs" aria-pressed="false">Relatos de bug</button>
+    <button type="button" data-area="buscas" aria-pressed="false">Buscas sem resultado</button>
   </div>
   <p class="nota" id="nota"></p>
   <div class="abas" id="abas" role="group" aria-label="Situação"></div>
@@ -128,6 +129,20 @@
                 <button type="button" data-acao="delete">Excluir</button>
               </div>
             </div>
+          </article>`,
+      },
+      buscas: {
+        nota:
+          "O que as pessoas buscaram e não acharam em nenhum ícone do conjunto escolhido, das mais buscadas para as menos. Serve para decidir que ícones desenhar ou que palavras-chave faltam. Excluir tira o termo da lista (ele volta se alguém buscar de novo).",
+        abas: [["top", "Mais buscadas"]],
+        endereco: () => "/api/admin/search-misses?limit=300",
+        acao: () => "/api/admin/search-misses/delete",
+        itens: (resposta) => resposta.misses,
+        cartao: (m) => `
+          <article class="relato" data-id="${texto(m.term)}" data-set="${texto(m.set)}">
+            <blockquote><strong>${texto(m.term)}</strong> · ${texto(m.set)} · ${m.count}×</blockquote>
+            <p>Idiomas: ${texto(Object.entries(m.langs || {}).map(([l, n]) => `${l} ${n}`).join(", "))} · primeira vez ${data(m.firstSeen)} · última ${data(m.lastSeen)}</p>
+            <div class="acoes"><button type="button" data-acao="delete">Excluir</button></div>
           </article>`,
       },
       bugs: {
@@ -212,8 +227,13 @@
       const res = await fetch(api(AREAS[area].acao(id, acao)), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Avaliações: a versão que estava na tela (outra mais nova → 409)
-        body: JSON.stringify({ note, submittedAt: cartao.dataset.versao || undefined }),
+        // Avaliações: a versão que estava na tela (outra mais nova → 409);
+        // buscas: o termo e o conjunto
+        body: JSON.stringify(
+          area === "buscas"
+            ? { term: id, set: cartao.dataset.set }
+            : { note, submittedAt: cartao.dataset.versao || undefined },
+        ),
       });
       if (!res.ok) {
         const { error } = await res.json().catch(() => ({}));

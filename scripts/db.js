@@ -100,6 +100,7 @@ const FEATURE_TABLES = {
   iconlibrary: { iconlibrary_icons: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
   reports: { bug_reports: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
   reviews: { reviews: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
+  searchMisses: { search_misses: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
 };
 
 // With the application's user: connects (a wrong password fails here) and

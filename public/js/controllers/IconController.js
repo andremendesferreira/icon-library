@@ -1,6 +1,6 @@
 import { nomeDeArquivo, paraCss, paraDataUri, paraReact, paraSvelte, paraVue } from "../models/svgTools.js";
 import { copiarTexto } from "./clipboard.js";
-import { t, tErro } from "../i18n/i18n.js";
+import { idiomaAtual, t, tErro } from "../i18n/i18n.js";
 import { baixarPngDeEmoji, baixarPngDeSvg, baixarSvg } from "./download.js";
 
 // Cor de "currentColor" num PNG solto, onde não há texto para herdar a cor
@@ -177,6 +177,32 @@ export class IconController {
       aoLimparGrupos: () => this.limparGrupos(),
       aoProcurarEm: (chave) => this.escolherFonte(chave),
     });
+    const total = grupos.reduce((soma, [, itens]) => soma + itens.length, 0);
+    if (!total) this.registrarBuscaPerdida();
+  }
+
+  // Busca que não achou nada: depois de 2 s sem digitar, manda o termo, o
+  // conjunto e o idioma ao servidor (scripts/searchMisses.js), uma vez por
+  // termo e conjunto nesta visita. Com categorias escolhidas não manda: o
+  // "nada" pode ser culpa do filtro, não da falta do ícone.
+  registrarBuscaPerdida() {
+    clearTimeout(this.esperaBuscaPerdida);
+    const termo = this.view.busca.trim().toLowerCase();
+    const conjunto = this.model.fonteAtual;
+    if (termo.length < 2 || !conjunto || this.model.gruposEscolhidos.size || !this.model.itens.length) return;
+    this.buscasEnviadas ??= new Set();
+    const chave = `${conjunto}:${termo}`;
+    if (this.buscasEnviadas.has(chave)) return;
+    this.esperaBuscaPerdida = setTimeout(() => {
+      if (this.view.busca.trim().toLowerCase() !== termo || this.model.fonteAtual !== conjunto) return;
+      this.buscasEnviadas.add(chave);
+      fetch("/api/search-misses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ term: termo, set: conjunto, lang: idiomaAtual() }),
+        keepalive: true,
+      }).catch(() => {});
+    }, 2000);
   }
 
   // Busca sem resultado: o que dá para fazer (limpar a busca, as categorias,

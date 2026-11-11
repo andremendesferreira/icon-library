@@ -53,6 +53,7 @@ const { ReportError, createReports, postgresStore: reportsStore } = require("./r
 const { ReviewError, createReviews, postgresStore: reviewsStore, avatarPng, MAX_COMMENT, MIN_COMMENT, MAX_NAME } = require("./reviews");
 const { configured: oauthConfigured, createOAuth } = require("./oauth");
 const { createResponseCache } = require("./cache");
+const { createSearchMisses, postgresStore: searchMissesStore } = require("./searchMisses");
 const { previewAvailable, previewSize, renderPng } = require("./preview");
 const { DEFAULT: DEFAULT_LANG, dictionary, homeLang, localizeHome } = require("./homeLang");
 const { loadVersion, versionHtml } = require("./version");
@@ -202,6 +203,7 @@ const LIMITS = {
   "/api/reports": 5,
   "/api/reviews": 15,
   "/api/reviews/auth": 20,
+  "/api/search-misses": 40,
   admin: 30,
 };
 const WINDOW = 15 * 60 * 1000;
@@ -299,7 +301,7 @@ function guardAdmin(req, res, ctx, json) {
     else send(req, res, status, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", ...headers }, body.error);
     return false;
   };
-  if (!ctx.adminPassword || !(ctx.iconlibrary || ctx.reports || ctx.reviews)) return fail(404, { error: "not_found" });
+  if (!ctx.adminPassword || !(ctx.iconlibrary || ctx.reports || ctx.reviews || ctx.searchMisses)) return fail(404, { error: "not_found" });
   if (isAdmin(req, ctx)) return true;
   if (!ctx.limit(`admin ${clientIp(req)}`, LIMITS.admin)) return fail(429, { error: "too_many" });
   return fail(401, { error: "unauthorized" }, { "WWW-Authenticate": 'Basic realm="Icon Library admin", charset="UTF-8"' });
@@ -671,6 +673,39 @@ async function handleReviews(req, res, url, ctx) {
   }
 }
 
+// Searches with no results (scripts/searchMisses.js):
+//   POST /api/search-misses { term, set, lang } → 204 (fire and forget)
+//   GET  /api/admin/search-misses            → most searched first
+//   POST /api/admin/search-misses/delete     { term, set }
+async function handleSearchMisses(req, res, url, ctx) {
+  const { searchMisses } = ctx;
+  try {
+    if (url === "/api/search-misses") {
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      if (!searchMisses) return send(req, res, 204, { "Cache-Control": "no-store" });
+      if (!ctx.limit(`/api/search-misses ${clientIp(req)}`, LIMITS["/api/search-misses"])) return sendJson(req, res, 429, { error: "too_many" });
+      await searchMisses.record(await readJson(req));
+      return send(req, res, 204, { "Cache-Control": "no-store" });
+    }
+    if (!guardAdmin(req, res, ctx, true)) return;
+    if (!searchMisses) return sendJson(req, res, 404, { error: "not_found" });
+    if (url === "/api/admin/search-misses") {
+      if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
+      return sendJson(req, res, 200, { misses: await searchMisses.top(new URL(req.url, "http://localhost").searchParams.get("limit")) });
+    }
+    if (url === "/api/admin/search-misses/delete") {
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      const body = await readJson(req);
+      return sendJson(req, res, 200, await searchMisses.remove(body.term, body.set));
+    }
+    return sendJson(req, res, 404, { error: "not_found" });
+  } catch (err) {
+    if (err instanceof CoffeeError) return sendJson(req, res, err.status, { error: err.code });
+    logError("[search-misses]", err);
+    return sendJson(req, res, 500, { error: "server" });
+  }
+}
+
 async function handleApi(req, res, url, ctx) {
   // A write that may change a public list drops its cached copy, so an
   // approval or an edit shows up at once
@@ -695,6 +730,7 @@ async function handleApi(req, res, url, ctx) {
     return sendJson(req, res, ctx.health.ok ? 200 : 503, { ...ctx.health, version: VERSION.commit ? VERSION.commit.slice(0, 7) : null });
   }
   if (url.startsWith("/api/moderation/")) return handleModeration(req, res, url, ctx);
+  if (url === "/api/search-misses" || url.startsWith("/api/admin/search-misses")) return handleSearchMisses(req, res, url, ctx);
   if (url === "/api/reviews" || url.startsWith("/api/reviews/") || url === "/api/admin/reviews" || url.startsWith("/api/admin/reviews/"))
     return handleReviews(req, res, url, ctx);
   if (url === "/api/reports" || url.startsWith("/api/reports/") || url.startsWith("/api/admin/reports")) {
@@ -844,11 +880,11 @@ function handle(req, res, ctx) {
 // /admin; indexNowKey: serves /<key>.txt; reviews: scripts/reviews.js and
 // oauth: scripts/oauth.js (logins for reviews). Each null/empty = feature off.
 // health: the start-up checks, for /api/health (default: healthy, no database).
-function createServer({ coffee = null, iconlibrary = null, reports = null, reviews = null, oauth = null, adminPassword = "", moderationToken = "", indexNowKey = "", health = null } = {}) {
+function createServer({ coffee = null, iconlibrary = null, reports = null, reviews = null, oauth = null, searchMisses = null, adminPassword = "", moderationToken = "", indexNowKey = "", health = null } = {}) {
   const ctx = {
-    coffee, iconlibrary, reports, reviews, oauth, adminPassword, moderationToken, indexNowKey, limit: createLimiter(),
+    coffee, iconlibrary, reports, reviews, oauth, searchMisses, adminPassword, moderationToken, indexNowKey, limit: createLimiter(),
     cache: createResponseCache(),
-    health: { ok: true, database: "off", pendingMigrations: [], ...health, coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews) },
+    health: { ok: true, database: "off", pendingMigrations: [], ...health, coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews), searchMisses: Boolean(searchMisses) },
   };
   return http.createServer((req, res) => {
     try {
@@ -940,7 +976,9 @@ if (require.main === module) {
     const reviews = reviewsOk
       ? createReviews({ store: reviewsStore(pool), supporter: (code) => coffee.supporter(code), identity: (ticket, browser) => oauth?.take(ticket, browser) ?? null })
       : null;
-    Object.assign(health, { coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews) });
+    // Searches with no results: only the database, no other feature
+    const searchMisses = (await usable("searchMisses", "searches with no results are off")) ? createSearchMisses({ store: searchMissesStore(pool) }) : null;
+    Object.assign(health, { coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews), searchMisses: Boolean(searchMisses) });
     const adminPassword = process.env.ADMIN_PASSWORD || "";
     // A short token would be easy to guess: below 32 characters it is ignored
     let moderationToken = process.env.MODERATION_TOKEN || "";
@@ -953,7 +991,7 @@ if (require.main === module) {
     if (process.env.INDEXNOW_KEY && !indexNow)
       console.error("[indexnow] INDEXNOW_KEY must have 8 to 128 letters, digits or dashes (openssl rand -hex 16) — IndexNow is off");
     const site = (process.env.SITE_URL || "").replace(/\/+$/, "");
-    createServer({ coffee, iconlibrary, reports, reviews, oauth, adminPassword, moderationToken, indexNowKey: indexNow, health }).listen(PORT, HOST, () => {
+    createServer({ coffee, iconlibrary, reports, reviews, oauth, searchMisses, adminPassword, moderationToken, indexNowKey: indexNow, health }).listen(PORT, HOST, () => {
       console.log(`Icon Library running at http://localhost:${PORT}`);
       // Off because of a failed database check: point to the [db] line, not to the configuration
       const off = (reason) => (health.ok ? `off (${reason})` : "OFF (database check failed, see [db] above)");
@@ -961,7 +999,8 @@ if (require.main === module) {
       console.log(`Iconlibrary: ${iconlibrary ? "on" : off("needs the database and the coffee")}`);
       console.log(`Bug reports: ${reports ? "on" : off("needs the database")}`);
       console.log(`Supporter reviews: ${reviews ? `on, logins: ${oauth ? oauth.providers().join(", ") : "none (set *_OAUTH_ID/SECRET)"}` : off("needs the database and the coffee")}`);
-      console.log(`Admin (/admin): ${(iconlibrary || reports || reviews) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
+      console.log(`Searches with no results: ${searchMisses ? "on" : off("needs the database")}`);
+      console.log(`Admin (/admin): ${(iconlibrary || reports || reviews || searchMisses) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
       console.log(`Version: ${VERSION.commit ? VERSION.commit.slice(0, 7) : "unknown commit"}${VERSION.built ? `, built ${VERSION.built}` : ""}`);
       console.log(`Moderation API: ${iconlibrary && moderationToken ? `on${previewAvailable() ? "" : " (no PNG previews: renderer missing)"}` : "off (set MODERATION_TOKEN)"}`);
       console.log(`IndexNow: ${indexNow && site ? "on, sitemap sent in a minute" : "off (set INDEXNOW_KEY and SITE_URL)"}`);

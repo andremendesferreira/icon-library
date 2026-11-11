@@ -169,6 +169,10 @@ Supporters can rate Icon Library from 1 to 5 stars with a comment (10–600 char
 - **No rating in structured data:** Google does not accept a site's reviews of itself (`AggregateRating`), so the stars are only on the page.
 - **API:** `GET /api/reviews/config`, `GET /api/reviews`, `POST /api/reviews`, `POST /api/reviews/mine`, `GET /api/reviews/:id/avatar.png`, `GET /api/reviews/auth/:provider[/callback]`, `POST /api/reviews/identity`; admin: `GET /api/admin/reviews?status=`, `GET /api/admin/reviews/:id/avatar.png`, `POST /api/admin/reviews/:id/approve|reject|delete`. Table `reviews` (`migrations/006_reviews.sql`); if it is missing, only the reviews are off.
 
+### Searches with no results
+
+When a search finds nothing in the chosen set (and no category is filtering), the page waits 2 s and sends the term, the set and the language, once per term per visit. The server keeps one counter per term and set (`migrations/007_search_misses.sql`), never the IP; terms that look like personal data (e-mail, link, long number) are dropped. **/admin → Searches with no results** lists them, most searched first: the icons people want and cannot find. API: `POST /api/search-misses` (204), admin `GET /api/admin/search-misses`, `POST /api/admin/search-misses/delete`.
+
 ### Bug reports
 
 - **Report a bug** in the footer (and on the guide, about and privacy pages) opens a form: what happened, an optional e-mail for a reply, and, sent along automatically, the page address, language, browser and window size. The IP is not stored. A hidden field catches bots, and each IP may send 5 reports per 15 minutes.
@@ -328,6 +332,7 @@ icon-library/
 ├── scripts/reviews.js                  supporter reviews (About page) and avatar redraw
 ├── scripts/oauth.js                    GitHub/Google/Microsoft logins for reviews
 ├── scripts/cache.js                    API list responses kept ready: ETag, 304 and gzip
+├── scripts/searchMisses.js             searches with no results, counted per term (/admin)
 ├── scripts/preview.js                  PNG previews for moderation
 ├── scripts/svgSafe.js                  strict check of submitted SVG
 ├── scripts/db.js                       PostgreSQL pool and migration runner (npm run migrate)
@@ -495,6 +500,10 @@ Apoiadores podem dar ao Icon Library uma nota de 1 a 5 estrelas, com um comentá
 - **Sem nota nos dados estruturados:** o Google não aceita avaliações de um site sobre si mesmo (`AggregateRating`), então as estrelas ficam só na página.
 - **API:** `GET /api/reviews/config`, `GET /api/reviews`, `POST /api/reviews`, `POST /api/reviews/mine`, `GET /api/reviews/:id/avatar.png`, `GET /api/reviews/auth/:provedor[/callback]`, `POST /api/reviews/identity`; admin: `GET /api/admin/reviews?status=`, `GET /api/admin/reviews/:id/avatar.png`, `POST /api/admin/reviews/:id/approve|reject|delete`. Tabela `reviews` (`migrations/006_reviews.sql`); se ela faltar, só as avaliações ficam desligadas.
 
+### Buscas sem resultado
+
+Quando uma busca não acha nada no conjunto escolhido (e nenhuma categoria está filtrando), a página espera 2 s e manda o termo, o conjunto e o idioma, uma vez por termo em cada visita. O servidor guarda um contador por termo e conjunto (`migrations/007_search_misses.sql`), nunca o IP; termos que parecem dado pessoal (e-mail, link, número comprido) são descartados. **/admin → Buscas sem resultado** lista os termos, dos mais buscados para os menos: os ícones que as pessoas querem e não acham. API: `POST /api/search-misses` (204), admin `GET /api/admin/search-misses`, `POST /api/admin/search-misses/delete`.
+
 ### Relatos de bug
 
 - **Reportar bug**, no rodapé (e nas páginas de guia, sobre e privacidade), abre um formulário: o que aconteceu, um e-mail opcional para resposta e, enviados automaticamente, o endereço da página, o idioma, o navegador e o tamanho da janela. O IP não é guardado. Um campo escondido barra robôs, e cada IP pode enviar 5 relatos a cada 15 minutos.
@@ -638,6 +647,7 @@ icon-library/
 ├── scripts/reviews.js                  avaliações dos apoiadores (página Sobre) e foto redesenhada
 ├── scripts/oauth.js                    logins GitHub/Google/Microsoft das avaliações
 ├── scripts/cache.js                    respostas das listas da API prontas: ETag, 304 e gzip
+├── scripts/searchMisses.js             buscas sem resultado, contadas por termo (/admin)
 ├── scripts/preview.js                  prévias em PNG para a moderação
 ├── scripts/svgSafe.js                  conferência estrita do SVG enviado
 ├── scripts/db.js                       conexão com o PostgreSQL e migrations (npm run migrate)
