@@ -36,7 +36,7 @@ Todas as chamadas levam o cabeçalho `Authorization: Bearer <MODERATION_TOKEN>`.
 | Chamada | Para quê |
 |---|---|
 | `GET /api/moderation/icons` | o que espera decisão: `{ icons: [{ id, kind, name, slug, categories, author, svg, createdAt, submittedAt, current, preview }] }` — `kind` é `icon` (ícone novo ou editado antes de aprovado) ou `revision` (edição de um ícone já no ar; `current` traz a versão no ar) |
-| `GET /api/moderation/icons/{id}/preview.png?size=256` | o ícone em PNG (escuro sobre branco, com margem); `size` de 16 a 512 |
+| `GET /api/moderation/icons/{id}/preview.png?size=256` | o ícone em PNG (escuro sobre branco, com margem); `size` de 16 a 512. Desenhado numa thread à parte: um desenho que passe de 3 s responde 503 `preview_timeout`, e mais de 2 ao mesmo tempo, 503 `preview_busy` (tentar de novo depois) |
 | `POST /api/moderation/icons/{id}/approve` | aprova (só se ainda estiver pendente) |
 | `POST /api/moderation/icons/{id}/reject` com `{ "note": "motivo" }` | recusa; a nota aparece no `/admin` |
 | `POST /api/moderation/icons/{id}/delete` | exclui um ícone pendente ou recusado; aprovado responde `409 approved` (só sai pelo `/admin`) |

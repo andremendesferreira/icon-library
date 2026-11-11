@@ -341,7 +341,7 @@ test("foto: imagem pequena que declara dimensões enormes é recusada sem decodi
   assert.ok(Number(process.hrtime.bigint() - inicio) / 1e6 < 200, "recusa antes de decodificar");
   // JPEG: as dimensões vêm do marcador SOF
   // SOI, um APP0 de 16 bytes e um SOF0 de 48 de altura por 64 de largura
-  const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, ...Buffer.from("JFIF "), 1, 1, 0, 0, 1, 0, 1, 0, 0,
+  const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, ...Buffer.from("JFIF\0"), 1, 1, 0, 0, 1, 0, 1, 0, 0,
     0xff, 0xc0, 0x00, 0x11, 0x08, 0x00, 0x30, 0x00, 0x40, 0x03, 1, 0x22, 0, 2, 0x11, 1, 3, 0x11, 1]);
   assert.deepEqual(avaliacoes.imageSize(jpeg), { w: 64, h: 48 });
 });

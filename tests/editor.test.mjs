@@ -1262,3 +1262,47 @@ test("degradê: preenchimento só em formas fechadas; acompanha a forma movida; 
   assert.match(model.svg(), /<circle [^>]*fill="#7f00ff"/);
   assert.doesNotMatch(model.svg(), /Gradient/);
 });
+
+test("importar ícone com degradê: ids repetidos ganham outro número, as referências acompanham", () => {
+  const icone = (cor) => ({
+    raiz: { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24" },
+    elementos: [
+      { tag: "circle", attrs: { cx: "12", cy: "12", r: "6", fill: "url(#il-grad-1)" } },
+      { tag: "path", attrs: { d: "M1 1L5 5", "clip-path": "url(#corte)" } },
+      { tag: "linearGradient", html: `<linearGradient id="il-grad-1" gradientUnits="userSpaceOnUse" x1="6" y1="12" x2="18" y2="12"><stop offset="0" stop-color="${cor}"/><stop offset="1" stop-color="#ffffff"/></linearGradient>` },
+      { tag: "clipPath", html: '<clipPath id="corte"><rect width="9" height="9"/></clipPath>' },
+    ],
+  });
+  const model = new EditorModel();
+  model.definirDocumento(icone("#ff0000"), "primeiro");
+  model.importarDocumento(icone("#0000ff"), "segundo");
+  const svg = model.svg();
+  // O primeiro fica como estava; o segundo vira il-grad-2 e corte-2
+  assert.equal(svg.match(/id="il-grad-1"/g).length, 1);
+  assert.match(svg, /<linearGradient id="il-grad-2"[^>]*><stop offset="0" stop-color="#0000ff"/);
+  assert.equal(svg.match(/fill="url\(#il-grad-2\)"/g).length, 1);
+  assert.match(svg, /<clipPath id="corte-2">/);
+  assert.equal(svg.match(/clip-path="url\(#corte-2\)"/g).length, 1);
+  // Sem repetição, nada muda
+  const so = new EditorModel();
+  so.definirDocumento({ raiz: { viewBox: "0 0 24 24" }, elementos: [{ tag: "line", attrs: { x1: "0", y1: "0", x2: "1", y2: "1" } }] });
+  so.importarDocumento(icone("#ff0000"), "um");
+  assert.match(so.svg(), /id="il-grad-1"/);
+});
+
+test("comIdsUnicos: cada cópia na página com ids e referências próprias", async () => {
+  const { comIdsUnicos } = await import("../public/js/views/html.js");
+  const svg =
+    '<svg viewBox="0 0 24 24"><path d="M1 1" fill="url(#il-grad-1)" stroke="url(#fora)"/><use href="#il-grad-1"/><linearGradient id="il-grad-1"><stop offset="0"/></linearGradient></svg>';
+  const a = comIdsUnicos(svg);
+  const b = comIdsUnicos(svg);
+  const id = (texto) => /id="([^"]+)"/.exec(texto)[1];
+  assert.notEqual(id(a), id(b));
+  assert.ok(id(a).endsWith("-il-grad-1"));
+  assert.ok(a.includes(`fill="url(#${id(a)})"`) && a.includes(`href="#${id(a)}"`));
+  // Uma referência a algo que não é deste SVG fica como está
+  assert.ok(a.includes('stroke="url(#fora)"'));
+  // Sem id, o texto volta igual
+  const simples = '<svg viewBox="0 0 24 24"><path d="M1 1"/></svg>';
+  assert.equal(comIdsUnicos(simples), simples);
+});

@@ -1267,7 +1267,7 @@ export class EditorModel {
     this.registrar();
     const grupo = this.grupos.push({ nome }) - 1;
     let fixos = 0;
-    for (const el of doc.elementos) {
+    for (const el of this.semIdsRepetidos(doc.elementos)) {
       if (el.html) {
         if (!identidade) fixos++;
         this.elementos.push({ ...el, grupo, oculto: false });
@@ -1303,6 +1303,39 @@ export class EditorModel {
 
   importar(texto, nome) {
     return this.importarDocumento(lerSvg(texto), nome);
+  }
+
+  // Os elementos de um ícone que chega, com outro nome para cada id que já
+  // existe aqui: dois ícones da Iconlibrary trazem "il-grad-1", e no mesmo
+  // SVG o segundo pintaria com o degradê do primeiro. Um degradê do editor
+  // ganha o próximo il-grad-N livre (continua editável); outro id, um sufixo.
+  // As referências (url(#…), href="#…") acompanham.
+  semIdsRepetidos(elementos) {
+    const idsDe = (lista) => lista.flatMap((el) => [...(el.html ?? "").matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+    const aqui = new Set(idsDe(this.elementos));
+    const chegando = idsDe(elementos);
+    const ocupados = new Set([...aqui, ...chegando]);
+    let maior = Math.max(0, ...[...ocupados].map((id) => Number(/^il-grad-(\d+)$/.exec(id)?.[1] ?? 0)));
+    const troca = new Map();
+    for (const id of chegando) {
+      if (!aqui.has(id) || troca.has(id)) continue;
+      let novo;
+      if (/^il-grad-\d+$/.test(id)) novo = `il-grad-${++maior}`;
+      else for (let n = 2; ocupados.has((novo = `${id}-${n}`)); n++);
+      ocupados.add(novo);
+      troca.set(id, novo);
+    }
+    if (!troca.size) return elementos;
+    const trocar = (texto) =>
+      String(texto)
+        .replace(/(\sid=")([^"]+)"/g, (trecho, antes, id) => (troca.has(id) ? `${antes}${troca.get(id)}"` : trecho))
+        .replace(/url\(\s*#([^)\s]+)\s*\)/g, (trecho, id) => (troca.has(id) ? `url(#${troca.get(id)})` : trecho))
+        .replace(/(href=")#([^"]+)"/g, (trecho, antes, id) => (troca.has(id) ? `${antes}#${troca.get(id)}"` : trecho));
+    return elementos.map((el) =>
+      el.html
+        ? { ...el, html: trocar(el.html) }
+        : { ...el, attrs: Object.fromEntries(Object.entries(el.attrs).map(([k, v]) => [k, /url\(/.test(v) ? trocar(v) : v])) },
+    );
   }
 
   // ── Arquivo .ile ─────────────────────────────────────────────────────────

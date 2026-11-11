@@ -1,4 +1,4 @@
-import { escapar } from "./html.js";
+import { comIdsUnicos, escapar } from "./html.js";
 import { lista, numero, t } from "../i18n/i18n.js";
 
 const porId = (id) => document.getElementById(id);
@@ -441,7 +441,7 @@ export class IconView {
     const credito = item.autor ? `\n${t("card.by", { author: item.autor })}` : "";
     const icone =
       item.tipo === "svg"
-        ? `<span class="svg-icon">${item.svg}</span>`
+        ? `<span class="svg-icon">${comIdsUnicos(item.svg)}</span>`
         : `<span class="emoji-char">${item.char}</span>`;
     // Ícones vetoriais abrem no editor; emoji é texto, não tem o que editar
     const editar =

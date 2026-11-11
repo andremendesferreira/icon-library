@@ -1,5 +1,5 @@
 import { t } from "../i18n/i18n.js";
-import { escapar } from "./html.js";
+import { comIdsUnicos, escapar } from "./html.js";
 import { fecharAoClicarFora } from "./dialogo.js";
 
 const porId = (id) => document.getElementById(id);
@@ -72,7 +72,7 @@ export class MineView {
         const atual = icone.revision ?? icone;
         const situacao = icone.revision ? "revision" : icone.status;
         return `<li class="mine__item">
-          <span class="mine__preview" aria-hidden="true">${atual.svg}</span>
+          <span class="mine__preview" aria-hidden="true">${comIdsUnicos(atual.svg)}</span>
           <span class="mine__info">
             <strong>${escapar(atual.name)}</strong>
             <span class="mine__status mine__status--${situacao}">${escapar(t(`mine.status.${situacao}`))}</span>

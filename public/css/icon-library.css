@@ -2242,22 +2242,12 @@ body:has(.scratchpad--open) .back-to-top {
   white-space: nowrap;
   border: 0;
 }
-.editor__snap {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 16px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--il-muted);
-}
-.editor__snap select {
-  padding: 4px 6px;
-  border: 1px solid #c5d0dc;
-  border-radius: 6px;
-  font: inherit;
-  font-weight: 400;
+/* Grade: o passo escolhido fica marcado */
+.editor__grade > button[aria-pressed="true"],
+[data-theme="dark"] .editor__grade > button[aria-pressed="true"] {
+  border-color: var(--il-action);
+  background: var(--il-action);
+  color: #fff;
 }
 .editor__stage {
   grid-area: stage;
@@ -2739,8 +2729,7 @@ body:has(.scratchpad--open) .back-to-top {
 }
 [data-theme="dark"] .editor__buttons button,
 [data-theme="dark"] .editor__footer button:not(.editor__primary),
-[data-theme="dark"] .editor__studio,
-[data-theme="dark"] .editor__snap select {
+[data-theme="dark"] .editor__studio {
   background: var(--dk-surface-2);
   border-color: var(--dk-border);
   color: var(--dk-text);
@@ -2749,9 +2738,6 @@ body:has(.scratchpad--open) .back-to-top {
   background: var(--dk-bg);
   border-color: var(--dk-border);
   color: var(--dk-text);
-}
-[data-theme="dark"] .editor__snap {
-  color: var(--dk-muted);
 }
 
 /* Seleção no editor: contorno tracejado por cima, a forma mantém a cor */
@@ -5074,10 +5060,6 @@ body {
 .editor__degrade select:disabled,
 .editor__degrade button:disabled {
   opacity: 0.55;
-}
-.editor__degrade-nota {
-  margin: 6px 0 0;
-  color: var(--il-muted);
 }
 @media (pointer: coarse) {
   .editor__degrade-sugestao {

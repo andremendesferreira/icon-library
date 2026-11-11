@@ -1,4 +1,4 @@
-import { corCss, escapar, svgDoTexto } from "./html.js";
+import { comIdsUnicos, corCss, escapar, svgDoTexto } from "./html.js";
 import { t } from "../i18n/i18n.js";
 import { caminhoDaCaneta } from "../models/svgGeometry.js";
 import { DEGRADES_SUGERIDOS, ehDegrade } from "../models/degrade.js";
@@ -250,9 +250,11 @@ export class EditorView {
       else if (botao.dataset.ordem) acoes.aoOrdenar(botao.dataset.ordem);
       else acoes.aoTransformar(botao.dataset.op);
     });
-    this.encaixe.addEventListener("change", () =>
-      acoes.aoEncaixe(Number(this.encaixe.value)),
-    );
+    // Grade: um botão por passo (data-passo), marcado com aria-pressed
+    this.encaixe.addEventListener("click", (evento) => {
+      const botao = evento.target.closest("[data-passo]");
+      if (botao) acoes.aoEncaixe(Number(botao.dataset.passo));
+    });
 
     // O código só é lido quando o usuário dá uma pausa na digitação
     let espera;
@@ -452,7 +454,7 @@ export class EditorView {
     this.buscaResultados.innerHTML = resultados
       .map(
         (r, k) =>
-          `<button type="button" class="editor__picker-icon" data-k="${k}" title="${escapar(r.nome)}" aria-label="${escapar(t("editor.pickerAdd", { name: r.nome }))}">${r.svg}</button>`,
+          `<button type="button" class="editor__picker-icon" data-k="${k}" title="${escapar(r.nome)}" aria-label="${escapar(t("editor.pickerAdd", { name: r.nome }))}">${comIdsUnicos(r.svg)}</button>`,
       )
       .join("");
   }
@@ -799,7 +801,8 @@ export class EditorView {
       this.codigo.value = estado.svg;
       this.erro.textContent = "";
     }
-    this.encaixe.value = String(estado.passo);
+    for (const botao of this.encaixe.querySelectorAll("[data-passo]"))
+      botao.setAttribute("aria-pressed", String(Number(botao.dataset.passo) === estado.passo));
     this.botaoDesfazer.disabled = !estado.podeDesfazer;
     this.botaoRefazer.disabled = !estado.podeRefazer;
     this.linkStudio.hidden = !estado.linkStudio;
@@ -1602,8 +1605,10 @@ export class EditorView {
           `<figure class="editor__preview"><span style="width:${tamanho}px;height:${tamanho}px"></span>${escura ? "" : `<figcaption>${tamanho}</figcaption>`}</figure>`,
       ).join("")}</div>`;
     this.previas.innerHTML = linha(false) + linha(true);
-    const desenho = svgDoTexto(svg);
-    if (desenho)
-      for (const caixa of this.previas.querySelectorAll("span")) caixa.append(desenho.cloneNode(true));
+    // Cada prévia com ids próprios: o degradê de uma não pinta a outra
+    for (const caixa of this.previas.querySelectorAll("span")) {
+      const desenho = svgDoTexto(comIdsUnicos(svg));
+      if (desenho) caixa.append(desenho);
+    }
   }
 }

@@ -64,6 +64,101 @@ test("SVG perigoso ou fora do formato é recusado, nunca 'limpo'", () => {
       assert.throws(() => sanitizeSvg(entrada), { code: codigo }, `${codigo}: ${entrada.slice(0, 70)}`);
 });
 
+test("degradê do editor passa: ids renumerados il-grad-N, sem uso some", () => {
+  const svg = sanitizeSvg(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">' +
+      '<path d="M1 1L15 1L15 15Z" fill="url(#il-grad-5)"/>' +
+      '<circle cx="8" cy="8" r="2" stroke="url( #outro )" fill="#e981be"/>' +
+      '<linearGradient id="il-grad-5" gradientUnits="userSpaceOnUse" x1="8" y1="1" x2="8" y2="15"><stop offset="0" stop-color="#fff5f9"/><stop offset="1" stop-color="#f0c1dd" stop-opacity="0.5"/></linearGradient>' +
+      '<radialGradient id="sem-uso" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="red"/></radialGradient>' +
+      '<radialGradient id="outro" cx="8" cy="8" r="2" spreadMethod="reflect"><stop offset="0" stop-color="#fbdb09"/><stop offset="1" stop-color="#f12b11"/></radialGradient>' +
+      "</svg>",
+  );
+  assert.equal(
+    svg,
+    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 16 16" fill="currentColor">' +
+      '<path d="M1 1L15 1L15 15Z" fill="url(#il-grad-1)"/>' +
+      '<circle cx="8" cy="8" r="2" stroke="url(#il-grad-2)" fill="#e981be"/>' +
+      '<linearGradient id="il-grad-1" gradientUnits="userSpaceOnUse" x1="8" y1="1" x2="8" y2="15"><stop offset="0" stop-color="#fff5f9"/><stop offset="1" stop-color="#f0c1dd" stop-opacity="0.5"/></linearGradient>' +
+      '<radialGradient id="il-grad-2" cx="8" cy="8" r="2" spreadMethod="reflect"><stop offset="0" stop-color="#fbdb09"/><stop offset="1" stop-color="#f12b11"/></radialGradient>' +
+      "</svg>",
+  );
+  // O resultado passa de novo igual (publicar uma edição)
+  assert.equal(sanitizeSvg(svg), svg);
+});
+
+test("degradê fora do formato é recusado", () => {
+  const forma = '<path d="M1 1" fill="url(#g)"/>';
+  const grad = (abre, dentro = '<stop offset="0" stop-color="red"/>') => `<svg viewBox="0 0 24 24">${forma}${abre}${dentro}</linearGradient></svg>`;
+  const casos = {
+    svg_attribute: [
+      // Links, transformações e estilo no degradê
+      grad('<linearGradient id="g" href="#h">'),
+      grad('<linearGradient id="g" xlink:href="#h">'),
+      grad('<linearGradient id="g" gradientTransform="rotate(9)">'),
+      grad('<linearGradient id="g" style="x">'),
+      grad('<linearGradient id="g" onload="alert(1)">'),
+      grad('<linearGradient id="g" x1="javascript:1">'),
+      grad('<linearGradient id="g" gradientUnits="other">'),
+      grad('<linearGradient id="1g">'),
+      // Coordenadas fora de ±10000 (raio enorme ou minúsculo só deixa o desenho lento)
+      grad('<linearGradient id="g" x1="1e5">'),
+      grad('<linearGradient id="g" x2="-20000%">'),
+      `<svg viewBox="0 0 24 24">${forma.replace("#g", "#r")}<radialGradient id="r" fr="1e9"><stop offset="0"/></radialGradient></svg>`,
+      // Valor longo fora de d/points
+      grad(`<linearGradient id="g" x1="${"1".repeat(65)}">`),
+      grad('<linearGradient>'),
+      // Paradas: só offset, stop-color e stop-opacity
+      grad('<linearGradient id="g">', '<stop offset="0" stop-color="url(#g)"/>'),
+      grad('<linearGradient id="g">', '<stop offset="0" style="stop-color:red"/>'),
+      grad('<linearGradient id="g">', '<stop offset="0" onclick="x"/>'),
+      // url() para algo que não é um degradê do ícone, ou fora do formato
+      '<svg viewBox="0 0 24 24"><path d="M1 1" fill="url(#nada)"/></svg>',
+      '<svg viewBox="0 0 24 24"><path d="M1 1" fill="url(https://x.example/a.svg#g)"/></svg>',
+      '<svg viewBox="0 0 24 24"><path d="M1 1" fill="url(#g) red"/></svg>',
+      // Na raiz, só cor
+      '<svg viewBox="0 0 24 24" fill="url(#g)"><path d="M1 1"/><linearGradient id="g"><stop offset="0"/></linearGradient></svg>',
+    ],
+    svg_shapes: [
+      grad('<linearGradient id="g">', "<script>alert(1)</script>"),
+      grad('<linearGradient id="g">', '<stop offset="0"></stop>'),
+      grad('<linearGradient id="g">', '<animate attributeName="x1"/>'),
+      grad('<linearGradient id="g">', "<!-- c -->"),
+      grad('<linearGradient id="g">', ""),
+      `<svg viewBox="0 0 24 24">${forma}<linearGradient id="g"/></svg>`,
+      `<svg viewBox="0 0 24 24">${forma}<linearGradient id="g"><stop offset="0"/></radialGradient></svg>`,
+      `<svg viewBox="0 0 24 24">${forma}<pattern id="g"><path d="M1 1"/></pattern></svg>`,
+      `<svg viewBox="0 0 24 24">${forma}<defs><linearGradient id="g"><stop offset="0"/></linearGradient></defs></svg>`,
+    ],
+    svg_invalid: [
+      `<svg viewBox="0 0 24 24">${forma}<linearGradient id="g"><stop offset="0"/></linearGradient><radialGradient id="g"><stop offset="0"/></radialGradient></svg>`,
+    ],
+    svg_too_large: [
+      grad('<linearGradient id="g">', '<stop offset="0"/>'.repeat(17)),
+      `<svg viewBox="0 0 24 24">${forma}${Array.from({ length: 51 }, (_, i) => `<linearGradient id="g${i}"><stop offset="0"/></linearGradient>`).join("")}</svg>`,
+    ],
+  };
+  for (const [codigo, entradas] of Object.entries(casos))
+    for (const entrada of entradas)
+      assert.throws(() => sanitizeSvg(entrada), { code: codigo }, `${codigo}: ${entrada.slice(24, 140)}`);
+});
+
+test("número muito longo é recusado sem custo (regex sem retrocesso)", () => {
+  const longo = "1".repeat(19000) + "x";
+  for (const svg of [
+    `<svg viewBox="0 0 24 24"><circle cx="${longo}" cy="1" r="1"/></svg>`,
+    `<svg viewBox="0 0 24 24"><path d="M1 1" stroke-width="${longo}"/></svg>`,
+  ]) {
+    const inicio = process.hrtime.bigint();
+    assert.throws(() => sanitizeSvg(svg), { code: "svg_attribute" });
+    assert.ok(Number(process.hrtime.bigint() - inicio) / 1e6 < 50, "recusa rápida");
+  }
+  // As regexes, sem o limite de tamanho, também respondem rápido
+  const inicio = process.hrtime.bigint();
+  /^[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?$/.test(longo);
+  assert.ok(Number(process.hrtime.bigint() - inicio) / 1e6 < 50);
+});
+
 test("slugify: nome legível vira identificador", () => {
   assert.equal(slugify("Rocket Launch"), "rocket-launch");
   assert.equal(slugify("Coração  Partido"), "coracao-partido");

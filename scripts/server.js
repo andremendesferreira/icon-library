@@ -55,7 +55,7 @@ const { configured: oauthConfigured, createOAuth } = require("./oauth");
 const { createResponseCache } = require("./cache");
 const { createSearchMisses, postgresStore: searchMissesStore } = require("./searchMisses");
 const { ENFORCED: CSP_ENFORCED, PAGES_REPORT_ONLY: CSP_REPORT_ONLY, createCspReports, strictPolicyFor } = require("./csp");
-const { previewAvailable, previewSize, renderPng } = require("./preview");
+const { PreviewError, previewAvailable, previewSize, renderPngIsolated } = require("./preview");
 const { DEFAULT: DEFAULT_LANG, dictionary, homeLang, localizeHome } = require("./homeLang");
 const { loadVersion, versionHtml } = require("./version");
 const { indexNowKey, submitIndexNow, describeStatus } = require("./indexnow");
@@ -385,7 +385,14 @@ async function handleModeration(req, res, url, ctx) {
       const icon = await iconlibrary.get(imagem[1]);
       const size = previewSize(new URL(req.url, "http://localhost").searchParams.get("size"));
       // What is waiting for a decision: the edit, when there is one
-      const png = renderPng(iconlibrary.pendingSvg(icon), size);
+      // In a worker with a time limit: a slow drawing never stops the site
+      let png;
+      try {
+        png = await renderPngIsolated(iconlibrary.pendingSvg(icon), size);
+      } catch (err) {
+        if (err instanceof PreviewError) return sendJson(req, res, 503, { error: err.code });
+        throw err;
+      }
       return send(req, res, 200, { "Content-Type": "image/png", "Cache-Control": "no-store", "Content-Length": png.length }, png);
     }
     const decisao = /^\/api\/moderation\/icons\/(\d+)\/(approve|reject|delete)$/.exec(url);

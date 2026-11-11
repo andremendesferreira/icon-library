@@ -81,6 +81,18 @@ test("moderação: prévia em PNG, no tamanho pedido e dentro dos limites", asyn
   assert.equal((await fetch(`${base}/api/moderation/icons/999999/preview.png`, { headers: comToken() })).status, 404);
 });
 
+test("prévia PNG: numa thread com tempo limite, e no máximo 2 ao mesmo tempo", async () => {
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="url(#il-grad-1)"/><radialGradient id="il-grad-1" cx="12" cy="12" r="9"><stop offset="0" stop-color="#fbdb09"/><stop offset="1" stop-color="#f12b11"/></radialGradient></svg>';
+  const png = await previa.renderPngIsolated(svg, 64);
+  assert.equal(png.subarray(1, 4).toString(), "PNG");
+  // Mais de 2 ao mesmo tempo: os seguintes recebem "ocupado"
+  const pedidos = [1, 2, 3].map(() => previa.renderPngIsolated(svg, 64).then(() => "ok", (e) => e.code));
+  assert.deepEqual((await Promise.all(pedidos)).sort(), ["ok", "ok", "preview_busy"]);
+  // Desenho demorado: o pedido desiste e a thread é encerrada (a vaga só
+  // volta quando ela termina de sair)
+  await assert.rejects(previa.renderPngIsolated(svg, 512, { timeout: 1 }), { code: "preview_timeout" });
+});
+
 test("moderação: aprova e recusa só pendentes; não exclui nada", async () => {
   const aprovar = (await lib.submit(envio("Ring Three"))).id;
   const recusar = (await lib.submit(envio("Ring Four"))).id;

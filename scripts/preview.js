@@ -5,7 +5,13 @@
  *
  * Dark icon on a white square, with a margin around it. The SVG was already
  * validated by svgSafe.js when it was submitted.
+ *
+ * The server renders in a worker thread with a time limit (renderPngIsolated):
+ * a valid icon can still be slow to paint (many large semi-transparent shapes
+ * over a reflected gradient took ~13 s), and resvg is synchronous, so on the
+ * main thread it would stop the whole site.
  */
+const { Worker, isMainThread, parentPort, workerData } = require("worker_threads");
 
 const MIN_SIZE = 16;
 const MAX_SIZE = 512;
@@ -54,4 +60,61 @@ function renderPng(svg, size = DEFAULT_SIZE) {
   return resvg.render().asPng();
 }
 
-module.exports = { DEFAULT_SIZE, MAX_SIZE, MIN_SIZE, previewAvailable, previewSize, renderPng };
+const RENDER_TIMEOUT_MS = 3000;
+// Renders running at once; a worker past its time is terminated, but native
+// code only stops when it returns, so this caps the CPU an abuser can hold
+const MAX_RENDERS = 2;
+let running = 0;
+
+class PreviewError extends Error {
+  constructor(code) {
+    super(code);
+    this.code = code;
+  }
+}
+
+// renderPng in a worker thread: resolves to the PNG, or rejects with
+// PreviewError "preview_busy" (too many at once) or "preview_timeout"
+function renderPngIsolated(svg, size = DEFAULT_SIZE, { timeout = RENDER_TIMEOUT_MS } = {}) {
+  if (!Resvg) return Promise.reject(loadError || new Error("preview renderer unavailable"));
+  if (running >= MAX_RENDERS) return Promise.reject(new PreviewError("preview_busy"));
+  running++;
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(__filename, { workerData: { previewJob: { svg: String(svg), size } } });
+    let done = false;
+    // The slot is free once the PNG is back (the heavy work is over) or the
+    // thread has exited; a timed-out render keeps it until it really stops
+    let released = false;
+    const release = () => {
+      if (!released) running--;
+      released = true;
+    };
+    const finish = (fn, value) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      fn(value);
+    };
+    const timer = setTimeout(() => {
+      finish(reject, new PreviewError("preview_timeout"));
+      worker.terminate();
+    }, timeout);
+    worker.once("message", (png) => {
+      release();
+      finish(resolve, Buffer.from(png));
+    });
+    worker.once("error", (err) => finish(reject, err));
+    worker.once("exit", () => {
+      release();
+      finish(reject, new PreviewError("preview_failed"));
+    });
+  });
+}
+
+// Inside the worker: render the job and hand the bytes back
+if (!isMainThread && workerData?.previewJob) {
+  const { svg, size } = workerData.previewJob;
+  parentPort.postMessage(renderPng(svg, size));
+}
+
+module.exports = { DEFAULT_SIZE, MAX_SIZE, MIN_SIZE, PreviewError, previewAvailable, previewSize, renderPng, renderPngIsolated };

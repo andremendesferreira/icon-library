@@ -1,5 +1,5 @@
 import { t } from "../i18n/i18n.js";
-import { escapar, svgDoTexto } from "./html.js";
+import { comIdsUnicos, escapar, svgDoTexto } from "./html.js";
 
 const porId = (id) => document.getElementById(id);
 
@@ -71,7 +71,7 @@ export class ScratchpadView {
       botao.dataset.i = String(i);
       botao.title = nome || t("scratchpad.unnamed");
       botao.setAttribute("aria-label", t("scratchpad.editIcon", { name: nome || t("scratchpad.unnamed") }));
-      const desenho = svgDoTexto(svg);
+      const desenho = svgDoTexto(comIdsUnicos(svg));
       if (desenho) botao.append(desenho);
       botao.insertAdjacentHTML("beforeend", `<span>${escapar(nome || t("scratchpad.unnamed"))}</span>`);
       return botao;

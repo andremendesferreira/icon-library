@@ -249,6 +249,8 @@ export class EditorController {
       },
       aoEncaixe: (passo) => {
         model.passo = passo;
+        // Os botões da grade marcam o passo no desenho seguinte
+        this.desenhar();
       },
       aoCor: mudar((cor, { inicio }) =>
         model.definirCor(cor, { registrar: inicio }),
