@@ -5188,3 +5188,27 @@ body {
   font-size: 20px;
   font-weight: 700;
 }
+
+/* Publicar: as caixas de seleção acompanham o texto de 18 px (22 px) e a da
+   licença fica centrada na primeira linha do texto ao lado */
+.publish__license input[type="checkbox"],
+.publish__category input[type="checkbox"] {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--il-action);
+}
+.publish__license {
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.5;
+}
+.publish__license input[type="checkbox"] {
+  margin-top: calc(0.75em - 11px);
+}
+.publish__category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
