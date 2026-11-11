@@ -5,6 +5,8 @@ import { nomeDeArquivo } from "../models/svgTools.js";
 import { copiarTexto } from "./clipboard.js";
 import { idiomaAtual, t, tErro } from "../i18n/i18n.js";
 import { baixarPngDeSvg, baixarSvg, baixarTexto } from "./download.js";
+import { carregarPaper } from "./carregarPaper.js";
+import { combinarCaminhos } from "../models/booleanas.js";
 
 // Cor de "currentColor" num PNG solto, onde não há texto para herdar a cor
 const COR_PNG = "#2c3e50";
@@ -119,6 +121,28 @@ export class EditorController {
         this.desenhar();
         this.avisarDesfazivel(t("editor.splitDone"));
         return true;
+      },
+      // Unir, Subtrair, Interseção, Excluir: o Paper.js só é baixado no
+      // primeiro uso (controllers/carregarPaper.js)
+      aoCombinarFormas: async (operacao) => {
+        if (!model.podeCombinarFormas(operacao)) return this.avisar(t(`editor.${operacao}Need`));
+        let paper;
+        try {
+          if (!globalThis.paper?.CompoundPath) this.avisar(t("editor.boolLoading"));
+          paper = await carregarPaper();
+        } catch {
+          return this.avisar(t("editor.boolFailed"));
+        }
+        let resultado;
+        try {
+          resultado = model.combinarFormas(operacao, (op, caminhos) => combinarCaminhos(paper, op, caminhos));
+        } catch {
+          return this.avisar(t("editor.boolFailed"));
+        }
+        if (!resultado.ok)
+          return this.avisar(t(resultado.motivo === "vazio" ? "editor.boolEmpty" : `editor.${operacao}Need`));
+        this.desenhar();
+        this.avisarDesfazivel(t(`editor.${operacao}Done`));
       },
       aoDuplicar: () => {
         if (!model.duplicar()) return false;
@@ -611,6 +635,7 @@ export class EditorController {
         guias: model.guias,
         original: model.original,
         podeAgrupar: model.podeAgrupar,
+        podeCombinarFormas: Object.fromEntries(["unir", "subtrair", "intersecao", "excluir"].map((op) => [op, model.podeCombinarFormas(op)])),
         podeDesagrupar: model.podeDesagrupar,
         podeUnir: model.podeUnir,
         linhaAberta: model.linhaAberta,

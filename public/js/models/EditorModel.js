@@ -1,5 +1,6 @@
 import {
   FORMAS,
+  caminhoDaForma,
   escreverPath,
   adicionarPonto,
   aplicarUniaoInterna,
@@ -24,6 +25,9 @@ import { erro as erroCom } from "./erros.js";
 import { ehDegrade, idDoDegrade, lerDegrade, montarDegrade, normalizarDegrade } from "./degrade.js";
 
 const LIMITE_HISTORICO = 100;
+
+// Atributos que descrevem a geometria (saem quando a forma vira path)
+const GEOMETRIA = new Set(["d", "x", "y", "width", "height", "rx", "ry", "cx", "cy", "r", "points", "x1", "y1", "x2", "y2", "pathLength"]);
 
 // Valores que o SVG assume quando um atributo de desenho não é informado
 export const PADRAO_DESENHO = {
@@ -1455,6 +1459,66 @@ export class EditorModel {
       pontas: temTraco ? this.efetivo(el, "stroke-linecap") : null,
       cantos: temTraco ? this.efetivo(el, "stroke-linejoin") : null,
     };
+  }
+
+  // ── Unir, Subtrair, Interseção, Excluir ──────────────────────────────────
+  // Só formas fechadas, sem transform. Unir aceita duas ou mais; as outras,
+  // exatamente duas: a de baixo (primeira no desenho) e a de cima.
+  formasParaCombinar() {
+    if (!this.temSelecao) return [];
+    return this.alvos()
+      .filter((i) => {
+        const el = this.elementos[i];
+        return el && !el.html && !el.attrs.transform && formaFechada(el);
+      })
+      .sort((a, b) => a - b);
+  }
+
+  podeCombinarFormas(operacao) {
+    if (!this.temSelecao) return false;
+    const formas = this.formasParaCombinar();
+    // Tudo o que está selecionado precisa servir
+    if (formas.length !== this.alvos().length) return false;
+    return operacao === "unir" ? formas.length >= 2 : formas.length === 2;
+  }
+
+  // motor(operacao, caminhos) → texto do path resultante (models/booleanas.js
+  // com o Paper.js). O resultado fica no lugar da forma de baixo, com o
+  // estilo dela; as outras saem. Devolve { ok } ou { ok: false, motivo }:
+  // "selecao" (a seleção não serve) ou "vazio" (não sobra nada).
+  combinarFormas(operacao, motor) {
+    if (!this.podeCombinarFormas(operacao)) return { ok: false, motivo: "selecao" };
+    const indices = this.formasParaCombinar();
+    const caminhos = indices.map((i) => caminhoDaForma(this.elementos[i]));
+    if (caminhos.some((d) => !d)) return { ok: false, motivo: "selecao" };
+    let d;
+    try {
+      // Mesma escrita dos outros paths do editor (absoluto, 3 casas)
+      d = escreverPath(lerPath(motor(operacao, caminhos) || ""));
+    } catch {
+      return { ok: false, motivo: "vazio" };
+    }
+    if (!/\d/.test(d)) return { ok: false, motivo: "vazio" };
+    this.registrar();
+    const base = this.elementos[indices[0]];
+    const attrs = {};
+    for (const [nome, valor] of Object.entries(base.attrs))
+      if (!GEOMETRIA.has(nome)) attrs[nome] = valor;
+    attrs.d = d;
+    // Com furos ou partes separadas, evenodd desenha certo em qualquer sentido
+    if ((d.match(/M/g) || []).length > 1) attrs["fill-rule"] = "evenodd";
+    const saem = new Set(indices.slice(1));
+    const elementos = [];
+    let novo = -1;
+    this.elementos.forEach((el, i) => {
+      if (i === indices[0]) {
+        novo = elementos.length;
+        elementos.push({ ...base, tag: "path", attrs });
+      } else if (!saem.has(i)) elementos.push(el);
+    });
+    this.elementos = elementos;
+    this.definirSelecao([novo]);
+    return { ok: true };
   }
 
   // ── Degradê ──────────────────────────────────────────────────────────────

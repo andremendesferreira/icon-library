@@ -996,6 +996,13 @@ function comandosDaForma(elemento) {
   return comandosDoTraco(elemento);
 }
 
+// Qualquer forma → texto de um path com o mesmo desenho (para as operações
+// de Combinar: unir, subtrair…). null se a forma não puder ser lida.
+export function caminhoDaForma(elemento) {
+  const cmds = comandosDaForma(elemento);
+  return cmds?.length ? escreverPath(cmds) : null;
+}
+
 // Comandos → subcaminhos: { inicio, trechos: [{ de, c }], fechado }. O Z vira
 // um trecho de reta de volta ao início (quando ainda falta chegar lá).
 function subcaminhos(cmds) {

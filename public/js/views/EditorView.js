@@ -81,6 +81,8 @@ export class EditorView {
   botaoUnir = porId("editor-join");
   botaoSeparar = porId("editor-split");
   botaoDuplicar = porId("editor-duplicate");
+  // Unir, Subtrair, Interseção, Excluir
+  botoesFormas = [...document.querySelectorAll("[data-combinar-formas]")];
   // Pontas e cantos do traço, e a caixa (X, Y, largura, altura) da seleção
   linhaPontas = porId("editor-ends");
   pontas = porId("editor-linecap");
@@ -288,6 +290,7 @@ export class EditorView {
     seAtivo(this.botaoDesagrupar, acoes.aoDesagrupar);
     seAtivo(this.botaoUnir, acoes.aoUnir);
     seAtivo(this.botaoDuplicar, acoes.aoDuplicar);
+    for (const botao of this.botoesFormas) seAtivo(botao, () => acoes.aoCombinarFormas(botao.dataset.combinarFormas));
     porId("editor-optimize").addEventListener("click", acoes.aoOtimizar);
     porId("editor-draft-restore").addEventListener("click", acoes.aoRecuperarRascunho);
     porId("editor-draft-discard").addEventListener("click", acoes.aoDescartarRascunho);
@@ -805,7 +808,7 @@ export class EditorView {
 
   // Agrupar, Desagrupar, Unir e Separar ficam sempre no lugar: sem poder ser
   // usados, ficam apagados e a dica diz o que falta
-  mostrarCombinar({ podeAgrupar, podeDesagrupar, podeUnir, podeSeparar, quantidade }) {
+  mostrarCombinar({ podeAgrupar, podeDesagrupar, podeUnir, podeSeparar, quantidade, podeCombinarFormas = {} }) {
     const botao = (no, pode, chave, chaveFalta) => {
       const texto = t(pode ? chave : chaveFalta);
       no.setAttribute("aria-disabled", String(!pode));
@@ -817,6 +820,10 @@ export class EditorView {
     botao(this.botaoUnir, podeUnir, "editor.joinTitle", "editor.joinNeed");
     botao(this.botaoSeparar, podeSeparar, "editor.splitTitle", "editor.splitNeed");
     botao(this.botaoDuplicar, quantidade > 0, "editor.duplicateTitle", "editor.duplicateNeed");
+    for (const no of this.botoesFormas) {
+      const op = no.dataset.combinarFormas;
+      botao(no, Boolean(podeCombinarFormas[op]), `editor.${op}Title`, `editor.${op}Need`);
+    }
     if (this.cortando && !podeSeparar) this.modoCorte(false);
   }
 

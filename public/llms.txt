@@ -55,6 +55,7 @@ Only produce base64url if you can encode it exactly; otherwise URL-encode the JS
 - Keep it simple: few shapes, at least 2 units between separate shapes, no detail smaller than the stroke.
 - A color on a single shape: give it its own `stroke` (or `fill` for filled shapes). It then keeps that color wherever the icon is pasted.
 - A gradient: put a `<linearGradient>` or `<radialGradient>` with `id="il-grad-1"` (the editor manages ids `il-grad-N`), `gradientUnits="userSpaceOnUse"` and coordinates in icon units, as a direct child of `<svg>`, and point shapes at it with `stroke="url(#il-grad-1)"` or `fill="url(#il-grad-1)"`. The editor recomputes the coordinates from the shapes that use it. `userSpaceOnUse` matters: with the default bounding box, a straight line has zero height and loses its color. Iconlibrary refuses gradients.
+- Merged or cut-out shapes (the editor's Unite, Subtract, Intersect and Exclude): one `<path>` whose `d` holds every piece; with holes or separate pieces it carries `fill-rule="evenodd"`. Keep that attribute when editing the path by hand.
 - Never include scripts, event attributes (`onload`…), `foreignObject`, `<a>`, `<style>`, animations or comments: they are removed when the icon opens. Links (`href`) may only point inside the icon (`#id`).
 
 Bootstrap Icons use a different style: `viewBox="0 0 16 16"`, `fill="currentColor"`, filled shapes, no stroke.

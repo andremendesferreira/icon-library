@@ -35,5 +35,8 @@
   "dependencies": {
     "@resvg/resvg-js": "2.6.2",
     "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "paper": "0.12.18"
   }
 }
