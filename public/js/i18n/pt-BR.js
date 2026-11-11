@@ -519,7 +519,7 @@ export default {
   "reviews.empty": "Ainda não há avaliações publicadas. Apoiadores podem ser os primeiros.",
   "reviews.write": "Avaliar o Icon Library",
   "reviews.stars": "{n} de 5 estrelas",
-  "reviews.via": "Verificado pelo {provider}",
+  "reviews.via": "Verificado via {provider}",
   "reviews.formIntro": "Só apoiadores podem avaliar. Sua avaliação aparece depois de revisada.",
   "reviews.code": "Código de apoiador",
   "reviews.codeHint": "Ele está na janela do café, no aparelho em que você pagou o café.",

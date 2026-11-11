@@ -119,7 +119,7 @@
               <h2>${texto(r.name)} <span class="estrelas" role="img" aria-label="${r.rating} de 5">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span></h2>
               <blockquote>${texto(r.comment)}</blockquote>
               ${r.edit ? `<p>No ar: ${"★".repeat(r.current.rating)} — ${texto(r.current.comment)}</p>` : ""}
-              <p>${r.provider === "anonymous" ? "Sem login" : `Verificado pelo ${texto(r.provider)}`} · idioma ${texto(r.lang)}</p>
+              <p>${r.provider === "anonymous" ? "Sem login" : `Verificado via ${texto(r.provider)}`} · idioma ${texto(r.lang)}</p>
               <p>Apoiador: <code>${texto(r.supporterCode)}</code></p>
               <p>Enviada: ${data(r.submittedAt)}${r.decidedAt ? ` · decidida ${data(r.decidedAt)}` : ""}</p>
               ${r.note ? `<p>Nota: ${texto(r.note)}</p>` : ""}

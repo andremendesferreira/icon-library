@@ -48,7 +48,7 @@ da página Sobre (8 idiomas).
   Microsoft (`openid profile User.Read`):
   - código de autorização com PKCE e `state` de uso único (10 minutos);
   - o servidor lê nome, id e foto, descarta o token na hora e guarda só
-    `sha256(provedor:id)`: é o selo "Verificado pelo GitHub/Google/Microsoft";
+    `sha256(provedor:id)`: é o selo "Verificado via GitHub/Google/Microsoft";
   - a foto só é baixada dos domínios do próprio provedor;
   - o login fica preso ao navegador: o começo grava um valor aleatório no
     cookie `il_review_login` (`HttpOnly`, `SameSite=Lax`, só em
