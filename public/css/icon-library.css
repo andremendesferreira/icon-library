@@ -2678,6 +2678,10 @@ body:has(.scratchpad--open) .back-to-top {
   background: #f5f7fb;
   color: #2c3e50;
 }
+/* A legenda (16, 24…) da linha clara segue o fundo claro, não o tema */
+[data-theme="dark"] .editor__previews-linha:not(.editor__previews-linha--escura) figcaption {
+  color: #5a6b7b;
+}
 [data-theme="dark"] .editor__group-input {
   background: var(--dk-surface-2);
   color: var(--dk-text);
