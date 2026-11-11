@@ -138,8 +138,10 @@ function createOAuth({ credentials, render, fetch = globalThis.fetch, now = Date
       let detail = "";
       try {
         const body = await res.json();
-        const code = typeof body.error === "string" ? body.error : body.error?.code;
-        const text = String(body.error_description ?? body.error?.message ?? "").split(/\r?\n/)[0].slice(0, 160);
+        // No control characters (a line break would forge a log line), short
+        const limpo = (valor, maximo) => String(valor ?? "").replace(/\p{Cc}/gu, " ").slice(0, maximo);
+        const code = limpo(typeof body.error === "string" ? body.error : body.error?.code, 80);
+        const text = limpo(String(body.error_description ?? body.error?.message ?? "").split(/\r?\n/)[0], 160);
         detail = [code, text].filter(Boolean).join(": ");
       } catch {}
       throw new Error(`${new URL(url).hostname} answered ${res.status}${detail ? ` (${detail})` : ""}`);

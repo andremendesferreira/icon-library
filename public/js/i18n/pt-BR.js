@@ -602,4 +602,5 @@ export default {
   "help.subtract": "Subtrair: a forma de cima recorta a de baixo",
   "help.intersect": "Interseção: fica só a parte em comum de duas formas",
   "help.exclude": "Excluir: fica tudo, menos a parte em comum",
+  "editor.boolSlow": "Essas formas estão emboladas demais para combinar: estava demorando muito e foi interrompido",
 };

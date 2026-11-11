@@ -602,4 +602,5 @@ export default {
   "help.subtract": "Subtrahieren: die obere Form schneidet die untere aus",
   "help.intersect": "Schnittmenge: nur die Überlappung zweier Formen behalten",
   "help.exclude": "Ausschließen: alles außer der Überlappung behalten",
+  "editor.boolSlow": "Diese Formen sind zu verschlungen zum Kombinieren: Es dauerte zu lange und wurde abgebrochen",
 };

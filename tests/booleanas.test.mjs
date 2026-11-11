@@ -97,3 +97,19 @@ test("unir três formas, inclusive polígono", () => {
   assert.equal(m.elementos.length, 1);
   assert.ok(caixa(m).minY < 0.01, "o triângulo de cima entrou");
 });
+
+test("assíncrono: se as formas mudarem durante a conta, o resultado é descartado", () => {
+  const m = editor([CIRCULO, BARRA]);
+  const pedido = m.prepararCombinacao("unir");
+  assert.ok(pedido && pedido.caminhos.length === 2);
+  const d = motor("unir", pedido.caminhos);
+  // Enquanto o worker calculava, a pessoa moveu uma forma
+  m.selecionar(1);
+  m.transformar("direita");
+  assert.deepEqual(m.aplicarCombinacao(pedido, d), { ok: false, motivo: "selecao" });
+  assert.equal(m.elementos.length, 2, "nada foi trocado");
+  // Com as formas iguais, aplica
+  m.selecionarTudo();
+  const outro = m.prepararCombinacao("unir");
+  assert.deepEqual(m.aplicarCombinacao(outro, motor("unir", outro.caminhos)), { ok: true });
+});

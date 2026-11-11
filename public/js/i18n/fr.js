@@ -602,4 +602,5 @@ export default {
   "help.subtract": "Soustraire : la forme du dessus découpe celle du dessous",
   "help.intersect": "Intersection : garde seulement la partie commune",
   "help.exclude": "Exclure : garde tout sauf la partie commune",
+  "editor.boolSlow": "Ces formes sont trop enchevêtrées pour être combinées : c’était trop long, l’opération a été arrêtée",
 };

@@ -595,4 +595,5 @@ export default {
   "help.subtract": "型抜き：上の図形で下の図形を切り抜く",
   "help.intersect": "交差：2 つの図形が重なる部分だけ残す",
   "help.exclude": "除外：重なり以外をすべて残す",
+  "editor.boolSlow": "図形が複雑すぎて組み合わせられません。時間がかかりすぎたため中止しました",
 };

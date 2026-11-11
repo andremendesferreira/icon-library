@@ -605,4 +605,5 @@ export default {
   "help.subtract": "Subtract: the top shape cuts the one below",
   "help.intersect": "Intersect: keep only where two shapes overlap",
   "help.exclude": "Exclude: keep everything but the overlap",
+  "editor.boolSlow": "These shapes are too tangled to combine: it took too long, so it was stopped",
 };

@@ -595,4 +595,5 @@ export default {
   "help.subtract": "减去：上层形状裁掉下层形状",
   "help.intersect": "相交：只保留两个形状重叠的部分",
   "help.exclude": "排除：保留除重叠部分以外的全部",
+  "editor.boolSlow": "这些形状太复杂，无法组合：耗时过长，已停止",
 };

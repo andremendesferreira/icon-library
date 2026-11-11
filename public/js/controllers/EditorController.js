@@ -5,8 +5,7 @@ import { nomeDeArquivo } from "../models/svgTools.js";
 import { copiarTexto } from "./clipboard.js";
 import { idiomaAtual, t, tErro } from "../i18n/i18n.js";
 import { baixarPngDeSvg, baixarSvg, baixarTexto } from "./download.js";
-import { carregarPaper } from "./carregarPaper.js";
-import { combinarCaminhos } from "../models/booleanas.js";
+import { combinarNoWorker, workerPronto } from "./combinarNoWorker.js";
 
 // Cor de "currentColor" num PNG solto, onde não há texto para herdar a cor
 const COR_PNG = "#2c3e50";
@@ -122,25 +121,23 @@ export class EditorController {
         this.avisarDesfazivel(t("editor.splitDone"));
         return true;
       },
-      // Unir, Subtrair, Interseção, Excluir: o Paper.js só é baixado no
-      // primeiro uso (controllers/carregarPaper.js)
+      // Unir, Subtrair, Interseção, Excluir: a conta roda num Web Worker com
+      // tempo-limite (controllers/combinarNoWorker.js); o Paper.js só é
+      // baixado no primeiro uso
       aoCombinarFormas: async (operacao) => {
-        if (!model.podeCombinarFormas(operacao)) return this.avisar(t(`editor.${operacao}Need`));
-        let paper;
+        const pedido = model.prepararCombinacao(operacao);
+        if (!pedido) return this.avisar(t(`editor.${operacao}Need`));
+        if (!workerPronto()) this.avisar(t("editor.boolLoading"));
+        let d;
         try {
-          if (!globalThis.paper?.CompoundPath) this.avisar(t("editor.boolLoading"));
-          paper = await carregarPaper();
-        } catch {
-          return this.avisar(t("editor.boolFailed"));
+          d = await combinarNoWorker(operacao, pedido.caminhos);
+        } catch (erro) {
+          return this.avisar(t(erro.codigo === "tempo" ? "editor.boolSlow" : "editor.boolFailed"));
         }
-        let resultado;
-        try {
-          resultado = model.combinarFormas(operacao, (op, caminhos) => combinarCaminhos(paper, op, caminhos));
-        } catch {
-          return this.avisar(t("editor.boolFailed"));
-        }
+        const resultado = model.aplicarCombinacao(pedido, d);
+        // Formas mudadas durante a conta: o resultado é descartado
         if (!resultado.ok)
-          return this.avisar(t(resultado.motivo === "vazio" ? "editor.boolEmpty" : `editor.${operacao}Need`));
+          return this.avisar(t(resultado.motivo === "vazio" ? "editor.boolEmpty" : "editor.boolFailed"));
         this.desenhar();
         this.avisarDesfazivel(t(`editor.${operacao}Done`));
       },

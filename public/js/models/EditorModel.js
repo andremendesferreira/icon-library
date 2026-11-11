@@ -1482,23 +1482,34 @@ export class EditorModel {
     return operacao === "unir" ? formas.length >= 2 : formas.length === 2;
   }
 
-  // motor(operacao, caminhos) → texto do path resultante (models/booleanas.js
-  // com o Paper.js). O resultado fica no lugar da forma de baixo, com o
-  // estilo dela; as outras saem. Devolve { ok } ou { ok: false, motivo }:
-  // "selecao" (a seleção não serve) ou "vazio" (não sobra nada).
-  combinarFormas(operacao, motor) {
-    if (!this.podeCombinarFormas(operacao)) return { ok: false, motivo: "selecao" };
+  // Em duas etapas, porque a conta roda num Web Worker (assíncrona):
+  // prepararCombinacao → { operacao, indices, originais, caminhos } ou null;
+  // aplicarCombinacao(pedido, d) → { ok } ou { ok: false, motivo }: "selecao"
+  // (a seleção não serve ou as formas mudaram durante a conta) ou "vazio" (não
+  // sobra nada). O resultado fica no lugar da forma de baixo, com o estilo
+  // dela; as outras saem.
+  prepararCombinacao(operacao) {
+    if (!this.podeCombinarFormas(operacao)) return null;
     const indices = this.formasParaCombinar();
     const caminhos = indices.map((i) => caminhoDaForma(this.elementos[i]));
-    if (caminhos.some((d) => !d)) return { ok: false, motivo: "selecao" };
+    if (caminhos.some((d) => !d)) return null;
+    return { operacao, indices, originais: indices.map((i) => this.elementos[i]), caminhos };
+  }
+
+  aplicarCombinacao(pedido, resultado) {
+    // As formas trocam de objeto a cada mudança: se alguma não é mais a
+    // mesma (editada, apagada, desfeita), o resultado é de outra versão
+    if (!pedido || pedido.indices.some((i, k) => this.elementos[i] !== pedido.originais[k]))
+      return { ok: false, motivo: "selecao" };
     let d;
     try {
       // Mesma escrita dos outros paths do editor (absoluto, 3 casas)
-      d = escreverPath(lerPath(motor(operacao, caminhos) || ""));
+      d = escreverPath(lerPath(resultado || ""));
     } catch {
       return { ok: false, motivo: "vazio" };
     }
     if (!/\d/.test(d)) return { ok: false, motivo: "vazio" };
+    const { indices } = pedido;
     this.registrar();
     const base = this.elementos[indices[0]];
     const attrs = {};
@@ -1519,6 +1530,20 @@ export class EditorModel {
     this.elementos = elementos;
     this.definirSelecao([novo]);
     return { ok: true };
+  }
+
+  // As duas etapas de uma vez, com a conta síncrona (testes):
+  // motor(operacao, caminhos) → texto do path resultante
+  combinarFormas(operacao, motor) {
+    const pedido = this.prepararCombinacao(operacao);
+    if (!pedido) return { ok: false, motivo: "selecao" };
+    let resultado;
+    try {
+      resultado = motor(operacao, pedido.caminhos);
+    } catch {
+      return { ok: false, motivo: "vazio" };
+    }
+    return this.aplicarCombinacao(pedido, resultado);
   }
 
   // ── Degradê ──────────────────────────────────────────────────────────────

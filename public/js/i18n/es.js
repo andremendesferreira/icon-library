@@ -602,4 +602,5 @@ export default {
   "help.subtract": "Restar: la forma de arriba recorta la de abajo",
   "help.intersect": "Intersecar: deja solo donde dos formas se superponen",
   "help.exclude": "Excluir: deja todo menos la parte en común",
+  "editor.boolSlow": "Estas formas están demasiado enredadas para combinarlas: tardaba demasiado y se detuvo",
 };
