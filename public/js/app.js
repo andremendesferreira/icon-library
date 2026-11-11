@@ -55,10 +55,13 @@ const catalogo = {
   svg: (item) => iconModel.svgFinal(item),
 };
 
+// O editor é criado depois; a grade do scratchpad só o chama num clique
+let editor;
 const scratchpad = new ScratchpadController(
   new ScratchpadModel(),
   new ScratchpadView(),
   avisar,
+  { abrirNoEditor: (nome, svg, salvar) => editor.abrirDoScratchpad(nome, svg, salvar) },
 );
 scratchpad.iniciar();
 
@@ -66,7 +69,7 @@ scratchpad.iniciar();
 const pngView = new PngView();
 const escolherTamanhoPng = (sugerido) => pngView.abrir(sugerido);
 
-const editor = new EditorController(new EditorModel(), new EditorView(), {
+editor = new EditorController(new EditorModel(), new EditorView(), {
   avisar,
   escolherTamanhoPng,
   aoAdicionar: (item, svg) => scratchpad.adicionar(item, svg),

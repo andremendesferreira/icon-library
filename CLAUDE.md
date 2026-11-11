@@ -46,6 +46,10 @@ docker build -t icon-library:teste . && docker run -d -p 3999:3000 icon-library:
 - **IndexNow:** with `INDEXNOW_KEY` and `SITE_URL`, the server sends every sitemap address to IndexNow a minute after each start (`scripts/indexnow.js`). A new page only needs to be in the sitemap; the next deploy announces it to Bing.
 - **Migrations:** applied by hand with the database owner role (`PG_MIGRATE=false`). The app uses another role, so a new table needs its `GRANT`, and the migration must be recorded in `schema_migrations`. At start-up the server compares `migrations/` with `schema_migrations` and checks each feature's tables and privileges (`FEATURE_TABLES` in `scripts/db.js`; add a new table there): anything missing turns the database features off and `/api/health`, the Docker healthcheck, answers 503.
 
+## Scratchpad
+
+The text is the source of truth: the grid above it is rebuilt from `<!-- name -->` + `<svg>…</svg>` blocks (`entradasDoTexto`), and free text stays. Every SVG shown in the grid or added by upload goes through `lerSvg` first (`limparSvg` in `ScratchpadController`). *Save to scratchpad* replaces the block whose SVG was opened (`substituirNoTexto`); if it is gone, the edit is appended.
+
 ## Moderation workflows (n8n)
 
 `docs/n8n-*.json` are imported into the maintainer's n8n: ship them without `credentials` (n8n 2.x refuses unknown references) and with `telegramUserId` empty. The Telegram node cannot edit a photo, so the buttons live in a separate text "panel" that each tap edits (`docs/moderacao-n8n.md`).

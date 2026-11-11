@@ -1078,6 +1078,95 @@ p {
   display: flex;
   gap: 16px;
 }
+/* Ícones do texto em cima, código embaixo */
+.scratchpad__conteudo {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.scratchpad__icones {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap: 8px;
+  max-height: 40%;
+  overflow-y: auto;
+  padding: 2px;
+}
+.scratchpad__icones--alvo {
+  outline: 2px dashed var(--il-blue);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+.scratchpad__icone,
+.scratchpad__enviar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid #dfe6ee;
+  border-radius: 10px;
+  background: #fbfcfe;
+  font: inherit;
+  color: #2c3e50;
+  cursor: pointer;
+}
+.scratchpad__icone svg {
+  width: 32px;
+  height: 32px;
+}
+.scratchpad__icone span,
+.scratchpad__enviar span {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 10.5px;
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scratchpad__enviar {
+  border: 2px dashed #9fb0c3;
+  background: none;
+  color: var(--il-blue-dark);
+  font-weight: 600;
+}
+.scratchpad__enviar span {
+  white-space: normal;
+}
+/* O seletor de arquivo fica escondido: o bloco inteiro é o botão */
+.scratchpad__enviar input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.scratchpad__enviar:focus-within {
+  outline: 2px solid var(--il-blue);
+  outline-offset: 2px;
+}
+.scratchpad__icone:hover,
+.scratchpad__icone:focus-visible,
+.scratchpad__enviar:hover {
+  border-color: var(--il-blue);
+  color: var(--il-blue-dark);
+  outline: none;
+}
+[data-theme="dark"] .scratchpad__icone {
+  border-color: var(--dk-border);
+  background: var(--dk-surface-2);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .scratchpad__enviar {
+  border-color: var(--dk-border);
+  color: var(--il-blue-dark);
+}
 .scratchpad__text {
   flex: 1;
   min-width: 0;
@@ -2429,7 +2518,7 @@ body:has(.scratchpad--open) .back-to-top {
   }
   /* Publicar e Copiar ficam sempre à mão; o resto do rodapé é a aba Exportar,
      e desfazer está na barra */
-  .editor__layout:not([data-aba="exportar"]) > .editor__footer > :not(#editor-copy, #editor-publish),
+  .editor__layout:not([data-aba="exportar"]) > .editor__footer > :not(#editor-copy, #editor-publish, #editor-scratchpad-save),
   #editor-undo,
   #editor-redo {
     display: none;

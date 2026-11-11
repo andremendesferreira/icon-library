@@ -271,6 +271,11 @@ export class EditorController {
         );
       },
       aoScratchpad: () => this.aoAdicionar(this.item, model.svg()),
+      aoSalvarNoScratchpad: () => {
+        if (!this.salvarNoScratchpad) return;
+        this.salvarNoScratchpad(model.svg());
+        this.view.fechar({ perguntar: false });
+      },
       aoSalvarArquivo: () => this.salvarArquivo(),
       aoAbrirArquivo: (arquivo) => this.abrirArquivo(arquivo),
       aoCompartilhar: () => this.compartilhar(),
@@ -478,6 +483,17 @@ export class EditorController {
   sairDaEdicao() {
     this.edicao = null;
     this.view.mostrarEdicao(false);
+    this.salvarNoScratchpad = null;
+    this.view.mostrarSalvarScratchpad(false);
+  }
+
+  // Ícone aberto a partir da grade do scratchpad: "Salvar no scratchpad"
+  // devolve a versão editada (salvar(svg)) e fecha o editor
+  abrirDoScratchpad(nome, svg, salvar) {
+    this.abrir({ nome, editavel: false }, svg);
+    if (!this.view.aberto) return;
+    this.salvarNoScratchpad = salvar;
+    this.view.mostrarSalvarScratchpad(true);
   }
 
   get arquivo() {

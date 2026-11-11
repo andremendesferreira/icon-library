@@ -165,6 +165,11 @@ export class EditorView {
 
   // Editando um ícone já publicado: aviso no topo e o botão de publicar vira
   // "enviar edição"
+  // Aberto pela grade do scratchpad: "Salvar no scratchpad" aparece
+  mostrarSalvarScratchpad(ativo) {
+    porId("editor-scratchpad-save").hidden = !ativo;
+  }
+
   mostrarEdicao(ativa) {
     porId("editor-editing").hidden = !ativa;
     const publicar = porId("editor-publish");
@@ -181,9 +186,10 @@ export class EditorView {
     this.canvas.focus({ preventScroll: true });
   }
 
-  fechar() {
+  // perguntar: false fecha sem confirmar (a edição já foi salva no scratchpad)
+  fechar({ perguntar = true } = {}) {
     if (!this.janela.open) return;
-    if (this.acoes?.temAlteracoes() && !window.confirm(t("editor.confirmClose"))) return;
+    if (perguntar && this.acoes?.temAlteracoes() && !window.confirm(t("editor.confirmClose"))) return;
     this.janela.close();
     this.modoCorte(false);
     this.modoVarias(false);
@@ -257,6 +263,7 @@ export class EditorView {
     porId("editor-download").addEventListener("click", acoes.aoBaixarSvg);
     porId("editor-png").addEventListener("click", acoes.aoBaixarPng);
     porId("editor-scratchpad").addEventListener("click", acoes.aoScratchpad);
+    porId("editor-scratchpad-save").addEventListener("click", acoes.aoSalvarNoScratchpad);
 
     this.botaoMaisPonto.addEventListener("click", acoes.aoAdicionarPonto);
     this.barraDesfazer.addEventListener("click", acoes.aoDesfazer);

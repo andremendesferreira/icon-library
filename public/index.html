@@ -301,6 +301,15 @@
         </button>
       </div>
       <div class="scratchpad__main">
+        <div class="scratchpad__conteudo">
+        <!-- Os ícones que estão no texto: clicar abre no editor -->
+        <div id="scratchpad-icons" class="scratchpad__icones" role="list" aria-label="Icons in the scratchpad" data-i18n-attr="aria-label:scratchpad.icons" data-clarity-mask="true">
+          <label class="scratchpad__enviar" role="listitem" title="Add SVG files from your computer (or drop them here)" data-i18n-attr="title:scratchpad.uploadTitle">
+            <input type="file" id="scratchpad-file" accept=".svg,image/svg+xml" multiple />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>
+            <span data-i18n="scratchpad.upload">Upload SVG</span>
+          </label>
+        </div>
         <textarea
           id="scratchpad-text"
           data-clarity-mask="true"
@@ -311,6 +320,7 @@
           placeholder="Click + on an icon to add its SVG here, or type freely."
           data-i18n-attr="aria-label:scratchpad.content;placeholder:scratchpad.placeholder"
         ></textarea>
+        </div>
         <!-- Anúncio da gaveta: só é pedido ao AdSense com ela aberta -->
         <aside class="ad ad--drawer" data-ad="scratchpad" hidden>
           <div class="ad__unit"></div>
@@ -557,6 +567,7 @@
         <button type="button" id="editor-download" data-i18n="editor.downloadSvg">Download SVG</button>
         <button type="button" id="editor-png" data-i18n="editor.downloadPng">Download PNG…</button>
         <button type="button" id="editor-publish" class="editor__publish" data-i18n="publish.button" hidden>Publish to Iconlibrary</button>
+        <button type="button" id="editor-scratchpad-save" class="editor__primary" data-i18n="editor.saveToScratchpad" hidden>Save to scratchpad</button>
         <button type="button" id="editor-copy" class="editor__primary" data-i18n="editor.copySvg">Copy SVG</button>
       </footer>
     </div>
