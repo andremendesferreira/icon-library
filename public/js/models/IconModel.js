@@ -180,11 +180,18 @@ export class IconModel {
     return ordenarGrupos(contagem);
   }
 
+  // Conjuntos com contorno e preenchido (Bootstrap): "todos", "contorno" ou
+  // "preenchido". Os outros conjuntos ignoram.
+  get temVariantes() {
+    return Boolean(this.fonteExibida?.temVariantes);
+  }
+
   // [grupo, itens] dos itens que passam pelos filtros. A busca vale para o
   // nome e as palavras-chave (tags). Com busca, os melhores acertos vêm
   // primeiro (veja acertoDaBusca), dentro de cada categoria e na ordem das
   // categorias.
-  filtrar({ busca, apenasSuportados }) {
+  filtrar({ busca, apenasSuportados, variante = "todos" }) {
+    const porVariante = this.temVariantes && variante !== "todos";
     const termo = busca.trim().toLowerCase();
     const grupos = new Map();
     const nota = new Map();
@@ -194,6 +201,7 @@ export class IconModel {
       if (this.gruposEscolhidos.size && !this.gruposEscolhidos.has(item.grupo))
         continue;
       if (this.detectaGlifo && apenasSuportados && !item.suportado) continue;
+      if (porVariante && item.variante !== variante) continue;
       if (!grupos.has(item.grupo)) grupos.set(item.grupo, []);
       grupos.get(item.grupo).push(item);
       nota.set(item, acerto);

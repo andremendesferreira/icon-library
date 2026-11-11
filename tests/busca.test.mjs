@@ -113,3 +113,25 @@ test("filtrar: nome igual antes de nome que começa com a palavra, antes de nome
   });
   assert.deepEqual(model.filtrar({ busca: "trash", apenasSuportados: false }).map(([, [i]]) => i.nome), ["trash", "trash off", "bin trash"]);
 });
+
+test("filtrar: contorno ou preenchido só nos conjuntos com as duas versões", () => {
+  const model = new IconModel();
+  const itens = [
+    { ...item("heart", "a"), variante: "contorno" },
+    { ...item("heart fill", "a"), variante: "preenchido" },
+    { ...item("alarm", "b"), variante: "contorno" },
+  ];
+  model.exibir("bootstrap", { itens, usouAlternativa: false });
+  const nomes = (variante) => model.filtrar({ busca: "", apenasSuportados: false, variante }).flatMap(([, i]) => i.map((x) => x.nome));
+  assert.deepEqual(nomes("todos"), ["heart", "heart fill", "alarm"]);
+  assert.deepEqual(nomes("preenchido"), ["heart fill"]);
+  assert.deepEqual(nomes("contorno"), ["heart", "alarm"]);
+  // Lucide não tem variantes: o filtro não vale
+  model.exibir("lucide", { itens, usouAlternativa: false });
+  assert.equal(model.filtrar({ busca: "", apenasSuportados: false, variante: "preenchido" }).flatMap(([, i]) => i).length, 3);
+});
+
+test("só o Bootstrap tem contorno e preenchido para filtrar", () => {
+  // A leitura do sprite (montar) usa o DOMParser do navegador: conferida no navegador
+  assert.deepEqual(Object.keys(FONTES).filter((chave) => FONTES[chave].temVariantes), ["bootstrap"]);
+});

@@ -250,6 +250,61 @@ p {
     opacity: 0;
   }
 }
+/* Contorno / Preenchido (Bootstrap): três opções lado a lado */
+.variant-filter {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+.variant-filter[hidden] {
+  display: none;
+}
+.variant-filter label {
+  position: relative;
+  cursor: pointer;
+}
+.variant-filter input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.variant-filter span {
+  display: block;
+  padding: 6px 14px;
+  border: 1px solid #c5d0dc;
+  background: #fff;
+  font-size: 13.5px;
+  color: #2c3e50;
+}
+.variant-filter label:first-child span {
+  border-radius: 999px 0 0 999px;
+}
+.variant-filter label:last-child span {
+  border-radius: 0 999px 999px 0;
+}
+.variant-filter label + label span {
+  border-left: none;
+}
+.variant-filter input:checked + span {
+  border-color: var(--il-action);
+  background: var(--il-action);
+  color: #fff;
+  font-weight: 600;
+}
+.variant-filter input:focus-visible + span {
+  outline: 2px solid var(--il-blue);
+  outline-offset: 2px;
+}
+[data-theme="dark"] .variant-filter span {
+  border-color: var(--dk-border);
+  background: var(--dk-surface);
+  color: var(--dk-text);
+}
+[data-theme="dark"] .variant-filter input:checked + span {
+  border-color: var(--il-action);
+  background: var(--il-action);
+  color: #fff;
+}
 .supported-filter {
   display: flex;
   align-items: center;

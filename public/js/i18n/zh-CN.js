@@ -492,4 +492,8 @@ export default {
   "scratchpad.tooLarge": "{file} 太大，不像是图标",
   "scratchpad.uploaded": { other: "已向 Scratchpad 添加 {n} 个 SVG" },
   "editor.saveToScratchpad": "保存到 Scratchpad",
+  "filter.variant": "图标样式",
+  "filter.all": "全部",
+  "filter.outline": "线框",
+  "filter.filled": "填充",
 };

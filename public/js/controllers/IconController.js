@@ -66,6 +66,7 @@ export class IconController {
     const parametros = new URLSearchParams(location.search);
     const pedido = parametros.get("set");
     const valido = (chave) => chave && Object.hasOwn(this.model.fontes, chave);
+    this.view.variante = { outline: "contorno", filled: "preenchido" }[parametros.get("style")] ?? "todos";
     if (valido(pedido)) {
       this.view.busca = parametros.get("q") || "";
       this.escolherFonte(pedido, { focar: false });
@@ -96,6 +97,10 @@ export class IconController {
     if (this.model.fonteAtual) parametros.set("set", this.model.fonteAtual);
     const busca = this.view.busca.trim();
     if (busca) parametros.set("q", busca);
+    // O conjunto escolhido, não o exibido: este ainda pode estar carregando
+    const comVariantes = this.model.fontes[this.model.fonteAtual]?.temVariantes;
+    const estilo = comVariantes ? { contorno: "outline", preenchido: "filled" }[this.view.variante] : null;
+    if (estilo) parametros.set("style", estilo);
     const consulta = parametros.toString();
     // replaceState: digitar não enche o histórico do navegador. O "#…"
     // fica: pode ser um ícone aberto no editor por link (#svg=…)
@@ -125,6 +130,7 @@ export class IconController {
 
       model.exibir(chave, dados);
       view.mostrarFiltroSuporte(model.detectaGlifo);
+      view.mostrarFiltroVariante(model.temVariantes);
       view.habilitarEstilo(model.personalizavel);
       view.renderGrupos(model.contarGrupos());
       view.renderResumo(model.resumo());
@@ -148,6 +154,7 @@ export class IconController {
     const grupos = this.model.filtrar({
       busca: this.view.busca,
       apenasSuportados: this.view.apenasSuportados,
+      variante: this.view.variante,
     });
     this.view.renderGrid(grupos, {
       aoClicar: (item) => this.copiarPrincipal(item),

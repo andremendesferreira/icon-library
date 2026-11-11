@@ -232,6 +232,11 @@
       </label>
       <button type="button" id="style-reset" class="customize__reset" data-i18n="style.reset">Reset</button>
     </div>
+    <div class="variant-filter" id="variant-filter" role="radiogroup" aria-label="Icon style" data-i18n-attr="aria-label:filter.variant" hidden>
+      <label><input type="radio" name="variant" value="todos" checked /><span data-i18n="filter.all">All</span></label>
+      <label><input type="radio" name="variant" value="contorno" /><span data-i18n="filter.outline">Outline</span></label>
+      <label><input type="radio" name="variant" value="preenchido" /><span data-i18n="filter.filled">Filled</span></label>
+    </div>
     <label class="supported-filter" id="supported-filter-field"
       ><input type="checkbox" id="only-supported" checked />
       <span data-i18n="filter.supported">Only those with a design on this machine</span></label

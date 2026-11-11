@@ -499,4 +499,8 @@ export default {
   "scratchpad.tooLarge": "{file} ist zu groß für ein Icon",
   "scratchpad.uploaded": { one: "{n} SVG zum Scratchpad hinzugefügt", other: "{n} SVGs zum Scratchpad hinzugefügt" },
   "editor.saveToScratchpad": "Im Scratchpad speichern",
+  "filter.variant": "Icon-Stil",
+  "filter.all": "Alle",
+  "filter.outline": "Kontur",
+  "filter.filled": "Gefüllt",
 };

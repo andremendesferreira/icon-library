@@ -513,4 +513,8 @@ export default {
   "scratchpad.tooLarge": "{file} слишком большой для иконки",
   "scratchpad.uploaded": { one: "{n} SVG добавлен в Scratchpad", few: "{n} SVG добавлено в Scratchpad", many: "{n} SVG добавлено в Scratchpad", other: "{n} SVG добавлено в Scratchpad" },
   "editor.saveToScratchpad": "Сохранить в Scratchpad",
+  "filter.variant": "Стиль иконок",
+  "filter.all": "Все",
+  "filter.outline": "Контур",
+  "filter.filled": "Заливка",
 };

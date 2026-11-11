@@ -33,6 +33,7 @@ export class IconView {
   gruposLista = porId("groups-list");
   gruposLimpar = porId("groups-clear");
   filtroSup = porId("only-supported");
+  filtroVariante = porId("variant-filter");
   campoFiltro = porId("supported-filter-field");
   resumo = porId("summary");
   tamanho = porId("style-size");
@@ -67,6 +68,19 @@ export class IconView {
     this.searchBar.value = valor;
   }
 
+  get variante() {
+    return this.filtroVariante.querySelector("input:checked")?.value ?? "todos";
+  }
+
+  set variante(valor) {
+    const opcao = this.filtroVariante.querySelector(`input[value="${valor}"]`) ?? this.filtroVariante.querySelector("input");
+    opcao.checked = true;
+  }
+
+  mostrarFiltroVariante(visivel) {
+    this.filtroVariante.hidden = !visivel;
+  }
+
   get apenasSuportados() {
     return this.filtroSup.checked;
   }
@@ -80,6 +94,7 @@ export class IconView {
   aoFiltrar(acao) {
     this.searchBar.addEventListener("input", acao);
     this.filtroSup.addEventListener("change", acao);
+    this.filtroVariante.addEventListener("change", acao);
   }
 
   aoEscolherFonte(acao) {

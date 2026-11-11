@@ -104,6 +104,9 @@ export const FONTES = {
     rotulo: "Bootstrap",
     // Preenchidos: só a cor é ajustável
     temCor: true,
+    // Muitos ícones têm as duas versões ("heart" e "heart-fill"): dá para
+    // filtrar só contorno ou só preenchido
+    temVariantes: true,
     rotuloGrupo: "categories.all",
     rotuloGrupoAlternativo: "letters.all",
     url: [
@@ -123,6 +126,7 @@ export const FONTES = {
         nome: simbolo.id.replace(/-/g, " "),
         tipo: "svg",
         tags: tags?.bootstrap?.[simbolo.id] ?? [],
+        variante: /-fill$/.test(simbolo.id) ? "preenchido" : "contorno",
         grupo:
           categorias?.bootstrap?.[simbolo.id]?.[0] ||
           (categorias ? "others" : porLetra(simbolo.id)),

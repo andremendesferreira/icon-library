@@ -492,4 +492,8 @@ export default {
   "scratchpad.tooLarge": "{file} はアイコンとしては大きすぎます",
   "scratchpad.uploaded": { other: "{n} 個の SVG を Scratchpad に追加しました" },
   "editor.saveToScratchpad": "Scratchpad に保存",
+  "filter.variant": "アイコンのスタイル",
+  "filter.all": "すべて",
+  "filter.outline": "線",
+  "filter.filled": "塗り",
 };
