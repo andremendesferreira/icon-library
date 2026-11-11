@@ -32,6 +32,16 @@ docker build -t icon-library:teste . && docker run -d -p 3999:3000 icon-library:
 - Interface changes: open the real page in a browser (Chrome DevTools MCP when available), in light and dark themes and at phone width (360 px upward). In editor links, `#svg=`/`#ile=` must be the last parameter; headless Chrome blocks the clipboard, so stub `navigator.clipboard` to read what was copied.
 - Server changes: build and run the Docker image and wait for its healthcheck.
 
+## Project agents (`.claude/agents/`)
+
+- `tradutor-8-idiomas`: new i18n keys or page text into the 8 languages.
+- `conferente-de-entrega`: read-only checklist at the end of every change.
+- `verificador-visual`: light/dark, 360 px, contrast and console in Chrome DevTools.
+- `revisor-de-seguranca`: changes touching outside SVG, the DOM, the server, moderation or Stripe.
+- `revisor-adsense-seo`: any new page, article, set guide or collection.
+- `operador-de-deploy`: Docker healthcheck before a push, production checks after, migration SQL.
+- `moderacao-n8n`: the n8n workflows in `docs/` and paste-ready snippets.
+
 ## Rules that are easy to miss
 
 - **8 languages:** `en`, `es`, `fr`, `de`, `ru`, `zh-CN`, `pt-BR`, `ja`. Every key in `public/js/i18n/` must exist in all of them (`tests/i18n.test.mjs` enforces it).
