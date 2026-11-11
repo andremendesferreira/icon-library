@@ -377,3 +377,23 @@ test("servidor: foto pública com cache curto", async () => {
   assert.ok(comFoto);
   assert.equal((await fetch(`${base}${comFoto.avatar}`)).headers.get("cache-control"), "public, max-age=300");
 });
+
+test("oauth: o erro do provedor vai para o log com o código, sem segredo", async () => {
+  const fetch = async (url) => {
+    if (String(url).includes("access_token"))
+      return { ok: false, status: 401, json: async () => ({ error: "invalid_client", error_description: "AADSTS7000215: Invalid client secret provided.\r\nTrace ID: x" }) };
+    return { ok: true, status: 200, json: async () => ({}) };
+  };
+  const o = oauthMod.createOAuth({ credentials: { github: { id: "cid", secret: "segredo-nao-pode-ir-ao-log" } }, render: avaliacoes.avatarPng, fetch });
+  const state = new URL(o.start("github", { redirectUri: "r", lang: "en", browser: "nav-1" })).searchParams.get("state");
+  const linhas = [];
+  const original = console.error;
+  console.error = (...a) => linhas.push(a.join(" "));
+  try {
+    assert.equal((await o.finish("github", { code: "c", state, browser: "nav-1" })).error, "failed");
+  } finally {
+    console.error = original;
+  }
+  assert.match(linhas.join("\n"), /answered 401 \(invalid_client: AADSTS7000215: Invalid client secret provided\.\)/);
+  assert.doesNotMatch(linhas.join("\n"), /segredo-nao-pode-ir-ao-log|Trace ID/);
+});

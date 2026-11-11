@@ -131,7 +131,19 @@ function createOAuth({ credentials, render, fetch = globalThis.fetch, now = Date
       headers: { Accept: "application/json", "User-Agent": "iconlibrary.io", ...(token && { Authorization: `Bearer ${token}` }), ...init.headers },
       signal: AbortSignal.timeout(TIMEOUT),
     });
-    if (!res.ok) throw new Error(`${new URL(url).hostname} answered ${res.status}`);
+    if (!res.ok) {
+      // The provider's own error code says what is wrong (AADSTS7000215 is a
+      // bad client secret, for example). Error answers carry no token, but
+      // only the code and the first line of the description go to the log.
+      let detail = "";
+      try {
+        const body = await res.json();
+        const code = typeof body.error === "string" ? body.error : body.error?.code;
+        const text = String(body.error_description ?? body.error?.message ?? "").split(/\r?\n/)[0].slice(0, 160);
+        detail = [code, text].filter(Boolean).join(": ");
+      } catch {}
+      throw new Error(`${new URL(url).hostname} answered ${res.status}${detail ? ` (${detail})` : ""}`);
+    }
     return res.json();
   }
 
