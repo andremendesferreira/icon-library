@@ -4222,9 +4222,6 @@ kbd {
   font-weight: 700;
   color: #3a2600;
 }
-.editor__footer .editor__publish::before {
-  content: "★ ";
-}
 .editor__footer .editor__publish:hover,
 .editor__footer .editor__publish:focus-visible,
 [data-theme="dark"] .editor__footer button.editor__publish:not(.editor__primary):hover,
@@ -5211,4 +5208,14 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* Rodapé do editor: cada botão com um ícone do Lucide antes do texto */
+.editor__footer button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.editor__footer-icone {
+  flex: none;
 }

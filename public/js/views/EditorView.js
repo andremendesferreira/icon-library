@@ -175,8 +175,12 @@ export class EditorView {
 
   mostrarEdicao(ativa) {
     porId("editor-editing").hidden = !ativa;
-    const publicar = porId("editor-publish");
-    if (publicar) publicar.textContent = t(ativa ? "publish.buttonEdit" : "publish.button");
+    // Só o texto muda; o ícone do botão fica (e a troca de idioma segue a chave)
+    const texto = porId("editor-publish")?.querySelector("[data-i18n]");
+    if (texto) {
+      texto.dataset.i18n = ativa ? "publish.buttonEdit" : "publish.button";
+      texto.textContent = t(texto.dataset.i18n);
+    }
   }
 
   abrir(nome) {
