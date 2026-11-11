@@ -574,4 +574,6 @@ export default {
   "editor.gradient_sky": "空",
   "editor.gradient_rose": "ローズ",
   "editor.gradient_night": "夜",
+  "breadcrumb.label": "現在地",
+  "guide.quickStart": "30 秒ではじめる",
 };

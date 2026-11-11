@@ -56,7 +56,7 @@ No framework, no build step and two runtime dependencies on the server (the Post
 - **Shareable searches:** the address follows the set and search (`?set=lucide&q=arrow`).
 - **A guide to each set:** license, usage and comparisons for Lucide, Feather, Bootstrap Icons and Emoji, with a sample of icons in the page itself (English and Portuguese).
 - **Articles:** hand-written case studies, starting with designing an icon for an LGPD tool (`lgpd-icon.html`, English and Portuguese).
-- **Text pages** (Guide, About, Privacy, Licenses, set guides, articles) have a search field at the top (`/` focuses it) that opens the icons already filtered (`./?q=…`). **Licenses** sums up the license of each set, what to keep when redistributing, and the note on brand logos.
+- **Text pages** (Guide, About, Privacy, Licenses, set guides, articles) have a search field at the top (`/` focuses it) that opens the icons already filtered (`./?q=…`), and a breadcrumb (Icon Library › page, also as `BreadcrumbList` JSON-LD). The Guide opens with **Get started in 30 seconds**, the home's three illustrated steps. **Licenses** sums up the license of each set, what to keep when redistributing, and the note on brand logos.
 - **Links that open the editor** — made by people (*Share link* in the editor) or by AI assistants: see [For AI assistants](#for-ai-assistants).
 - **Light and dark themes:** follows the system, with a toggle in the header.
 - **8 languages** — English, Español, Français, Deutsch, Русский, 中文（简体）, Português (Brasil), 日本語 — detected from the browser, with a selector in the header (see [Languages](#languages)).
@@ -381,7 +381,7 @@ Sem framework, sem build e com duas dependências no servidor (o driver do Postg
 - **Buscas compartilháveis:** o endereço acompanha o conjunto e a busca (`?set=lucide&q=arrow`).
 - **Um guia para cada conjunto:** licença, uso e comparações do Lucide, Feather, Bootstrap Icons e Emoji, com uma amostra de ícones na própria página (inglês e português).
 - **Artigos:** estudos de caso escritos à mão, começando pela criação de um ícone para uma ferramenta de LGPD (`lgpd-icon.html`, inglês e português).
-- **Páginas de texto** (Guia, Sobre, Privacidade, Licenças, guias dos conjuntos, artigos) têm um campo de busca no topo (`/` leva até ele) que abre os ícones já filtrados (`./?q=…`). **Licenças** resume a licença de cada conjunto, o que manter ao redistribuir e o aviso sobre logotipos de marcas.
+- **Páginas de texto** (Guia, Sobre, Privacidade, Licenças, guias dos conjuntos, artigos) têm um campo de busca no topo (`/` leva até ele) que abre os ícones já filtrados (`./?q=…`), e um breadcrumb (Icon Library › página, também em JSON-LD `BreadcrumbList`). O Guia começa com **Comece em 30 segundos**, os três passos ilustrados da home. **Licenças** resume a licença de cada conjunto, o que manter ao redistribuir e o aviso sobre logotipos de marcas.
 - **Links que abrem o editor** — feitos por pessoas (*Share link* no editor) ou por assistentes de IA: veja [Para assistentes de IA](#para-assistentes-de-ia).
 - **Tema claro e escuro:** segue o sistema, com um botão no cabeçalho.
 - **8 idiomas** — inglês, espanhol, francês, alemão, russo, chinês simplificado, português do Brasil e japonês — detectados pelo navegador, com um seletor no cabeçalho (veja [Idiomas](#idiomas)).

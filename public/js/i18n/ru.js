@@ -595,4 +595,6 @@ export default {
   "editor.gradient_sky": "Небо",
   "editor.gradient_rose": "Роза",
   "editor.gradient_night": "Ночь",
+  "breadcrumb.label": "Вы здесь",
+  "guide.quickStart": "Начните за 30 секунд",
 };

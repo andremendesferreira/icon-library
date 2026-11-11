@@ -29,6 +29,10 @@ a camada "Design minimalista" no fim de `public/css/icon-library.css` as aplica.
 
 - Fonte do sistema (`--fonte`), entrelinha 1,6 (1,7 nas páginas de texto).
 - Contadores em selo (categorias) podem ter 16 px; nada abaixo disso.
+- Os 18 px valem em todo lugar fora do editor: janelas (café, publicar, PNG,
+  Meus ícones, reportar), scratchpad, rodapé, `kbd`, `code`, blocos `pre`,
+  tabelas, sumário e o rótulo do anúncio. No editor, exatamente 16 px: com
+  18, o rodapé de botões não cabe numa linha.
 - O nome do ícone no card não fica escrito o tempo todo: aparece ao passar o
   mouse ou focar, com 18 px, e continua no `aria-label` dos botões.
 
@@ -55,6 +59,11 @@ a camada "Design minimalista" no fim de `public/css/icon-library.css` as aplica.
 
 - Contraste mínimo 4,5:1 nos dois temas (`tests/contrast.test.mjs`);
   controles desativados são a exceção da WCAG.
+- Borda que identifica um controle (a busca, os campos): 3:1 ou mais contra o
+  que está em volta, nos dois temas (`--cor-borda-forte`, `#86919f` no claro e
+  `#5e6d84` no escuro), também em todo campo de digitação (janelas,
+  scratchpad, busca das páginas, editor). Bordas só decorativas usam
+  `--cor-borda`; botões com texto ou ícone se identificam pelo rótulo.
 - Foco sempre visível: contorno de 3 px no azul da marca.
 - Alvos de toque de 44 px ou mais no celular.
 - Todo botão só com ícone tem `aria-label` (e `title` no computador).
@@ -62,6 +71,11 @@ a camada "Design minimalista" no fim de `public/css/icon-library.css` as aplica.
 - Atalhos (`/`, setas, Esc) nunca prendem o foco.
 
 ## Navegação
+
+- Páginas de texto: busca no topo e, logo abaixo, o breadcrumb
+  (Icon Library › página), que também vai em JSON-LD (`BreadcrumbList`).
+- O Guia começa com "Comece em 30 segundos": os mesmos três passos ilustrados
+  da home.
 
 - A busca fica presa no topo ao rolar a grade (`.search-container`, sticky);
   o título de cada categoria gruda logo abaixo dela (`--altura-busca`).

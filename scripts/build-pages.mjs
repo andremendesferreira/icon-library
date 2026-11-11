@@ -53,6 +53,32 @@ function grade(pagina) {
   return `<ul class="set-grid">\n${itens.join("\n")}\n</ul>`;
 }
 
+// Os três passos ilustrados da home (public/index.html), para o Guia: o HTML
+// é o mesmo, com os textos já no idioma da página
+const PASSOS = (() => {
+  const html = readFileSync(new URL("public/index.html", raiz), "utf8").replace(/\r\n/g, "\n");
+  const m = /<ol class="passos"[\s\S]*?<\/ol>/.exec(html);
+  if (!m) throw new Error("public/index.html: falta o <ol class=\"passos\">");
+  return m[0];
+})();
+function passos(idioma) {
+  const lista = PASSOS
+    .replace(/ data-i18n-attr="aria-label:([\w.]+)"/g, "")
+    .replace(/aria-label="[^"]*"/, `aria-label="${escapar(t(idioma, "steps.label"))}"`)
+    .replace(/ data-i18n="([\w.]+)">[^<]*</g, (_, chave) => `>${escapar(t(idioma, chave))}<`);
+  return `<section class="page__passos" aria-labelledby="quick-start">
+  <h2 id="quick-start">${escapar(t(idioma, "guide.quickStart"))}</h2>
+  ${lista}
+</section>`;
+}
+
+// Nome curto da página, para o breadcrumb
+function nomeCurto(pagina, idioma, title) {
+  if (ROTULO[pagina]) return t(idioma, ROTULO[pagina]);
+  if (NOME_CONJUNTO[pagina]) return NOME_CONJUNTO[pagina];
+  return title.split(" — ")[0];
+}
+
 // Avaliações dos apoiadores (página Sobre): a seção começa escondida e
 // js/views/reviews.js a mostra quando o servidor tem a função ligada. Os
 // textos vão junto, em JSON, no idioma da página.
@@ -151,11 +177,23 @@ function montar(pagina, idioma) {
     )
     .replace("<!--grade-->", () => (CONJUNTOS.includes(pagina) ? grade(pagina) : ""))
     .replace("<!--avaliacoes-->", () => avaliacoes(idioma))
+    .replace("<!--passos-->", () => passos(idioma))
     .replace(/<!--ferramenta:(\w+)-->/, (_, chave) => ferramenta(chave, idioma, pagina))
     .split("\n")
     .map((linha) => (linha ? `    ${linha}` : ""))
     .join("\n");
   const endereco = `${SITE}/${arquivo(pagina, idioma)}`;
+  // Breadcrumb: Icon Library › página, na tela e para os buscadores
+  const atual = nomeCurto(pagina, idioma, title);
+  const inicio = idioma === "en" ? `${SITE}/` : `${SITE}/?lang=${idioma}`;
+  const trilhaLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Icon Library", item: inicio },
+      { "@type": "ListItem", position: 2, name: atual, item: endereco },
+    ],
+  }).replace(/</g, "\\u003c");
   const versoes = idiomasDe(pagina).map(
     (l) => `  <link rel="alternate" hreflang="${l}" href="${SITE}/${arquivo(pagina, l)}" />`,
   ).join("\n");
@@ -192,6 +230,7 @@ ${versoes}
   <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
   <link rel="stylesheet" href="css/icon-library.css" />
+  <script type="application/ld+json">${trilhaLd}</script>
   <script src="js/i18n/detect.js"></script>
   <script src="js/views/theme.js"></script>
   <script src="js/views/clarity.js" async></script>
@@ -211,6 +250,12 @@ ${versoes}
         <select id="lang-select" aria-label="${escapar(t(idioma, "lang.label"))}"></select>
       </label>
     </div>
+    <nav class="page__trilha" aria-label="${escapar(t(idioma, "breadcrumb.label"))}">
+      <ol>
+        <li><a href="${icones}">Icon Library</a></li>
+        <li aria-current="page">${escapar(atual)}</li>
+      </ol>
+    </nav>
 ${conteudo}
   </main>
   <footer class="site-footer">

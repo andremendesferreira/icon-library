@@ -4282,7 +4282,7 @@ kbd {
   --cor-fundo: #f7f8fa;
   --cor-superficie: #fff;
   --cor-borda: #dfe5ec;
-  --cor-borda-forte: #b8c4d2;
+  --cor-borda-forte: #86919f; /* 3:1 sobre o branco e o fundo: borda de controle (WCAG 1.4.11) */
   --cor-texto: #1f2a37;
   --raio: 12px;
   --sombra: 0 1px 2px rgba(15, 23, 42, 0.06);
@@ -4295,7 +4295,7 @@ kbd {
   --cor-fundo: var(--dk-bg);
   --cor-superficie: var(--dk-surface);
   --cor-borda: var(--dk-border);
-  --cor-borda-forte: #44546d;
+  --cor-borda-forte: #5e6d84;
   --cor-texto: var(--dk-text);
   --ilus-fundo: var(--dk-surface-2);
   --ilus-linha: #7d8ca3;
@@ -5083,4 +5083,111 @@ body {
   .editor__degrade-sugestao {
     height: 44px;
   }
+}
+
+/* ── Etapa 4: 18 px também nas janelas, no scratchpad, no rodapé e nos
+   detalhes das páginas de texto (docs/design.md). Seletores com id ou com a
+   mesma força das regras antigas, para vencê-las; o editor fica com 16 px. ── */
+:is(#publish, #coffee, #mine, #png, #report) :is(p, label, legend, small, a, input, select, textarea, button:not(.coffee__close), code),
+:is(#publish, #coffee, #mine, #png, #report) :is(.publish__field > span, .publish__supporters > span, button > span, a > span) {
+  font-size: var(--fs-texto);
+}
+:is(#publish, #coffee, #mine, #png, #report) .coffee__title {
+  font-size: var(--fs-h2);
+}
+.scratchpad__tab span,
+.scratchpad__enviar span,
+.scratchpad__button,
+.scratchpad__text {
+  font-size: var(--fs-texto);
+}
+.scratchpad__title {
+  font-size: var(--fs-mais);
+}
+.site-footer nav > a:not(.site-footer__nada),
+.site-footer nav > a:not(.site-footer__nada) span,
+.site-footer nav > .site-footer__report,
+.site-footer nav > a.site-footer__coffee,
+.page p.page__coffee a.site-footer__coffee {
+  font-size: var(--fs-texto);
+}
+.page kbd,
+.page code,
+.page pre,
+.page pre code,
+.page__table th,
+.page__toc strong {
+  font-size: var(--fs-texto);
+}
+.page pre {
+  overflow-x: auto;
+}
+.set-grid small {
+  font-size: var(--fs-texto);
+  overflow-wrap: anywhere;
+}
+.ad__label {
+  font-size: var(--fs-texto);
+  letter-spacing: 0.04em;
+}
+/* Seletor de idioma no topo das páginas de texto */
+.page__top .lang-select select {
+  font-size: var(--fs-texto);
+}
+/* Editor: 16 px no mínimo em todo texto e campo (os painéis são estreitos,
+   por isso não 18). Títulos e ícones maiores ficam como estão. */
+#editor :is(h3, label, legend, output, p, small, summary, figcaption, strong, select, input, textarea, button),
+#editor :is(button, label, h3) > span,
+#editor .editor__style-row > span,
+#editor .editor__draft span,
+#editor-help :is(p, li, span, kbd, small, button) {
+  font-size: var(--fs-editor);
+}
+
+/* ── Etapa 3: breadcrumb das páginas de texto e os passos no topo do Guia ── */
+.page__trilha ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-texto);
+}
+.page__trilha li {
+  color: var(--il-muted);
+}
+.page__trilha li + li::before {
+  content: "›";
+  margin: 0 10px;
+  color: var(--il-muted);
+}
+.page__trilha a {
+  color: var(--il-blue-dark);
+  font-weight: 600;
+}
+.page__passos {
+  margin: 24px 0 8px;
+}
+.page__passos h2 {
+  margin-bottom: 4px;
+}
+.page__passos .passos {
+  margin-top: 12px;
+}
+
+/* Campos de digitação: a borda é o que mostra onde escrever, então usa a
+   borda forte (3:1 nos dois temas, WCAG 1.4.11). Botões com texto ou ícone
+   se identificam pelo rótulo e mantêm a borda clara. */
+:root :is(
+  .scratchpad__text,
+  .mine__form input,
+  .report textarea,
+  .coffee__form input,
+  .publish__field input:not([type="checkbox"]),
+  .page__busca,
+  #editor textarea,
+  #editor input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"])
+) {
+  border-color: var(--cor-borda-forte);
 }

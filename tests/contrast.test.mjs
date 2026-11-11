@@ -30,3 +30,12 @@ test("os tokens de texto passam de 4,5:1 nos fundos do tema claro", () => {
   assert.ok(contraste("#ffffff", token("il-action")) >= 4.5, "branco no botão azul");
   assert.ok(contraste("#ffffff", token("il-action-hover")) >= 4.5, "branco no botão azul (hover)");
 });
+
+// Borda de controle (WCAG 1.4.11): a borda que identifica a busca e os campos
+// precisa de 3:1 contra o que está em volta, nos dois temas
+test("a borda forte dos controles passa de 3:1 nos dois temas", () => {
+  const [claro, escuro] = [...css.matchAll(/--cor-borda-forte:\s*(#[0-9a-f]{6})/gi)].map((m) => m[1]);
+  const valor = (nome) => css.match(new RegExp(`--${nome}:\\s*(#[0-9a-f]{6})`, "i"))[1];
+  for (const fundo of ["#ffffff", valor("cor-fundo")]) assert.ok(contraste(claro, fundo) >= 3, `claro em ${fundo}`);
+  for (const fundo of [valor("dk-surface"), valor("dk-bg")]) assert.ok(contraste(escuro, fundo) >= 3, `escuro em ${fundo}`);
+});

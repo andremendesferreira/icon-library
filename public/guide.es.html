@@ -37,6 +37,7 @@
   <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
   <link rel="stylesheet" href="css/icon-library.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Icon Library","item":"https://iconlibrary.io/?lang=es"},{"@type":"ListItem","position":2,"name":"Guía","item":"https://iconlibrary.io/guide.es.html"}]}</script>
   <script src="js/i18n/detect.js"></script>
   <script src="js/views/theme.js"></script>
   <script src="js/views/clarity.js" async></script>
@@ -56,8 +57,62 @@
         <select id="lang-select" aria-label="Idioma"></select>
       </label>
     </div>
+    <nav class="page__trilha" aria-label="Estás aquí">
+      <ol>
+        <li><a href="./?lang=es">Icon Library</a></li>
+        <li aria-current="page">Guía</li>
+      </ol>
+    </nav>
     <h1 class="page__title">Guía</h1>
     <p class="page__lead">Todo lo que hace Icon Library, paso a paso. Usa el índice para ir directo a un tema.</p>
+
+    <section class="page__passos" aria-labelledby="quick-start">
+      <h2 id="quick-start">Empieza en 30 segundos</h2>
+      <ol class="passos" aria-label="Cómo usarlo en tres pasos">
+          <li class="passo">
+            <svg class="passo__ilustracao" viewBox="0 0 160 96" aria-hidden="true" focusable="false">
+                <rect class="ilus-fundo" x="1" y="1" width="158" height="94" rx="12"/>
+                <rect class="ilus-campo" x="16" y="14" width="128" height="22" rx="11"/>
+                <circle class="ilus-traco" cx="30" cy="25" r="5"/><path class="ilus-traco" d="m34 29 4 4"/>
+                <path class="ilus-texto" d="M44 25h40"/>
+                <rect class="ilus-card" x="16" y="48" width="36" height="34" rx="8"/>
+                <rect class="ilus-card ilus-card--ativo" x="62" y="48" width="36" height="34" rx="8"/>
+                <rect class="ilus-card" x="108" y="48" width="36" height="34" rx="8"/>
+                <path class="ilus-traco" d="M27 59h14v14H27z"/>
+                <path class="ilus-traco ilus-traco--marca" d="M80 74s-9-5-9-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-9 11-9 11z"/>
+                <circle class="ilus-traco" cx="126" cy="65" r="7"/>
+              </svg>
+            <h2 class="passo__titulo">Busca</h2>
+            <p class="passo__texto">Escribe un nombre o una palabra clave en inglés: “trash” también encuentra “delete”.</p>
+          </li>
+          <li class="passo">
+            <svg class="passo__ilustracao" viewBox="0 0 160 96" aria-hidden="true" focusable="false">
+                <rect class="ilus-fundo" x="1" y="1" width="158" height="94" rx="12"/>
+                <rect class="ilus-card ilus-card--ativo" x="22" y="18" width="52" height="52" rx="10"/>
+                <path class="ilus-traco ilus-traco--marca" d="M48 56s-12-7-12-15a7 7 0 0 1 12-4 7 7 0 0 1 12 4c0 8-12 15-12 15z"/>
+                <path class="ilus-cursor" d="M64 54l0 22 6-6 5 10 5-2-5-10h9z"/>
+                <rect class="ilus-campo" x="94" y="22" width="52" height="44" rx="8"/>
+                <path class="ilus-texto" d="M102 34h30M102 44h36M102 54h22"/>
+                <circle class="ilus-ok" cx="140" cy="20" r="10"/><path class="ilus-ok-traco" d="m135 20 4 4 6-7"/>
+              </svg>
+            <h2 class="passo__titulo">Haz clic para copiar</h2>
+            <p class="passo__texto">El SVG va al portapapeles con el tamaño, trazo y color que elegiste.</p>
+          </li>
+          <li class="passo">
+            <svg class="passo__ilustracao" viewBox="0 0 160 96" aria-hidden="true" focusable="false">
+                <rect class="ilus-fundo" x="1" y="1" width="158" height="94" rx="12"/>
+                <path class="ilus-grade" d="M30 14v68M50 14v68M70 14v68M90 14v68M110 14v68M130 14v68M20 24h120M20 44h120M20 64h120"/>
+                <path class="ilus-traco ilus-traco--marca" d="M36 70C46 30 86 24 104 50"/>
+                <circle class="ilus-ponto" cx="36" cy="70" r="5"/><circle class="ilus-ponto" cx="104" cy="50" r="5"/>
+                <path class="ilus-alca" d="M36 70 52 34M104 50 92 28"/>
+                <circle class="ilus-ponto ilus-ponto--alca" cx="52" cy="34" r="4"/><circle class="ilus-ponto ilus-ponto--alca" cx="92" cy="28" r="4"/>
+                <path class="ilus-lapis" d="m118 78 4-14 18-18 10 10-18 18z"/><path class="ilus-traco" d="m132 50 10 10"/>
+              </svg>
+            <h2 class="passo__titulo">Edita con el lápiz</h2>
+            <p class="passo__texto">Arrastra puntos, cambia colores o combina dos iconos, y luego copia o descarga.</p>
+          </li>
+        </ol>
+    </section>
 
     <nav class="page__toc" aria-label="Contenido">
       <strong>Contenido</strong>

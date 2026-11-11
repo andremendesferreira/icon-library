@@ -574,4 +574,6 @@ export default {
   "editor.gradient_sky": "天空",
   "editor.gradient_rose": "玫瑰",
   "editor.gradient_night": "夜晚",
+  "breadcrumb.label": "当前位置",
+  "guide.quickStart": "30 秒上手",
 };

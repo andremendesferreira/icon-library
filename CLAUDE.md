@@ -45,7 +45,7 @@ docker build -t icon-library:teste . && docker run -d -p 3999:3000 icon-library:
 ## Rules that are easy to miss
 
 - **8 languages:** `en`, `es`, `fr`, `de`, `ru`, `zh-CN`, `pt-BR`, `ja`. Every key in `public/js/i18n/` must exist in all of them (`tests/i18n.test.mjs` enforces it).
-- **Generated pages:** `public/{about,guide,privacy,license}*.html` (`PAGINAS`), the set guides (`CONJUNTOS`) and the articles (`ARTIGOS`) come from `pages/` through `scripts/build-pages.mjs`. Edit `pages/` and run `npm run pages`; a new page also goes in the sitemap regex in `scripts/server.js` (and its count in `tests/server.test.mjs`).
+- **Generated pages:** `public/{about,guide,privacy,license}*.html` (`PAGINAS`), the set guides (`CONJUNTOS`) and the articles (`ARTIGOS`) come from `pages/` through `scripts/build-pages.mjs`. Edit `pages/` and run `npm run pages`; a new page also goes in the sitemap regex in `scripts/server.js` (and its count in `tests/server.test.mjs`). Every generated page gets a breadcrumb (Icon Library › page) on screen and as `BreadcrumbList` JSON-LD; `<!--passos-->` in `pages/guide/` becomes the home's three illustrated steps, copied from `public/index.html` and translated at build time (`tests/paginas.test.mjs`).
 - **Browser storage:** every `localStorage` key (`icon-library:*`) is listed in the privacy policy in all 8 languages; a new key goes there too.
 - **Plurals in i18n:** each plural form must carry the same `{placeholders}` as the first English form (`tests/i18n.test.mjs`).
 - **Set guides and articles are an exception to the 8 languages:** only English and Portuguese for now, the languages the maintainer can review. `data-languages` tells `detect.js` which versions exist. Their text is written by hand: don't generate thin pages from a template, which is what AdSense rejected.
@@ -70,11 +70,11 @@ Everything that leads to the coffee uses the same gold style (`.coffee-button`, 
 
 ## Design
 
-`docs/design.md` has the rules: neutral interface, brand blue only for actions and focus, gold only for the coffee. Reading text and controls use 18 px or more (`--fs-texto`), the editor 16 px at least. New styles use the tokens in the "Design minimalista" layer at the end of `public/css/icon-library.css`, which comes last and wins. The home starts with the search (sticky at the top, focused with a mouse) and the three illustrated steps; the grid loads in batches of 96 as you scroll.
+`docs/design.md` has the rules: neutral interface, brand blue only for actions and focus, gold only for the coffee. Reading text and controls use 18 px or more (`--fs-texto`) everywhere, dialogs, scratchpad, footer, `kbd`, `code` and the ad label included; the editor (`#editor`, `#editor-help`) uses exactly 16 px (`--fs-editor`), since 18 crowds its footer. Only badge counts may be 16 px elsewhere. To check, walk the visible text nodes and inputs in the browser (dialogs opened) and list computed sizes below the floor. New styles use the tokens in the "Design minimalista" layer at the end of `public/css/icon-library.css`, which comes last and wins. The home starts with the search (sticky at the top, focused with a mouse) and the three illustrated steps; the grid loads in batches of 96 as you scroll.
 
 ## Text contrast
 
-Text must reach 4.5:1 (WCAG AA) in both themes. Secondary text uses `var(--il-muted)` and blue text `var(--il-blue-dark)`; both have a dark-theme value, so never hardcode a gray for text. White text on blue sits on `var(--il-action)` / `--il-action-hover`, which stay the same in both themes. `tests/contrast.test.mjs` blocks the old low-contrast colors.
+Text must reach 4.5:1 (WCAG AA) in both themes. Secondary text uses `var(--il-muted)` and blue text `var(--il-blue-dark)`; both have a dark-theme value, so never hardcode a gray for text. White text on blue sits on `var(--il-action)` / `--il-action-hover`, which stay the same in both themes. `tests/contrast.test.mjs` blocks the old low-contrast colors and checks that `--cor-borda-forte`, the border that identifies a control (the search, form fields), reaches 3:1 in both themes (WCAG 1.4.11).
 
 ## Supporter reviews
 

@@ -581,4 +581,6 @@ export default {
   "editor.gradient_sky": "Cielo",
   "editor.gradient_rose": "Rosa",
   "editor.gradient_night": "Noche",
+  "breadcrumb.label": "Estás aquí",
+  "guide.quickStart": "Empieza en 30 segundos",
 };
