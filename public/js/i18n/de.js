@@ -598,4 +598,8 @@ export default {
   "editor.boolLoading": "Formwerkzeuge werden geladen…",
   "editor.boolFailed": "Diese Formen ließen sich nicht kombinieren",
   "editor.boolEmpty": "Es bliebe nichts übrig: Die Formen überlappen so nicht",
+  "help.unite": "Zwei oder mehr geschlossene Formen zu einer vereinigen",
+  "help.subtract": "Subtrahieren: die obere Form schneidet die untere aus",
+  "help.intersect": "Schnittmenge: nur die Überlappung zweier Formen behalten",
+  "help.exclude": "Ausschließen: alles außer der Überlappung behalten",
 };

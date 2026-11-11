@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 
-import { expandir, prepararSinonimos, semAcento } from "../public/js/models/sinonimos.js";
+import { IDIOMAS_COM_SINONIMOS, expandir, prepararSinonimos, semAcento } from "../public/js/models/sinonimos.js";
 import { IconModel } from "../public/js/models/IconModel.js";
 
 const DIC = prepararSinonimos({ lixeira: ["trash", "delete"], "seta": ["arrow"], direita: ["right"], configurações: ["settings", "gear"] });
@@ -51,7 +51,8 @@ test("busca: o termo traduzido acha o ícone, depois dos acertos diretos", () =>
 test("dicionários publicados: JSON válido, chaves e termos em texto", () => {
   const pasta = new URL("../public/json/sinonimos/", import.meta.url);
   const arquivos = readdirSync(pasta);
-  assert.ok(arquivos.includes("pt-BR.json"));
+  // Cada idioma da lista tem o arquivo, e todo arquivo está na lista
+  assert.deepEqual(arquivos.map((f) => f.replace(/\.json$/, "")).sort(), [...IDIOMAS_COM_SINONIMOS].sort());
   for (const f of arquivos) {
     const dados = JSON.parse(readFileSync(new URL(f, pasta), "utf8"));
     for (const [chave, termos] of Object.entries(dados)) {

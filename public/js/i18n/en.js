@@ -601,4 +601,8 @@ export default {
   "editor.boolLoading": "Loading the shape tools…",
   "editor.boolFailed": "Could not combine these shapes",
   "editor.boolEmpty": "Nothing would be left: the shapes don't overlap that way",
+  "help.unite": "Unite two or more closed shapes into one",
+  "help.subtract": "Subtract: the top shape cuts the one below",
+  "help.intersect": "Intersect: keep only where two shapes overlap",
+  "help.exclude": "Exclude: keep everything but the overlap",
 };

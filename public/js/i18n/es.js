@@ -598,4 +598,8 @@ export default {
   "editor.boolLoading": "Cargando las herramientas de formas…",
   "editor.boolFailed": "No se pudieron combinar estas formas",
   "editor.boolEmpty": "No quedaría nada: las formas no se superponen así",
+  "help.unite": "Unir dos o más formas cerradas en una",
+  "help.subtract": "Restar: la forma de arriba recorta la de abajo",
+  "help.intersect": "Intersecar: deja solo donde dos formas se superponen",
+  "help.exclude": "Excluir: deja todo menos la parte en común",
 };

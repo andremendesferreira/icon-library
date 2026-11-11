@@ -308,6 +308,9 @@ icon-library/
 │   │   ├── linkCodec.js                #svg= / #ile= links
 │   │   ├── svgGeometry.js              editor geometry: paths, points, transforms
 │   │   ├── EditorModel.js              icons being edited, groups, colors, undo/redo
+│   │   ├── degrade.js                  editor gradients (il-grad-N), pure
+│   │   ├── booleanas.js                Unite / Subtract / Intersect / Exclude with Paper.js
+│   │   ├── sinonimos.js                search in other languages (dictionary lookup)
 │   │   ├── ScratchpadModel.js          scratchpad text, saved in the browser
 │   │   ├── adsConfig.js                AdSense publisher and slot IDs
 │   │   └── glyphDetector.js            can the system font draw this emoji?
@@ -324,10 +327,13 @@ icon-library/
 │   │   ├── IconController.js           user actions → model → view, address state
 │   │   ├── EditorController.js         editor actions → model → view
 │   │   ├── ScratchpadController.js     open/close, add, copy, clear
+│   │   ├── carregarPaper.js            loads Paper.js on first use
 │   │   ├── clipboard.js                copy to the clipboard
 │   │   └── download.js                 SVG and PNG downloads
 │   ├── img/                                logo (WebP), favicon, touch and social icons
-│   └── json/icons-categories.json      generated categories (Feather, Bootstrap)
+│   ├── json/icons-categories.json      generated categories (Feather, Bootstrap)
+│   ├── json/sinonimos/                 search dictionaries per language (pt-BR)
+│   └── js/vendor/                      Paper.js 0.12.18 (MIT), served as is
 ├── scripts/server.js                   server (npm start)
 ├── scripts/build-pages.mjs             generates the text pages (npm run pages)
 ├── scripts/coffee.js                   buy me a coffee: Stripe check, supporter codes
@@ -346,6 +352,7 @@ icon-library/
 ├── pages/                              text page content, one file per language
 ├── scripts/generate-icon-categories.js category generator
 ├── scripts/generate-icon-tags.js     search keywords for Feather and Bootstrap
+├── scripts/check-synonyms.mjs        every dictionary entry finds an icon (npm run synonyms)
 ├── tests/                              npm test
 ├── BACKLOG.md                          AI service and paid plan (next steps)
 ├── .github/workflows/ci.yml            continuous integration
@@ -627,6 +634,9 @@ icon-library/
 │   │   ├── linkCodec.js                links #svg= / #ile=
 │   │   ├── svgGeometry.js              geometria do editor: paths, pontos, transformações
 │   │   ├── EditorModel.js              ícones em edição, grupos, cores, desfazer/refazer
+│   │   ├── degrade.js                  degradês do editor (il-grad-N), sem DOM
+│   │   ├── booleanas.js                Unir / Subtrair / Interseção / Excluir com o Paper.js
+│   │   ├── sinonimos.js                busca em outros idiomas (dicionário)
 │   │   ├── ScratchpadModel.js          texto do scratchpad, guardado no navegador
 │   │   ├── adsConfig.js                IDs de editor e de blocos do AdSense
 │   │   └── glyphDetector.js            a fonte do sistema desenha este emoji?
@@ -643,10 +653,13 @@ icon-library/
 │   │   ├── IconController.js           ações do usuário → model → view, estado no endereço
 │   │   ├── EditorController.js         ações do editor → model → view
 │   │   ├── ScratchpadController.js     abrir/fechar, adicionar, copiar, limpar
+│   │   ├── carregarPaper.js            carrega o Paper.js no primeiro uso
 │   │   ├── clipboard.js                cópia para a área de transferência
 │   │   └── download.js                 downloads de SVG e PNG
 │   ├── img/                                logo (WebP), favicon, ícones de toque e de redes sociais
-│   └── json/icons-categories.json      categorias geradas (Feather, Bootstrap)
+│   ├── json/icons-categories.json      categorias geradas (Feather, Bootstrap)
+│   ├── json/sinonimos/                 dicionários da busca por idioma (pt-BR)
+│   └── js/vendor/                      Paper.js 0.12.18 (MIT), servido como veio
 ├── scripts/server.js                   servidor (npm start)
 ├── scripts/build-pages.mjs             gera as páginas de texto (npm run pages)
 ├── scripts/coffee.js                   pague um café: confirmação no Stripe, códigos de apoiador
@@ -665,6 +678,7 @@ icon-library/
 ├── pages/                              conteúdo das páginas de texto, um arquivo por idioma
 ├── scripts/generate-icon-categories.js gerador de categorias
 ├── scripts/generate-icon-tags.js     palavras-chave da busca do Feather e do Bootstrap
+├── scripts/check-synonyms.mjs        cada entrada do dicionário acha um ícone (npm run synonyms)
 ├── tests/                              npm test
 ├── BACKLOG.md                          serviço para IAs e plano pago (próximos passos)
 ├── .github/workflows/ci.yml            integração contínua

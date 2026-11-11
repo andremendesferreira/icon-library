@@ -591,4 +591,8 @@ export default {
   "editor.boolLoading": "図形ツールを読み込み中…",
   "editor.boolFailed": "これらの図形を組み合わせられませんでした",
   "editor.boolEmpty": "何も残りません：図形がそのように重なっていません",
+  "help.unite": "閉じた図形を 2 つ以上 1 つに結合",
+  "help.subtract": "型抜き：上の図形で下の図形を切り抜く",
+  "help.intersect": "交差：2 つの図形が重なる部分だけ残す",
+  "help.exclude": "除外：重なり以外をすべて残す",
 };

@@ -591,4 +591,8 @@ export default {
   "editor.boolLoading": "正在加载形状工具…",
   "editor.boolFailed": "无法组合这些形状",
   "editor.boolEmpty": "结果为空：这些形状没有这样重叠",
+  "help.unite": "把两个或更多闭合形状合并为一个",
+  "help.subtract": "减去：上层形状裁掉下层形状",
+  "help.intersect": "相交：只保留两个形状重叠的部分",
+  "help.exclude": "排除：保留除重叠部分以外的全部",
 };

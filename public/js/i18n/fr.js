@@ -598,4 +598,8 @@ export default {
   "editor.boolLoading": "Chargement des outils de formes…",
   "editor.boolFailed": "Impossible de combiner ces formes",
   "editor.boolEmpty": "Il ne resterait rien : les formes ne se chevauchent pas ainsi",
+  "help.unite": "Unir deux formes fermées ou plus en une seule",
+  "help.subtract": "Soustraire : la forme du dessus découpe celle du dessous",
+  "help.intersect": "Intersection : garde seulement la partie commune",
+  "help.exclude": "Exclure : garde tout sauf la partie commune",
 };

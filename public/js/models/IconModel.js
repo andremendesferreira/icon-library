@@ -1,7 +1,7 @@
 import { FONTES } from "./iconSets.js";
 import { criarDetector } from "./glyphDetector.js";
 import { ESTILO_PADRAO, aplicarEstilo } from "./svgTools.js";
-import { expandir, prepararSinonimos } from "./sinonimos.js";
+import { IDIOMAS_COM_SINONIMOS, expandir, prepararSinonimos } from "./sinonimos.js";
 
 const CHAVE_ESTILO = "icon-library:style";
 
@@ -264,7 +264,7 @@ export class IconModel {
   // Dicionário de sinônimos do idioma (public/json/sinonimos/<idioma>.json).
   // Em inglês não há; se o arquivo faltar, a busca segue só em inglês.
   async carregarSinonimos(idioma) {
-    if (!idioma || idioma === "en") return false;
+    if (!IDIOMAS_COM_SINONIMOS.includes(idioma)) return false;
     const dados = await baixar({ endereco: `json/sinonimos/${idioma}.json`, opcional: true });
     this.sinonimos = dados ? prepararSinonimos(dados) : null;
     return Boolean(this.sinonimos?.size);

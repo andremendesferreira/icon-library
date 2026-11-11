@@ -3,6 +3,10 @@
 // (public/json/sinonimos/<idioma>.json: { "lixeira": ["trash", "delete"] })
 // diz que termos em inglês procurar também. Funções puras, sem DOM.
 
+// Idiomas com dicionário em public/json/sinonimos/. Os outros nem pedem o
+// arquivo (sem 404 no console); um dicionário novo entra aqui também.
+export const IDIOMAS_COM_SINONIMOS = ["pt-BR"];
+
 // "Configurações" e "configuracoes" são a mesma busca
 export function semAcento(texto) {
   return String(texto ?? "")
