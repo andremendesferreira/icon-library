@@ -34,9 +34,13 @@
  *                          after each start, sends the sitemap to IndexNow
  *                          (Bing, Yandex…). 8–128 letters, digits or dashes
  *                          (openssl rand -hex 16); see scripts/indexnow.js
+ *   GITHUB_OAUTH_ID/SECRET, GOOGLE_OAUTH_ID/SECRET, MICROSOFT_OAUTH_ID/SECRET
+ *                          optional logins that fill in name and photo of a
+ *                          supporter review (scripts/oauth.js)
  *
  * With PG_HOST set, the migrations in migrations/ are applied on start-up
- * (scripts/db.js), and Iconlibrary and the bug report form are on.
+ * (scripts/db.js), and Iconlibrary, supporter reviews and the bug report form
+ * are on.
  */
 const http = require("http");
 const fs = require("fs");
@@ -46,6 +50,8 @@ const crypto = require("crypto");
 const { CoffeeError, coffeeFromEnv, coffeePromo } = require("./coffee");
 const { IconlibraryError, createIconlibrary, postgresStore: iconlibraryStore } = require("./iconlibrary");
 const { ReportError, createReports, postgresStore: reportsStore } = require("./reports");
+const { ReviewError, createReviews, postgresStore: reviewsStore, avatarPng, MAX_COMMENT, MIN_COMMENT, MAX_NAME } = require("./reviews");
+const { configured: oauthConfigured, createOAuth } = require("./oauth");
 const { previewAvailable, previewSize, renderPng } = require("./preview");
 const { DEFAULT: DEFAULT_LANG, dictionary, homeLang, localizeHome } = require("./homeLang");
 const { loadVersion, versionHtml } = require("./version");
@@ -184,6 +190,8 @@ const MAX_BODY = 4096;
 const MAX_BODY_ICON = 32768;
 // A bug report: up to 2000 characters (some take 3 bytes) plus the browser
 const MAX_BODY_REPORT = 16384;
+// A review: the comment plus a photo the page already shrank (base64)
+const MAX_BODY_REVIEW = 640 * 1024;
 // Per IP, in a 15-minute window: guessing supporter codes and the admin
 // password stays impractical
 const LIMITS = {
@@ -191,9 +199,19 @@ const LIMITS = {
   "/api/coffee/redeem": 30,
   "/api/iconlibrary/icons": 20,
   "/api/reports": 5,
+  "/api/reviews": 15,
+  "/api/reviews/auth": 20,
   admin: 30,
 };
 const WINDOW = 15 * 60 * 1000;
+
+// Errors from pg carry the failing row in err.detail (a supporter code, a
+// comment…): the log gets only what identifies the problem
+function logError(tag, err) {
+  if (err && typeof err === "object" && ("detail" in err || "where" in err))
+    console.error(tag, err.code || "", err.constraint || "", err.message);
+  else console.error(tag, err);
+}
 
 function sendJson(req, res, status, body) {
   send(req, res, status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, JSON.stringify(body));
@@ -263,16 +281,17 @@ function guardAdmin(req, res, ctx, json) {
     else send(req, res, status, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", ...headers }, body.error);
     return false;
   };
-  if (!ctx.adminPassword || !(ctx.iconlibrary || ctx.reports)) return fail(404, { error: "not_found" });
+  if (!ctx.adminPassword || !(ctx.iconlibrary || ctx.reports || ctx.reviews)) return fail(404, { error: "not_found" });
   if (isAdmin(req, ctx)) return true;
   if (!ctx.limit(`admin ${clientIp(req)}`, LIMITS.admin)) return fail(429, { error: "too_many" });
   return fail(401, { error: "unauthorized" }, { "WWW-Authenticate": 'Basic realm="Icon Library admin", charset="UTF-8"' });
 }
 
 // ── Moderation API (/api/moderation/…): Bearer MODERATION_TOKEN ──────────
-// For an automated moderator. It can only see pending icons, render their
-// previews and approve or reject them — it cannot delete anything or read the
-// bug reports, so a leaked token does limited harm.
+// For an automated moderator. It can only see what is pending (icons and
+// supporter reviews), render previews, approve or reject, and delete what
+// never went live — it cannot delete anything approved, undo a decision or
+// read the bug reports, so a leaked token does limited harm.
 function isModerator(req, ctx) {
   if (!ctx.moderationToken) return false;
   const [scheme, token] = String(req.headers.authorization || "").split(" ");
@@ -283,20 +302,39 @@ function isModerator(req, ctx) {
 }
 
 async function handleModeration(req, res, url, ctx) {
-  const { iconlibrary } = ctx;
-  if (!ctx.moderationToken || !iconlibrary) return sendJson(req, res, 404, { error: "not_found" });
+  const { iconlibrary, reviews } = ctx;
+  const deAvaliacao = url === "/api/moderation/reviews" || url.startsWith("/api/moderation/reviews/");
+  if (!ctx.moderationToken || !(deAvaliacao ? reviews : iconlibrary)) return sendJson(req, res, 404, { error: "not_found" });
   if (!isModerator(req, ctx)) {
     if (!ctx.limit(`admin ${clientIp(req)}`, LIMITS.admin)) return sendJson(req, res, 429, { error: "too_many" });
     res.setHeader("WWW-Authenticate", 'Bearer realm="Icon Library moderation"');
     return sendJson(req, res, 401, { error: "unauthorized" });
   }
   const fail = (err) => {
-    if (err instanceof IconlibraryError || err instanceof CoffeeError)
+    if (err instanceof IconlibraryError || err instanceof CoffeeError || err instanceof ReviewError)
       return sendJson(req, res, err.status, { error: err.code, ...(err.extra || {}) });
-    console.error("[moderation]", err);
+    logError("[moderation]", err);
     sendJson(req, res, 500, { error: "server" });
   };
   try {
+    // Supporter reviews waiting (new ones and edits of approved ones), with
+    // the photo; approve, reject, or delete one that never went live
+    if (deAvaliacao) {
+      if (url === "/api/moderation/reviews") {
+        if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
+        return sendJson(req, res, 200, { reviews: await reviews.queue() });
+      }
+      const foto = /^\/api\/moderation\/reviews\/(\d+)\/avatar\.png$/.exec(url);
+      if (foto) {
+        if (req.method !== "GET" && req.method !== "HEAD") return sendJson(req, res, 405, { error: "method" });
+        return sendAvatar(req, res, await reviews.avatar(foto[1], { pending: true }), "no-store");
+      }
+      const m = /^\/api\/moderation\/reviews\/(\d+)\/(approve|reject|delete)$/.exec(url);
+      if (!m) return sendJson(req, res, 404, { error: "not_found" });
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      const body = await readJson(req);
+      return sendJson(req, res, 200, await reviews.decide(m[1], m[2], { note: body.note, seen: body.submittedAt, onlyPending: true }));
+    }
     // Everything waiting, oldest first: new or edited icons (kind "icon") and
     // edits of approved icons (kind "revision", with the live version in
     // "current"). submittedAt changes with each edit, so an automated
@@ -348,7 +386,7 @@ async function handleIconlibrary(req, res, url, ctx) {
   const fail = (err, tag) => {
     if (err instanceof IconlibraryError || err instanceof CoffeeError)
       return sendJson(req, res, err.status, { error: err.code, ...(err.extra || {}) });
-    console.error(tag, err);
+    logError(tag, err);
     sendJson(req, res, 500, { error: "server" });
   };
 
@@ -436,7 +474,7 @@ async function handleReports(req, res, url, ctx) {
   const fail = (err) => {
     if (err instanceof ReportError || err instanceof CoffeeError)
       return sendJson(req, res, err.status, { error: err.code });
-    console.error("[reports]", err);
+    logError("[reports]", err);
     sendJson(req, res, 500, { error: "server" });
   };
 
@@ -474,6 +512,149 @@ async function handleReports(req, res, url, ctx) {
   return null;
 }
 
+// A review photo (PNG made on the server) or 404
+function sendAvatar(req, res, png, cache) {
+  if (!png) return sendJson(req, res, 404, { error: "not_found" });
+  send(req, res, 200, { "Content-Type": "image/png", "Cache-Control": cache, "Content-Length": png.length }, png);
+}
+
+const REVIEW_LANGS = ["en", "es", "fr", "de", "ru", "zh-CN", "pt-BR", "ja"];
+
+// The login for reviews is tied to the browser that started it: a random
+// value in an HttpOnly cookie, only sent to /api/reviews (scripts/oauth.js)
+const LOGIN_COOKIE = "il_review_login";
+function loginCookie(req) {
+  const m = new RegExp(`(?:^|;\\s*)${LOGIN_COOKIE}=([\\w-]{16,64})`).exec(String(req.headers.cookie || ""));
+  return m ? m[1] : null;
+}
+function setLoginCookie(req, value) {
+  const secure = siteUrl(req).startsWith("https:") ? "; Secure" : "";
+  return `${LOGIN_COOKIE}=${value}; Path=/api/reviews; Max-Age=1800; HttpOnly; SameSite=Lax${secure}`;
+}
+const aboutPage = (lang) => (lang && lang !== "en" && REVIEW_LANGS.includes(lang) ? `/about.${lang}.html` : "/about.html");
+
+// Supporter reviews (scripts/reviews.js), shown on the About page:
+//   GET  /api/reviews/config           → { enabled, providers, … }
+//   GET  /api/reviews                  → approved reviews and the average
+//   POST /api/reviews                  { code, rating, comment, name, consent, photo?, ticket?, provider? }
+//   POST /api/reviews/mine             { code } → the person's review, to edit
+//   GET  /api/reviews/:id/avatar.png   photo of an approved review
+//   GET  /api/reviews/auth/:provider   → the provider's login (scripts/oauth.js)
+//   GET  /api/reviews/auth/:provider/callback → About page #review-ticket=…
+//   POST /api/reviews/identity         { ticket } → name and photo for the form
+// Admin:
+//   GET  /api/admin/reviews?status=pending
+//   GET  /api/admin/reviews/:id/avatar.png   (what is waiting)
+//   POST /api/admin/reviews/:id/(approve|reject|delete)  { note? }
+async function handleReviews(req, res, url, ctx) {
+  const { reviews, oauth } = ctx;
+  const fail = (err) => {
+    if (err instanceof ReviewError || err instanceof CoffeeError)
+      return sendJson(req, res, err.status, { error: err.code, ...(err.extra || {}) });
+    logError("[reviews]", err);
+    sendJson(req, res, 500, { error: "server" });
+  };
+  const query = new URL(req.url, "http://localhost").searchParams;
+  const isGet = req.method === "GET" || req.method === "HEAD";
+  try {
+    if (url === "/api/reviews/config") {
+      if (!isGet) return sendJson(req, res, 405, { error: "method" });
+      if (!reviews) return sendJson(req, res, 200, { enabled: false, providers: [] });
+      return sendJson(req, res, 200, {
+        enabled: true,
+        providers: oauth ? oauth.providers() : [],
+        minComment: MIN_COMMENT,
+        maxComment: MAX_COMMENT,
+        maxName: MAX_NAME,
+      });
+    }
+    if (url === "/api/reviews") {
+      if (isGet) {
+        if (!reviews) return sendJson(req, res, 200, { enabled: false, total: 0, average: null, reviews: [] });
+        const body = JSON.stringify({ enabled: true, ...(await reviews.list()) });
+        return send(req, res, 200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=60" }, body);
+      }
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      if (!reviews) return sendJson(req, res, 503, { error: "disabled" });
+      if (!ctx.limit(`/api/reviews ${clientIp(req)}`, LIMITS["/api/reviews"])) return sendJson(req, res, 429, { error: "too_many" });
+      return sendJson(req, res, 201, await reviews.submit(await readJson(req, MAX_BODY_REVIEW), { browser: loginCookie(req) }));
+    }
+    if (url === "/api/reviews/mine") {
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      if (!reviews) return sendJson(req, res, 503, { error: "disabled" });
+      // Same limit as sending: guessing codes here is as slow as there
+      if (!ctx.limit(`/api/reviews ${clientIp(req)}`, LIMITS["/api/reviews"])) return sendJson(req, res, 429, { error: "too_many" });
+      const body = await readJson(req);
+      return sendJson(req, res, 200, { review: await reviews.mine(body.code) });
+    }
+    const foto = /^\/api\/reviews\/(\d+)\/avatar\.png$/.exec(url);
+    if (foto) {
+      if (!isGet) return sendJson(req, res, 405, { error: "method" });
+      if (!reviews) return sendJson(req, res, 404, { error: "not_found" });
+      // Short cache: a photo taken down must not linger in proxies for a day
+      return sendAvatar(req, res, await reviews.avatar(foto[1]), "public, max-age=300");
+    }
+    if (url === "/api/reviews/identity") {
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      const body = await readJson(req);
+      const id = reviews && oauth ? oauth.identity(body.ticket, loginCookie(req)) : null;
+      if (!id) return sendJson(req, res, 410, { error: "login_expired" });
+      return sendJson(req, res, 200, {
+        provider: id.provider,
+        name: id.name,
+        photo: id.avatar ? `data:image/png;base64,${id.avatar.toString("base64")}` : null,
+      });
+    }
+    const login = /^\/api\/reviews\/auth\/(github|google|microsoft)(\/callback)?$/.exec(url);
+    if (login) {
+      if (!isGet) return sendJson(req, res, 405, { error: "method" });
+      if (!reviews || !oauth || !oauth.providers().includes(login[1])) return sendJson(req, res, 404, { error: "not_found" });
+      const redirect = (location, extra = {}) =>
+        send(req, res, 302, { Location: location, "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", ...extra });
+      if (!login[2]) {
+        if (!ctx.limit(`/api/reviews/auth ${clientIp(req)}`, LIMITS["/api/reviews/auth"])) return sendJson(req, res, 429, { error: "too_many" });
+        const lang = REVIEW_LANGS.includes(query.get("lang")) ? query.get("lang") : "en";
+        const redirectUri = `${siteUrl(req)}/api/reviews/auth/${login[1]}/callback`;
+        const browser = loginCookie(req) || oauth.newBrowser();
+        return redirect(oauth.start(login[1], { redirectUri, lang, browser }), { "Set-Cookie": setLoginCookie(req, browser) });
+      }
+      // Back from the provider: the ticket goes in the fragment, which the
+      // browser never sends to anyone, and only works with this browser's cookie
+      const result = await oauth.finish(login[1], {
+        code: query.get("code"),
+        state: query.get("state"),
+        error: query.get("error"),
+        browser: loginCookie(req),
+      });
+      const hash = result.ticket ? `review-ticket=${result.ticket}` : `review-error=${result.error}`;
+      return redirect(`${aboutPage(result.lang)}#${hash}`);
+    }
+    if (url === "/api/admin/reviews" || url.startsWith("/api/admin/reviews/")) {
+      if (!guardAdmin(req, res, ctx, true)) return;
+      if (!reviews) return sendJson(req, res, 404, { error: "not_found" });
+      if (url === "/api/admin/reviews") {
+        if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
+        return sendJson(req, res, 200, { reviews: await reviews.review(query.get("status") || "pending") });
+      }
+      const fotoAdmin = /^\/api\/admin\/reviews\/(\d+)\/avatar\.png$/.exec(url);
+      if (fotoAdmin) {
+        if (!isGet) return sendJson(req, res, 405, { error: "method" });
+        const pendente = query.get("pending") !== "false";
+        return sendAvatar(req, res, await reviews.avatar(fotoAdmin[1], { pending: pendente }), "no-store");
+      }
+      const m = /^\/api\/admin\/reviews\/(\d+)\/(approve|reject|delete)$/.exec(url);
+      if (!m) return sendJson(req, res, 404, { error: "not_found" });
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      const body = await readJson(req);
+      // submittedAt: the version shown in /admin; a newer edit answers 409
+      return sendJson(req, res, 200, await reviews.decide(m[1], m[2], { note: body.note, seen: body.submittedAt }));
+    }
+    return sendJson(req, res, 404, { error: "not_found" });
+  } catch (err) {
+    return fail(err);
+  }
+}
+
 async function handleApi(req, res, url, ctx) {
   // Docker's HEALTHCHECK: 503 when a database check failed at start-up (a
   // pending migration, a missing table or GRANT), so the container shows as
@@ -483,6 +664,8 @@ async function handleApi(req, res, url, ctx) {
     return sendJson(req, res, ctx.health.ok ? 200 : 503, { ...ctx.health, version: VERSION.commit ? VERSION.commit.slice(0, 7) : null });
   }
   if (url.startsWith("/api/moderation/")) return handleModeration(req, res, url, ctx);
+  if (url === "/api/reviews" || url.startsWith("/api/reviews/") || url === "/api/admin/reviews" || url.startsWith("/api/admin/reviews/"))
+    return handleReviews(req, res, url, ctx);
   if (url === "/api/reports" || url.startsWith("/api/reports/") || url.startsWith("/api/admin/reports")) {
     const handled = await handleReports(req, res, url, ctx);
     if (handled !== null) return;
@@ -511,7 +694,7 @@ async function handleApi(req, res, url, ctx) {
     sendJson(req, res, 200, result);
   } catch (err) {
     if (err instanceof CoffeeError) return sendJson(req, res, err.status, { error: err.code });
-    console.error("[coffee]", err);
+    logError("[coffee]", err);
     sendJson(req, res, 500, { error: "server" });
   }
 }
@@ -627,12 +810,13 @@ function handle(req, res, ctx) {
 
 // coffee: scripts/coffee.js service; iconlibrary: scripts/iconlibrary.js
 // service; reports: scripts/reports.js service; adminPassword: enables
-// /admin; indexNowKey: serves /<key>.txt. Each null/empty = feature off.
+// /admin; indexNowKey: serves /<key>.txt; reviews: scripts/reviews.js and
+// oauth: scripts/oauth.js (logins for reviews). Each null/empty = feature off.
 // health: the start-up checks, for /api/health (default: healthy, no database).
-function createServer({ coffee = null, iconlibrary = null, reports = null, adminPassword = "", moderationToken = "", indexNowKey = "", health = null } = {}) {
+function createServer({ coffee = null, iconlibrary = null, reports = null, reviews = null, oauth = null, adminPassword = "", moderationToken = "", indexNowKey = "", health = null } = {}) {
   const ctx = {
-    coffee, iconlibrary, reports, adminPassword, moderationToken, indexNowKey, limit: createLimiter(),
-    health: { ok: true, database: "off", pendingMigrations: [], ...health, coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports) },
+    coffee, iconlibrary, reports, reviews, oauth, adminPassword, moderationToken, indexNowKey, limit: createLimiter(),
+    health: { ok: true, database: "off", pendingMigrations: [], ...health, coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews) },
   };
   return http.createServer((req, res) => {
     try {
@@ -716,7 +900,15 @@ if (require.main === module) {
     const iconlibrary = iconlibraryOk && coffee
       ? createIconlibrary({ store: iconlibraryStore(pool), supporter: (code) => coffee.supporter(code) })
       : null;
-    Object.assign(health, { coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports) });
+    // Reviews: supporters only, so they need the coffee too. The logins are
+    // optional; without them everyone appears with a typed name.
+    const reviewsOk = Boolean(coffee) && coffeeOk && (await usable("reviews", "supporter reviews are off"));
+    const credentials = oauthConfigured(process.env);
+    const oauth = reviewsOk && Object.keys(credentials).length ? createOAuth({ credentials, render: avatarPng }) : null;
+    const reviews = reviewsOk
+      ? createReviews({ store: reviewsStore(pool), supporter: (code) => coffee.supporter(code), identity: (ticket, browser) => oauth?.take(ticket, browser) ?? null })
+      : null;
+    Object.assign(health, { coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews) });
     const adminPassword = process.env.ADMIN_PASSWORD || "";
     // A short token would be easy to guess: below 32 characters it is ignored
     let moderationToken = process.env.MODERATION_TOKEN || "";
@@ -729,14 +921,15 @@ if (require.main === module) {
     if (process.env.INDEXNOW_KEY && !indexNow)
       console.error("[indexnow] INDEXNOW_KEY must have 8 to 128 letters, digits or dashes (openssl rand -hex 16) — IndexNow is off");
     const site = (process.env.SITE_URL || "").replace(/\/+$/, "");
-    createServer({ coffee, iconlibrary, reports, adminPassword, moderationToken, indexNowKey: indexNow, health }).listen(PORT, HOST, () => {
+    createServer({ coffee, iconlibrary, reports, reviews, oauth, adminPassword, moderationToken, indexNowKey: indexNow, health }).listen(PORT, HOST, () => {
       console.log(`Icon Library running at http://localhost:${PORT}`);
       // Off because of a failed database check: point to the [db] line, not to the configuration
       const off = (reason) => (health.ok ? `off (${reason})` : "OFF (database check failed, see [db] above)");
       console.log(`Buy me a coffee: ${coffee ? "on" : off("Stripe or database not configured")}`);
       console.log(`Iconlibrary: ${iconlibrary ? "on" : off("needs the database and the coffee")}`);
       console.log(`Bug reports: ${reports ? "on" : off("needs the database")}`);
-      console.log(`Admin (/admin): ${(iconlibrary || reports) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
+      console.log(`Supporter reviews: ${reviews ? `on, logins: ${oauth ? oauth.providers().join(", ") : "none (set *_OAUTH_ID/SECRET)"}` : off("needs the database and the coffee")}`);
+      console.log(`Admin (/admin): ${(iconlibrary || reports || reviews) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
       console.log(`Version: ${VERSION.commit ? VERSION.commit.slice(0, 7) : "unknown commit"}${VERSION.built ? `, built ${VERSION.built}` : ""}`);
       console.log(`Moderation API: ${iconlibrary && moderationToken ? `on${previewAvailable() ? "" : " (no PNG previews: renderer missing)"}` : "off (set MODERATION_TOKEN)"}`);
       console.log(`IndexNow: ${indexNow && site ? "on, sitemap sent in a minute" : "off (set INDEXNOW_KEY and SITE_URL)"}`);

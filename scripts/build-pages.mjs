@@ -53,6 +53,78 @@ function grade(pagina) {
   return `<ul class="set-grid">\n${itens.join("\n")}\n</ul>`;
 }
 
+// Avaliações dos apoiadores (página Sobre): a seção começa escondida e
+// js/views/reviews.js a mostra quando o servidor tem a função ligada. Os
+// textos vão junto, em JSON, no idioma da página.
+function avaliacoes(idioma) {
+  const x = (chave) => escapar(t(idioma, chave));
+  const textos = Object.fromEntries(
+    Object.keys(dicionarios.en)
+      .filter((c) => c.startsWith("reviews."))
+      .map((c) => [c, t(idioma, c)]),
+  );
+  const estrelas = [1, 2, 3, 4, 5]
+    .map(
+      (n) =>
+        `<label class="estrelas__opcao"><input type="radio" name="rating" value="${n}" /><span aria-hidden="true">★</span><span class="visually-hidden">${escapar(t(idioma, "reviews.stars").replace("{n}", n))}</span></label>`,
+    )
+    .join("");
+  return `<section id="avaliar" class="avaliacoes" aria-labelledby="avaliacoes-titulo" hidden>
+  <h2 id="avaliacoes-titulo">${x("reviews.title")}</h2>
+  <p>${x("reviews.intro")}</p>
+  <p class="avaliacoes__regra">${x("reviews.policy")}</p>
+  <p class="avaliacoes__resumo" id="avaliacoes-resumo"></p>
+  <ul class="avaliacoes__lista" id="avaliacoes-lista"></ul>
+  <p class="avaliacoes__situacao" id="avaliacoes-situacao" role="status"></p>
+  <p><button type="button" class="avaliacoes__escrever" id="avaliacoes-escrever">${x("reviews.write")}</button></p>
+  <dialog id="avaliacao" class="avaliacao" aria-labelledby="avaliacao-titulo" data-clarity-mask="true">
+    <form id="avaliacao-form" class="avaliacao__form" novalidate>
+      <h2 id="avaliacao-titulo">${x("reviews.write")}</h2>
+      <p class="avaliacao__dica">${x("reviews.formIntro")}</p>
+      <label class="avaliacao__campo">${x("reviews.code")}
+        <input id="avaliacao-codigo" autocomplete="off" spellcheck="false" placeholder="CAFE-XXXX-XXXX" aria-describedby="avaliacao-codigo-dica" />
+      </label>
+      <p class="avaliacao__dica" id="avaliacao-codigo-dica">${x("reviews.codeHint")}</p>
+      <fieldset class="estrelas" id="avaliacao-estrelas">
+        <legend>${x("reviews.rating")}</legend>
+        <div class="estrelas__linha">${estrelas}</div>
+      </fieldset>
+      <label class="avaliacao__campo">${x("reviews.comment")}
+        <textarea id="avaliacao-comentario" rows="4" maxlength="600" aria-describedby="avaliacao-contador"></textarea>
+      </label>
+      <p class="avaliacao__dica" id="avaliacao-contador"></p>
+      <fieldset class="avaliacao__quem">
+        <legend>${x("reviews.appear")}</legend>
+        <div class="avaliacao__logins" id="avaliacao-logins"></div>
+        <p class="avaliacao__verificado" id="avaliacao-verificado" hidden><span id="avaliacao-verificado-texto"></span> <button type="button" class="avaliacao__link" id="avaliacao-sem-login">${x("reviews.dropLogin")}</button></p>
+        <p class="avaliacao__dica" id="avaliacao-login-dica">${x("reviews.loginHint")}</p>
+        <label class="avaliacao__campo">${x("reviews.name")}
+          <input id="avaliacao-nome" maxlength="40" autocomplete="name" />
+        </label>
+        <div class="avaliacao__foto">
+          <span class="avatar avatar--grande" id="avaliacao-avatar" aria-hidden="true"></span>
+          <div>
+            <p class="avaliacao__rotulo">${x("reviews.photo")}</p>
+            <label class="avaliacao__botao">${x("reviews.photoUpload")}<input type="file" id="avaliacao-arquivo" class="visually-hidden" accept="image/png,image/jpeg,image/webp" /></label>
+            <button type="button" class="avaliacao__link" id="avaliacao-tirar-foto" hidden>${x("reviews.photoRemove")}</button>
+          </div>
+        </div>
+        <p class="avaliacao__dica">${x("reviews.photoHint")}</p>
+      </fieldset>
+      <label class="avaliacao__consentimento"><input type="checkbox" id="avaliacao-consentimento" /> ${x("reviews.consent")}</label>
+      <input name="website" class="avaliacao__isca" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <p class="avaliacao__erro" id="avaliacao-erro" role="alert"></p>
+      <div class="avaliacao__acoes">
+        <button type="button" class="avaliacao__secundario" id="avaliacao-cancelar">${x("reviews.cancel")}</button>
+        <button type="submit" class="avaliacao__enviar" id="avaliacao-enviar">${x("reviews.send")}</button>
+      </div>
+    </form>
+  </dialog>
+  <script type="application/json" id="avaliacoes-textos">${JSON.stringify(textos).replace(/</g, "\\u003c")}</script>
+</section>
+<script type="module" src="js/views/reviews.js"></script>`;
+}
+
 // Botão que abre a ferramenta já no conjunto, e links para os outros guias
 function ferramenta(chave, idioma, pagina) {
   const separador = idioma === "en" ? "?" : `?lang=${idioma}&amp;`;
@@ -78,6 +150,7 @@ function montar(pagina, idioma) {
       `<p class="page__coffee"><a class="site-footer__coffee" href="${icones}#coffee">☕ ${escapar(t(idioma, "coffee.button"))}</a></p>`,
     )
     .replace("<!--grade-->", () => (CONJUNTOS.includes(pagina) ? grade(pagina) : ""))
+    .replace("<!--avaliacoes-->", () => avaliacoes(idioma))
     .replace(/<!--ferramenta:(\w+)-->/, (_, chave) => ferramenta(chave, idioma, pagina))
     .split("\n")
     .map((linha) => (linha ? `    ${linha}` : ""))

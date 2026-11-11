@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Administração: moderação da Iconlibrary e relatos de bug. Servida em
+<!-- Administração: moderação da Iconlibrary, das avaliações e relatos de bug. Servida em
      /admin pelo scripts/server.js, só com ADMIN_PASSWORD (HTTP Basic); fica
      fora de public/ de propósito. -->
 <html lang="pt-BR">
@@ -41,10 +41,15 @@
     .antes-depois figcaption { font-size: 11px; color: #6b7a89; }
     .aviso { color: #8a5a00 !important; font-weight: 600; }
     del { color: #c0392b; } ins { color: #24713a; text-decoration: none; font-weight: 600; }
+    .avaliacao { grid-template-columns: 72px 1fr; }
+    .avaliacao .foto { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: #e4e9f0; display: grid; place-items: center; font-weight: 700; color: #5a6b7b; }
+    .estrelas { color: #8a5a00; font-size: 18px; letter-spacing: 2px; }
+    .avaliacao blockquote { margin: 6px 0; white-space: pre-wrap; word-break: break-word; font-size: 14.5px; line-height: 1.5; }
   </style>
   <h1>Icon Library — administração</h1>
   <div class="areas" role="group" aria-label="Área">
     <button type="button" data-area="icones" aria-pressed="true">Ícones da Iconlibrary</button>
+    <button type="button" data-area="avaliacoes" aria-pressed="false">Avaliações</button>
     <button type="button" data-area="bugs" aria-pressed="false">Relatos de bug</button>
   </div>
   <p class="nota" id="nota"></p>
@@ -97,6 +102,33 @@
               </div>
             </div>
           </article>`),
+      },
+      avaliacoes: {
+        nota:
+          "Avaliações de apoiadores para a página Sobre. Recuse só spam, ofensas, links, propaganda, dados pessoais de terceiros e fotos impróprias — nunca pela nota (a página promete publicar positivas e negativas). A edição de uma aprovada espera aqui; a versão no ar continua até você decidir.",
+        abas: [["pending", "Pendentes"], ["approved", "Aprovadas"], ["rejected", "Recusadas"]],
+        endereco: (situacao) => `/api/admin/reviews?status=${situacao}`,
+        acao: (id, acao) => `/api/admin/reviews/${id}/${acao}`,
+        itens: (resposta) => resposta.reviews,
+        cartao: (r, situacao) => `
+          <article class="icone avaliacao" data-id="${r.id}" data-versao="${texto(r.submittedAt)}">
+            ${r.hasPhoto ? `<img class="foto" alt="" src="${api(`/api/admin/reviews/${r.id}/avatar.png?pending=${situacao === "pending"}&t=${Date.now()}`)}" />` : `<span class="foto">${texto((r.name || "?").slice(0, 2).toUpperCase())}</span>`}
+            <div class="dados">
+              ${r.edit ? '<p class="aviso">Edição de uma avaliação aprovada</p>' : ""}
+              <h2>${texto(r.name)} <span class="estrelas" role="img" aria-label="${r.rating} de 5">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span></h2>
+              <blockquote>${texto(r.comment)}</blockquote>
+              ${r.edit ? `<p>No ar: ${"★".repeat(r.current.rating)} — ${texto(r.current.comment)}</p>` : ""}
+              <p>${r.provider === "anonymous" ? "Sem login" : `Verificado pelo ${texto(r.provider)}`} · idioma ${texto(r.lang)}</p>
+              <p>Apoiador: <code>${texto(r.supporterCode)}</code></p>
+              <p>Enviada: ${data(r.submittedAt)}${r.decidedAt ? ` · decidida ${data(r.decidedAt)}` : ""}</p>
+              ${r.note ? `<p>Nota: ${texto(r.note)}</p>` : ""}
+              <div class="acoes">
+                ${situacao !== "approved" || r.edit ? `<button type="button" class="aprovar" data-acao="approve">${r.edit ? "Aprovar edição" : "Aprovar"}</button>` : ""}
+                ${situacao !== "rejected" ? `<button type="button" class="recusar" data-acao="reject">${r.edit ? "Recusar edição" : situacao === "approved" ? "Tirar do ar" : "Recusar"}</button>` : ""}
+                <button type="button" data-acao="delete">Excluir</button>
+              </div>
+            </div>
+          </article>`,
       },
       bugs: {
         nota:
@@ -170,7 +202,8 @@
     lista.addEventListener("click", async (evento) => {
       const botao = evento.target.closest("button[data-acao]");
       if (!botao) return;
-      const id = botao.closest("[data-id]").dataset.id;
+      const cartao = botao.closest("[data-id]");
+      const id = cartao.dataset.id;
       const acao = botao.dataset.acao;
       let note = null;
       if (acao === "reject") note = window.prompt("Motivo da recusa (opcional, só para você):") ?? null;
@@ -179,11 +212,17 @@
       const res = await fetch(api(AREAS[area].acao(id, acao)), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note }),
+        // Avaliações: a versão que estava na tela (outra mais nova → 409)
+        body: JSON.stringify({ note, submittedAt: cartao.dataset.versao || undefined }),
       });
       if (!res.ok) {
         const { error } = await res.json().catch(() => ({}));
-        alert(error === "name_taken" ? "Já existe um ícone com esse nome em uso." : `Erro: ${error || res.status}`);
+        alert(
+          error === "name_taken" ? "Já existe um ícone com esse nome em uso."
+          : error === "changed" ? "A pessoa mudou a avaliação depois que a lista abriu. Recarregando para você ver a versão nova."
+          : `Erro: ${error || res.status}`,
+        );
+        if (error === "changed") carregar();
         botao.disabled = false;
         return;
       }

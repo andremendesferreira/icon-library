@@ -99,6 +99,7 @@ const FEATURE_TABLES = {
   coffee: { coffee_supporters: ["SELECT", "INSERT", "UPDATE"], coffee_renewals: ["SELECT", "INSERT"] },
   iconlibrary: { iconlibrary_icons: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
   reports: { bug_reports: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
+  reviews: { reviews: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
 };
 
 // With the application's user: connects (a wrong password fails here) and

@@ -158,6 +158,17 @@ A fifth set, **Iconlibrary**, holds icons published by supporters from the edito
 
 With `MODERATION_TOKEN` set (at least 32 characters, `openssl rand -hex 32`), an automated moderator can call `/api/moderation/…` with `Authorization: Bearer <token>`: `GET /api/moderation/icons` (pending icons), `GET /api/moderation/icons/:id/preview.png?size=256` (PNG preview, 16–512 px) and `POST /api/moderation/icons/:id/approve|reject|delete` (`{ note, submittedAt }`; pending icons only — a decision already made answers 409). `delete` removes only icons that never went live (pending or rejected); an approved one answers `409 approved` and is removed only in `/admin`. With `submittedAt`, the version the moderator saw, a decision about an icon the author has edited since answers `409 changed`. The token cannot open `/admin`, delete approved icons or read bug reports. [docs/moderacao-n8n.md](docs/moderacao-n8n.md) (Portuguese) describes an n8n + Ollama workflow that describes each icon without its name, compares it with the name and suggests a decision, plus a second workflow that puts a panel with Approve, Reject and Delete buttons under each Telegram message and edits it in place (reason, confirmation, result).
 
+### Supporter reviews
+
+Supporters can rate Icon Library from 1 to 5 stars with a comment (10–600 characters). Approved reviews appear on the **About** page, in all 8 languages, with the average and the count. It is on when the database and the coffee are configured.
+
+- **Who reviews:** only a valid, unexpired supporter code, one review per code. Sending again replaces it; an approved review stays live until the edit is approved (`pending_json`). 15 requests per 15 minutes per IP.
+- **How the person appears:** a name they type (1–40 characters) and an optional photo. The page crops the photo to a square in a canvas and sends a JPEG; the server accepts only PNG or JPEG up to 1024 px (read from the header, before decoding) and always redraws it as a 96×96 PNG with resvg (`avatarPng`), so metadata such as location goes away and the page never loads an image from another site.
+- **Optional logins** (`scripts/oauth.js`): GitHub, Google and Microsoft, each on only with its `*_OAUTH_ID` and `*_OAUTH_SECRET`. Authorization code with PKCE and a one-time `state`, tied to the browser by an `HttpOnly` cookie (`il_review_login`, path `/api/reviews`); the server reads name, id and photo, drops the token at once and keeps only `sha256(provider:id)` as a "verified" badge. The callback returns to the About page with a short-lived ticket in the fragment (`#review-ticket=…`), and the form keeps what was typed in `sessionStorage` (`icon-library:review-draft`) during the trip. Callback address: `<SITE_URL>/api/reviews/auth/<provider>/callback`.
+- **Moderation:** the *Reviews* tab in `/admin` (pending, approved, rejected; edits show the live version next to them), and the moderation API: `GET /api/moderation/reviews`, `GET /api/moderation/reviews/:id/avatar.png`, `POST /api/moderation/reviews/:id/approve|reject|delete` (`{ note, submittedAt }`, pending only). [docs/n8n-moderacao-avaliacoes.json](docs/n8n-moderacao-avaliacoes.json) sends each new review to Telegram with the same button panel.
+- **No rating in structured data:** Google does not accept a site's reviews of itself (`AggregateRating`), so the stars are only on the page.
+- **API:** `GET /api/reviews/config`, `GET /api/reviews`, `POST /api/reviews`, `POST /api/reviews/mine`, `GET /api/reviews/:id/avatar.png`, `GET /api/reviews/auth/:provider[/callback]`, `POST /api/reviews/identity`; admin: `GET /api/admin/reviews?status=`, `GET /api/admin/reviews/:id/avatar.png`, `POST /api/admin/reviews/:id/approve|reject|delete`. Table `reviews` (`migrations/006_reviews.sql`); if it is missing, only the reviews are off.
+
 ### Bug reports
 
 - **Report a bug** in the footer (and on the guide, about and privacy pages) opens a form: what happened, an optional e-mail for a reply, and, sent along automatically, the page address, language, browser and window size. The IP is not stored. A hidden field catches bots, and each IP may send 5 reports per 15 minutes.
@@ -314,6 +325,8 @@ icon-library/
 ├── scripts/coffee.js                   buy me a coffee: Stripe check, supporter codes
 ├── scripts/iconlibrary.js              community icons: submit, list, review
 ├── scripts/reports.js                  bug reports from the footer form
+├── scripts/reviews.js                  supporter reviews (About page) and avatar redraw
+├── scripts/oauth.js                    GitHub/Google/Microsoft logins for reviews
 ├── scripts/preview.js                  PNG previews for moderation
 ├── scripts/svgSafe.js                  strict check of submitted SVG
 ├── scripts/db.js                       PostgreSQL pool and migration runner (npm run migrate)
@@ -470,6 +483,17 @@ Um quinto conjunto, **Iconlibrary**, reúne ícones publicados por apoiadores a 
 
 Com `MODERATION_TOKEN` definido (mínimo de 32 caracteres, `openssl rand -hex 32`), um moderador automático chama `/api/moderation/…` com `Authorization: Bearer <token>`: `GET /api/moderation/icons` (pendentes), `GET /api/moderation/icons/:id/preview.png?size=256` (prévia em PNG, de 16 a 512 px) e `POST /api/moderation/icons/:id/approve|reject|delete` (`{ note, submittedAt }`; só pendentes — uma decisão já tomada responde 409). `delete` só remove o que nunca foi ao ar (pendente ou recusado); um ícone aprovado responde `409 approved` e só sai pelo `/admin`. Com `submittedAt`, a versão que o moderador viu, uma decisão sobre um ícone que o autor editou depois responde `409 changed`. O token não abre o `/admin`, não exclui ícones aprovados e não lê os relatos de bug. O guia [docs/moderacao-n8n.md](docs/moderacao-n8n.md) monta um fluxo n8n + Ollama que descreve cada ícone sem o nome, compara com o nome enviado e sugere a decisão, e um segundo fluxo que põe, embaixo de cada mensagem do Telegram, um painel com os botões Aprovar, Recusar e Excluir, editado no lugar (motivo, confirmação, resultado).
 
+### Avaliações dos apoiadores
+
+Apoiadores podem dar ao Icon Library uma nota de 1 a 5 estrelas, com um comentário (10 a 600 caracteres). As aprovadas aparecem na página **Sobre**, nos 8 idiomas, com a média e o total. Fica ligado quando o banco e o café estão configurados.
+
+- **Quem avalia:** só um código de apoiador válido e não vencido, uma avaliação por código. Enviar de novo substitui; uma avaliação aprovada continua no ar até a edição ser aprovada (`pending_json`). 15 pedidos a cada 15 minutos por IP.
+- **Como a pessoa aparece:** um nome digitado (1 a 40 caracteres) e uma foto opcional. A página recorta a foto num quadrado, num canvas, e manda um JPEG; o servidor só aceita PNG ou JPEG de até 1024 px (lidos no cabeçalho, antes de decodificar) e sempre a redesenha como PNG de 96×96 com o resvg (`avatarPng`), então metadados como a localização somem e a página nunca carrega imagem de outro site.
+- **Logins opcionais** (`scripts/oauth.js`): GitHub, Google e Microsoft, cada um ligado só com o seu `*_OAUTH_ID` e `*_OAUTH_SECRET`. Código de autorização com PKCE e `state` de uso único, preso ao navegador por um cookie `HttpOnly` (`il_review_login`, caminho `/api/reviews`); o servidor lê nome, id e foto, descarta o token na hora e guarda só `sha256(provedor:id)` como selo de "verificado". A volta do login cai na página Sobre com um ticket de vida curta no fragmento (`#review-ticket=…`), e o formulário guarda o que foi digitado no `sessionStorage` (`icon-library:review-draft`) durante a ida. Endereço de retorno: `<SITE_URL>/api/reviews/auth/<provedor>/callback`.
+- **Moderação:** a aba *Avaliações* do `/admin` (pendentes, aprovadas, recusadas; a edição aparece ao lado da versão no ar) e a API de moderação: `GET /api/moderation/reviews`, `GET /api/moderation/reviews/:id/avatar.png`, `POST /api/moderation/reviews/:id/approve|reject|delete` (`{ note, submittedAt }`, só pendentes). O [docs/n8n-moderacao-avaliacoes.json](docs/n8n-moderacao-avaliacoes.json) manda cada avaliação nova ao Telegram com o mesmo painel de botões.
+- **Sem nota nos dados estruturados:** o Google não aceita avaliações de um site sobre si mesmo (`AggregateRating`), então as estrelas ficam só na página.
+- **API:** `GET /api/reviews/config`, `GET /api/reviews`, `POST /api/reviews`, `POST /api/reviews/mine`, `GET /api/reviews/:id/avatar.png`, `GET /api/reviews/auth/:provedor[/callback]`, `POST /api/reviews/identity`; admin: `GET /api/admin/reviews?status=`, `GET /api/admin/reviews/:id/avatar.png`, `POST /api/admin/reviews/:id/approve|reject|delete`. Tabela `reviews` (`migrations/006_reviews.sql`); se ela faltar, só as avaliações ficam desligadas.
+
 ### Relatos de bug
 
 - **Reportar bug**, no rodapé (e nas páginas de guia, sobre e privacidade), abre um formulário: o que aconteceu, um e-mail opcional para resposta e, enviados automaticamente, o endereço da página, o idioma, o navegador e o tamanho da janela. O IP não é guardado. Um campo escondido barra robôs, e cada IP pode enviar 5 relatos a cada 15 minutos.
@@ -610,6 +634,8 @@ icon-library/
 ├── scripts/coffee.js                   pague um café: confirmação no Stripe, códigos de apoiador
 ├── scripts/iconlibrary.js              ícones da comunidade: envio, lista, revisão
 ├── scripts/reports.js                  relatos de bug do formulário do rodapé
+├── scripts/reviews.js                  avaliações dos apoiadores (página Sobre) e foto redesenhada
+├── scripts/oauth.js                    logins GitHub/Google/Microsoft das avaliações
 ├── scripts/preview.js                  prévias em PNG para a moderação
 ├── scripts/svgSafe.js                  conferência estrita do SVG enviado
 ├── scripts/db.js                       conexão com o PostgreSQL e migrations (npm run migrate)

@@ -1,0 +1,220 @@
+{
+  "name": "Icon Library — moderação de avaliações (Telegram)",
+  "nodes": [
+    {
+      "id": "76b83fa1-190c-431b-a333-a78c2991b1b1",
+      "name": "Manual",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "36681197-c524-4aae-ac20-9e4c588e80ad",
+      "name": "A cada 10 minutos",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dfffbb34-bb70-4137-ac3c-0d6011858dc7",
+      "name": "Configuração",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// Ajuste aqui (o mesmo site e chat do fluxo de moderação de ícones).\n// As decisões chegam pelo fluxo dos botões, que já entende avaliações.\nreturn [{\n  json: {\n    site: \"https://iconlibrary.io\",\n    telegramChatId: \"\",\n  },\n}];\n"
+      }
+    },
+    {
+      "id": "dc15a619-990a-4d54-a4ed-30dcece5c6e3",
+      "name": "Pendentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        100
+      ],
+      "parameters": {
+        "url": "={{ $json.site }}/api/moderation/reviews",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      }
+    },
+    {
+      "id": "ebbdce3f-4925-4228-b104-39a5b88f29ec",
+      "name": "Escolher novas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// Todas as avaliações ainda não avisadas. \"Avisada\" é a avaliação naquele\n// envio (id@submittedAt): uma edição muda a data e chega de novo.\nconst config = $('Configuração').first().json;\nconst dados = $getWorkflowStaticData('global');\nconst vistos = dados.vistos ?? [];\nconst chave = (r) => r.id + '@' + r.submittedAt;\nconst novas = ($input.first().json.reviews ?? []).filter((r) => !vistos.includes(chave(r)));\nif (!novas.length) return [];\ndados.vistos = [...vistos, ...novas.map(chave)].slice(-500);\nconst estrelas = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);\n// O texto vem de quem avaliou: escapado, e a mensagem vai com parse_mode HTML\nconst html = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nreturn novas.map((r) => {\n  const linhas = [\n    '⭐ Avaliação #' + r.id + ' — ' + html(r.name),\n    estrelas(r.rating) + ' (' + r.rating + '/5) · ' + (r.provider === 'anonymous' ? 'sem login' : 'verificado pelo ' + r.provider) + ' · ' + r.lang,\n    '',\n    html(r.comment),\n  ];\n  if (r.edit && r.current) linhas.push('', '✏️ Edição de uma avaliação aprovada. No ar: ' + estrelas(r.current.rating) + ' — ' + html(r.current.comment));\n  if (r.hasPhoto) linhas.push('', '🖼️ Com foto (veja no ' + config.site + '/admin)');\n  return {\n    json: {\n      ...r,\n      nomeHtml: html(r.name),\n      mensagem: linhas.join('\\n').slice(0, 4000),\n      t: Math.floor(new Date(r.submittedAt).getTime() / 1000),\n    },\n  };\n});\n"
+      }
+    },
+    {
+      "id": "c53afeb7-ac39-4518-9a48-b00507911db1",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        100
+      ],
+      "webhookId": "e572c0d3-7ded-41d2-9cc0-e542d9215174",
+      "parameters": {
+        "chatId": "={{ $('Configuração').first().json.telegramChatId }}",
+        "text": "={{ $json.mensagem }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "773b07bc-8974-4b45-9759-e90a7aebe21b",
+      "name": "Painel",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        100
+      ],
+      "webhookId": "a9e0f0e4-b6f3-4d14-a8e7-cf49c8c5f178",
+      "parameters": {
+        "chatId": "={{ $('Configuração').first().json.telegramChatId }}",
+        "text": "={{ 'Decida sobre a avaliação de \"' + $('Escolher novas').item.json.nomeHtml + '\":' }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "reply_to_message_id": "={{ $json.result?.message_id ?? $json.message_id }}",
+          "parse_mode": "HTML"
+        },
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Aprovar",
+                    "additionalFields": {
+                      "callback_data": "={{ 'a|r' + $('Escolher novas').item.json.id + '|' + $('Escolher novas').item.json.t }}"
+                    }
+                  },
+                  {
+                    "text": "⛔ Recusar",
+                    "additionalFields": {
+                      "callback_data": "={{ 'r|r' + $('Escolher novas').item.json.id + '|' + $('Escolher novas').item.json.t }}"
+                    }
+                  },
+                  {
+                    "text": "🗑️ Excluir",
+                    "additionalFields": {
+                      "callback_data": "={{ 'd|r' + $('Escolher novas').item.json.id + '|' + $('Escolher novas').item.json.t }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Manual": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A cada 10 minutos": {
+      "main": [
+        [
+          {
+            "node": "Configuração",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuração": {
+      "main": [
+        [
+          {
+            "node": "Pendentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pendentes": {
+      "main": [
+        [
+          {
+            "node": "Escolher novas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escolher novas": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "Painel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

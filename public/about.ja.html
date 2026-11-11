@@ -103,6 +103,61 @@
       Lucide（ISC）、Feather（MIT）、Bootstrap Icons（MIT）は商用利用が可能です。プロジェクトにはライセンス表記を残してください。絵文字のデザインはフォントのベンダー（Microsoft、Apple、Google など）に帰属します。絵文字の文字をコピーするのは問題ありませんが、そのデザインを画像として使う前にベンダーの規約を確認してください。
     </p>
 
+    <section id="avaliar" class="avaliacoes" aria-labelledby="avaliacoes-titulo" hidden>
+      <h2 id="avaliacoes-titulo">サポーターの声</h2>
+      <p>コーヒーで Icon Library を支援してくれた方のレビューです。掲載前にすべて確認しています。</p>
+      <p class="avaliacoes__regra">高評価も低評価も同じように掲載します。お断りするのはスパム、攻撃的な内容、リンク、宣伝、他人の個人情報だけで、評価の点数を理由に掲載を拒むことはありません。</p>
+      <p class="avaliacoes__resumo" id="avaliacoes-resumo"></p>
+      <ul class="avaliacoes__lista" id="avaliacoes-lista"></ul>
+      <p class="avaliacoes__situacao" id="avaliacoes-situacao" role="status"></p>
+      <p><button type="button" class="avaliacoes__escrever" id="avaliacoes-escrever">Icon Library を評価</button></p>
+      <dialog id="avaliacao" class="avaliacao" aria-labelledby="avaliacao-titulo" data-clarity-mask="true">
+        <form id="avaliacao-form" class="avaliacao__form" novalidate>
+          <h2 id="avaliacao-titulo">Icon Library を評価</h2>
+          <p class="avaliacao__dica">評価できるのはサポーターだけです。レビューは確認後に掲載されます。</p>
+          <label class="avaliacao__campo">サポーターコード
+            <input id="avaliacao-codigo" autocomplete="off" spellcheck="false" placeholder="CAFE-XXXX-XXXX" aria-describedby="avaliacao-codigo-dica" />
+          </label>
+          <p class="avaliacao__dica" id="avaliacao-codigo-dica">コーヒーを購入した端末の「コーヒー」画面に表示されています。</p>
+          <fieldset class="estrelas" id="avaliacao-estrelas">
+            <legend>評価</legend>
+            <div class="estrelas__linha"><label class="estrelas__opcao"><input type="radio" name="rating" value="1" /><span aria-hidden="true">★</span><span class="visually-hidden">5 つ星中 1</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="2" /><span aria-hidden="true">★</span><span class="visually-hidden">5 つ星中 2</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="3" /><span aria-hidden="true">★</span><span class="visually-hidden">5 つ星中 3</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="4" /><span aria-hidden="true">★</span><span class="visually-hidden">5 つ星中 4</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="5" /><span aria-hidden="true">★</span><span class="visually-hidden">5 つ星中 5</span></label></div>
+          </fieldset>
+          <label class="avaliacao__campo">コメント
+            <textarea id="avaliacao-comentario" rows="4" maxlength="600" aria-describedby="avaliacao-contador"></textarea>
+          </label>
+          <p class="avaliacao__dica" id="avaliacao-contador"></p>
+          <fieldset class="avaliacao__quem">
+            <legend>表示のしかた</legend>
+            <div class="avaliacao__logins" id="avaliacao-logins"></div>
+            <p class="avaliacao__verificado" id="avaliacao-verificado" hidden><span id="avaliacao-verificado-texto"></span> <button type="button" class="avaliacao__link" id="avaliacao-sem-login">ログインを使わない</button></p>
+            <p class="avaliacao__dica" id="avaliacao-login-dica">ログインは名前と写真の入力と「確認済み」バッジのためだけです。パスワードやアカウントへのアクセスは保存しません。</p>
+            <label class="avaliacao__campo">表示名
+              <input id="avaliacao-nome" maxlength="40" autocomplete="name" />
+            </label>
+            <div class="avaliacao__foto">
+              <span class="avatar avatar--grande" id="avaliacao-avatar" aria-hidden="true"></span>
+              <div>
+                <p class="avaliacao__rotulo">写真（任意）</p>
+                <label class="avaliacao__botao">写真を選ぶ<input type="file" id="avaliacao-arquivo" class="visually-hidden" accept="image/png,image/jpeg,image/webp" /></label>
+                <button type="button" class="avaliacao__link" id="avaliacao-tirar-foto" hidden>写真を外す</button>
+              </div>
+            </div>
+            <p class="avaliacao__dica">PNG、JPEG、WebP。小さな正方形になります。写真がない場合はイニシャルを表示します。</p>
+          </fieldset>
+          <label class="avaliacao__consentimento"><input type="checkbox" id="avaliacao-consentimento" /> 評価・コメント・名前・写真を「概要」ページに掲載することに同意します。</label>
+          <input name="website" class="avaliacao__isca" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="avaliacao__erro" id="avaliacao-erro" role="alert"></p>
+          <div class="avaliacao__acoes">
+            <button type="button" class="avaliacao__secundario" id="avaliacao-cancelar">キャンセル</button>
+            <button type="submit" class="avaliacao__enviar" id="avaliacao-enviar">レビューを送信</button>
+          </div>
+        </form>
+      </dialog>
+      <script type="application/json" id="avaliacoes-textos">{"reviews.title":"サポーターの声","reviews.intro":"コーヒーで Icon Library を支援してくれた方のレビューです。掲載前にすべて確認しています。","reviews.summary":{"other":"5 点中 {average} · {n} 件"},"reviews.empty":"まだレビューはありません。サポーターの方が最初の 1 件を書けます。","reviews.write":"Icon Library を評価","reviews.stars":"5 つ星中 {n}","reviews.via":"{provider} で確認済み","reviews.formIntro":"評価できるのはサポーターだけです。レビューは確認後に掲載されます。","reviews.code":"サポーターコード","reviews.codeHint":"コーヒーを購入した端末の「コーヒー」画面に表示されています。","reviews.rating":"評価","reviews.comment":"コメント","reviews.commentHint":"{min}〜{max} 文字。","reviews.appear":"表示のしかた","reviews.loginHint":"ログインは名前と写真の入力と「確認済み」バッジのためだけです。パスワードやアカウントへのアクセスは保存しません。","reviews.loginWith":"{provider} でログイン","reviews.dropLogin":"ログインを使わない","reviews.name":"表示名","reviews.nameDefault":"サポーター","reviews.photo":"写真（任意）","reviews.photoUpload":"写真を選ぶ","reviews.photoRemove":"写真を外す","reviews.photoHint":"PNG、JPEG、WebP。小さな正方形になります。写真がない場合はイニシャルを表示します。","reviews.consent":"評価・コメント・名前・写真を「概要」ページに掲載することに同意します。","reviews.send":"レビューを送信","reviews.cancel":"キャンセル","reviews.sending":"送信中…","reviews.sent":"ありがとうございます！確認後にここに掲載されます。","reviews.editSent":"ありがとうございます！新しい内容は確認後に反映され、それまでは前の内容のままです。","reviews.loaded":"以前のレビューを読み込みました。編集できます。","reviews.err.not_supporter":"サポーターコードが無効か期限切れです。","reviews.err.bad_rating":"星を 1〜5 個選んでください。","reviews.err.too_short":"{min} 文字以上入力してください。","reviews.err.too_long":"コメントが {max} 文字を超えています。","reviews.err.no_name":"表示名を入力してください。","reviews.err.consent":"掲載への同意にチェックしてください。","reviews.err.bad_image":"この画像は使えません。PNG か JPEG をお試しください。","reviews.err.login":"ログインできませんでした。もう一度試すか、ログインせずに続けてください。","reviews.err.login_expired":"ログインの有効期限が切れました。もう一度ログインするか、ログインせずに続けてください。","reviews.err.too_many":"試行回数が多すぎます。数分待ってください。","reviews.err.generic":"今は送信できません。後でもう一度お試しください。","reviews.policy":"高評価も低評価も同じように掲載します。お断りするのはスパム、攻撃的な内容、リンク、宣伝、他人の個人情報だけで、評価の点数を理由に掲載を拒むことはありません。","reviews.err.full":"確認待ちのレビューが多くなっています。数日後にもう一度お試しください。"}</script>
+    </section>
+    <script type="module" src="js/views/reviews.js"></script>
+
     <h2>クレジット</h2>
     <p>
       アイコンの権利は各作者に帰属し、それぞれのライセンスに従って使用しています：

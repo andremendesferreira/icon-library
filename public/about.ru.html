@@ -127,6 +127,61 @@
       их рисунков как изображений проверьте условия производителя.
     </p>
 
+    <section id="avaliar" class="avaliacoes" aria-labelledby="avaliacoes-titulo" hidden>
+      <h2 id="avaliacoes-titulo">Что говорят те, кто поддерживает</h2>
+      <p>Отзывы тех, кто поддерживает Icon Library чашкой кофе. Каждый проверяется перед публикацией.</p>
+      <p class="avaliacoes__regra">Положительные и отрицательные отзывы публикуются одинаково. Мы отклоняем только спам, оскорбления, ссылки, рекламу и чужие личные данные — никогда из-за оценки.</p>
+      <p class="avaliacoes__resumo" id="avaliacoes-resumo"></p>
+      <ul class="avaliacoes__lista" id="avaliacoes-lista"></ul>
+      <p class="avaliacoes__situacao" id="avaliacoes-situacao" role="status"></p>
+      <p><button type="button" class="avaliacoes__escrever" id="avaliacoes-escrever">Оценить Icon Library</button></p>
+      <dialog id="avaliacao" class="avaliacao" aria-labelledby="avaliacao-titulo" data-clarity-mask="true">
+        <form id="avaliacao-form" class="avaliacao__form" novalidate>
+          <h2 id="avaliacao-titulo">Оценить Icon Library</h2>
+          <p class="avaliacao__dica">Оценивать могут только те, кто поддерживает. Отзыв появится после проверки.</p>
+          <label class="avaliacao__campo">Код поддержки
+            <input id="avaliacao-codigo" autocomplete="off" spellcheck="false" placeholder="CAFE-XXXX-XXXX" aria-describedby="avaliacao-codigo-dica" />
+          </label>
+          <p class="avaliacao__dica" id="avaliacao-codigo-dica">Он в окне «кофе» на устройстве, с которого вы платили.</p>
+          <fieldset class="estrelas" id="avaliacao-estrelas">
+            <legend>Оценка</legend>
+            <div class="estrelas__linha"><label class="estrelas__opcao"><input type="radio" name="rating" value="1" /><span aria-hidden="true">★</span><span class="visually-hidden">1 из 5 звёзд</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="2" /><span aria-hidden="true">★</span><span class="visually-hidden">2 из 5 звёзд</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="3" /><span aria-hidden="true">★</span><span class="visually-hidden">3 из 5 звёзд</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="4" /><span aria-hidden="true">★</span><span class="visually-hidden">4 из 5 звёзд</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="5" /><span aria-hidden="true">★</span><span class="visually-hidden">5 из 5 звёзд</span></label></div>
+          </fieldset>
+          <label class="avaliacao__campo">Комментарий
+            <textarea id="avaliacao-comentario" rows="4" maxlength="600" aria-describedby="avaliacao-contador"></textarea>
+          </label>
+          <p class="avaliacao__dica" id="avaliacao-contador"></p>
+          <fieldset class="avaliacao__quem">
+            <legend>Как вас показать</legend>
+            <div class="avaliacao__logins" id="avaliacao-logins"></div>
+            <p class="avaliacao__verificado" id="avaliacao-verificado" hidden><span id="avaliacao-verificado-texto"></span> <button type="button" class="avaliacao__link" id="avaliacao-sem-login">Не использовать вход</button></p>
+            <p class="avaliacao__dica" id="avaliacao-login-dica">Вход только подставляет имя и фото и добавляет отметку «подтверждено». Мы не храним пароль и не получаем доступ к аккаунту.</p>
+            <label class="avaliacao__campo">Имя для показа
+              <input id="avaliacao-nome" maxlength="40" autocomplete="name" />
+            </label>
+            <div class="avaliacao__foto">
+              <span class="avatar avatar--grande" id="avaliacao-avatar" aria-hidden="true"></span>
+              <div>
+                <p class="avaliacao__rotulo">Фото (необязательно)</p>
+                <label class="avaliacao__botao">Выбрать фото<input type="file" id="avaliacao-arquivo" class="visually-hidden" accept="image/png,image/jpeg,image/webp" /></label>
+                <button type="button" class="avaliacao__link" id="avaliacao-tirar-foto" hidden>Убрать фото</button>
+              </div>
+            </div>
+            <p class="avaliacao__dica">PNG, JPEG или WebP. Фото станет маленьким квадратом; без него будут показаны инициалы.</p>
+          </fieldset>
+          <label class="avaliacao__consentimento"><input type="checkbox" id="avaliacao-consentimento" /> Разрешаю опубликовать оценку, комментарий, имя и фото на странице «О сайте».</label>
+          <input name="website" class="avaliacao__isca" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="avaliacao__erro" id="avaliacao-erro" role="alert"></p>
+          <div class="avaliacao__acoes">
+            <button type="button" class="avaliacao__secundario" id="avaliacao-cancelar">Отмена</button>
+            <button type="submit" class="avaliacao__enviar" id="avaliacao-enviar">Отправить отзыв</button>
+          </div>
+        </form>
+      </dialog>
+      <script type="application/json" id="avaliacoes-textos">{"reviews.title":"Что говорят те, кто поддерживает","reviews.intro":"Отзывы тех, кто поддерживает Icon Library чашкой кофе. Каждый проверяется перед публикацией.","reviews.summary":{"one":"{average} из 5 · {n} отзыв","few":"{average} из 5 · {n} отзыва","many":"{average} из 5 · {n} отзывов","other":"{average} из 5 · {n} отзыва"},"reviews.empty":"Пока нет опубликованных отзывов. Те, кто поддерживает, могут стать первыми.","reviews.write":"Оценить Icon Library","reviews.stars":"{n} из 5 звёзд","reviews.via":"Подтверждено через {provider}","reviews.formIntro":"Оценивать могут только те, кто поддерживает. Отзыв появится после проверки.","reviews.code":"Код поддержки","reviews.codeHint":"Он в окне «кофе» на устройстве, с которого вы платили.","reviews.rating":"Оценка","reviews.comment":"Комментарий","reviews.commentHint":"От {min} до {max} символов.","reviews.appear":"Как вас показать","reviews.loginHint":"Вход только подставляет имя и фото и добавляет отметку «подтверждено». Мы не храним пароль и не получаем доступ к аккаунту.","reviews.loginWith":"Войти через {provider}","reviews.dropLogin":"Не использовать вход","reviews.name":"Имя для показа","reviews.nameDefault":"Сторонник","reviews.photo":"Фото (необязательно)","reviews.photoUpload":"Выбрать фото","reviews.photoRemove":"Убрать фото","reviews.photoHint":"PNG, JPEG или WebP. Фото станет маленьким квадратом; без него будут показаны инициалы.","reviews.consent":"Разрешаю опубликовать оценку, комментарий, имя и фото на странице «О сайте».","reviews.send":"Отправить отзыв","reviews.cancel":"Отмена","reviews.sending":"Отправка…","reviews.sent":"Спасибо! Отзыв появится здесь после проверки.","reviews.editSent":"Спасибо! Новая версия появится после проверки, а до тех пор останется прежняя.","reviews.loaded":"Ваш прежний отзыв загружен для редактирования.","reviews.err.not_supporter":"Код поддержки неверен или истёк.","reviews.err.bad_rating":"Выберите от 1 до 5 звёзд.","reviews.err.too_short":"Напишите хотя бы {min} символов.","reviews.err.too_long":"Комментарий длиннее {max} символов.","reviews.err.no_name":"Напишите имя для показа.","reviews.err.consent":"Отметьте согласие на публикацию.","reviews.err.bad_image":"Это изображение не подходит. Попробуйте PNG или JPEG.","reviews.err.login":"Войти не удалось. Попробуйте ещё раз или продолжайте без входа.","reviews.err.login_expired":"Вход устарел. Войдите снова или продолжайте без входа.","reviews.err.too_many":"Слишком много попыток. Подождите несколько минут.","reviews.err.generic":"Сейчас отправить не удалось. Попробуйте позже.","reviews.policy":"Положительные и отрицательные отзывы публикуются одинаково. Мы отклоняем только спам, оскорбления, ссылки, рекламу и чужие личные данные — никогда из-за оценки.","reviews.err.full":"Много отзывов ждут проверки. Попробуйте через несколько дней."}</script>
+    </section>
+    <script type="module" src="js/views/reviews.js"></script>
+
     <h2>Благодарности</h2>
     <p>
       Иконки принадлежат их авторам и используются по их лицензиям:

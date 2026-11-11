@@ -4714,3 +4714,306 @@ body {
 .ferramentas .groups-menu {
   width: max-content;
 }
+
+/* ── Avaliações dos apoiadores (página Sobre, js/views/reviews.js) ───────── */
+:root {
+  --cor-erro: #b3261e;
+}
+[data-theme="dark"] {
+  --cor-erro: #ff8a80;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.avaliacoes__resumo {
+  font-size: var(--fs-mais);
+  font-weight: 600;
+}
+.avaliacoes__lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+.avaliacoes__item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+}
+.avaliacoes__item p {
+  margin: 0;
+}
+.avaliacoes__quem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.avaliacoes__nome {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.page p.avaliacoes__regra,
+.page p.avaliacoes__selo,
+.page p.avaliacoes__data {
+  font-size: 16px;
+  color: var(--il-muted);
+}
+/* As estrelas são a única cor quente fora do café: âmbar escuro, com
+   contraste nos dois temas (--il-warn) */
+.page p.avaliacoes__estrelas {
+  font-size: var(--fs-mais);
+  letter-spacing: 2px;
+  color: var(--il-warn);
+}
+.avaliacoes__texto {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.avaliacoes__situacao:empty {
+  display: none;
+}
+.avaliacoes__situacao {
+  padding: 12px 16px;
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+  border: 1px solid var(--cor-borda);
+}
+.avatar {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--cor-borda);
+  color: var(--cor-texto);
+  font-weight: 700;
+  font-size: var(--fs-texto);
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar--grande {
+  width: 72px;
+  height: 72px;
+  font-size: var(--fs-mais);
+}
+.avaliacoes__escrever,
+.avaliacao__enviar {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  background: var(--il-action);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.avaliacoes__escrever:hover,
+.avaliacao__enviar:hover {
+  background: var(--il-action-hover);
+}
+.avaliacao__enviar:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+/* Janela do formulário */
+.avaliacao {
+  width: min(560px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  padding: 0;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font-size: var(--fs-texto);
+}
+.avaliacao::backdrop {
+  background: rgba(15, 23, 42, 0.5);
+}
+.avaliacao__form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+}
+.avaliacao__form h2 {
+  margin: 0;
+  font-size: var(--fs-h2);
+}
+.avaliacao__form p {
+  margin: 0;
+}
+.page p.avaliacao__dica {
+  color: var(--il-muted);
+}
+.avaliacao__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+}
+.avaliacao__campo input,
+.avaliacao__campo textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: 8px;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font: inherit;
+  font-weight: 400;
+}
+.avaliacao fieldset {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.avaliacao legend,
+.avaliacao__rotulo {
+  padding: 0;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.avaliacao__quem {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px !important;
+}
+.estrelas__linha {
+  display: flex;
+  gap: 4px;
+}
+.estrelas__opcao {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  font-size: 34px;
+  line-height: 1;
+  /* Vazia: cinza com 3:1 ou mais (controle); marcada: âmbar */
+  color: var(--il-muted);
+  cursor: pointer;
+}
+.estrelas__opcao input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.estrelas__opcao:has(input:focus-visible) {
+  outline: 3px solid var(--il-action);
+  outline-offset: 2px;
+}
+.estrelas[data-nota="1"] .estrelas__opcao:nth-child(-n + 1),
+.estrelas[data-nota="2"] .estrelas__opcao:nth-child(-n + 2),
+.estrelas[data-nota="3"] .estrelas__opcao:nth-child(-n + 3),
+.estrelas[data-nota="4"] .estrelas__opcao:nth-child(-n + 4),
+.estrelas[data-nota="5"] .estrelas__opcao:nth-child(-n + 5) {
+  color: var(--il-warn);
+}
+.avaliacao__logins {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.avaliacao__login,
+.avaliacao__secundario,
+.avaliacao__botao {
+  display: inline-block;
+  padding: 10px 16px;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: 999px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.avaliacao__login:hover,
+.avaliacao__secundario:hover,
+.avaliacao__botao:hover {
+  border-color: var(--il-action);
+}
+.avaliacao__botao:has(input:focus-visible) {
+  outline: 3px solid var(--il-action);
+  outline-offset: 2px;
+}
+.avaliacao__link {
+  padding: 4px 0;
+  border: none;
+  background: none;
+  color: var(--il-blue-dark);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.avaliacao__verificado {
+  font-weight: 600;
+}
+.avaliacao__foto {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.avaliacao__foto > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.avaliacao__foto .avaliacao__rotulo {
+  flex-basis: 100%;
+  margin: 0;
+}
+.avaliacao__consentimento {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.avaliacao__consentimento input {
+  width: 22px;
+  height: 22px;
+  margin-top: 3px;
+  flex: 0 0 auto;
+}
+.avaliacao__isca {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+}
+.avaliacao__erro:empty {
+  display: none;
+}
+.page p.avaliacao__erro {
+  font-weight: 600;
+  color: var(--cor-erro);
+}
+.page p.avaliacao__erro[data-tipo="info"] {
+  font-weight: 400;
+  color: var(--il-muted);
+}
+.avaliacao__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}

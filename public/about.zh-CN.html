@@ -103,6 +103,61 @@
       Lucide（ISC）、Feather（MIT）和 Bootstrap Icons（MIT）允许商业使用；请在项目中保留它们的许可证声明。表情符号的设计归字体厂商（Microsoft、Apple、Google 等）所有——复制表情字符没有问题，但若要把它们的图形作为图片使用，请先查看厂商的条款。
     </p>
 
+    <section id="avaliar" class="avaliacoes" aria-labelledby="avaliacoes-titulo" hidden>
+      <h2 id="avaliacoes-titulo">支持者的评价</h2>
+      <p>来自请 Icon Library 喝咖啡的支持者的评价。每条评价都会先经过审核再显示。</p>
+      <p class="avaliacoes__regra">好评和差评同样公开。我们只拒绝垃圾内容、冒犯性内容、链接、广告或他人的个人信息，从不因为评分而拒绝评价。</p>
+      <p class="avaliacoes__resumo" id="avaliacoes-resumo"></p>
+      <ul class="avaliacoes__lista" id="avaliacoes-lista"></ul>
+      <p class="avaliacoes__situacao" id="avaliacoes-situacao" role="status"></p>
+      <p><button type="button" class="avaliacoes__escrever" id="avaliacoes-escrever">评价 Icon Library</button></p>
+      <dialog id="avaliacao" class="avaliacao" aria-labelledby="avaliacao-titulo" data-clarity-mask="true">
+        <form id="avaliacao-form" class="avaliacao__form" novalidate>
+          <h2 id="avaliacao-titulo">评价 Icon Library</h2>
+          <p class="avaliacao__dica">只有支持者可以评价。你的评价审核后才会显示。</p>
+          <label class="avaliacao__campo">支持者代码
+            <input id="avaliacao-codigo" autocomplete="off" spellcheck="false" placeholder="CAFE-XXXX-XXXX" aria-describedby="avaliacao-codigo-dica" />
+          </label>
+          <p class="avaliacao__dica" id="avaliacao-codigo-dica">它在“请喝咖啡”窗口里，就在你付款的那台设备上。</p>
+          <fieldset class="estrelas" id="avaliacao-estrelas">
+            <legend>评分</legend>
+            <div class="estrelas__linha"><label class="estrelas__opcao"><input type="radio" name="rating" value="1" /><span aria-hidden="true">★</span><span class="visually-hidden">5 星中的 1 星</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="2" /><span aria-hidden="true">★</span><span class="visually-hidden">5 星中的 2 星</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="3" /><span aria-hidden="true">★</span><span class="visually-hidden">5 星中的 3 星</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="4" /><span aria-hidden="true">★</span><span class="visually-hidden">5 星中的 4 星</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="5" /><span aria-hidden="true">★</span><span class="visually-hidden">5 星中的 5 星</span></label></div>
+          </fieldset>
+          <label class="avaliacao__campo">评论
+            <textarea id="avaliacao-comentario" rows="4" maxlength="600" aria-describedby="avaliacao-contador"></textarea>
+          </label>
+          <p class="avaliacao__dica" id="avaliacao-contador"></p>
+          <fieldset class="avaliacao__quem">
+            <legend>显示方式</legend>
+            <div class="avaliacao__logins" id="avaliacao-logins"></div>
+            <p class="avaliacao__verificado" id="avaliacao-verificado" hidden><span id="avaliacao-verificado-texto"></span> <button type="button" class="avaliacao__link" id="avaliacao-sem-login">不使用登录</button></p>
+            <p class="avaliacao__dica" id="avaliacao-login-dica">登录只会填入你的名字和照片，并加上“已验证”标记。我们不保存密码，也不保留对你账户的访问权限。</p>
+            <label class="avaliacao__campo">显示的名字
+              <input id="avaliacao-nome" maxlength="40" autocomplete="name" />
+            </label>
+            <div class="avaliacao__foto">
+              <span class="avatar avatar--grande" id="avaliacao-avatar" aria-hidden="true"></span>
+              <div>
+                <p class="avaliacao__rotulo">照片（可选）</p>
+                <label class="avaliacao__botao">选择照片<input type="file" id="avaliacao-arquivo" class="visually-hidden" accept="image/png,image/jpeg,image/webp" /></label>
+                <button type="button" class="avaliacao__link" id="avaliacao-tirar-foto" hidden>移除照片</button>
+              </div>
+            </div>
+            <p class="avaliacao__dica">PNG、JPEG 或 WebP。会裁成小方形；没有照片时显示姓名首字母。</p>
+          </fieldset>
+          <label class="avaliacao__consentimento"><input type="checkbox" id="avaliacao-consentimento" /> 我同意在“关于”页面公开评分、评论、名字和照片。</label>
+          <input name="website" class="avaliacao__isca" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="avaliacao__erro" id="avaliacao-erro" role="alert"></p>
+          <div class="avaliacao__acoes">
+            <button type="button" class="avaliacao__secundario" id="avaliacao-cancelar">取消</button>
+            <button type="submit" class="avaliacao__enviar" id="avaliacao-enviar">提交评价</button>
+          </div>
+        </form>
+      </dialog>
+      <script type="application/json" id="avaliacoes-textos">{"reviews.title":"支持者的评价","reviews.intro":"来自请 Icon Library 喝咖啡的支持者的评价。每条评价都会先经过审核再显示。","reviews.summary":{"other":"{average} / 5 · {n} 条评价"},"reviews.empty":"还没有已发布的评价。支持者可以成为第一位。","reviews.write":"评价 Icon Library","reviews.stars":"5 星中的 {n} 星","reviews.via":"已通过 {provider} 验证","reviews.formIntro":"只有支持者可以评价。你的评价审核后才会显示。","reviews.code":"支持者代码","reviews.codeHint":"它在“请喝咖啡”窗口里，就在你付款的那台设备上。","reviews.rating":"评分","reviews.comment":"评论","reviews.commentHint":"{min} 到 {max} 个字符。","reviews.appear":"显示方式","reviews.loginHint":"登录只会填入你的名字和照片，并加上“已验证”标记。我们不保存密码，也不保留对你账户的访问权限。","reviews.loginWith":"使用 {provider} 登录","reviews.dropLogin":"不使用登录","reviews.name":"显示的名字","reviews.nameDefault":"支持者","reviews.photo":"照片（可选）","reviews.photoUpload":"选择照片","reviews.photoRemove":"移除照片","reviews.photoHint":"PNG、JPEG 或 WebP。会裁成小方形；没有照片时显示姓名首字母。","reviews.consent":"我同意在“关于”页面公开评分、评论、名字和照片。","reviews.send":"提交评价","reviews.cancel":"取消","reviews.sending":"正在提交…","reviews.sent":"谢谢！你的评价审核后会显示在这里。","reviews.editSent":"谢谢！新版本审核后显示；在此之前保留旧版本。","reviews.loaded":"已载入你之前的评价，可以编辑。","reviews.err.not_supporter":"支持者代码无效或已过期。","reviews.err.bad_rating":"请选择 1 到 5 星。","reviews.err.too_short":"请至少写 {min} 个字符。","reviews.err.too_long":"评论超过了 {max} 个字符。","reviews.err.no_name":"请填写要显示的名字。","reviews.err.consent":"请勾选公开授权。","reviews.err.bad_image":"无法使用这张图片。请试试 PNG 或 JPEG。","reviews.err.login":"登录未成功。请重试，或不登录继续。","reviews.err.login_expired":"登录已过期。请重新登录，或不登录继续。","reviews.err.too_many":"尝试次数过多，请等几分钟。","reviews.err.generic":"现在无法提交，请稍后再试。","reviews.policy":"好评和差评同样公开。我们只拒绝垃圾内容、冒犯性内容、链接、广告或他人的个人信息，从不因为评分而拒绝评价。","reviews.err.full":"等待审核的评价太多了，请过几天再试。"}</script>
+    </section>
+    <script type="module" src="js/views/reviews.js"></script>
+
     <h2>致谢</h2>
     <p>
       图标归其作者所有，并依照各自的许可证使用：

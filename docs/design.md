@@ -11,6 +11,7 @@ a camada "Design minimalista" no fim de `public/css/icon-library.css` as aplica.
 - **Azul da marca** (`--il-action` #1a6ee8, `--il-blue-dark` para texto):
   só para ações (botão principal, link, foco, item marcado).
 - **Dourado** (`--il-gold`): só o café. Verde (#1e8449): só o "deu certo".
+- **Âmbar** (`--il-warn`): estrelas das avaliações (página Sobre) e avisos.
 - O resto é neutro: fundo `--cor-fundo`, superfícies `--cor-superficie`,
   bordas `--cor-borda`, texto `--cor-texto` e `--il-muted` (secundário).
 - Nada de gradiente em texto nem sombras pesadas; sombra só na busca presa

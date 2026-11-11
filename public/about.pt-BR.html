@@ -128,6 +128,61 @@
       fabricante antes de usar o desenho dele como imagem.
     </p>
 
+    <section id="avaliar" class="avaliacoes" aria-labelledby="avaliacoes-titulo" hidden>
+      <h2 id="avaliacoes-titulo">O que dizem os apoiadores</h2>
+      <p>Avaliações de quem apoia o Icon Library com um café. Cada uma é revisada antes de aparecer aqui.</p>
+      <p class="avaliacoes__regra">Avaliações positivas e negativas são publicadas do mesmo jeito. Só recusamos spam, ofensas, links, propaganda ou dados pessoais de outras pessoas — nunca uma avaliação pela nota.</p>
+      <p class="avaliacoes__resumo" id="avaliacoes-resumo"></p>
+      <ul class="avaliacoes__lista" id="avaliacoes-lista"></ul>
+      <p class="avaliacoes__situacao" id="avaliacoes-situacao" role="status"></p>
+      <p><button type="button" class="avaliacoes__escrever" id="avaliacoes-escrever">Avaliar o Icon Library</button></p>
+      <dialog id="avaliacao" class="avaliacao" aria-labelledby="avaliacao-titulo" data-clarity-mask="true">
+        <form id="avaliacao-form" class="avaliacao__form" novalidate>
+          <h2 id="avaliacao-titulo">Avaliar o Icon Library</h2>
+          <p class="avaliacao__dica">Só apoiadores podem avaliar. Sua avaliação aparece depois de revisada.</p>
+          <label class="avaliacao__campo">Código de apoiador
+            <input id="avaliacao-codigo" autocomplete="off" spellcheck="false" placeholder="CAFE-XXXX-XXXX" aria-describedby="avaliacao-codigo-dica" />
+          </label>
+          <p class="avaliacao__dica" id="avaliacao-codigo-dica">Ele está na janela do café, no aparelho em que você pagou o café.</p>
+          <fieldset class="estrelas" id="avaliacao-estrelas">
+            <legend>Nota</legend>
+            <div class="estrelas__linha"><label class="estrelas__opcao"><input type="radio" name="rating" value="1" /><span aria-hidden="true">★</span><span class="visually-hidden">1 de 5 estrelas</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="2" /><span aria-hidden="true">★</span><span class="visually-hidden">2 de 5 estrelas</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="3" /><span aria-hidden="true">★</span><span class="visually-hidden">3 de 5 estrelas</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="4" /><span aria-hidden="true">★</span><span class="visually-hidden">4 de 5 estrelas</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="5" /><span aria-hidden="true">★</span><span class="visually-hidden">5 de 5 estrelas</span></label></div>
+          </fieldset>
+          <label class="avaliacao__campo">Comentário
+            <textarea id="avaliacao-comentario" rows="4" maxlength="600" aria-describedby="avaliacao-contador"></textarea>
+          </label>
+          <p class="avaliacao__dica" id="avaliacao-contador"></p>
+          <fieldset class="avaliacao__quem">
+            <legend>Como você aparece</legend>
+            <div class="avaliacao__logins" id="avaliacao-logins"></div>
+            <p class="avaliacao__verificado" id="avaliacao-verificado" hidden><span id="avaliacao-verificado-texto"></span> <button type="button" class="avaliacao__link" id="avaliacao-sem-login">Não usar o login</button></p>
+            <p class="avaliacao__dica" id="avaliacao-login-dica">O login só preenche seu nome e sua foto e acrescenta o selo “verificado”. Não guardamos senha nem acesso à sua conta.</p>
+            <label class="avaliacao__campo">Nome que aparece
+              <input id="avaliacao-nome" maxlength="40" autocomplete="name" />
+            </label>
+            <div class="avaliacao__foto">
+              <span class="avatar avatar--grande" id="avaliacao-avatar" aria-hidden="true"></span>
+              <div>
+                <p class="avaliacao__rotulo">Foto (opcional)</p>
+                <label class="avaliacao__botao">Escolher uma foto<input type="file" id="avaliacao-arquivo" class="visually-hidden" accept="image/png,image/jpeg,image/webp" /></label>
+                <button type="button" class="avaliacao__link" id="avaliacao-tirar-foto" hidden>Tirar a foto</button>
+              </div>
+            </div>
+            <p class="avaliacao__dica">PNG, JPEG ou WebP. Ela vira um quadrado pequeno; sem foto, aparecem suas iniciais.</p>
+          </fieldset>
+          <label class="avaliacao__consentimento"><input type="checkbox" id="avaliacao-consentimento" /> Autorizo publicar a nota, o comentário, o nome e a foto na página Sobre.</label>
+          <input name="website" class="avaliacao__isca" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="avaliacao__erro" id="avaliacao-erro" role="alert"></p>
+          <div class="avaliacao__acoes">
+            <button type="button" class="avaliacao__secundario" id="avaliacao-cancelar">Cancelar</button>
+            <button type="submit" class="avaliacao__enviar" id="avaliacao-enviar">Enviar avaliação</button>
+          </div>
+        </form>
+      </dialog>
+      <script type="application/json" id="avaliacoes-textos">{"reviews.title":"O que dizem os apoiadores","reviews.intro":"Avaliações de quem apoia o Icon Library com um café. Cada uma é revisada antes de aparecer aqui.","reviews.summary":{"one":"{average} de 5 · {n} avaliação","other":"{average} de 5 · {n} avaliações"},"reviews.empty":"Ainda não há avaliações publicadas. Apoiadores podem ser os primeiros.","reviews.write":"Avaliar o Icon Library","reviews.stars":"{n} de 5 estrelas","reviews.via":"Verificado pelo {provider}","reviews.formIntro":"Só apoiadores podem avaliar. Sua avaliação aparece depois de revisada.","reviews.code":"Código de apoiador","reviews.codeHint":"Ele está na janela do café, no aparelho em que você pagou o café.","reviews.rating":"Nota","reviews.comment":"Comentário","reviews.commentHint":"De {min} a {max} caracteres.","reviews.appear":"Como você aparece","reviews.loginHint":"O login só preenche seu nome e sua foto e acrescenta o selo “verificado”. Não guardamos senha nem acesso à sua conta.","reviews.loginWith":"Entrar com {provider}","reviews.dropLogin":"Não usar o login","reviews.name":"Nome que aparece","reviews.nameDefault":"Apoiador","reviews.photo":"Foto (opcional)","reviews.photoUpload":"Escolher uma foto","reviews.photoRemove":"Tirar a foto","reviews.photoHint":"PNG, JPEG ou WebP. Ela vira um quadrado pequeno; sem foto, aparecem suas iniciais.","reviews.consent":"Autorizo publicar a nota, o comentário, o nome e a foto na página Sobre.","reviews.send":"Enviar avaliação","reviews.cancel":"Cancelar","reviews.sending":"Enviando…","reviews.sent":"Obrigado! Sua avaliação aparece aqui depois de revisada.","reviews.editSent":"Obrigado! A versão nova aparece depois de revisada; até lá, fica a anterior.","reviews.loaded":"Sua avaliação anterior foi carregada para você editar.","reviews.err.not_supporter":"Código de apoiador inválido ou vencido.","reviews.err.bad_rating":"Escolha de 1 a 5 estrelas.","reviews.err.too_short":"Escreva pelo menos {min} caracteres.","reviews.err.too_long":"O comentário passou de {max} caracteres.","reviews.err.no_name":"Escreva o nome que vai aparecer.","reviews.err.consent":"Marque a autorização para publicar.","reviews.err.bad_image":"Não deu para usar essa imagem. Tente um PNG ou JPEG.","reviews.err.login":"Não deu para entrar. Tente de novo ou continue sem login.","reviews.err.login_expired":"O login expirou. Entre de novo ou continue sem login.","reviews.err.too_many":"Muitas tentativas. Espere alguns minutos.","reviews.err.generic":"Não foi possível enviar agora. Tente mais tarde.","reviews.policy":"Avaliações positivas e negativas são publicadas do mesmo jeito. Só recusamos spam, ofensas, links, propaganda ou dados pessoais de outras pessoas — nunca uma avaliação pela nota.","reviews.err.full":"Muitas avaliações estão esperando revisão. Tente de novo em alguns dias."}</script>
+    </section>
+    <script type="module" src="js/views/reviews.js"></script>
+
     <h2>Créditos</h2>
     <p>
       Os ícones pertencem aos seus autores e são usados sob as respectivas

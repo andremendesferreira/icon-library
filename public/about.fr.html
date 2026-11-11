@@ -131,6 +131,61 @@
       dessin comme image.
     </p>
 
+    <section id="avaliar" class="avaliacoes" aria-labelledby="avaliacoes-titulo" hidden>
+      <h2 id="avaliacoes-titulo">Ce qu’en disent les soutiens</h2>
+      <p>Les avis des personnes qui soutiennent Icon Library avec un café. Chacun est relu avant d’apparaître ici.</p>
+      <p class="avaliacoes__regra">Les avis positifs et négatifs sont publiés de la même façon. Nous refusons seulement le spam, les contenus offensants, les liens, la publicité ou les données personnelles d’autrui — jamais un avis pour sa note.</p>
+      <p class="avaliacoes__resumo" id="avaliacoes-resumo"></p>
+      <ul class="avaliacoes__lista" id="avaliacoes-lista"></ul>
+      <p class="avaliacoes__situacao" id="avaliacoes-situacao" role="status"></p>
+      <p><button type="button" class="avaliacoes__escrever" id="avaliacoes-escrever">Noter Icon Library</button></p>
+      <dialog id="avaliacao" class="avaliacao" aria-labelledby="avaliacao-titulo" data-clarity-mask="true">
+        <form id="avaliacao-form" class="avaliacao__form" novalidate>
+          <h2 id="avaliacao-titulo">Noter Icon Library</h2>
+          <p class="avaliacao__dica">Seuls les soutiens peuvent noter. Votre avis apparaît après relecture.</p>
+          <label class="avaliacao__campo">Code de soutien
+            <input id="avaliacao-codigo" autocomplete="off" spellcheck="false" placeholder="CAFE-XXXX-XXXX" aria-describedby="avaliacao-codigo-dica" />
+          </label>
+          <p class="avaliacao__dica" id="avaliacao-codigo-dica">Il est dans la fenêtre du café, sur l’appareil où vous l’avez offert.</p>
+          <fieldset class="estrelas" id="avaliacao-estrelas">
+            <legend>Note</legend>
+            <div class="estrelas__linha"><label class="estrelas__opcao"><input type="radio" name="rating" value="1" /><span aria-hidden="true">★</span><span class="visually-hidden">1 étoiles sur 5</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="2" /><span aria-hidden="true">★</span><span class="visually-hidden">2 étoiles sur 5</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="3" /><span aria-hidden="true">★</span><span class="visually-hidden">3 étoiles sur 5</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="4" /><span aria-hidden="true">★</span><span class="visually-hidden">4 étoiles sur 5</span></label><label class="estrelas__opcao"><input type="radio" name="rating" value="5" /><span aria-hidden="true">★</span><span class="visually-hidden">5 étoiles sur 5</span></label></div>
+          </fieldset>
+          <label class="avaliacao__campo">Commentaire
+            <textarea id="avaliacao-comentario" rows="4" maxlength="600" aria-describedby="avaliacao-contador"></textarea>
+          </label>
+          <p class="avaliacao__dica" id="avaliacao-contador"></p>
+          <fieldset class="avaliacao__quem">
+            <legend>Comment vous apparaissez</legend>
+            <div class="avaliacao__logins" id="avaliacao-logins"></div>
+            <p class="avaliacao__verificado" id="avaliacao-verificado" hidden><span id="avaliacao-verificado-texto"></span> <button type="button" class="avaliacao__link" id="avaliacao-sem-login">Ne pas utiliser la connexion</button></p>
+            <p class="avaliacao__dica" id="avaliacao-login-dica">La connexion remplit seulement votre nom et votre photo et ajoute le badge « vérifié ». Nous ne gardons ni mot de passe ni accès à votre compte.</p>
+            <label class="avaliacao__campo">Nom affiché
+              <input id="avaliacao-nome" maxlength="40" autocomplete="name" />
+            </label>
+            <div class="avaliacao__foto">
+              <span class="avatar avatar--grande" id="avaliacao-avatar" aria-hidden="true"></span>
+              <div>
+                <p class="avaliacao__rotulo">Photo (facultative)</p>
+                <label class="avaliacao__botao">Choisir une photo<input type="file" id="avaliacao-arquivo" class="visually-hidden" accept="image/png,image/jpeg,image/webp" /></label>
+                <button type="button" class="avaliacao__link" id="avaliacao-tirar-foto" hidden>Retirer la photo</button>
+              </div>
+            </div>
+            <p class="avaliacao__dica">PNG, JPEG ou WebP. Elle devient un petit carré ; sans photo, vos initiales apparaissent.</p>
+          </fieldset>
+          <label class="avaliacao__consentimento"><input type="checkbox" id="avaliacao-consentimento" /> J’autorise la publication de la note, du commentaire, du nom et de la photo sur la page À propos.</label>
+          <input name="website" class="avaliacao__isca" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="avaliacao__erro" id="avaliacao-erro" role="alert"></p>
+          <div class="avaliacao__acoes">
+            <button type="button" class="avaliacao__secundario" id="avaliacao-cancelar">Annuler</button>
+            <button type="submit" class="avaliacao__enviar" id="avaliacao-enviar">Envoyer l’avis</button>
+          </div>
+        </form>
+      </dialog>
+      <script type="application/json" id="avaliacoes-textos">{"reviews.title":"Ce qu’en disent les soutiens","reviews.intro":"Les avis des personnes qui soutiennent Icon Library avec un café. Chacun est relu avant d’apparaître ici.","reviews.summary":{"one":"{average} sur 5 · {n} avis","other":"{average} sur 5 · {n} avis"},"reviews.empty":"Aucun avis publié pour l’instant. Les soutiens peuvent être les premiers.","reviews.write":"Noter Icon Library","reviews.stars":"{n} étoiles sur 5","reviews.via":"Vérifié avec {provider}","reviews.formIntro":"Seuls les soutiens peuvent noter. Votre avis apparaît après relecture.","reviews.code":"Code de soutien","reviews.codeHint":"Il est dans la fenêtre du café, sur l’appareil où vous l’avez offert.","reviews.rating":"Note","reviews.comment":"Commentaire","reviews.commentHint":"De {min} à {max} caractères.","reviews.appear":"Comment vous apparaissez","reviews.loginHint":"La connexion remplit seulement votre nom et votre photo et ajoute le badge « vérifié ». Nous ne gardons ni mot de passe ni accès à votre compte.","reviews.loginWith":"Se connecter avec {provider}","reviews.dropLogin":"Ne pas utiliser la connexion","reviews.name":"Nom affiché","reviews.nameDefault":"Soutien","reviews.photo":"Photo (facultative)","reviews.photoUpload":"Choisir une photo","reviews.photoRemove":"Retirer la photo","reviews.photoHint":"PNG, JPEG ou WebP. Elle devient un petit carré ; sans photo, vos initiales apparaissent.","reviews.consent":"J’autorise la publication de la note, du commentaire, du nom et de la photo sur la page À propos.","reviews.send":"Envoyer l’avis","reviews.cancel":"Annuler","reviews.sending":"Envoi…","reviews.sent":"Merci ! Votre avis apparaîtra ici après relecture.","reviews.editSent":"Merci ! La nouvelle version apparaîtra après relecture ; d’ici là, l’ancienne reste.","reviews.loaded":"Votre avis précédent a été chargé pour que vous le modifiiez.","reviews.err.not_supporter":"Code de soutien invalide ou expiré.","reviews.err.bad_rating":"Choisissez de 1 à 5 étoiles.","reviews.err.too_short":"Écrivez au moins {min} caractères.","reviews.err.too_long":"Le commentaire dépasse {max} caractères.","reviews.err.no_name":"Écrivez le nom à afficher.","reviews.err.consent":"Cochez l’autorisation de publier.","reviews.err.bad_image":"Cette image ne peut pas être utilisée. Essayez un PNG ou un JPEG.","reviews.err.login":"La connexion n’a pas fonctionné. Réessayez ou continuez sans.","reviews.err.login_expired":"La connexion a expiré. Reconnectez-vous ou continuez sans.","reviews.err.too_many":"Trop de tentatives. Attendez quelques minutes.","reviews.err.generic":"Envoi impossible pour le moment. Réessayez plus tard.","reviews.policy":"Les avis positifs et négatifs sont publiés de la même façon. Nous refusons seulement le spam, les contenus offensants, les liens, la publicité ou les données personnelles d’autrui — jamais un avis pour sa note.","reviews.err.full":"Beaucoup d’avis attendent d’être relus. Réessayez dans quelques jours."}</script>
+    </section>
+    <script type="module" src="js/views/reviews.js"></script>
+
     <h2>Crédits</h2>
     <p>
       Les icônes appartiennent à leurs auteurs et sont utilisées selon leurs

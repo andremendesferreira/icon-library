@@ -24,8 +24,9 @@ MODERATION_TOKEN=<o valor gerado>
 
 Atualize a stack. No log deve aparecer `Moderation API: on`.
 
-O token só serve para a API de moderação: listar pendentes, baixar a prévia em
-PNG, aprovar/recusar **pendentes** e excluir o que nunca foi ao ar. Ele não
+O token só serve para a API de moderação: listar pendentes (ícones e
+avaliações), baixar a prévia em PNG, aprovar/recusar **pendentes** e excluir o
+que nunca foi ao ar. Ele não
 abre o `/admin`, não exclui ícones aprovados e não lê os relatos de bug.
 
 ### A API
@@ -39,6 +40,9 @@ Todas as chamadas levam o cabeçalho `Authorization: Bearer <MODERATION_TOKEN>`.
 | `POST /api/moderation/icons/{id}/approve` | aprova (só se ainda estiver pendente) |
 | `POST /api/moderation/icons/{id}/reject` com `{ "note": "motivo" }` | recusa; a nota aparece no `/admin` |
 | `POST /api/moderation/icons/{id}/delete` | exclui um ícone pendente ou recusado; aprovado responde `409 approved` (só sai pelo `/admin`) |
+| `GET /api/moderation/reviews` | avaliações esperando decisão: `{ reviews: [{ id, rating, comment, name, provider, verified, hasPhoto, lang, edit, current, submittedAt, avatar }] }` — `edit` marca a edição de uma avaliação já no ar (`current` traz a versão no ar); o código do apoiador não vem |
+| `GET /api/moderation/reviews/{id}/avatar.png` | a foto que espera decisão (PNG 96×96) |
+| `POST /api/moderation/reviews/{id}/approve`, `…/reject`, `…/delete` | as mesmas regras dos ícones: só o que espera, `submittedAt` opcional, excluir só o que nunca foi ao ar |
 
 As três aceitam também `submittedAt` (a data do envio que você viu, em ISO ou
 milissegundos). Se o autor editou o ícone depois, a resposta é `409 changed` e
@@ -277,6 +281,31 @@ foto, de antes do painel, respondem "Mensagem antiga: decida no /admin".
 5. **Ative** o fluxo. O gatilho registra no Telegram o endereço público do seu
    n8n (precisa de HTTPS); um bot só aceita um destino por vez, então não use
    esse bot em outro gatilho.
+
+### Avaliações dos apoiadores
+
+O terceiro fluxo, `docs/n8n-moderacao-avaliacoes.json`, manda ao mesmo chat cada
+avaliação nova (ou editada) da página Sobre, como texto, com o painel de botões
+logo embaixo:
+
+```
+⭐ Avaliação #12 — Ana
+★★★★☆ (4/5) · verificado pelo github · pt-BR
+
+Encontro qualquer ícone em segundos.
+```
+
+Não há IA aqui: a avaliação é curta e você lê inteira. A foto, quando houver,
+fica no `/admin` (aba Avaliações). Os botões são decididos pelo fluxo dos
+botões, que reconhece as avaliações pelo id `r<número>` e chama
+`/api/moderation/reviews/…`; com isso, **reimporte também** o
+`docs/n8n-moderacao-telegram-botoes.json` (ou troque o código do nó
+**Interpretar** e o endereço do nó **Chamar o site** pelos do arquivo).
+
+Para instalar: importe o fluxo, preencha `site` e `telegramChatId` na
+**Configuração**, escolha a credencial **Header Auth** em **Pendentes** e a do
+**Telegram** nos nós **Telegram** e **Painel**, e ative. Ele roda a cada 10
+minutos e lembra o que já avisou (`id@submittedAt`).
 
 ## 5. As fases da autonomia
 
