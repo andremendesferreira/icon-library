@@ -9,6 +9,7 @@
     "tags": "node scripts/generate-icon-tags.js",
     "test": "node --test",
     "pages": "node scripts/build-pages.mjs",
+    "synonyms": "node scripts/check-synonyms.mjs",
     "migrate": "node scripts/db.js"
   },
   "engines": {

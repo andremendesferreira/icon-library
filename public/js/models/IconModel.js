@@ -1,6 +1,7 @@
 import { FONTES } from "./iconSets.js";
 import { criarDetector } from "./glyphDetector.js";
 import { ESTILO_PADRAO, aplicarEstilo } from "./svgTools.js";
+import { expandir, prepararSinonimos } from "./sinonimos.js";
 
 const CHAVE_ESTILO = "icon-library:style";
 
@@ -51,6 +52,39 @@ function acertoDaBusca(item, termo) {
   return tags.some((tag) => tag.includes(termo)) ? 4 : null;
 }
 
+// Termo vindo do dicionário: só palavra inteira ("cart" acha shopping-cart,
+// não carton) ou palavra-chave exata. Nome composto ("arrow-right") com todas
+// as partes vem antes de uma palavra solta.
+function acertoDoSinonimo(item, termo) {
+  // Os nomes chegam com espaço ("arrow right") ou hífen ("arrow-right")
+  const nome = item.nome.toLowerCase().replace(/\s+/g, "-");
+  if (nome === termo.replace(/\s+/g, "-")) return 0;
+  const partes = nome.split(/[-\s]+/);
+  const pedidas = termo.split(/[-\s]+/);
+  if (pedidas.every((p) => partes.includes(p))) return pedidas.length > 1 ? 1 : 2;
+  const tags = (item.tags ?? []).map((tag) => tag.toLowerCase());
+  return tags.includes(termo) ? 3 : null;
+}
+
+// Acerto pelo termo digitado ou, se nada bater, por um dos termos em inglês
+// do dicionário do idioma (models/sinonimos.js)
+// Ordem: acerto direto forte (nome, palavra-chave exata: 0–3), sinônimo
+// (4–7), e só então um pedaço de palavra-chave (8), que é o mais fraco —
+// "sino" é um pedaço de "casino", mas quem busca "sino" quer o sino
+function acertoComSinonimos(item, termo, extras) {
+  const direto = acertoDaBusca(item, termo);
+  if (!extras.length) return direto;
+  if (direto !== null && direto <= 3) return direto;
+  let melhor = null;
+  for (const extra of extras) {
+    const acerto = acertoDoSinonimo(item, extra);
+    if (acerto !== null && (melhor === null || acerto < melhor)) melhor = acerto;
+    if (melhor === 0) break;
+  }
+  if (melhor !== null) return 4 + melhor;
+  return direto === null ? null : 8;
+}
+
 // Ordem alfabética, com "others" sempre por último
 function ordenarGrupos(mapa) {
   return [...mapa.entries()].sort(
@@ -88,6 +122,8 @@ export class IconModel {
   itens = [];
   usouAlternativa = false;
   gruposEscolhidos = new Set();
+  // Sinônimos do idioma da página (Map), ou null em inglês ou sem o arquivo
+  sinonimos = null;
   // Tamanho, traço e cor aplicados ao que é copiado/baixado; lembrados
   // entre visitas
   estilo = lerEstilo();
@@ -193,10 +229,11 @@ export class IconModel {
   filtrar({ busca, apenasSuportados, variante = "todos" }) {
     const porVariante = this.temVariantes && variante !== "todos";
     const termo = busca.trim().toLowerCase();
+    const extras = termo ? expandir(termo, this.sinonimos) : [];
     const grupos = new Map();
     const nota = new Map();
     for (const item of this.itens) {
-      const acerto = termo ? acertoDaBusca(item, termo) : 0;
+      const acerto = termo ? acertoComSinonimos(item, termo, extras) : 0;
       if (acerto === null) continue;
       if (this.gruposEscolhidos.size && !this.gruposEscolhidos.has(item.grupo))
         continue;
@@ -220,7 +257,17 @@ export class IconModel {
     const termo = busca.trim().toLowerCase();
     const dados = this.cache.get(chave);
     if (!dados || dados instanceof Promise || !termo) return null;
-    return dados.itens.filter((item) => acertoDaBusca(item, termo) !== null).length;
+    const extras = expandir(termo, this.sinonimos);
+    return dados.itens.filter((item) => acertoComSinonimos(item, termo, extras) !== null).length;
+  }
+
+  // Dicionário de sinônimos do idioma (public/json/sinonimos/<idioma>.json).
+  // Em inglês não há; se o arquivo faltar, a busca segue só em inglês.
+  async carregarSinonimos(idioma) {
+    if (!idioma || idioma === "en") return false;
+    const dados = await baixar({ endereco: `json/sinonimos/${idioma}.json`, opcional: true });
+    this.sinonimos = dados ? prepararSinonimos(dados) : null;
+    return Boolean(this.sinonimos?.size);
   }
 
   resumo() {

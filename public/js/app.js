@@ -1,4 +1,4 @@
-import { carregarIdioma, traduzirPagina } from "./i18n/i18n.js";
+import { carregarIdioma, idiomaAtual, traduzirPagina } from "./i18n/i18n.js";
 import { IconModel } from "./models/IconModel.js";
 import { IconView } from "./views/IconView.js";
 import { IconController } from "./controllers/IconController.js";
@@ -104,10 +104,16 @@ new MineController(new MineView(), {
 // "Reportar bug" no rodapé
 new ReportController(new ReportView(), { avisar }).iniciar();
 
-new IconController(iconModel, iconView, {
+const iconController = new IconController(iconModel, iconView, {
   aoAdicionar: (item, svg) => scratchpad.adicionar(item, svg),
   aoEditar: (item, svg) => editor.abrir(item, svg),
   escolherTamanhoPng,
-}).iniciar();
+});
+iconController.iniciar();
+// Sinônimos do idioma ("lixeira" acha trash): chegam depois da página; uma
+// busca já digitada é refeita com eles
+iconModel.carregarSinonimos(idiomaAtual()).then((carregou) => {
+  if (carregou && iconModel.itens.length && iconView.busca.trim()) iconController.aplicarFiltros();
+});
 if (apoiador.ativo()) anuncios.desligar();
 else anuncios.iniciar();

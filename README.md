@@ -187,6 +187,10 @@ The numbered SQL files in `migrations/` (`001_coffee_supporters.sql`, `002_iconl
 
 **Owner and application user (recommended):** let the owner role apply the migrations (`PG_USER=<owner> npm run migrate`) and run the site with an application role that only has `USAGE` on the schema, `SELECT, INSERT, UPDATE, DELETE` on the tables, `USAGE, SELECT` on the sequences and `SELECT` on `schema_migrations`; set `PG_MIGRATE=false` for it. Each new migration that creates a table needs its `GRANT` for that role, and the start-up check says when one is missing. Even without that flag, the server issues no `CREATE` when nothing is pending.
 
+### Searching in other languages
+
+Icon names and keywords are in English. A dictionary per language (`public/json/sinonimos/<lang>.json`, `{ "lixeira": ["trash", "delete"] }`) lets visitors search in their own language: the typed term is also looked up as its English equivalents, accent-insensitive, as a whole phrase, word by word ("seta direita" → `arrow-right`) or by prefix while typing (`public/js/models/sinonimos.js`). Dictionary terms only match whole words of a name or exact keywords, and they rank after direct matches. Only Portuguese has a dictionary for now (337 entries); `npm run synonyms` checks that every entry finds at least one Lucide, Feather or Bootstrap icon.
+
 ### Icon versions
 
 The packages are pinned in `VERSOES` at the top of `public/js/models/iconSets.js`, so a new release cannot break the page on its own. To upgrade:
@@ -517,6 +521,10 @@ Quando uma busca não acha nada no conjunto escolhido (e nenhuma categoria está
 Os arquivos SQL numerados em `migrations/` (`001_coffee_supporters.sql`, `002_iconlibrary_icons.sql`, `003_bug_reports.sql`…) são aplicados em ordem na subida, quando `PG_HOST` está definido — cada um numa transação, sob um lock consultivo, e registrados em `schema_migrations`; `npm run migrate` os aplica manualmente. Para mudar o esquema, crie um arquivo novo com o próximo número — nunca edite um que já rodou. O `PG_USER` precisa de permissão para criar tabelas (no PostgreSQL 15+: `GRANT CREATE ON SCHEMA public TO …`). Se as migrations falharem, o site continua no ar, com o café, a Iconlibrary e os relatórios de bug desligados. A cada subida o servidor também compara `migrations/` com `schema_migrations` e confere se as tabelas de cada recurso existem com os privilégios de que ele precisa (`FEATURE_TABLES` em `scripts/db.js`): uma migration pendente ou um `GRANT` faltando desliga os recursos, aparece no log como `[db] PENDING MIGRATIONS: …` ou `GRANT missing` e faz o `/api/health` responder 503 — o container fica *unhealthy* em vez de falhar no primeiro pagamento.
 
 **Dono e usuário da aplicação (recomendado):** deixe o papel dono aplicar as migrations (`PG_USER=<dono> npm run migrate`) e rode o site com um papel de aplicação que tenha só `USAGE` no schema, `SELECT, INSERT, UPDATE, DELETE` nas tabelas, `USAGE, SELECT` nas sequências e `SELECT` em `schema_migrations`; para ele, defina `PG_MIGRATE=false`. Cada migration nova que cria uma tabela precisa do `GRANT` para esse papel, e a checagem da subida avisa quando falta. Mesmo sem essa opção, o servidor não executa nenhum `CREATE` quando não há migration pendente.
+
+### Busca em outros idiomas
+
+Os nomes e as palavras-chave dos ícones são em inglês. Um dicionário por idioma (`public/json/sinonimos/<idioma>.json`, `{ "lixeira": ["trash", "delete"] }`) deixa quem visita buscar na própria língua: o termo digitado também é procurado pelos equivalentes em inglês, sem diferenciar acentos, como frase inteira, palavra por palavra ("seta direita" → `arrow-right`) ou pelo começo enquanto se digita (`public/js/models/sinonimos.js`). Os termos do dicionário só batem com palavras inteiras do nome ou palavras-chave exatas, e vêm depois dos acertos diretos. Por enquanto só o português tem dicionário (337 entradas); `npm run synonyms` confere se cada entrada acha ao menos um ícone do Lucide, do Feather ou do Bootstrap.
 
 ### Versões dos ícones
 
