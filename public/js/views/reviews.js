@@ -183,8 +183,11 @@ function iniciar() {
         return botao;
       }),
     );
-    logins.hidden = !config.providers.length;
-    $("avaliacao-login-dica").hidden = !config.providers.length;
+    // Com o login valendo, os botões e a dica saem: fica só o selo e o "Não
+    // usar o login", que os traz de volta
+    const semLogins = !config.providers.length || verificado;
+    logins.hidden = semLogins;
+    $("avaliacao-login-dica").hidden = semLogins;
   }
 
   // Erro (vermelho) ou aviso (cinza), logo acima dos botões
