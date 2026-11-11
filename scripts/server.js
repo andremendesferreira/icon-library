@@ -52,6 +52,7 @@ const { IconlibraryError, createIconlibrary, postgresStore: iconlibraryStore } =
 const { ReportError, createReports, postgresStore: reportsStore } = require("./reports");
 const { ReviewError, createReviews, postgresStore: reviewsStore, avatarPng, MAX_COMMENT, MIN_COMMENT, MAX_NAME } = require("./reviews");
 const { configured: oauthConfigured, createOAuth } = require("./oauth");
+const { createResponseCache } = require("./cache");
 const { previewAvailable, previewSize, renderPng } = require("./preview");
 const { DEFAULT: DEFAULT_LANG, dictionary, homeLang, localizeHome } = require("./homeLang");
 const { loadVersion, versionHtml } = require("./version");
@@ -211,6 +212,23 @@ function logError(tag, err) {
   if (err && typeof err === "object" && ("detail" in err || "where" in err))
     console.error(tag, err.code || "", err.constraint || "", err.message);
   else console.error(tag, err);
+}
+
+// A cached list (scripts/cache.js): 304 when the browser has this version,
+// gzip when it accepts it. Browsers and proxies may keep it for a minute.
+function sendCached(req, res, entry) {
+  const headers = {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "public, max-age=60",
+    ETag: entry.etag,
+    Vary: "Accept-Encoding",
+  };
+  if (req.headers["if-none-match"] === entry.etag) return send(req, res, 304, headers);
+  const gzip = /\bgzip\b/.test(req.headers["accept-encoding"] || "");
+  const data = gzip ? entry.gzip : entry.body;
+  if (gzip) headers["Content-Encoding"] = "gzip";
+  headers["Content-Length"] = data.length;
+  send(req, res, 200, headers, data);
 }
 
 function sendJson(req, res, status, body) {
@@ -397,8 +415,7 @@ async function handleIconlibrary(req, res, url, ctx) {
     if (req.method === "GET" || req.method === "HEAD") {
       if (!iconlibrary) return sendJson(req, res, 200, { enabled: false, icons: [] });
       try {
-        const icons = await iconlibrary.list();
-        return send(req, res, 200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=60" }, JSON.stringify({ enabled: true, icons }));
+        return sendCached(req, res, await ctx.cache.get("icons", async () => ({ enabled: true, icons: await iconlibrary.list() })));
       } catch (err) {
         return fail(err, "[iconlibrary]");
       }
@@ -571,8 +588,7 @@ async function handleReviews(req, res, url, ctx) {
     if (url === "/api/reviews") {
       if (isGet) {
         if (!reviews) return sendJson(req, res, 200, { enabled: false, total: 0, average: null, reviews: [] });
-        const body = JSON.stringify({ enabled: true, ...(await reviews.list()) });
-        return send(req, res, 200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=60" }, body);
+        return sendCached(req, res, await ctx.cache.get("reviews", async () => ({ enabled: true, ...(await reviews.list()) })));
       }
       if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
       if (!reviews) return sendJson(req, res, 503, { error: "disabled" });
@@ -656,6 +672,21 @@ async function handleReviews(req, res, url, ctx) {
 }
 
 async function handleApi(req, res, url, ctx) {
+  // A write that may change a public list drops its cached copy, so an
+  // approval or an edit shows up at once
+  // (again when the answer is sent: a read in between could rebuild it from
+  // the data before the write)
+  if (req.method === "POST") {
+    const chave = /^\/api\/(admin\/icons|moderation\/icons|iconlibrary)\b/.test(url)
+      ? "icons"
+      : /^\/api\/(admin\/reviews|moderation\/reviews)\b/.test(url)
+        ? "reviews"
+        : null;
+    if (chave) {
+      ctx.cache.drop(chave);
+      res.on("finish", () => ctx.cache.drop(chave));
+    }
+  }
   // Docker's HEALTHCHECK: 503 when a database check failed at start-up (a
   // pending migration, a missing table or GRANT), so the container shows as
   // unhealthy in Portainer instead of failing quietly at the first payment
@@ -816,6 +847,7 @@ function handle(req, res, ctx) {
 function createServer({ coffee = null, iconlibrary = null, reports = null, reviews = null, oauth = null, adminPassword = "", moderationToken = "", indexNowKey = "", health = null } = {}) {
   const ctx = {
     coffee, iconlibrary, reports, reviews, oauth, adminPassword, moderationToken, indexNowKey, limit: createLimiter(),
+    cache: createResponseCache(),
     health: { ok: true, database: "off", pendingMigrations: [], ...health, coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews) },
   };
   return http.createServer((req, res) => {

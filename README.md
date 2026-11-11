@@ -327,6 +327,7 @@ icon-library/
 ├── scripts/reports.js                  bug reports from the footer form
 ├── scripts/reviews.js                  supporter reviews (About page) and avatar redraw
 ├── scripts/oauth.js                    GitHub/Google/Microsoft logins for reviews
+├── scripts/cache.js                    API list responses kept ready: ETag, 304 and gzip
 ├── scripts/preview.js                  PNG previews for moderation
 ├── scripts/svgSafe.js                  strict check of submitted SVG
 ├── scripts/db.js                       PostgreSQL pool and migration runner (npm run migrate)
@@ -636,6 +637,7 @@ icon-library/
 ├── scripts/reports.js                  relatos de bug do formulário do rodapé
 ├── scripts/reviews.js                  avaliações dos apoiadores (página Sobre) e foto redesenhada
 ├── scripts/oauth.js                    logins GitHub/Google/Microsoft das avaliações
+├── scripts/cache.js                    respostas das listas da API prontas: ETag, 304 e gzip
 ├── scripts/preview.js                  prévias em PNG para a moderação
 ├── scripts/svgSafe.js                  conferência estrita do SVG enviado
 ├── scripts/db.js                       conexão com o PostgreSQL e migrations (npm run migrate)
