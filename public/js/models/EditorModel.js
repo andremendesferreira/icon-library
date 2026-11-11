@@ -21,6 +21,7 @@ import {
   unirTracos,
 } from "./svgGeometry.js";
 import { erro as erroCom } from "./erros.js";
+import { ehDegrade, idDoDegrade, lerDegrade, montarDegrade, normalizarDegrade } from "./degrade.js";
 
 const LIMITE_HISTORICO = 100;
 
@@ -280,9 +281,12 @@ export class EditorModel {
 
   // Texto final. Elementos ocultos ficam de fora — ocultar é para ver como o
   // ícone fica sem eles antes de apagar.
+  // Degradês que nenhuma forma visível usa ficam de fora.
   svg() {
+    this.ajustarDegrades();
+    const usados = this.degradesEmUso();
     const filhos = this.elementos
-      .filter((el) => !el.oculto)
+      .filter((el) => !el.oculto && (!ehDegrade(el) || usados.has(this.idDoElemento(el))))
       .map((el) => (el.html ? el.html : `<${el.tag}${atributos(el.attrs)}/>`))
       .join("");
     return `<svg${atributos(this.raiz)}>${filhos}</svg>`;
@@ -442,7 +446,7 @@ export class EditorModel {
   }
 
   selecionarTudo() {
-    this.definirSelecao(this.elementos.flatMap((el, i) => (el.oculto ? [] : [i])));
+    this.definirSelecao(this.elementos.flatMap((el, i) => (el.oculto || ehDegrade(el) ? [] : [i])));
   }
 
   // Ver camadas: o número do bloco de cada forma, na ordem do desenho. Um
@@ -583,7 +587,7 @@ export class EditorModel {
 
   indicesDoGrupo(grupo) {
     if (grupo === null) return [];
-    return this.elementos.flatMap((el, i) => (el.grupo === grupo ? [i] : []));
+    return this.elementos.flatMap((el, i) => (el.grupo === grupo && !ehDegrade(el) ? [i] : []));
   }
 
   // Ícones com formas, na ordem do desenho (o de baixo primeiro):
@@ -679,7 +683,7 @@ export class EditorModel {
   alvos() {
     if (this.selecionado !== null) return [this.selecionado, ...this.extras];
     if (this.grupoSelecionado !== null) return this.indicesDoGrupo(this.grupoSelecionado);
-    return this.elementos.map((_, i) => i);
+    return this.elementos.flatMap((el, i) => (ehDegrade(el) ? [] : [i]));
   }
 
   // Editável no desenho: forma conhecida e, se for path, com dado legível
@@ -1442,13 +1446,131 @@ export class EditorModel {
     const el = this.alvos().map((i) => this.elementos[i]).find((e) => e && !e.html);
     if (!this.temSelecao || !el) return null;
     const temTraco = this.efetivo(el, "stroke") !== "none";
-    const cor = temTraco ? this.efetivo(el, "stroke") : this.efetivo(el, "fill");
+    let cor = temTraco ? this.efetivo(el, "stroke") : this.efetivo(el, "fill");
+    // Num degradê, o seletor de cor mostra a primeira cor dele
+    if (idDoDegrade(cor)) cor = this.degradePorId(idDoDegrade(cor))?.cores[0] ?? null;
     return {
       cor: cor === "currentColor" || cor === "none" ? null : cor,
       traco: temTraco ? parseFloat(this.efetivo(el, "stroke-width")) : null,
       pontas: temTraco ? this.efetivo(el, "stroke-linecap") : null,
       cantos: temTraco ? this.efetivo(el, "stroke-linejoin") : null,
     };
+  }
+
+  // ── Degradê ──────────────────────────────────────────────────────────────
+  // alvo "fill": só formas fechadas (o preenchimento liga junto); alvo
+  // "stroke": formas com traço. Veja models/degrade.js.
+  idDoElemento(el) {
+    return /\bid="([^"]*)"/.exec(el.html ?? "")?.[1] ?? null;
+  }
+
+  degradePorId(id) {
+    const el = this.elementos.find((e) => ehDegrade(e) && this.idDoElemento(e) === id);
+    return el ? lerDegrade(el.html) : null;
+  }
+
+  // ids usados por formas visíveis
+  degradesEmUso() {
+    const ids = new Set();
+    for (const el of this.elementos)
+      if (!el.html && !el.oculto)
+        for (const a of ["fill", "stroke"]) {
+          const id = idDoDegrade(el.attrs[a]);
+          if (id) ids.add(id);
+        }
+    return ids;
+  }
+
+  formasParaDegrade(alvo) {
+    if (!this.temSelecao) return [];
+    return this.alvos().filter((i) => {
+      const el = this.elementos[i];
+      if (!el || el.html) return false;
+      return alvo === "fill" ? formaFechada(el) : this.efetivo(el, "stroke") !== "none";
+    });
+  }
+
+  podeDegrade(alvo) {
+    return this.formasParaDegrade(alvo).length > 0;
+  }
+
+  // O degradê da seleção, para os controles: { tipo, cores, angulo, alvo }
+  degradeDaSelecao() {
+    if (!this.temSelecao) return null;
+    for (const i of this.alvos()) {
+      const el = this.elementos[i];
+      if (!el || el.html) continue;
+      for (const alvo of ["fill", "stroke"]) {
+        const id = idDoDegrade(el.attrs[alvo]);
+        const d = id && this.degradePorId(id);
+        if (d) return { ...d, alvo };
+      }
+    }
+    return null;
+  }
+
+  // Aplica nas formas da seleção um degradê só, que cobre todas juntas.
+  // Devolve se mudou.
+  aplicarDegrade({ tipo, cores, angulo, alvo = "fill" } = {}) {
+    const pedido = normalizarDegrade({ tipo, cores, angulo });
+    if (!pedido || !["fill", "stroke"].includes(alvo)) return false;
+    const formas = this.formasParaDegrade(alvo);
+    const caixa = this.limitesDe(formas);
+    if (!formas.length || !caixa) return false;
+    this.registrar();
+    // Um id novo; o elemento de um degradê que ficou sem uso é reaproveitado
+    const ids = this.elementos.filter(ehDegrade).map((e) => Number(this.idDoElemento(e).slice(8)));
+    const id = `il-grad-${(ids.length ? Math.max(...ids) : 0) + 1}`;
+    for (const i of formas) {
+      const el = this.elementos[i];
+      this.elementos[i] = { ...el, attrs: { ...el.attrs, [alvo]: `url(#${id})` } };
+    }
+    const novo = { tag: tipo === "radial" ? "radialGradient" : "linearGradient", html: montarDegrade(id, pedido, caixa), grupo: 0, oculto: false };
+    const usados = this.degradesEmUso();
+    const livre = this.elementos.findIndex((e) => ehDegrade(e) && !usados.has(this.idDoElemento(e)));
+    if (livre >= 0) this.elementos[livre] = novo;
+    else this.elementos.push(novo);
+    return true;
+  }
+
+  // Tira o degradê da seleção: cada forma fica com a primeira cor dele.
+  // Devolve se mudou.
+  removerDegrade() {
+    if (!this.temSelecao) return false;
+    const trocas = [];
+    for (const i of this.alvos()) {
+      const el = this.elementos[i];
+      if (!el || el.html) continue;
+      for (const a of ["fill", "stroke"]) {
+        const id = idDoDegrade(el.attrs[a]);
+        if (id) trocas.push([i, a, this.degradePorId(id)?.cores[0] ?? "currentColor"]);
+      }
+    }
+    if (!trocas.length) return false;
+    this.registrar();
+    for (const [i, a, cor] of trocas) {
+      const el = this.elementos[i];
+      this.elementos[i] = { ...el, attrs: { ...el.attrs, [a]: cor } };
+    }
+    return true;
+  }
+
+  // Refaz as coordenadas de cada degradê a partir da caixa das formas que o
+  // usam agora (depois de mover, girar, redimensionar…). Não é um passo do
+  // histórico: é derivado das formas.
+  ajustarDegrades() {
+    this.elementos.forEach((el, i) => {
+      if (!ehDegrade(el)) return;
+      const id = this.idDoElemento(el);
+      const formas = this.elementos.flatMap((f, j) =>
+        !f.html && !f.oculto && ["fill", "stroke"].some((a) => idDoDegrade(f.attrs[a]) === id) ? [j] : [],
+      );
+      const caixa = formas.length ? this.limitesDe(formas) : null;
+      const pedido = caixa && lerDegrade(el.html);
+      if (!pedido) return;
+      const html = montarDegrade(id, pedido, caixa);
+      if (html !== el.html) this.elementos[i] = { ...el, html };
+    });
   }
 
   // Mais de um ícone (agrupar formas não conta) ou formas com cor própria: o Lucide Studio, que trabalha

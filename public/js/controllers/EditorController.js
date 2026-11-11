@@ -102,6 +102,13 @@ export class EditorController {
       aoPreencher: () => {
         if (model.alternarPreenchimento()) this.desenhar();
       },
+      aoDegrade: (pedido) => {
+        if (model.aplicarDegrade(pedido)) this.desenhar();
+        else this.avisar(t(pedido.alvo === "fill" ? "editor.gradientNeedFill" : "editor.gradientNeedStroke"));
+      },
+      aoRemoverDegrade: () => {
+        if (model.removerDegrade()) this.desenhar();
+      },
       aoIniciarCorte: () => this.avisar(t(this.view.toque ? "editor.splitHintTouch" : "editor.splitHint")),
       // Devolve se cortou; fora do traço, avisa e o modo de corte continua
       aoSeparar: (x, y) => {
@@ -581,6 +588,9 @@ export class EditorController {
         grupoSelecionado: model.grupoSelecionado,
         grupos: model.gruposEmUso(),
         estiloSelecao: model.estiloDaSelecao(),
+        degrade: model.degradeDaSelecao(),
+        podeDegradeFill: model.podeDegrade("fill"),
+        podeDegradeStroke: model.podeDegrade("stroke"),
         pontos: model.pontosSelecionados(),
         pontoSelecionado: model.pontoSelecionado,
         // Só faz sentido com uma forma que tem pontos de traço (não círculo…)

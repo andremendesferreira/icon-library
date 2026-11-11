@@ -1181,3 +1181,84 @@ test("EditorModel: caneta, reordenar na lista, renomear grupo e Tab", () => {
   model.limparSelecao();
   assert.equal(model.selecionarVizinha(-1), 3);
 });
+
+// ── Degradê ────────────────────────────────────────────────────────────────
+import { DEGRADES_SUGERIDOS, ehDegrade, lerDegrade, montarDegrade } from "../public/js/models/degrade.js";
+
+const LUCIDE_DEGRADE = {
+  raiz: { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "2" },
+  elementos: [
+    { tag: "circle", attrs: { cx: "12", cy: "12", r: "10" } },
+    { tag: "line", attrs: { x1: "4", y1: "12", x2: "20", y2: "12" } },
+  ],
+};
+
+test("degradê: monta e lê de volta o mesmo pedido (linear e radial)", () => {
+  const caixa = { minX: 2, minY: 2, maxX: 22, maxY: 22 };
+  for (const angulo of [0, 45, 90, 180, 270]) {
+    const html = montarDegrade("il-grad-1", { tipo: "linear", cores: ["#FF0000", "#0000ff"], angulo }, caixa);
+    assert.deepEqual(lerDegrade(html), { tipo: "linear", cores: ["#ff0000", "#0000ff"], angulo });
+  }
+  // 90°: da esquerda para a direita, no meio da caixa
+  assert.match(montarDegrade("il-grad-1", { cores: ["#000000", "#ffffff"], angulo: 90 }, caixa), /x1="2" y1="12" x2="22" y2="12"/);
+  const radial = montarDegrade("il-grad-2", { tipo: "radial", cores: ["#000000", "#ffffff"] }, caixa);
+  assert.match(radial, /^<radialGradient id="il-grad-2" gradientUnits="userSpaceOnUse" cx="12" cy="12"/);
+  assert.equal(lerDegrade(radial).tipo, "radial");
+  assert.throws(() => montarDegrade("il-grad-1", { cores: ["red", "#fff"] }, caixa));
+  assert.throws(() => montarDegrade("x\" onload=\"", { cores: ["#000000", "#ffffff"] }, caixa));
+  assert.ok(DEGRADES_SUGERIDOS.length >= 6 && DEGRADES_SUGERIDOS.every((d) => d.cores.every((c) => /^#[0-9a-f]{6}$/.test(c))));
+});
+
+test("degradê: no traço vale também para a linha reta; um elemento cobre a seleção", () => {
+  const model = new EditorModel();
+  model.definirDocumento(LUCIDE_DEGRADE, "icone");
+  model.selecionarTudo();
+  assert.equal(model.podeDegrade("fill"), true, "o círculo é fechado");
+  assert.ok(model.aplicarDegrade({ tipo: "linear", cores: ["#ff7e5f", "#feb47b"], angulo: 90, alvo: "stroke" }));
+  const svg = model.svg();
+  assert.equal((svg.match(/<linearGradient /g) || []).length, 1);
+  assert.match(svg, /<circle [^>]*stroke="url\(#il-grad-1\)"/);
+  assert.match(svg, /<line [^>]*stroke="url\(#il-grad-1\)"/);
+  // Usa coordenadas do ícone: a linha (altura zero) não some
+  assert.match(svg, /gradientUnits="userSpaceOnUse"/);
+  assert.deepEqual(model.degradeDaSelecao(), { tipo: "linear", cores: ["#ff7e5f", "#feb47b"], angulo: 90, alvo: "stroke" });
+  // O seletor de cor mostra a primeira cor
+  assert.equal(model.estiloDaSelecao().cor, "#ff7e5f");
+});
+
+test("degradê: o elemento do degradê não entra na seleção nem sobra sem uso", () => {
+  const model = new EditorModel();
+  model.definirDocumento(LUCIDE_DEGRADE, "icone");
+  model.selecionarTudo();
+  model.aplicarDegrade({ cores: ["#000000", "#ffffff"], alvo: "stroke" });
+  assert.equal(model.elementos.filter(ehDegrade).length, 1);
+  model.selecionarTudo();
+  assert.equal(model.quantidade, 2, "só as duas formas");
+  // Reaplicar troca o degradê sem acumular elementos
+  for (let k = 0; k < 5; k++) model.aplicarDegrade({ cores: ["#11998e", "#38ef7d"], alvo: "stroke", angulo: k * 30 });
+  assert.equal(model.elementos.filter(ehDegrade).length, 1);
+  // Uma cor lisa no lugar: o degradê some do SVG
+  model.definirCor("#123456");
+  assert.doesNotMatch(model.svg(), /Gradient/);
+  // Desfazer volta o degradê
+  model.desfazer();
+  assert.match(model.svg(), /<linearGradient /);
+});
+
+test("degradê: preenchimento só em formas fechadas; acompanha a forma movida; remover deixa a 1ª cor", () => {
+  const model = new EditorModel();
+  model.definirDocumento(LUCIDE_DEGRADE, "icone");
+  model.selecionar(1);
+  assert.equal(model.podeDegrade("fill"), false, "linha não se preenche");
+  assert.equal(model.aplicarDegrade({ cores: ["#000000", "#ffffff"], alvo: "fill" }), false);
+  model.selecionar(0);
+  assert.ok(model.aplicarDegrade({ tipo: "radial", cores: ["#7f00ff", "#e100ff"], alvo: "fill" }));
+  assert.match(model.svg(), /<circle [^>]*fill="url\(#il-grad-\d+\)"/);
+  assert.match(model.svg(), /cx="12" cy="12"/);
+  model.transformar("direita", { vezes: 4 });
+  const cx = Number(/<radialGradient [^>]*cx="([\d.]+)"/.exec(model.svg())[1]);
+  assert.notEqual(cx, 12, "o centro do degradê seguiu o círculo");
+  assert.ok(model.removerDegrade());
+  assert.match(model.svg(), /<circle [^>]*fill="#7f00ff"/);
+  assert.doesNotMatch(model.svg(), /Gradient/);
+});

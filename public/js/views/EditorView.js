@@ -1,6 +1,7 @@
 import { corCss, escapar, svgDoTexto } from "./html.js";
 import { t } from "../i18n/i18n.js";
 import { caminhoDaCaneta } from "../models/svgGeometry.js";
+import { DEGRADES_SUGERIDOS, ehDegrade } from "../models/degrade.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const porId = (id) => document.getElementById(id);
@@ -215,6 +216,7 @@ export class EditorView {
     this.acoes = acoes;
     this.ligarCanvas();
     this.ligarEstilo();
+    this.ligarDegrade();
     this.ligarBusca();
     this.ligarArquivo();
 
@@ -778,6 +780,7 @@ export class EditorView {
     this.desenharLista(estado);
     this.desenharPrevias(estado.svg);
     this.mostrarEstiloSelecao(estado.estiloSelecao);
+    this.mostrarDegrade(estado);
     this.mostrarCaixa(estado.estiloSelecao ? estado.caixaSelecao : null);
     this.mostrarPontos(estado);
     this.mostrarCombinar(estado);
@@ -955,6 +958,92 @@ export class EditorView {
       this.pontas.value = estilo.pontas;
       this.cantos.value = estilo.cantos;
     }
+  }
+
+  // ── Degradê ────────────────────────────────────────────────────────────────
+  // Uma sugestão aplica na hora com o tipo, o ângulo e o destino escolhidos;
+  // com um degradê na seleção, mudar cores, tipo, ângulo ou destino reaplica
+  // (cada mudança é um passo do histórico). As cores das sugestões são #rrggbb fixos (models/degrade.js).
+  ligarDegrade() {
+    this.degrade = {
+      painel: porId("editor-gradient"),
+      sugestoes: porId("editor-gradient-presets"),
+      de: porId("editor-gradient-from"),
+      ate: porId("editor-gradient-to"),
+      tipo: porId("editor-gradient-type"),
+      angulo: porId("editor-gradient-angle"),
+      remover: porId("editor-gradient-remove"),
+    };
+    const d = this.degrade;
+    d.angulo.value = "90";
+    for (const { id, cores } of DEGRADES_SUGERIDOS) {
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.className = "editor__degrade-sugestao";
+      botao.dataset.de = cores[0];
+      botao.dataset.ate = cores[1];
+      botao.dataset.nome = id;
+      botao.style.background = `linear-gradient(90deg, ${cores[0]}, ${cores[1]})`;
+      d.sugestoes.append(botao);
+    }
+    this.rotularSugestoes();
+    const alvo = () => document.querySelector('input[name="editor-gradient-target"]:checked')?.value || "fill";
+    const pedir = () =>
+      this.acoes.aoDegrade({
+        tipo: d.tipo.value,
+        cores: [d.de.value, d.ate.value],
+        angulo: Number(d.angulo.value),
+        alvo: alvo(),
+      });
+    d.sugestoes.addEventListener("click", (evento) => {
+      const botao = evento.target.closest("[data-de]");
+      if (!botao) return;
+      d.de.value = botao.dataset.de;
+      d.ate.value = botao.dataset.ate;
+      pedir();
+    });
+    d.tipo.addEventListener("change", () => {
+      d.angulo.disabled = d.tipo.value === "radial";
+    });
+    // Ajustes só reaplicam quando a seleção já tem degradê; para criar um,
+    // uma sugestão ou "Aplicar degradê"
+    const reaplicar = () => {
+      if (this.ultimoEstado?.degrade) pedir();
+    };
+    for (const campo of [d.de, d.ate, d.tipo, d.angulo]) campo.addEventListener("change", reaplicar);
+    for (const radio of document.querySelectorAll('input[name="editor-gradient-target"]')) radio.addEventListener("change", reaplicar);
+    porId("editor-gradient-apply").addEventListener("click", pedir);
+    d.remover.addEventListener("click", () => this.acoes.aoRemoverDegrade());
+  }
+
+  // Nomes das sugestões no idioma atual (título e leitor de tela)
+  rotularSugestoes() {
+    for (const botao of this.degrade.sugestoes.children) {
+      const nome = t(`editor.gradient_${botao.dataset.nome}`);
+      botao.title = nome;
+      botao.setAttribute("aria-label", nome);
+    }
+  }
+
+  // Controles seguem o degradê da seleção; "Preenchimento" só com forma fechada
+  mostrarDegrade({ degrade, podeDegradeFill, podeDegradeStroke }) {
+    const d = this.degrade;
+    this.rotularSugestoes();
+    d.angulo.disabled = (degrade?.tipo ?? d.tipo.value) === "radial";
+    const radios = document.querySelectorAll('input[name="editor-gradient-target"]');
+    for (const r of radios) r.disabled = r.value === "fill" ? !podeDegradeFill : !podeDegradeStroke;
+    if (degrade) {
+      d.de.value = degrade.cores[0];
+      d.ate.value = degrade.cores[degrade.cores.length - 1];
+      d.tipo.value = degrade.tipo;
+      if (degrade.tipo === "linear") d.angulo.value = String(degrade.angulo);
+      for (const r of radios) r.checked = r.value === degrade.alvo;
+    } else {
+      // Destino possível: sem forma fechada, o traço
+      const marcado = [...radios].find((r) => r.checked);
+      if (marcado?.disabled) for (const r of radios) r.checked = !r.disabled && r.value !== marcado.value;
+    }
+    d.remover.disabled = !degrade;
   }
 
   // X, Y, largura e altura da seleção; o campo em que a pessoa está
@@ -1457,6 +1546,8 @@ export class EditorView {
       return;
     }
     const linha = (el, i) => {
+      // O degradê é um elemento do ícone, mas não é forma: fica fora da lista
+      if (ehDegrade(el)) return "";
       const geometria = el.html
         ? null
         : Object.entries(el.attrs).filter(([k]) => !ATRIBUTOS_DE_DESENHO.has(k));

@@ -4308,6 +4308,12 @@ body {
   background-color: var(--cor-fundo);
   color: var(--cor-texto);
 }
+/* A dica com o nome do card da borda direita sai um pouco da tela: corta
+   sem criar barra de rolagem lateral (clip não quebra a busca sticky) */
+html,
+body {
+  overflow-x: clip;
+}
 /* Foco sempre visível, no azul da marca */
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 3px solid var(--il-action);
@@ -5016,4 +5022,65 @@ body {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
+}
+
+/* ── Degradê no editor (js/views/EditorView.js, ligarDegrade) ───────────── */
+.editor__degrade {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--cor-borda);
+  font-size: var(--fs-editor);
+}
+.editor__degrade summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 6px 0;
+}
+.editor__degrade-sugestoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 6px;
+  margin: 6px 0 10px;
+}
+.editor__degrade-sugestao {
+  height: 32px;
+  border: 1px solid var(--cor-borda-forte);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.editor__degrade-sugestao:hover {
+  outline: 2px solid var(--il-action);
+  outline-offset: 1px;
+}
+.editor__degrade-alvo {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+.editor__degrade-alvo legend {
+  float: left;
+  padding: 0;
+  margin-right: 8px;
+}
+.editor__degrade-alvo label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.editor__degrade select:disabled,
+.editor__degrade button:disabled {
+  opacity: 0.55;
+}
+.editor__degrade-nota {
+  margin: 6px 0 0;
+  color: var(--il-muted);
+}
+@media (pointer: coarse) {
+  .editor__degrade-sugestao {
+    height: 44px;
+  }
 }

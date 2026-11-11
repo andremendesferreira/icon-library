@@ -69,6 +69,8 @@ export class PublishController {
   async enviar(dados) {
     const { view } = this;
     if (!dados.license) return view.mostrarSituacao(t("publish.licenseRequired"), "erro");
+    // Degradê não passa no servidor (scripts/svgSafe.js): avisa antes, com o motivo
+    if (/<(linear|radial)Gradient/.test(this.icone().svg)) return view.mostrarSituacao(t("editor.gradientNote"), "erro");
     view.travar(true);
     view.mostrarSituacao(t("publish.sending"));
     try {
