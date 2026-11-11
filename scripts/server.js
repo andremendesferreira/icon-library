@@ -54,6 +54,7 @@ const { ReviewError, createReviews, postgresStore: reviewsStore, avatarPng, MAX_
 const { configured: oauthConfigured, createOAuth } = require("./oauth");
 const { createResponseCache } = require("./cache");
 const { createSearchMisses, postgresStore: searchMissesStore } = require("./searchMisses");
+const { ENFORCED: CSP_ENFORCED, PAGES_REPORT_ONLY: CSP_REPORT_ONLY, createCspReports, strictPolicyFor } = require("./csp");
 const { previewAvailable, previewSize, renderPng } = require("./preview");
 const { DEFAULT: DEFAULT_LANG, dictionary, homeLang, localizeHome } = require("./homeLang");
 const { loadVersion, versionHtml } = require("./version");
@@ -103,6 +104,9 @@ const SECURITY_HEADERS = {
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "X-Frame-Options": "SAMEORIGIN",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+  // Rules no third party relies on (scripts/csp.js); the full list is in
+  // report-only mode on the pages, see send()
+  "Content-Security-Policy": CSP_ENFORCED,
 };
 
 function siteUrl(req) {
@@ -178,7 +182,13 @@ function serveHomeInLanguage(req, res, lang) {
 }
 
 function send(req, res, status, headers, body) {
-  res.writeHead(status, { ...SECURITY_HEADERS, ...headers });
+  // Pages also carry the full policy in report-only mode, unless the route
+  // sets its own (the strict one on /admin)
+  const html = String(headers?.["Content-Type"] ?? "").startsWith("text/html");
+  const extra = html && !headers["Content-Security-Policy"]
+    ? { "Content-Security-Policy-Report-Only": CSP_REPORT_ONLY, "Reporting-Endpoints": 'csp="/api/csp-report"' }
+    : {};
+  res.writeHead(status, { ...SECURITY_HEADERS, ...extra, ...headers });
   res.end(req.method === "HEAD" ? undefined : body);
 }
 
@@ -204,6 +214,7 @@ const LIMITS = {
   "/api/reviews": 15,
   "/api/reviews/auth": 20,
   "/api/search-misses": 40,
+  "/api/csp-report": 60,
   admin: 30,
 };
 const WINDOW = 15 * 60 * 1000;
@@ -397,7 +408,8 @@ function serveAdminPage(req, res, ctx) {
   if (!guardAdmin(req, res, ctx, false)) return;
   fs.readFile(path.join(__dirname, "admin.html"), (err, data) => {
     if (err) return sendText(req, res, 500, "Admin page missing");
-    send(req, res, 200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex" }, data);
+    // Strict policy: only the page's own inline script and style, by hash
+    send(req, res, 200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "X-Robots-Tag": "noindex", "Content-Security-Policy": strictPolicyFor(data) }, data);
   });
 }
 
@@ -706,7 +718,19 @@ async function handleSearchMisses(req, res, url, ctx) {
   }
 }
 
+// CSP violation reports from browsers (report-only policy): logged once per
+// kind, nothing stored (scripts/csp.js)
+async function handleCspReport(req, res, ctx) {
+  if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+  if (!ctx.limit(`/api/csp-report ${clientIp(req)}`, LIMITS["/api/csp-report"])) return send(req, res, 204, { "Cache-Control": "no-store" });
+  try {
+    ctx.csp.record(await readJson(req, 16384));
+  } catch {}
+  return send(req, res, 204, { "Cache-Control": "no-store" });
+}
+
 async function handleApi(req, res, url, ctx) {
+  if (url === "/api/csp-report") return handleCspReport(req, res, ctx);
   // A write that may change a public list drops its cached copy, so an
   // approval or an edit shows up at once
   // (again when the answer is sent: a read in between could rebuild it from
@@ -884,6 +908,7 @@ function createServer({ coffee = null, iconlibrary = null, reports = null, revie
   const ctx = {
     coffee, iconlibrary, reports, reviews, oauth, searchMisses, adminPassword, moderationToken, indexNowKey, limit: createLimiter(),
     cache: createResponseCache(),
+    csp: createCspReports(),
     health: { ok: true, database: "off", pendingMigrations: [], ...health, coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews), searchMisses: Boolean(searchMisses) },
   };
   return http.createServer((req, res) => {

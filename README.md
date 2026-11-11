@@ -104,6 +104,10 @@ The production container runs as a non-root user, with a read-only file system, 
 | `ADSENSE_PUBLISHER_ID` | Your `pub-…` ID. Enables `/ads.txt`, required by AdSense. |
 | `INDEXNOW_KEY` | 8–128 letters, digits or dashes (`openssl rand -hex 16`). With `SITE_URL`, serves `/<key>.txt` and, a minute after each start, sends the sitemap to IndexNow, so Bing, Yandex and others recrawl changed pages within days. The key is public by design. |
 
+### Security headers and Content-Security-Policy
+
+Every response carries `nosniff`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy` and a minimal **CSP** that no third party relies on (`object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`). The pages also send the full policy (this site, AdSense, Microsoft Clarity, unpkg) as **`Content-Security-Policy-Report-Only`**: browsers block nothing and report what would be blocked to `/api/csp-report`, which logs one short line per kind (`[csp] would block: <directive> <host> on <path>`, no query string, nothing stored). After the logs show the list is complete, the same policy can be enforced without silently breaking the ads. **`/admin`** already enforces a strict policy: only its own inline script and style, by hash. The pages must not use inline JavaScript or `on*` attributes (a test checks it). Everything is in `scripts/csp.js`.
+
 ### Deploying
 
 - **HTTPS is required:** browsers only allow copying on secure pages. Put a reverse proxy with a certificate (Nginx, Caddy, Traefik…) in front of port 3000.
@@ -344,6 +348,7 @@ icon-library/
 ├── scripts/oauth.js                    GitHub/Google/Microsoft logins for reviews
 ├── scripts/cache.js                    API list responses kept ready: ETag, 304 and gzip
 ├── scripts/searchMisses.js             searches with no results, counted per term (/admin)
+├── scripts/csp.js                      Content-Security-Policy (enforced minimum, report-only, /admin)
 ├── scripts/preview.js                  PNG previews for moderation
 ├── scripts/svgSafe.js                  strict check of submitted SVG
 ├── scripts/db.js                       PostgreSQL pool and migration runner (npm run migrate)
@@ -446,6 +451,10 @@ O container de produção roda sem root, com sistema de arquivos somente leitura
 | `SITE_URL` | Endereço público — `https://iconlibrary.io` — usado em `/sitemap.xml` e `/robots.txt`. Sem ela, usa o endereço de cada requisição. |
 | `ADSENSE_PUBLISHER_ID` | Seu ID `pub-…`. Liga o `/ads.txt`, exigido pelo AdSense. |
 | `INDEXNOW_KEY` | De 8 a 128 letras, números ou hífens (`openssl rand -hex 16`). Com `SITE_URL`, serve `/<chave>.txt` e, um minuto depois de cada início, envia o sitemap ao IndexNow, para o Bing, o Yandex e outros lerem as páginas alteradas em dias. A chave é pública por natureza. |
+
+### Cabeçalhos de segurança e Content-Security-Policy
+
+Toda resposta leva `nosniff`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy` e uma **CSP** mínima de que nenhum terceiro depende (`object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`). As páginas também mandam a política completa (o próprio site, AdSense, Microsoft Clarity, unpkg) como **`Content-Security-Policy-Report-Only`**: o navegador não bloqueia nada e avisa em `/api/csp-report` o que seria bloqueado; o servidor registra uma linha curta por tipo (`[csp] would block: <diretiva> <host> on <caminho>`, sem a busca na URL, nada guardado). Quando os logs mostrarem que a lista está completa, a mesma política pode passar a valer sem derrubar os anúncios em silêncio. O **`/admin`** já usa uma política estrita valendo: só o script e o estilo em linha da própria página, por hash. As páginas não podem ter JavaScript em linha nem atributos `on*` (um teste confere). Tudo está em `scripts/csp.js`.
 
 ### Publicação
 
@@ -671,6 +680,7 @@ icon-library/
 ├── scripts/oauth.js                    logins GitHub/Google/Microsoft das avaliações
 ├── scripts/cache.js                    respostas das listas da API prontas: ETag, 304 e gzip
 ├── scripts/searchMisses.js             buscas sem resultado, contadas por termo (/admin)
+├── scripts/csp.js                      Content-Security-Policy (mínimo valendo, observação, /admin)
 ├── scripts/preview.js                  prévias em PNG para a moderação
 ├── scripts/svgSafe.js                  conferência estrita do SVG enviado
 ├── scripts/db.js                       conexão com o PostgreSQL e migrations (npm run migrate)
