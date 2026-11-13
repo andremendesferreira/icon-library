@@ -268,7 +268,7 @@ ${versoes}
   <header class="topo topo--fixo">
     <a class="topo__marca" href="${icones}" aria-label="Icon Library" title="Icon Library">
       <span class="topo__selo" aria-hidden="true"><img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="48" height="48" alt="" class="topo__logo" /><span class="topo__brilho"></span></span>
-      <span class="visually-hidden">Icon Library</span>
+      <span class="topo__nome">Icon Library</span>
     </a>
     <nav class="topo__nav" aria-label="${escapar(t(idioma, "nav.label"))}">
 ${NO_TOPO.map((p) => `        <a class="topo__link" href="${enderecoNo(p, idioma)}"${p === pagina ? ' aria-current="page"' : ""}>${escapar(t(idioma, ROTULO[p]))}</a>`).join("\n")}

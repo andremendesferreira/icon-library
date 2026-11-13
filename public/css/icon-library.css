@@ -6103,31 +6103,75 @@ a.coffee-button {
 }
 
 /* ── Herói compacto para quem volta (html.volta, js/views/visita.js) ─────────
-   Quem já usou o site quer buscar: título menor em uma linha, sem subtítulo,
-   sem os ícones flutuando e sem os três passos (fica o link do Guia), para a
-   grade aparecer já na primeira tela. A primeira visita não muda. */
+   Quem já usou o site quer buscar: título menor em uma linha, sem subtítulo
+   e sem os três passos nem o link do Guia (o Guia já
+   está no cabeçalho), para a grade aparecer já na primeira tela. Um só
+   respiro (--respiro) entre cabeçalho, título, busca e ferramentas. A
+   primeira visita não muda. */
+html.volta {
+  --respiro: 40px;
+}
 html.volta .heroi {
-  padding: 28px 0 8px;
+  /* O título tem ~8 px de entrelinha acima das letras */
+  padding: calc(var(--respiro) - 8px) 0 calc(var(--respiro) - 12px);
 }
 html.volta .heroi__titulo {
   font-size: clamp(30px, 3.4vw, 44px);
 }
 html.volta .heroi__sub,
-html.volta .heroi__fundo,
-html.volta .como-usar .passos {
+html.volta .como-usar {
   display: none;
 }
-html.volta .como-usar .heroi__guia {
-  margin-top: 4px;
+/* Os ícones flutuando ficam, um pouco menores, nas laterais do título: os
+   de baixo (3 e 7) cairiam atrás da busca, e os do meio sobem */
+html.volta .flutua {
+  scale: 0.8;
+}
+html.volta .flutua:is(:nth-child(3), :nth-child(7)) {
+  display: none;
+}
+html.volta .flutua:nth-child(2) { top: 46%; }
+html.volta .flutua:nth-child(6) { top: 42%; }
+/* A busca tem 12 px de padding embaixo (é ela que fica presa no topo) */
+html.volta .ferramentas {
+  margin-top: calc(var(--respiro) - 12px);
 }
 @media (max-width: 760px) {
-  html.volta .heroi {
-    padding-top: 20px;
+  html.volta {
+    --respiro: 28px;
   }
 }
 @media (prefers-reduced-motion: no-preference) {
   /* Sem a entrada do título a cada visita; a lupa e o check seguem */
   html.volta:not(.i18n-pendente) .heroi__titulo {
     animation: none;
+  }
+}
+
+/* ── Nome ao lado do logo ────────────────────────────────────────────────────
+   O site ainda não é uma referência: o nome escrito ajuda a guardar a marca.
+   O nome continua no aria-label do link onde ele some. */
+.topo__marca {
+  gap: 10px;
+}
+.topo__nome {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--cor-texto);
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .topo__nome {
+    font-size: var(--fs-texto);
+  }
+}
+/* Some onde empurraria o menu para uma 2ª (ou 3ª) linha: entre 761 e 1099 px
+   o menu cabe numa linha só sem o nome; até 505 px (russo), o celular já usa duas */
+@media (min-width: 761px) and (max-width: 1099px), (max-width: 505px) {
+  .topo__nome {
+    display: none;
   }
 }

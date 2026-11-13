@@ -8,9 +8,11 @@ as camadas "Design minimalista" e "Arrojado (2026-11)" no fim de
 
 ## Marca
 
-- **Logo:** o livro colorido (`img/logo-180.webp`), **sozinho**, sem o nome
-  escrito (o nome fica em `aria-label`, `title` e texto só para leitor de
-  tela): 48 px no cabeçalho (40 px no celular), com volume (sombra de contato,
+- **Logo:** o livro colorido (`img/logo-180.webp`) com o nome "Icon Library"
+  ao lado (`.topo__nome`, 22 px, peso 800; o site ainda não é uma referência,
+  e o nome escrito ajuda a guardá-lo). O nome some onde empurraria o menu
+  para outra linha (761–1099 px e até 505 px) e fica no `aria-label`:
+  48 px no cabeçalho (40 px no celular), com volume (sombra de contato,
   brilho que passa, inclinação 3D no hover). Com a busca presa no topo, o logo
   aparece também à esquerda dela (`.marca-presa`, a partir de 1000 px), e o
   clique volta ao topo sem limpar a busca.
@@ -107,8 +109,11 @@ as camadas "Design minimalista" e "Arrojado (2026-11)" no fim de
 - Quem já copiou um ícone (`icon-library:used`) ou escolheu um conjunto
   (`icon-library:set`) recebe o herói compacto (`html.volta`, marcado por
   `js/views/visita.js` no `<head>`, antes de a página aparecer): título de
-  30–44 px, sem subtítulo, sem ícones flutuando e sem os passos (fica o link
-  do Guia). A grade aparece na primeira tela. A primeira visita e os robôs
+  30–44 px, sem subtítulo, sem os passos e sem o link do Guia (ele já está
+  no cabeçalho), com seis ícones flutuando menores nas laterais do título e
+  um só respiro (`--respiro`, 40 px;
+  28 px no celular) entre cabeçalho, título, busca e ferramentas. A grade
+  aparece na primeira tela. A primeira visita e os robôs
   veem a home completa.
 
 ## Navegação
