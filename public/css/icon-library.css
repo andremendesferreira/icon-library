@@ -6011,7 +6011,7 @@ a.coffee-button {
   width: 1.33em;
   height: 1.33em;
   background: url("../img/check-titulo.svg") center / contain no-repeat;
-  opacity: 0.15;
+  opacity: 0.2;
   transform-origin: 50% 55%;
 }
 @media (max-width: 760px) {
@@ -6041,7 +6041,7 @@ a.coffee-button {
   }
 }
 /* "Achou": o check se desenha da esquerda para a direita enquanto chega com
-   mola, passa do ponto e assenta em 0.15 (espelho do lupa-entrar) */
+   mola, passa do ponto e assenta em 0.2 (espelho do lupa-entrar) */
 @keyframes check-achou {
   from {
     opacity: 0;
@@ -6059,12 +6059,12 @@ a.coffee-button {
 }
 /* Pulso raro: parado 86 % de cada 7 s, um "tique" curto que acende um pouco */
 @keyframes check-respira {
-  0%, 86%, 100% { opacity: 0.15; transform: none; }
-  91% { opacity: 0.28; transform: scale(1.1) rotate(-4deg); }
+  0%, 86%, 100% { opacity: 0.2; transform: none; }
+  91% { opacity: 0.32; transform: scale(1.1) rotate(-4deg); }
 }
 /* Hover: um pequeno vai e vem (a mesma linguagem do lupa-procura) */
 @keyframes check-comemora {
-  30% { opacity: 0.28; transform: translate(-0.04em, -0.06em) scale(1.1) rotate(-6deg); }
+  30% { opacity: 0.32; transform: translate(-0.04em, -0.06em) scale(1.1) rotate(-6deg); }
   65% { transform: translate(0.03em, 0.02em) rotate(4deg); }
 }
 
@@ -6099,5 +6099,35 @@ a.coffee-button {
     .heroi__check {
       left: calc(anchor(--titulo right) + 0.35em);
     }
+  }
+}
+
+/* ── Herói compacto para quem volta (html.volta, js/views/visita.js) ─────────
+   Quem já usou o site quer buscar: título menor em uma linha, sem subtítulo,
+   sem os ícones flutuando e sem os três passos (fica o link do Guia), para a
+   grade aparecer já na primeira tela. A primeira visita não muda. */
+html.volta .heroi {
+  padding: 28px 0 8px;
+}
+html.volta .heroi__titulo {
+  font-size: clamp(30px, 3.4vw, 44px);
+}
+html.volta .heroi__sub,
+html.volta .heroi__fundo,
+html.volta .como-usar .passos {
+  display: none;
+}
+html.volta .como-usar .heroi__guia {
+  margin-top: 4px;
+}
+@media (max-width: 760px) {
+  html.volta .heroi {
+    padding-top: 20px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Sem a entrada do título a cada visita; a lupa e o check seguem */
+  html.volta:not(.i18n-pendente) .heroi__titulo {
+    animation: none;
   }
 }

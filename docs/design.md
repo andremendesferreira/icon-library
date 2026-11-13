@@ -21,7 +21,8 @@ as camadas "Design minimalista" e "Arrojado (2026-11)" no fim de
 - **Degradê** só no que a pessoa desenha no editor (as oito sugestões de
   `models/degrade.js`) e numa exceção da interface: o par do título da home,
   a lupa azul (`img/lupa-titulo.svg`) e o check verde (`img/check-titulo.svg`),
-  desenhos de fundo atrás das letras com opacidade 0,15. Nada de fundo de
+  desenhos de fundo atrás das letras com opacidade 0,15 (lupa) e 0,2
+  (check, que perde a forma mais cedo). Nada de fundo de
   interface em degradê.
 - **Cores do logo** (azul, laranja-amarelado, turquesa, roxo, verde): só nos
   ícones decorativos que flutuam no herói.
@@ -100,6 +101,15 @@ as camadas "Design minimalista" e "Arrojado (2026-11)" no fim de
 - Lupa e check do título ficam presos aos cantos do texto por anchor
   positioning (lupa no canto superior esquerdo, check no inferior direito);
   sem suporte (Firefox), o check segue o fim da última palavra.
+
+## Quem volta
+
+- Quem já copiou um ícone (`icon-library:used`) ou escolheu um conjunto
+  (`icon-library:set`) recebe o herói compacto (`html.volta`, marcado por
+  `js/views/visita.js` no `<head>`, antes de a página aparecer): título de
+  30–44 px, sem subtítulo, sem ícones flutuando e sem os passos (fica o link
+  do Guia). A grade aparece na primeira tela. A primeira visita e os robôs
+  veem a home completa.
 
 ## Navegação
 

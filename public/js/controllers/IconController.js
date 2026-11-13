@@ -11,6 +11,7 @@ const COR_PNG = "#2c3e50";
 // no navegador) ou este
 const CONJUNTO_PADRAO = "lucide";
 const CHAVE_CONJUNTO = "icon-library:set";
+const CHAVE_USOU = "icon-library:used";
 
 // Liga a view ao model: recebe as ações do usuário, atualiza o estado e manda
 // redesenhar.
@@ -348,7 +349,15 @@ export class IconController {
 
   copiar(texto, mensagem) {
     copiarTexto(texto).then(
-      () => this.view.mostrarToast(mensagem),
+      () => {
+        this.view.mostrarToast(mensagem);
+        // Já usou o site: a próxima visita abre o herói compacto (visita.js)
+        try {
+          localStorage.setItem(CHAVE_USOU, "1");
+        } catch {
+          // Sem armazenamento: a home segue completa
+        }
+      },
       () => this.view.mostrarToast(t("toast.copyBlocked")),
     );
   }
