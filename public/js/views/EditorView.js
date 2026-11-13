@@ -3,6 +3,10 @@ import { t } from "../i18n/i18n.js";
 import { caminhoDaCaneta } from "../models/svgGeometry.js";
 import { DEGRADES_SUGERIDOS, ehDegrade } from "../models/degrade.js";
 
+// Cadeado da lista de elementos (Lucide lock / lock-open)
+const ICONE_CADEADO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+const ICONE_CADEADO_ABERTO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>';
+
 const NS = "http://www.w3.org/2000/svg";
 const porId = (id) => document.getElementById(id);
 
@@ -76,6 +80,17 @@ export class EditorView {
   painelEstilo = porId("editor-style");
   painelPontos = porId("editor-points");
   botaoMaisPonto = porId("editor-point-add");
+  // Imagem de modelo (só na tela): { url, opacidade } ou null
+  referencia = null;
+  botaoReferencia = porId("editor-reference-pick");
+  botaoTirarReferencia = porId("editor-reference-remove");
+  arquivoReferencia = porId("editor-reference-file");
+  campoOpacidade = porId("editor-reference-opacity-field");
+  opacidadeReferencia = porId("editor-reference-opacity");
+  valorOpacidade = porId("editor-reference-opacity-value");
+  botaoPontoCurvo = porId("editor-point-add-curve");
+  botaoCurvarPonto = porId("editor-point-smooth");
+  botaoEndireitarPonto = porId("editor-point-corner");
   botaoAgrupar = porId("editor-group");
   botaoDesagrupar = porId("editor-ungroup");
   botaoUnir = porId("editor-join");
@@ -205,6 +220,7 @@ export class EditorView {
     this.centroVista = null;
     this.camadas = false;
     this.botaoCamadas.setAttribute("aria-pressed", "false");
+    this.tirarReferencia();
     this.acoes?.aoFechar();
   }
 
@@ -242,6 +258,7 @@ export class EditorView {
       const i = Number(item.dataset.i);
       const botao = evento.target.closest("[data-acao]");
       if (botao?.dataset.acao === "ocultar") acoes.aoOcultar(i);
+      else if (botao?.dataset.acao === "bloquear") acoes.aoBloquear(i);
       else if (botao?.dataset.acao === "remover") acoes.aoRemover(i);
       else if (evento.shiftKey) acoes.aoAdicionarASelecao(i);
       else acoes.aoSelecionar(i);
@@ -276,6 +293,10 @@ export class EditorView {
     porId("editor-scratchpad-save").addEventListener("click", acoes.aoSalvarNoScratchpad);
 
     this.botaoMaisPonto.addEventListener("click", acoes.aoAdicionarPonto);
+    this.ligarReferencia();
+    this.botaoPontoCurvo.addEventListener("click", acoes.aoAdicionarPontoCurvo);
+    this.botaoCurvarPonto.addEventListener("click", acoes.aoCurvarPonto);
+    this.botaoEndireitarPonto.addEventListener("click", acoes.aoEndireitarPonto);
     this.barraDesfazer.addEventListener("click", acoes.aoDesfazer);
     this.barraRefazer.addEventListener("click", acoes.aoRefazer);
     this.barraApagar.addEventListener("click", () => acoes.aoRemover(null));
@@ -856,10 +877,13 @@ export class EditorView {
 
   // Botões + Ponto / − Ponto: aparecem com uma forma de traço selecionada;
   // ativos quando há um ponto clicado que permite a ação
-  mostrarPontos({ editaPontos, pontoSelecionado, podeAdicionarPonto, podeRemoverPonto }) {
+  mostrarPontos({ editaPontos, pontoSelecionado, podeAdicionarPonto, podeRemoverPonto, podeAdicionarPontoCurvo, podeCurvarPonto, podeEndireitarPonto }) {
     this.painelPontos.hidden = !editaPontos;
     this.botaoMaisPonto.disabled = !podeAdicionarPonto;
     this.botaoMenosPonto.disabled = !podeRemoverPonto;
+    this.botaoPontoCurvo.disabled = !podeAdicionarPontoCurvo;
+    this.botaoCurvarPonto.disabled = !podeCurvarPonto;
+    this.botaoEndireitarPonto.disabled = !podeEndireitarPonto;
     this.dicaPontos.hidden = pontoSelecionado !== null;
   }
 
@@ -1027,6 +1051,11 @@ export class EditorView {
     for (const campo of [d.de, d.ate, d.tipo, d.angulo]) campo.addEventListener("change", reaplicar);
     for (const radio of document.querySelectorAll('input[name="editor-gradient-target"]')) radio.addEventListener("change", reaplicar);
     porId("editor-gradient-apply").addEventListener("click", pedir);
+    // Trocar a ordem: a primeira cor vira a última e vice-versa
+    porId("editor-gradient-swap").addEventListener("click", () => {
+      [d.de.value, d.ate.value] = [d.ate.value, d.de.value];
+      reaplicar();
+    });
     d.remover.addEventListener("click", () => this.acoes.aoRemoverDegrade());
   }
 
@@ -1105,6 +1134,19 @@ export class EditorView {
     // Grade: uma linha por unidade (ou por 1/24 da largura em ícones grandes)
     const grade = criar("g", { class: "editor__grid" });
     grade.append(criar("rect", { x, y, width: w, height: h, class: "editor__grid-bg" }));
+    // Imagem de modelo: na área do ícone, inteira e centralizada, embaixo das
+    // linhas da grade e das formas; nunca recebe o clique
+    if (this.referencia)
+      grade.append(criar("image", {
+        href: this.referencia.url,
+        x,
+        y,
+        width: w,
+        height: h,
+        preserveAspectRatio: "xMidYMid meet",
+        opacity: this.referencia.opacidade,
+        class: "editor__referencia-imagem",
+      }));
     const passo = w <= 64 ? 1 : w / 24;
     for (let k = 0; k <= w / passo + 1e-9; k++) {
       const gx = x + k * passo;
@@ -1145,6 +1187,8 @@ export class EditorView {
           class: "editor__outline",
           "vector-effect": "non-scaling-stroke",
         }));
+      // Bloqueada: sem cópia de clique, o clique passa para a forma de baixo
+      if (el.bloqueado) return;
       // Cópia invisível e mais grossa da forma: facilita acertar linhas finas.
       // O interior só responde ao clique se a forma é preenchida.
       const preenchida = (el.attrs.fill ?? desenho.fill ?? "black") !== "none";
@@ -1296,6 +1340,53 @@ export class EditorView {
 
   redesenhar() {
     if (this.ultimoEstado) this.mostrar(this.ultimoEstado, { atualizarCodigo: false });
+  }
+
+  // ── Imagem de modelo ─────────────────────────────────────────────────────
+  // Escolhida do computador e mostrada por um blob: URL. Vive só na view,
+  // como o zoom: não entra no modelo, no SVG, no .ile, no rascunho nem vai
+  // ao servidor. Fechar o editor a descarta.
+  ligarReferencia() {
+    this.botaoReferencia.addEventListener("click", () => {
+      this.arquivoReferencia.value = "";
+      this.arquivoReferencia.click();
+    });
+    this.arquivoReferencia.addEventListener("change", () => {
+      const [arquivo] = this.arquivoReferencia.files;
+      if (!arquivo) return;
+      if (!arquivo.type.startsWith("image/")) {
+        this.acoes?.aoAvisar?.(t("editor.referenceNotImage", { file: arquivo.name }));
+        return;
+      }
+      this.definirReferencia(URL.createObjectURL(arquivo));
+    });
+    this.opacidadeReferencia.addEventListener("input", () => {
+      this.valorOpacidade.textContent = `${this.opacidadeReferencia.value}%`;
+      if (!this.referencia) return;
+      this.referencia.opacidade = Number(this.opacidadeReferencia.value) / 100;
+      // Só a opacidade muda: sem redesenhar o quadro inteiro
+      this.canvas.querySelector(".editor__referencia-imagem")?.setAttribute("opacity", String(this.referencia.opacidade));
+    });
+    this.botaoTirarReferencia.addEventListener("click", () => this.tirarReferencia());
+  }
+
+  definirReferencia(url) {
+    if (this.referencia) URL.revokeObjectURL(this.referencia.url);
+    this.referencia = { url, opacidade: Number(this.opacidadeReferencia.value) / 100 };
+    this.mostrarReferencia();
+  }
+
+  tirarReferencia() {
+    if (this.referencia) URL.revokeObjectURL(this.referencia.url);
+    this.referencia = null;
+    this.mostrarReferencia();
+  }
+
+  mostrarReferencia() {
+    const tem = Boolean(this.referencia);
+    this.botaoTirarReferencia.hidden = !tem;
+    this.campoOpacidade.hidden = !tem;
+    this.redesenhar();
   }
 
   // Pinça: a distância entre os dedos muda o zoom, e o meio deles arrasta a vista
@@ -1578,10 +1669,11 @@ export class EditorView {
       const rotulo = el.grupo ? "" : rotuloDaCamada([i]);
       // A forma selecionada e a marcada com Shift (num ícone inteiro, só o cabeçalho)
       const marcada = grupoSelecionado === null && selecionados.has(i);
-      return `<li class="editor__element${marcada ? " editor__element--selected" : ""}${el.oculto ? " editor__element--hidden" : ""}" data-i="${i}" draggable="true">
+      return `<li class="editor__element${marcada ? " editor__element--selected" : ""}${el.oculto ? " editor__element--hidden" : ""}${el.bloqueado ? " editor__element--locked" : ""}" data-i="${i}" draggable="true">
           <button type="button" class="editor__element-name" aria-pressed="${marcada}">${amostra}<strong>${escapar(el.tag)}</strong>${rotulo}<span>${escapar(resumo || "")}</span></button>
           <button type="button" class="editor__element-action" data-acao="ocultar" title="${escapar(t(el.oculto ? "editor.show" : "editor.hide"))}" aria-label="${escapar(t(el.oculto ? "editor.showLabel" : "editor.hideLabel", { tag: el.tag }))}">${el.oculto ? "◌" : "●"}</button>
-          <button type="button" class="editor__element-action" data-acao="remover" title="${escapar(t("editor.delete"))}" aria-label="${escapar(t("editor.deleteLabel", { tag: el.tag }))}">×</button>
+          <button type="button" class="editor__element-action editor__element-lock" data-acao="bloquear" aria-pressed="${Boolean(el.bloqueado)}" title="${escapar(t(el.bloqueado ? "editor.unlock" : "editor.lock"))}" aria-label="${escapar(t(el.bloqueado ? "editor.unlockLabel" : "editor.lockLabel", { tag: el.tag }))}">${el.bloqueado ? ICONE_CADEADO : ICONE_CADEADO_ABERTO}</button>
+          <button type="button" class="editor__element-action" data-acao="remover" title="${escapar(t("editor.delete"))}" aria-label="${escapar(t("editor.deleteLabel", { tag: el.tag }))}"${el.bloqueado ? " disabled" : ""}>×</button>
         </li>`;
     };
     // Sem grupos, a lista é simples: só as formas soltas do ícone aberto

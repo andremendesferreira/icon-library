@@ -61,6 +61,8 @@ export class EditorController {
       };
     this.view.ligar({
       aoSelecionar: (i) => {
+        // Bloqueada: explica como soltar, em vez de não fazer nada
+        if (model.elementos[i]?.bloqueado) this.avisar(t("editor.lockedHint"));
         model.selecionar(i);
         this.desenhar({ atualizarCodigo: false });
       },
@@ -236,7 +238,17 @@ export class EditorController {
       aoAdicionarPonto: () => {
         if (model.adicionarPontoNoSelecionado()) this.desenhar();
       },
+      aoAdicionarPontoCurvo: () => {
+        if (model.adicionarPontoCurvoNoSelecionado()) this.desenhar();
+      },
+      aoCurvarPonto: () => {
+        if (model.curvarPontoSelecionado()) this.desenhar();
+      },
+      aoEndireitarPonto: () => {
+        if (model.endireitarPontoSelecionado()) this.desenhar();
+      },
       aoOcultar: mudar((i) => model.alternarOculto(i)),
+      aoBloquear: mudar((i) => model.alternarBloqueado(i)),
       aoTransformar: (operacao, opcoes) => {
         const fixos = model.transformar(operacao, opcoes);
         this.desenhar();
@@ -621,6 +633,9 @@ export class EditorController {
           ["path", "line", "polyline", "polygon"].includes(model.elementos[model.selecionado]?.tag),
         podeRemoverPonto: model.podeRemoverPonto,
         podeAdicionarPonto: model.podeAdicionarPonto,
+        podeAdicionarPontoCurvo: model.podeAdicionarPontoCurvo,
+        podeCurvarPonto: model.podeCurvarPonto,
+        podeEndireitarPonto: model.podeEndireitarPonto,
         fora: model.pontosForaDaArea(),
         viewBox: model.viewBox,
         svg,

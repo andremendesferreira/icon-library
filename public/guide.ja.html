@@ -42,20 +42,37 @@
   <script src="js/views/theme.js"></script>
   <script src="js/views/clarity.js" async></script>
   <script src="js/views/pageSearch.js" defer></script>
+  <script src="js/views/profundidade.js" defer></script>
 </head>
 <body>
+  <!-- O mesmo cabeçalho da home: logo, Guia, Sobre, Artigos, café, idioma, tema -->
+  <header class="topo topo--fixo">
+    <a class="topo__marca" href="./?lang=ja" aria-label="Icon Library" title="Icon Library">
+      <span class="topo__selo" aria-hidden="true"><img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="48" height="48" alt="" class="topo__logo" /><span class="topo__brilho"></span></span>
+      <span class="visually-hidden">Icon Library</span>
+    </a>
+    <nav class="topo__nav" aria-label="サイト">
+        <a class="topo__link" href="guide.ja.html" aria-current="page">ガイド</a>
+        <a class="topo__link" href="about.ja.html">概要</a>
+        <a class="topo__link" href="articles.html">記事</a>
+      <a class="coffee-button" href="./?lang=ja#coffee"><span aria-hidden="true">☕</span><span class="coffee-button__text">コーヒーをおごる</span></a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="言語"></select>
+      </label>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="ダークテーマ" aria-pressed="false">
+        <svg class="theme-toggle__moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
+        <svg class="theme-toggle__sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" /></svg>
+      </button>
+    </nav>
+  </header>
   <main class="page">
     <div class="page__top">
-      <a class="page__back" href="./?lang=ja">← アイコン一覧へ戻る</a>
       <form class="page__busca" action="./" role="search">
         <input type="hidden" name="lang" value="ja" />
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
         <input type="search" id="page-search" name="q" required aria-keyshortcuts="/" placeholder="アイコンを検索…" aria-label="名前やキーワードでアイコンを検索（/ キー）" />
       </form>
-      <label class="lang-select">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
-        <select id="lang-select" aria-label="言語"></select>
-      </label>
     </div>
     <nav class="page__trilha" aria-label="現在地">
       <ol>
@@ -175,7 +192,7 @@
     </figure>
     <ul>
       <li>
-        <strong>形を変える：</strong>リストまたはグリッドで図形を選び、点をドラッグします。曲線には破線でつながった制御点が表示され、曲線上の点を動かすと制御点も一緒に動きます。
+        <strong>形を変える：</strong>リストまたはグリッドで図形を選び、点をドラッグします。曲線には破線でつながった制御点が表示され、曲線上の点を動かすと制御点も一緒に動きます。 点をクリックして、<em>+ 曲線の点</em>で次の区間の中央にハンドル付きの点を追加し、<em>点を曲線に</em>で角に 2 つのハンドルを付け、<em>点を直線に</em>で角に戻せます。
       </li>
       <li>
         <strong>移動：</strong>図形をドラッグするか、矢印キーやボタンを使います。点はグリッドにスナップします（1、½、¼ 単位、またはオフ）。
@@ -184,7 +201,10 @@
         <strong>変形：</strong>90°・45° 回転、反転、拡大・縮小——選んだ図形に、何も選んでいなければアイコン全体に適用されます。
       </li>
       <li>
-        <strong>追加と削除：</strong>線・円・四角形・曲線を追加できます。図形を非表示にしてそれがない状態を確認したり、削除したりできます。
+        <strong>追加と削除：</strong>線・円・四角形・曲線を追加できます。図形を非表示にしてそれがない状態を確認したり、削除したりできます。 図形ボタンでは、三角形、五角形、六角形、八角形、ひし形、星形、半円、四分円、矢印、ハート、吹き出しも追加できます。一覧の鍵アイコンで図形をロックすると、絵と SVG には残りますが、一覧で解除するまでクリックで選択、移動、削除できなくなります。
+      </li>
+      <li>
+        <strong>画像をなぞる：</strong><em>下絵</em>でパソコンの画像を選ぶと、グリッドの下に不透明度 40% から 100% で表示されます。画像はあなたの画面だけに表示され、SVG、.ile ファイル、サーバーに入ることはなく、エディターを閉じると消えます。
       </li>
       <li>
         <strong>アイコンを組み合わせる：</strong><em>アイコンを重ねる</em>で Lucide、Feather、Bootstrap を検索し、別のアイコンを今のアイコンの上に重ねます。同じグリッドに合わせて調整され、元のスタイルも保たれます——Bootstrap の塗りつぶしの星を Lucide の線画のハートの中に置くこともできます。各アイコンにはリストに見出しがあり、クリックするとアイコン全体を選択して移動・回転・拡大縮小できます。
@@ -220,7 +240,7 @@
         <strong>図形の塗りつぶし：</strong>閉じた図形を選択して<em>塗りつぶし</em>を使うと内側が線の色で塗られ、同じボタンで解除できます。開いた線は先に<em>結合</em>で閉じてください。
       </li>
       <li>
-        <strong>グラデーション：</strong>選択した図形の下の<em>グラデーション</em>を開いておすすめ（夕焼け、海、紫など）をクリックするか、2 色を選んで<em>グラデーションを適用</em>をクリックします。線形（方向つき）か円形か、塗り（閉じた図形）と線のどちらに付けるかを選べます。線は直線でも使えます。1 つのグラデーションが選択したすべての図形をまとめて覆い、移動や拡大縮小にもついていきます。<em>グラデーションを外す</em>と最初の色が残ります。グラデーションのあるアイコンも Iconlibrary に公開できます。
+        <strong>グラデーション：</strong>選択した図形の下の<em>グラデーション</em>を開いておすすめ（夕焼け、海、紫など）をクリックするか、2 色を選んで<em>グラデーションを適用</em>をクリックします。線形（方向つき）か円形か、塗り（閉じた図形）と線のどちらに付けるかを選べます。線は直線でも使えます。1 つのグラデーションが選択したすべての図形をまとめて覆い、移動や拡大縮小にもついていきます。<em>グラデーションを外す</em>と最初の色が残ります。2 つの色の横にある ⇆ ボタンで順番を入れ替えられます。グラデーションのあるアイコンも Iconlibrary に公開できます。
       </li>
       <li>
         <strong>閉じた図形の組み合わせ：</strong>閉じた図形（円、四角形、多角形、閉じたパス）を 2 つ選び、<em>組み合わせ</em>のボタンを使います。<em>結合</em>は 1 つにまとめ（3 つ以上も可）、<em>型抜き</em>は上の図形で下を切り抜き、<em>交差</em>は重なった部分だけ、<em>除外</em>は重なり以外を残します。結果は下の図形の位置に 1 つのパスとして置かれ、色と線を引き継ぎ、曲線は曲線のままです。<em>元に戻す</em>で図形を戻せます。
@@ -325,10 +345,8 @@
   <footer class="site-footer">
     <nav aria-label="サイト">
       <a href="./?lang=ja">アイコン</a>
-      <a href="about.ja.html">概要</a>
       <a href="privacy.ja.html">プライバシー</a>
       <a href="license.ja.html">ライセンス</a>
-      <a class="site-footer__coffee" href="./?lang=ja#coffee">☕ コーヒーをおごる</a>
       <span class="site-footer__quebra"></span>
       <a href="./?lang=ja#report"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A5 5 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A5 5 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623M4 7v4a4 4 0 0 0 3.5 3.97V7zm4.5 0v7.97A4 4 0 0 0 12 11V7zM12 6a4 4 0 0 0-1.334-2.982A3.98 3.98 0 0 0 8 2a3.98 3.98 0 0 0-2.667 1.018A4 4 0 0 0 4 6z"/></svg>不具合を報告</a>
       <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg>改善を提案</a>

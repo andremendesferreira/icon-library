@@ -1,23 +1,38 @@
 # Design do Icon Library
 
-Interface minimalista: o conteúdo (os ícones) é o que tem cor. A marca aparece
+Interface minimalista e arrojada: o conteúdo (os ícones) é o que tem cor, com
+profundidade (sombras em camadas, 3D leve) e movimento curto. A marca aparece
 no logo e em poucos pontos de ação. Estas regras valem para todas as páginas;
-a camada "Design minimalista" no fim de `public/css/icon-library.css` as aplica.
+as camadas "Design minimalista" e "Arrojado (2026-11)" no fim de
+`public/css/icon-library.css` as aplicam.
 
 ## Marca
 
-- **Logo:** o livro colorido (`img/logo-180.webp`), pequeno no cabeçalho
-  (40 px; 32 px no celular), sempre ao lado do nome "Icon Library".
+- **Logo:** o livro colorido (`img/logo-180.webp`), **sozinho**, sem o nome
+  escrito (o nome fica em `aria-label`, `title` e texto só para leitor de
+  tela): 48 px no cabeçalho (40 px no celular), com volume (sombra de contato,
+  brilho que passa, inclinação 3D no hover). Com a busca presa no topo, o logo
+  aparece também à esquerda dela (`.marca-presa`, a partir de 1000 px), e o
+  clique volta ao topo sem limpar a busca.
 - **Azul da marca** (`--il-action` #1a6ee8, `--il-blue-dark` para texto):
   só para ações (botão principal, link, foco, item marcado).
 - **Dourado** (`--il-gold`): só o café. Verde (#1e8449): só o "deu certo".
 - **Âmbar** (`--il-warn`): estrelas das avaliações (página Sobre) e avisos.
 - **Degradê** só no que a pessoa desenha no editor (as oito sugestões de
-  `models/degrade.js`), nunca na interface.
+  `models/degrade.js`) e numa exceção da interface: o par do título da home,
+  a lupa azul (`img/lupa-titulo.svg`) e o check verde (`img/check-titulo.svg`),
+  desenhos de fundo atrás das letras com opacidade 0,15. Nada de fundo de
+  interface em degradê.
+- **Cores do logo** (azul, laranja-amarelado, turquesa, roxo, verde): só nos
+  ícones decorativos que flutuam no herói.
 - O resto é neutro: fundo `--cor-fundo`, superfícies `--cor-superficie`,
   bordas `--cor-borda`, texto `--cor-texto` e `--il-muted` (secundário).
-- Nada de gradiente em texto nem sombras pesadas; sombra só na busca presa
-  no topo e em menus que flutuam.
+- Nada de gradiente em texto. Sombras em camadas (`--sombra-1` em repouso,
+  `--sombra-2` em destaque) na busca, nos passos, nos cards ao passar o mouse
+  e em menus que flutuam.
+- **Vidro fosco** nas barras presas ao rolar: a busca da home, os títulos de
+  categoria e o cabeçalho fixo das páginas de texto (`backdrop-filter`, fundo
+  sólido onde não houver suporte).
 
 ## Tipografia
 
@@ -26,7 +41,8 @@ a camada "Design minimalista" no fim de `public/css/icon-library.css` as aplica.
 | Texto de leitura, controles, menus, avisos | **18 px** (mínimo) | `--fs-texto` |
 | Destaque, subtítulo, título de passo, h3 | 20 px | `--fs-mais` |
 | h2 das páginas | 24 px | `--fs-h2` |
-| Título principal | 30–44 px | `--fs-titulo` |
+| Título principal (home) | 38–72 px, peso 800 | `.heroi__titulo` |
+| Título das páginas de texto | 30–44 px | `--fs-titulo` |
 | Editor (painéis estreitos) | 16 px no mínimo | `--fs-editor` |
 
 - Fonte do sistema (`--fonte`), entrelinha 1,6 (1,7 nas páginas de texto).
@@ -72,10 +88,27 @@ a camada "Design minimalista" no fim de `public/css/icon-library.css` as aplica.
 - Nada depende só de cor: estado marcado também muda texto, borda ou forma.
 - Atalhos (`/`, setas, Esc) nunca prendem o foco.
 
+## Movimento
+
+- Só `transform`, `opacity` (e `clip-path` no check do título); tudo dentro de
+  `@media (prefers-reduced-motion: no-preference)`, com versão parada.
+- Entrada curta ao carregar (depois que o idioma carrega: `html:not(.i18n-pendente)`):
+  o logo vira, o título sobe, a lupa procura e o check "acha".
+- Ícones flutuando no fundo do herói, com parallax do mouse; param fora da
+  tela. Passos e cards inclinam na direção do mouse (`js/views/profundidade.js`,
+  só variáveis CSS). Nada de camada de GPU em repouso nos milhares de cards.
+- Lupa e check do título ficam presos aos cantos do texto por anchor
+  positioning (lupa no canto superior esquerdo, check no inferior direito);
+  sem suporte (Firefox), o check segue o fim da última palavra.
+
 ## Navegação
 
-- Páginas de texto: busca no topo e, logo abaixo, o breadcrumb
-  (Icon Library › página), que também vai em JSON-LD (`BreadcrumbList`).
+- O mesmo cabeçalho em todas as páginas: logo, Guia, Sobre, Artigos, café,
+  idioma e tema. Nas páginas de texto ele fica fixo no topo (vidro fosco), e a
+  busca vem logo abaixo, seguida do breadcrumb (Icon Library › página), que
+  também vai em JSON-LD (`BreadcrumbList`).
+- Rodapé só com Privacidade, Licenças e a comunidade (bug, sugestões, Telegram,
+  GitHub); Guia, Sobre, Artigos e o café ficam no cabeçalho.
 - O Guia começa com "Comece em 30 segundos": os mesmos três passos ilustrados
   da home.
 

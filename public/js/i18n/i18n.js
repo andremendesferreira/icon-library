@@ -6,6 +6,8 @@
 //   <p data-i18n-html="chaveHtml">     → innerHTML (só textos do dicionário)
 //   <input data-i18n-attr="placeholder:chave;title:outra">
 //   <a data-i18n-page="about">         → href da página no idioma (about.pt-BR.html)
+//   <a data-i18n-page="articles" data-i18n-langs="en,pt-BR">  → a página só
+//                                        existe nesses idiomas: nos outros, o inglês
 import en from "./en.js";
 
 const deteccao = globalThis.IconLibraryLang;
@@ -76,9 +78,11 @@ export function traduzirPagina(raiz = document) {
       if (atributo && chave && conhecida(chave)) el.setAttribute(atributo, t(chave));
     }
   if (deteccao)
-    for (const el of raiz.querySelectorAll("[data-i18n-page]"))
+    for (const el of raiz.querySelectorAll("[data-i18n-page]")) {
+      const existe = !el.dataset.i18nLangs || el.dataset.i18nLangs.split(",").includes(idioma);
       // A âncora (#editor…) continua: o link leva à seção certa no idioma
-      el.setAttribute("href", deteccao.pagina(el.dataset.i18nPage, idioma) + (new URL(el.getAttribute("href") || "", location.href).hash));
+      el.setAttribute("href", deteccao.pagina(el.dataset.i18nPage, existe ? idioma : deteccao.padrao) + (new URL(el.getAttribute("href") || "", location.href).hash));
+    }
 
   if (raiz !== document) return;
   const html = document.documentElement;

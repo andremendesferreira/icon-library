@@ -59,7 +59,8 @@
                 "description": "SVG attributes as strings, e.g. {\"d\": \"M12 2v20\"} or {\"cx\": \"12\", \"cy\": \"12\", \"r\": \"4\"}. Own fill/stroke/stroke-width override the <svg> ones."
               },
               "grupo": { "$ref": "#/$defs/grupo" },
-              "oculto": { "$ref": "#/$defs/oculto" }
+              "oculto": { "$ref": "#/$defs/oculto" },
+              "bloqueado": { "$ref": "#/$defs/bloqueado" }
             },
             "additionalProperties": false
           },
@@ -71,7 +72,8 @@
               "tag": { "type": "string", "pattern": "^[a-zA-Z][\\w-]*$" },
               "html": { "type": "string" },
               "grupo": { "$ref": "#/$defs/grupo" },
-              "oculto": { "$ref": "#/$defs/oculto" }
+              "oculto": { "$ref": "#/$defs/oculto" },
+              "bloqueado": { "$ref": "#/$defs/bloqueado" }
             },
             "additionalProperties": false
           }
@@ -93,6 +95,10 @@
     "oculto": {
       "type": "boolean",
       "description": "Hidden shapes stay in the project but are left out of the SVG. Default false."
+    },
+    "bloqueado": {
+      "type": "boolean",
+      "description": "Locked shapes stay in the drawing and the SVG but cannot be clicked, selected, moved or deleted until unlocked in the element list. Written only when true. Default false."
     }
   }
 }

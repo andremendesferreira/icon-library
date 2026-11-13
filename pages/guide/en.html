@@ -75,7 +75,7 @@
   <li>
     <strong>Reshape:</strong> select a shape in the list or on the grid and
     drag its points. Curves show their control points, linked by dashed
-    lines; moving a point of the curve brings its controls along.
+    lines; moving a point of the curve brings its controls along. Click a point and use <em>+ Curved point</em> to add one with handles in the middle of the next segment, <em>Curve point</em> to give a corner two handles, or <em>Straighten point</em> to make it a corner again.
   </li>
   <li>
     <strong>Move:</strong> drag a shape, or use the arrow keys or buttons.
@@ -87,7 +87,10 @@
   </li>
   <li>
     <strong>Add and remove:</strong> new lines, circles, rectangles and
-    curves; hide a shape to see the icon without it, or delete it.
+    curves; hide a shape to see the icon without it, or delete it. The shape buttons also add triangles, pentagons, hexagons, octagons, diamonds, stars, half and quarter circles, arrows, hearts and speech bubbles. The padlock in the list locks a shape: it stays in the drawing and in the SVG, but a click can no longer select, move or delete it until you unlock it there.
+  </li>
+  <li>
+    <strong>Trace over an image:</strong> under <em>Reference image</em>, choose a picture from your computer to show under the grid, with opacity from 40% to 100%. It stays on your screen only: it never goes into the SVG, the .ile file or the server, and closing the editor removes it.
   </li>
   <li>
     <strong>Combine icons:</strong> <em>Icon on top</em> searches
@@ -128,7 +131,7 @@
     <strong>Fill a shape:</strong> with a closed shape selected, <em>Fill</em> paints its inside in the color of its line, and the same button removes it. To fill an open line, close it with <em>Join</em> first.
   </li>
   <li>
-    <strong>Gradient:</strong> open <em>Gradient</em> under the selected shape and click a suggestion (sunset, ocean, purple…), or pick two colors and click <em>Apply gradient</em>. Choose linear (with a direction) or radial, and whether it goes on the fill (closed shapes) or the stroke, which also works on straight lines. One gradient covers all the selected shapes and follows them when you move or resize them. <em>Remove gradient</em> keeps the first color. Icons with gradients can be published to Iconlibrary too.
+    <strong>Gradient:</strong> open <em>Gradient</em> under the selected shape and click a suggestion (sunset, ocean, purple…), or pick two colors and click <em>Apply gradient</em>. Choose linear (with a direction) or radial, and whether it goes on the fill (closed shapes) or the stroke, which also works on straight lines. One gradient covers all the selected shapes and follows them when you move or resize them. <em>Remove gradient</em> keeps the first color. The ⇆ button next to the two colors swaps their order. Icons with gradients can be published to Iconlibrary too.
   </li>
   <li>
     <strong>Combine closed shapes:</strong> select two closed shapes (circles, rectangles, polygons, closed paths) and use the buttons in <em>Combine</em>: <em>Unite</em> merges them into one (it also takes three or more), <em>Subtract</em> cuts the top one out of the one below, <em>Intersect</em> keeps only the overlap and <em>Exclude</em> keeps everything but the overlap. The result is a single path in place of the bottom shape, with its color and stroke, and curves stay curves. <em>Undo</em> brings the shapes back.

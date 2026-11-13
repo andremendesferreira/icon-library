@@ -22,7 +22,7 @@ Example — a minimal "plus in a circle":
 https://iconlibrary.io/#name=add-circle&svg=%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22%2F%3E%3Cpath%20d%3D%22M8%2012h8M12%208v8%22%2F%3E%3C%2Fsvg%3E
 ```
 
-### 2. A project (.ile) — several layered icons, hidden shapes, per-icon groups
+### 2. A project (.ile) — several layered icons, hidden or locked shapes, per-icon groups
 
 ```
 https://iconlibrary.io/#ile=<base64url of the JSON, or URL-encoded JSON>
@@ -43,6 +43,8 @@ Minimal project (only `formato`, `versao`, `raiz` and `elementos` are required):
   ]
 }
 ```
+
+A shape may also carry `"oculto": true` (left out of the SVG) or `"bloqueado": true` (locked: it stays in the SVG, but the editor won't let a click select, move or delete it until it is unlocked in the element list).
 
 Only produce base64url if you can encode it exactly; otherwise URL-encode the JSON text. Links with a broken encoding open with an error message.
 
@@ -74,4 +76,4 @@ When you base an icon on one of these, keep the license notice of its set (Lucid
 
 ## What the user can do with the link
 
-The editor shows the icon on a grid. The user can drag points (including curve controls), select several shapes, group and ungroup them, join and split lines, fill closed shapes, change the stacking order, move, rotate, flip and resize shapes (also with handles on the selection box or exact X/Y/width/height), align and distribute them, duplicate them, draw new lines with a pen tool, zoom in, add another icon on top, set a color, stroke width, line ends and corners per shape, undo/redo, optimize the SVG, edit the SVG code, then copy the SVG, download SVG/PNG, save a `.ile` project, or copy a share link of their own.
+The editor shows the icon on a grid. The user can drag points (including curve controls), give a point curve handles or make it a corner again, add ready-made shapes (line, circle, rectangle, triangle, pentagon, hexagon, octagon, diamond, star, half and quarter circle, arrow, heart, speech bubble), lock shapes so a click can't move them, trace over a reference image shown under the grid (it never goes into the SVG), select several shapes, group and ungroup them, join and split lines, fill closed shapes, change the stacking order, move, rotate, flip and resize shapes (also with handles on the selection box or exact X/Y/width/height), align and distribute them, duplicate them, draw new lines with a pen tool, zoom in, add another icon on top, set a color, stroke width, line ends and corners per shape, undo/redo, optimize the SVG, edit the SVG code, then copy the SVG, download SVG/PNG, save a `.ile` project, or copy a share link of their own.

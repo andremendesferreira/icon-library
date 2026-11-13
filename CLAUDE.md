@@ -74,7 +74,7 @@ Everything that leads to the coffee uses the same gold style (`.coffee-button`, 
 
 ## Design
 
-`docs/design.md` has the rules: neutral interface, brand blue only for actions and focus, gold only for the coffee. Reading text and controls use 18 px or more (`--fs-texto`) everywhere, dialogs, scratchpad, footer, `kbd`, `code` and the ad label included; the editor (`#editor`, `#editor-help`) uses exactly 16 px (`--fs-editor`), since 18 crowds its footer. Only badge counts may be 16 px elsewhere. To check, walk the visible text nodes and inputs in the browser (dialogs opened) and list computed sizes below the floor. New styles use the tokens in the "Design minimalista" layer at the end of `public/css/icon-library.css`, which comes last and wins. The home starts with the search (sticky at the top, focused with a mouse) and the three illustrated steps; the grid loads in batches of 96 as you scroll.
+`docs/design.md` has the rules: neutral interface, brand blue only for actions and focus, gold only for the coffee. Reading text and controls use 18 px or more (`--fs-texto`) everywhere, dialogs, scratchpad, footer, `kbd`, `code` and the ad label included; the editor (`#editor`, `#editor-help`) uses exactly 16 px (`--fs-editor`), since 18 crowds its footer. Only badge counts may be 16 px elsewhere. To check, walk the visible text nodes and inputs in the browser (dialogs opened) and list computed sizes below the floor. New styles use the tokens in the "Design minimalista" layer at the end of `public/css/icon-library.css`, which comes last and wins. The home starts with the search (sticky at the top, focused with a mouse) and the three illustrated steps; the grid loads in batches of 96 as you scroll. The "Arrojado (2026-11)" layer (end of the CSS) adds depth and motion: logo-only header, 38–72 px hero title with the background magnifier and check (`img/lupa-titulo.svg`, `img/check-titulo.svg`, anchor positioning with a fallback), floating icons in the logo colors, numbered steps, tilting cards and frosted sticky bars; `js/views/profundidade.js` only writes CSS variables and classes. Everything animated is `transform`/`opacity` (plus `clip-path` on the check) inside `prefers-reduced-motion: no-preference`.
 
 ## Text contrast
 
@@ -94,7 +94,11 @@ Text must reach 4.5:1 (WCAG AA) in both themes. Secondary text uses `var(--il-mu
 
 ## Footer
 
-Links use the same color and SVG icons (`.site-footer__icon`, Bootstrap Icons), in `public/index.html` and `scripts/build-pages.mjs`; only the coffee keeps its button style. `.site-footer__quebra` splits the pages and coffee from the community links.
+Links use the same color and SVG icons (`.site-footer__icon`, Bootstrap Icons), in `public/index.html` and `scripts/build-pages.mjs`. The footer has only Privacy and Licenses (plus "Icons" on text pages) and the community links; `.site-footer__quebra` splits the two. Guide, About, Articles and the coffee live in the header.
+
+## Header
+
+The same header on every page: logo only (name in `aria-label`/visually hidden), Guide, About, Articles, coffee, language and theme. Text pages get it from `build-pages.mjs` (`NO_TOPO`) as `.topo.topo--fixo` (sticky, frosted glass, `topo--presa` on scroll), with the page search on its own row below. The Articles link points to the English page in languages without one: `enderecoNo()` in `build-pages.mjs`, and `data-i18n-langs="en,pt-BR"` on `data-i18n-page` links (read by `i18n.js`). The Articles page (`pages/articles/`, EN/PT) lists `ARTIGOS` through `<!--artigos-->`, newest first, from each article's own title, date and description: a new article only needs its entry in `ARTIGOS` and the sitemap regex.
 
 ## SVG editor
 
@@ -116,4 +120,7 @@ Links use the same color and SVG icons (`.site-footer__icon`, Bootstrap Icons), 
 - **Snapping** to other shapes happens in `arrastarPonto`/`arrastarElemento` with a tolerance in icon units from the view (Alt passes 0); the targets are computed once per drag (`alvosDeEncaixe`) and the guide lines are `model.guias`.
 - **Draft:** `EditorController` keeps the edit in progress in `localStorage` (`icon-library:editor-draft`, listed in the privacy policy) and offers it back when the editor opens; closing the editor deletes it. **Toasts with Undo** (`avisarDesfazivel`) only undo if nothing else changed since.
 - **Tab** on the canvas picks the next shape but lets focus leave after the last one (no keyboard trap).
+- **Lock** (`bloqueado` on an element, `alternarBloqueado`): `alvos()`, `definirSelecao`, `selecionar`, `selecionarArea`, Tab and `remover` all skip locked shapes, and the canvas draws no hit copy for them, so a click falls through. Only the padlock in the list unlocks. Saved in `.ile` only when true (schema `bloqueado`), never in the SVG.
+- **Curved points** (`svgGeometry.js`: `curvarPonto`, `endireitarPonto`, `adicionarPontoCurvo`): a line, polyline or polygon becomes a path first; a closed subpath's `Z` becomes an explicit `L` so its first point can curve too. Straightening turns a segment whose handles lie on the chord back into `L` (tolerance of the 3-decimal rounding).
+- **Reference image** lives only in `EditorView` (`referencia`, a `blob:` URL), like zoom: drawn under the grid lines with `pointer-events: none`, opacity 40–100%, revoked when the editor closes. Never in the model, SVG, `.ile`, draft or server.
 - **Show layers** only changes how the canvas and the list are drawn (`EditorView.camadas`). The SVG never gets those colors. A group is one block with one color (`blocosDasCamadas`).

@@ -3,6 +3,9 @@ import {
   caminhoDaForma,
   escreverPath,
   adicionarPonto,
+  adicionarPontoCurvo,
+  curvarPonto,
+  endireitarPonto,
   aplicarUniaoInterna,
   formaTocaRetangulo,
   fmt,
@@ -173,7 +176,7 @@ export function validarProjeto(dados) {
     const grupo = el.grupo ?? 0;
     if (!Number.isInteger(grupo) || grupo < 0 || grupo >= grupos.length)
       throw invalido("ile.shapeGroup", `${forma} belongs to no icon`, { n });
-    const base = { tag: el.tag, grupo, oculto: el.oculto === true };
+    const base = { tag: el.tag, grupo, oculto: el.oculto === true, ...(el.bloqueado === true ? { bloqueado: true } : {}) };
     if (texto(el.html)) return { ...base, html: el.html };
     if (!FORMAS.has(el.tag) || !objetoDeTextos(el.attrs)) throw invalido("ile.shapeAttrs", `${forma} has bad attributes`, { n });
     return { ...base, attrs: el.attrs };
@@ -376,8 +379,9 @@ export class EditorModel {
     this.grupoSelecionado = null;
     this.extras = [];
     if (indice !== this.selecionado) this.pontoSelecionado = null;
+    // Forma bloqueada não entra na seleção (só se desbloqueia pela lista)
     this.selecionado =
-      indice !== null && this.elementos[indice] ? indice : null;
+      indice !== null && this.elementos[indice] && !this.elementos[indice].bloqueado ? indice : null;
   }
 
   selecionarGrupo(grupo) {
@@ -389,7 +393,7 @@ export class EditorModel {
 
   // Seleciona exatamente estas formas; um grupo completo vira seleção de grupo
   definirSelecao(indices) {
-    const lista = [...new Set(indices)].filter((i) => this.elementos[i]);
+    const lista = [...new Set(indices)].filter((i) => this.elementos[i] && !this.elementos[i].bloqueado);
     this.limparSelecao();
     if (!lista.length) return;
     const grupo = this.elementos[lista[0]].grupo;
@@ -439,7 +443,7 @@ export class EditorModel {
   // fora. Com somar, junta à seleção atual; sem, substitui.
   selecionarArea({ x1, y1, x2, y2 }, { somar = false } = {}) {
     const tocadas = this.elementos.flatMap((el, i) => {
-      if (el.oculto || !this.editavel(i)) return [];
+      if (el.oculto || el.bloqueado || !this.editavel(i)) return [];
       const metade = this.efetivo(el, "stroke") === "none"
         ? 0
         : (parseFloat(this.efetivo(el, "stroke-width")) || 0) / 2;
@@ -683,11 +687,13 @@ export class EditorModel {
     return this.selecionado !== null || this.grupoSelecionado !== null;
   }
 
-  // Alvo das ações: a forma, o ícone selecionado ou, sem seleção, tudo
+  // Alvo das ações: a forma, o ícone selecionado ou, sem seleção, tudo.
+  // Formas bloqueadas nunca são alvo: nada as move, gira, apaga ou muda.
   alvos() {
-    if (this.selecionado !== null) return [this.selecionado, ...this.extras];
-    if (this.grupoSelecionado !== null) return this.indicesDoGrupo(this.grupoSelecionado);
-    return this.elementos.flatMap((el, i) => (ehDegrade(el) ? [] : [i]));
+    const livres = (lista) => lista.filter((i) => !this.elementos[i]?.bloqueado);
+    if (this.selecionado !== null) return livres([this.selecionado, ...this.extras]);
+    if (this.grupoSelecionado !== null) return livres(this.indicesDoGrupo(this.grupoSelecionado));
+    return this.elementos.flatMap((el, i) => (ehDegrade(el) || el.bloqueado ? [] : [i]));
   }
 
   // Editável no desenho: forma conhecida e, se for path, com dado legível
@@ -753,10 +759,47 @@ export class EditorModel {
 
   // O ponto novo fica selecionado: dá para acrescentar outro logo em seguida
   adicionarPontoNoSelecionado() {
-    if (!this.podeAdicionarPonto) return false;
+    return this.mudarPonto(adicionarPonto);
+  }
+
+  // ── Pontos curvos (alças) ────────────────────────────────────────────────
+  // Linha, polilinha e polígono viram path para o ponto ganhar alças
+  get podeAdicionarPontoCurvo() {
+    return this.testarPonto(adicionarPontoCurvo);
+  }
+
+  get podeCurvarPonto() {
+    return this.testarPonto(curvarPonto);
+  }
+
+  get podeEndireitarPonto() {
+    return this.testarPonto(endireitarPonto);
+  }
+
+  adicionarPontoCurvoNoSelecionado() {
+    return this.mudarPonto(adicionarPontoCurvo);
+  }
+
+  curvarPontoSelecionado() {
+    return this.mudarPonto(curvarPonto);
+  }
+
+  endireitarPontoSelecionado() {
+    return this.mudarPonto(endireitarPonto);
+  }
+
+  testarPonto(operacao) {
+    if (this.pontoSelecionado === null || this.selecionado === null) return false;
+    return operacao(this.elementos[this.selecionado], this.pontoSelecionado) !== null;
+  }
+
+  // Aplica a operação no ponto selecionado; o ponto resultante continua
+  // selecionado (o id pode mudar quando a forma vira path)
+  mudarPonto(operacao) {
+    if (!this.testarPonto(operacao)) return false;
     this.registrar();
     const i = this.selecionado;
-    const { elemento, id } = adicionarPonto(this.elementos[i], this.pontoSelecionado);
+    const { elemento, id } = operacao(this.elementos[i], this.pontoSelecionado);
     this.elementos[i] = { ...this.elementos[i], ...elemento };
     this.pontoSelecionado = id;
     return true;
@@ -913,7 +956,7 @@ export class EditorModel {
   // forma selecionada, a primeira (ou a última). Devolve o índice escolhido,
   // ou null depois da última (o Tab segue para o próximo controle da janela).
   selecionarVizinha(passo) {
-    const visiveis = this.elementos.flatMap((el, i) => (el.oculto ? [] : [i]));
+    const visiveis = this.elementos.flatMap((el, i) => (el.oculto || el.bloqueado ? [] : [i]));
     if (!visiveis.length) return null;
     const atual = this.selecionado !== null && !this.extras.length ? visiveis.indexOf(this.selecionado) : -1;
     const proxima = atual < 0 ? (passo > 0 ? visiveis[0] : visiveis.at(-1)) : visiveis[atual + passo];
@@ -972,12 +1015,14 @@ export class EditorModel {
   // Apaga a forma indicada, ou a seleção (forma ou ícone inteiro)
   remover(indice = null) {
     if (this.arrastando) return;
-    const indices =
+    // Bloqueadas ficam: nem o × da lista nem o grupo selecionado as apagam
+    const indices = (
       indice !== null
         ? [indice]
         : this.selecionado !== null
           ? this.alvos()
-          : this.indicesDoGrupo(this.grupoSelecionado);
+          : this.indicesDoGrupo(this.grupoSelecionado)
+    ).filter((i) => !this.elementos[i]?.bloqueado);
     if (!indices.length || !indices.every((i) => this.elementos[i])) return;
     this.registrar();
     const apagar = new Set(indices);
@@ -1036,6 +1081,21 @@ export class EditorModel {
     if (!el) return;
     this.registrar();
     el.oculto = !el.oculto;
+  }
+
+  // Bloquear: a forma fica no desenho, mas não pode ser clicada, selecionada,
+  // movida nem apagada. Só a lista de elementos desbloqueia. Vai no .ile,
+  // nunca no SVG. Bloquear tira a forma da seleção.
+  alternarBloqueado(indice) {
+    const el = this.elementos[indice];
+    if (!el) return;
+    this.registrar();
+    el.bloqueado = !el.bloqueado;
+    if (el.bloqueado) {
+      const restantes = this.temSelecao ? this.alvos().filter((i) => i !== indice) : [];
+      if (this.grupoSelecionado !== null && this.grupoSelecionado === el.grupo) return;
+      this.definirSelecao(restantes);
+    }
   }
 
   // Giro, espelho, deslocamento e escala: na forma ou ícone selecionado (em
@@ -1349,9 +1409,11 @@ export class EditorModel {
       salvo: new Date().toISOString(),
       raiz: this.raiz,
       grupos: this.grupos,
-      elementos: this.elementos.map(({ tag, attrs, html, grupo, oculto }) =>
-        html !== undefined ? { tag, html, grupo, oculto } : { tag, attrs, grupo, oculto },
-      ),
+      // bloqueado só vai quando é true, para os .ile de antes continuarem iguais
+      elementos: this.elementos.map(({ tag, attrs, html, grupo, oculto, bloqueado }) => ({
+        ...(html !== undefined ? { tag, html, grupo, oculto } : { tag, attrs, grupo, oculto }),
+        ...(bloqueado ? { bloqueado: true } : {}),
+      })),
     };
   }
 
@@ -1392,6 +1454,7 @@ export class EditorModel {
       ...el,
       grupo: alinhado ? projeto.elementos[i].grupo : 0,
       oculto: alinhado ? projeto.elementos[i].oculto : false,
+      bloqueado: alinhado && projeto.elementos[i].bloqueado === true,
     }));
     this.limparSelecao();
     this.original = this.svg();

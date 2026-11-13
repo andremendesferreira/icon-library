@@ -117,7 +117,7 @@ test("robots.txt e sitemap.xml com o endereço do site", async () => {
     assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/license\.de\.html<\/loc>/);
     // Home em 8 idiomas, guia/sobre/privacidade/licenças em 8, guias dos
     // conjuntos (4) e o artigo em inglês e português
-    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 32 + 8 + 2);
+    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 32 + 8 + 2 + 2);
   } finally {
     delete process.env.SITE_URL;
   }

@@ -24,7 +24,10 @@ const ICONE_RODAPE = {
   telegram: '<svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.287 5.906q-1.168.486-4.666 2.01-.567.225-.595.442c-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294q.39.01.868-.32 3.269-2.206 3.374-2.23c.05-.012.12-.026.166.016s.042.12.037.141c-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8 8 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629q.14.092.27.187c.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.4 1.4 0 0 0-.013-.315.34.34 0 0 0-.114-.217.53.53 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09"/></svg>',
   github: '<svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg>',
 };
-const ROTULO = { guide: "footer.guide", about: "footer.about", privacy: "footer.privacy", license: "footer.license" };
+const ROTULO = { guide: "footer.guide", about: "footer.about", privacy: "footer.privacy", license: "footer.license", articles: "nav.articles" };
+// No cabeçalho (como na home): Guia, Sobre e Artigos. Privacidade e Licenças
+// ficam no rodapé.
+const NO_TOPO = ["guide", "about", "articles"];
 // Um guia para cada conjunto de ícones, por enquanto só nos idiomas que o autor
 // consegue revisar. O nome do conjunto também é o de pages/<pagina>/.
 const CONJUNTOS = ["lucide-icons", "feather-icons", "bootstrap-icons", "emoji-icons"];
@@ -32,7 +35,13 @@ const IDIOMAS_CONJUNTOS = ["en", "pt-BR"];
 const NOME_CONJUNTO = { "lucide-icons": "Lucide", "feather-icons": "Feather", "bootstrap-icons": "Bootstrap Icons", "emoji-icons": "Emoji" };
 // Artigos: textos com a experiência do autor, nos mesmos idiomas dos guias
 const ARTIGOS = ["lgpd-icon"];
-const idiomasDe = (pagina) => (CONJUNTOS.includes(pagina) || ARTIGOS.includes(pagina) ? IDIOMAS_CONJUNTOS : IDIOMAS);
+// A página que reúne os artigos (tipo blog), nos mesmos idiomas deles
+const INDICE_ARTIGOS = "articles";
+const idiomasDe = (pagina) =>
+  CONJUNTOS.includes(pagina) || ARTIGOS.includes(pagina) || pagina === INDICE_ARTIGOS ? IDIOMAS_CONJUNTOS : IDIOMAS;
+// Endereço de uma página no idioma, ou na versão em inglês quando ela não
+// existe nele (Artigos, guias dos conjuntos)
+const enderecoNo = (pagina, idioma) => arquivo(pagina, idiomasDe(pagina).includes(idioma) ? idioma : "en");
 const raiz = new URL("../", import.meta.url);
 
 const arquivo = (pagina, idioma) => `${pagina}${idioma === "en" ? "" : `.${idioma}`}.html`;
@@ -151,6 +160,22 @@ function avaliacoes(idioma) {
 <script type="module" src="js/views/reviews.js"></script>`;
 }
 
+// Lista dos artigos (página Artigos): título, data e resumo de cada um, tirados
+// do próprio artigo no idioma da página; os mais novos primeiro
+function listaDeArtigos(idioma) {
+  const itens = [...ARTIGOS].reverse().map((artigo) => {
+    const fonte = readFileSync(new URL(`pages/${artigo}/${idioma}.html`, raiz), "utf8").replace(/\r\n/g, "\n");
+    const { title, description } = JSON.parse(/^<!--\s*(\{.*?\})\s*-->/s.exec(fonte)[1]);
+    const data = /<p class="page__meta">([\s\S]*?)<\/p>/.exec(fonte)?.[1].trim() ?? "";
+    return `<li class="artigos__item">
+  <h2 class="artigos__titulo"><a href="${arquivo(artigo, idioma)}">${escapar(title.split(" | ")[0])}</a></h2>
+  ${data ? `<p class="page__meta">${data}</p>` : ""}
+  <p>${escapar(description)}</p>
+</li>`;
+  });
+  return `<ul class="artigos">\n${itens.join("\n")}\n</ul>`;
+}
+
 // Botão que abre a ferramenta já no conjunto, e links para os outros guias
 function ferramenta(chave, idioma, pagina) {
   const separador = idioma === "en" ? "?" : `?lang=${idioma}&amp;`;
@@ -178,6 +203,7 @@ function montar(pagina, idioma) {
     .replace("<!--grade-->", () => (CONJUNTOS.includes(pagina) ? grade(pagina) : ""))
     .replace("<!--avaliacoes-->", () => avaliacoes(idioma))
     .replace("<!--passos-->", () => passos(idioma))
+    .replace("<!--artigos-->", () => listaDeArtigos(idioma))
     .replace(/<!--ferramenta:(\w+)-->/, (_, chave) => ferramenta(chave, idioma, pagina))
     .split("\n")
     .map((linha) => (linha ? `    ${linha}` : ""))
@@ -235,20 +261,35 @@ ${versoes}
   <script src="js/views/theme.js"></script>
   <script src="js/views/clarity.js" async></script>
   <script src="js/views/pageSearch.js" defer></script>
+  <script src="js/views/profundidade.js" defer></script>
 </head>
 <body>
+  <!-- O mesmo cabeçalho da home: logo, Guia, Sobre, Artigos, café, idioma, tema -->
+  <header class="topo topo--fixo">
+    <a class="topo__marca" href="${icones}" aria-label="Icon Library" title="Icon Library">
+      <span class="topo__selo" aria-hidden="true"><img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="48" height="48" alt="" class="topo__logo" /><span class="topo__brilho"></span></span>
+      <span class="visually-hidden">Icon Library</span>
+    </a>
+    <nav class="topo__nav" aria-label="${escapar(t(idioma, "nav.label"))}">
+${NO_TOPO.map((p) => `        <a class="topo__link" href="${enderecoNo(p, idioma)}"${p === pagina ? ' aria-current="page"' : ""}>${escapar(t(idioma, ROTULO[p]))}</a>`).join("\n")}
+      <a class="coffee-button" href="${icones}#coffee"><span aria-hidden="true">☕</span><span class="coffee-button__text">${escapar(t(idioma, "coffee.button"))}</span></a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="${escapar(t(idioma, "lang.label"))}"></select>
+      </label>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="${escapar(t(idioma, "theme.label"))}" aria-pressed="false">
+        <svg class="theme-toggle__moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
+        <svg class="theme-toggle__sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" /></svg>
+      </button>
+    </nav>
+  </header>
   <main class="page">
     <div class="page__top">
-      <a class="page__back" href="${icones}">${escapar(t(idioma, "page.back"))}</a>
       <form class="page__busca" action="./" role="search">
         ${idioma === "en" ? "" : `<input type="hidden" name="lang" value="${idioma}" />`}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
         <input type="search" id="page-search" name="q" required aria-keyshortcuts="/" placeholder="${escapar(t(idioma, "page.search"))}" aria-label="${escapar(t(idioma, "search.label"))}" />
       </form>
-      <label class="lang-select">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
-        <select id="lang-select" aria-label="${escapar(t(idioma, "lang.label"))}"></select>
-      </label>
     </div>
     <nav class="page__trilha" aria-label="${escapar(t(idioma, "breadcrumb.label"))}">
       <ol>
@@ -261,10 +302,9 @@ ${conteudo}
   <footer class="site-footer">
     <nav aria-label="${escapar(t(idioma, "nav.label"))}">
       <a href="${icones}">${escapar(t(idioma, "footer.icons"))}</a>
-${PAGINAS.filter((p) => p !== pagina)
+${PAGINAS.filter((p) => p !== pagina && !NO_TOPO.includes(p))
   .map((p) => `      <a href="${arquivo(p, idioma)}">${escapar(t(idioma, ROTULO[p]))}</a>`)
   .join("\n")}
-      <a class="site-footer__coffee" href="${icones}#coffee">☕ ${escapar(t(idioma, "coffee.button"))}</a>
       <span class="site-footer__quebra"></span>
       <a href="${icones}#report">${ICONE_RODAPE.bug}${escapar(t(idioma, "footer.report"))}</a>
       <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener">${ICONE_RODAPE.lightbulb}${escapar(t(idioma, "footer.ideas"))}</a>
@@ -280,7 +320,7 @@ ${PAGINAS.filter((p) => p !== pagina)
 
 const conferir = process.argv.includes("--check");
 const desatualizados = [];
-for (const pagina of [...PAGINAS, ...CONJUNTOS, ...ARTIGOS])
+for (const pagina of [...PAGINAS, ...CONJUNTOS, ...ARTIGOS, INDICE_ARTIGOS])
   for (const idioma of idiomasDe(pagina)) {
     const destino = new URL(`public/${arquivo(pagina, idioma)}`, raiz);
     const html = montar(pagina, idioma);

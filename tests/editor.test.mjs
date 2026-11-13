@@ -1306,3 +1306,82 @@ test("comIdsUnicos: cada cópia na página com ids e referências próprias", as
   const simples = '<svg viewBox="0 0 24 24"><path d="M1 1"/></svg>';
   assert.equal(comIdsUnicos(simples), simples);
 });
+
+test("formas novas: dentro da área do ícone e com os pontos certos", () => {
+  const area = { x: 0, y: 0, w: 24, h: 24 };
+  const vertices = { pentagon: 5, hexagon: 6, octagon: 8, diamond: 4, star: 10, arrow: 7 };
+  for (const [tag, n] of Object.entries(vertices)) {
+    const f = novaForma(tag, area);
+    assert.equal(f.tag, "polygon", tag);
+    const pontos = pontosDoElemento(f);
+    assert.equal(pontos.length, n, tag);
+    assert.ok(pontos.every((p) => p.x >= 0 && p.x <= 24 && p.y >= 0 && p.y <= 24), `${tag} dentro da área`);
+  }
+  for (const tag of ["halfCircle", "quarterCircle", "heart", "bubble"]) {
+    const f = novaForma(tag, area);
+    assert.equal(f.tag, "path", tag);
+    assert.doesNotThrow(() => lerPath(f.attrs.d), tag);
+    assert.match(f.attrs.d, /Z$/, `${tag} fechado`);
+  }
+  // Ícone 16×16: a forma acompanha a grade
+  assert.deepEqual(novaForma("diamond", { x: 0, y: 0, w: 16, h: 16 }).attrs.points, "8 3.333 11.667 8 8 12.667 4.333 8");
+});
+
+test("ponto curvo: alças alinhadas, reto de volta, e a forma vira path com o mesmo estilo", async () => {
+  const { curvarPonto, endireitarPonto, adicionarPontoCurvo } = await import("../public/js/models/svgGeometry.js");
+  const linha = { tag: "polyline", attrs: { points: "2 12 12 4 22 12", stroke: "red" } };
+  const curvo = curvarPonto(linha, "p1");
+  assert.equal(curvo.elemento.tag, "path");
+  assert.equal(curvo.elemento.attrs.stroke, "red");
+  assert.equal(curvo.id, "1:e");
+  // As duas alças do ponto (12, 4) ficam na mesma reta, uma de cada lado
+  const [, chega, sai] = lerPath(curvo.elemento.attrs.d);
+  assert.equal(chega.y2, 4);
+  assert.equal(sai.y1, 4);
+  assert.ok(chega.x2 < 12 && sai.x1 > 12);
+  // Endireitar volta a ser reta (L), e de novo não faz nada
+  const reto = endireitarPonto(curvo.elemento, curvo.id);
+  assert.equal(reto.elemento.attrs.d, "M2 12L12 4L22 12");
+  assert.equal(endireitarPonto(reto.elemento, reto.id), null);
+  // Ponto do M de um polígono: o fechamento (Z) também curva
+  const quadrado = curvarPonto({ tag: "polygon", attrs: { points: "4 4 20 4 20 20 4 20" } }, "p0");
+  assert.match(quadrado.elemento.attrs.d, /^M4 4C.*C[^C]*4 4Z$/);
+  // + Ponto curvo numa reta: ponto novo no meio, já com alças
+  const novo = adicionarPontoCurvo({ tag: "line", attrs: { x1: "2", y1: "12", x2: "22", y2: "12" } }, "p1");
+  assert.equal(novo.elemento.attrs.d, "M2 12C5.333 12 8.667 12 12 12C15.333 12 18.667 12 22 12");
+  // Numa curva, a divisão mantém o desenho (sem recalcular as alças)
+  const curva = adicionarPontoCurvo({ tag: "path", attrs: { d: "M2 12C5 2 19 2 22 12" } }, "0:e");
+  assert.equal(curva.elemento.attrs.d, "M2 12C3.5 7 7.75 4.5 12 4.5C16.25 4.5 20.5 7 22 12");
+  // Círculo não tem ponto de traço
+  assert.equal(curvarPonto({ tag: "circle", attrs: { cx: "12", cy: "12", r: "4" } }, "r"), null);
+});
+
+test("bloquear: fora do clique, da seleção, das transformações e do apagar; vai no .ile", () => {
+  const model = editor();
+  model.alternarBloqueado(0);
+  assert.equal(model.elementos[0].bloqueado, true);
+  // Não seleciona, nem por área nem Ctrl+A
+  model.selecionar(0);
+  assert.equal(model.selecionado, null);
+  model.selecionarTudo();
+  assert.deepEqual(model.alvos(), [1]);
+  model.limparSelecao();
+  model.selecionarArea({ x1: 0, y1: 0, x2: 24, y2: 24 });
+  assert.deepEqual(model.alvos(), [1]);
+  // Sem seleção, "tudo" pula a bloqueada
+  model.limparSelecao();
+  const linha = { ...model.elementos[0].attrs };
+  model.transformar("direita");
+  assert.deepEqual(model.elementos[0].attrs, linha);
+  // O × da lista não apaga
+  model.remover(0);
+  assert.equal(model.elementos.length, 2);
+  // Vai no .ile só quando é true, e volta ao abrir
+  const projeto = model.exportarProjeto({ nome: "x" });
+  assert.equal(projeto.elementos[0].bloqueado, true);
+  assert.equal("bloqueado" in projeto.elementos[1], false);
+  assert.match(model.svg(), /<line /, "no SVG a forma bloqueada continua");
+  model.alternarBloqueado(0);
+  model.selecionar(0);
+  assert.equal(model.selecionado, 0);
+});

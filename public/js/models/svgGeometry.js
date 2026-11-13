@@ -767,7 +767,181 @@ export function adicionarPonto(elemento, id) {
   return { elemento: { ...elemento, attrs: { ...a, d: escreverPath(cmds) } }, id: `${k}:e` };
 }
 
+// ── Pontos curvos ────────────────────────────────────────────────────────────
+// Linha, polilinha e polígono como path, para um ponto poder ganhar alças.
+// Devolve { cmds, idDo(idAntigo) }; null para as outras formas.
+function linhasComoComandos(elemento) {
+  const a = elemento.attrs;
+  if (elemento.tag === "path") {
+    try {
+      return { cmds: lerPath(a.d), idDo: (id) => id };
+    } catch {
+      return null;
+    }
+  }
+  let pontos;
+  if (elemento.tag === "line") pontos = [{ x: num(a.x1), y: num(a.y1) }, { x: num(a.x2), y: num(a.y2) }];
+  else if (elemento.tag === "polyline" || elemento.tag === "polygon") pontos = lerPontos(a.points);
+  else return null;
+  if (pontos.length < 2) return null;
+  const cmds = pontos.map((p, k) => ({ t: k ? "L" : "M", x: p.x, y: p.y }));
+  if (elemento.tag === "polygon") cmds.push({ t: "Z" });
+  // Na linha os pontos são p1 e p2; na polilinha e no polígono, p0, p1…
+  const desloca = elemento.tag === "line" ? 1 : 0;
+  return { cmds, idDo: (id) => `${Number(/^p(\d+)$/.exec(id)?.[1] ?? -1) - desloca}:e` };
+}
+
+// O elemento com o d novo; linha e polígono viram path, sem perder o estilo
+function comoPathDe(elemento, cmds) {
+  const { x1, y1, x2, y2, points, d, ...resto } = elemento.attrs;
+  return { ...elemento, tag: "path", attrs: { d: escreverPath(cmds), ...resto } };
+}
+
+const igual = (p, q) => Math.abs(p.x - q.x) < 1e-9 && Math.abs(p.y - q.y) < 1e-9;
+
+// Os trechos que chegam e saem do ponto k (o fim de cmds[k]). Num subcaminho
+// fechado, o Z é uma reta de volta ao M: se ela tem comprimento, vira um L
+// explícito, para também poder curvar. Muda cmds; devolve
+// { chega, sai, p, de, ate } (índices dos trechos ou null).
+function trechosDoPonto(cmds, k) {
+  const p = { x: cmds[k].x, y: cmds[k].y };
+  // Começo e fim do subcaminho de k
+  let m = k;
+  while (m > 0 && cmds[m].t !== "M") m--;
+  let z = k + 1;
+  while (z < cmds.length && cmds[z].t !== "M" && cmds[z].t !== "Z") z++;
+  const fechado = cmds[z]?.t === "Z";
+  const inicio = { x: cmds[m].x, y: cmds[m].y };
+  if (fechado && !igual({ x: cmds[z - 1].x, y: cmds[z - 1].y }, inicio)) {
+    cmds.splice(z, 0, { t: "L", x: inicio.x, y: inicio.y });
+    z++;
+  }
+  let chega = cmds[k].t === "M" ? null : k;
+  let sai = k + 1 < z ? k + 1 : null;
+  // O M de um subcaminho fechado recebe o último trecho; o último ponto (que
+  // fica sobre o M) sai pelo primeiro trecho
+  if (fechado && k === m) chega = z - 1;
+  if (fechado && k === z - 1) sai = m + 1 < z ? m + 1 : null;
+  const comecos = inicios(cmds);
+  const de = chega !== null ? comecos[chega] : null;
+  const ate = sai !== null ? { x: cmds[sai].x, y: cmds[sai].y } : null;
+  return { chega, sai, p, de, ate };
+}
+
+// Trecho de "de" até c como cúbica, com o mesmo desenho (Q exato; L e arco
+// viram cúbica reta entre as pontas)
+function comoCubica(de, c) {
+  if (c.t === "C") return { ...c };
+  if (c.t === "Q")
+    return {
+      t: "C",
+      x1: de.x + (2 / 3) * (c.x1 - de.x), y1: de.y + (2 / 3) * (c.y1 - de.y),
+      x2: c.x + (2 / 3) * (c.x1 - c.x), y2: c.y + (2 / 3) * (c.y1 - c.y),
+      x: c.x, y: c.y,
+    };
+  return { t: "C", x1: de.x + (c.x - de.x) / 3, y1: de.y + (c.y - de.y) / 3, x2: de.x + (2 * (c.x - de.x)) / 3, y2: de.y + (2 * (c.y - de.y)) / 3, x: c.x, y: c.y };
+}
+
+// Ponto com alças alinhadas (nó suave): a tangente vai do vizinho de antes
+// ao de depois, e cada alça tem um terço do trecho do seu lado. Devolve
+// { elemento, id } ou null.
+export function curvarPonto(elemento, id) {
+  const base = linhasComoComandos(elemento);
+  if (!base) return null;
+  const { cmds } = base;
+  const k = Number(/^(\d+):e$/.exec(base.idDo(id))?.[1]);
+  if (!Number.isInteger(k) || !cmds[k] || cmds[k].t === "Z") return null;
+  const { chega, sai, p, de, ate } = trechosDoPonto(cmds, k);
+  if (chega === null && sai === null) return null;
+  // Direção da tangente
+  const antes = de ?? p;
+  const depois = ate ?? p;
+  let tx = depois.x - antes.x;
+  let ty = depois.y - antes.y;
+  const tam = Math.hypot(tx, ty);
+  if (!tam) return null;
+  tx /= tam;
+  ty /= tam;
+  const comecos = inicios(cmds);
+  if (chega !== null) {
+    const c = comoCubica(comecos[chega], cmds[chega]);
+    const l = Math.hypot(p.x - de.x, p.y - de.y) / 3;
+    cmds[chega] = { ...c, x2: p.x - tx * l, y2: p.y - ty * l };
+  }
+  if (sai !== null) {
+    const c = comoCubica(comecos[sai], cmds[sai]);
+    const l = Math.hypot(ate.x - p.x, ate.y - p.y) / 3;
+    cmds[sai] = { ...c, x1: p.x + tx * l, y1: p.y + ty * l };
+  }
+  return { elemento: comoPathDe(elemento, cmds), id: `${k}:e` };
+}
+
+// O contrário: as alças do ponto voltam para cima dele (canto), e um trecho
+// que ficou sem curva nenhuma vira reta. Só em path com alça no ponto.
+export function endireitarPonto(elemento, id) {
+  if (elemento.tag !== "path") return null;
+  let cmds;
+  try {
+    cmds = lerPath(elemento.attrs.d);
+  } catch {
+    return null;
+  }
+  const k = Number(/^(\d+):e$/.exec(id)?.[1]);
+  if (!Number.isInteger(k) || !cmds[k] || cmds[k].t === "Z") return null;
+  const { chega, sai, p } = trechosDoPonto(cmds, k);
+  const comecos = inicios(cmds);
+  const curvo = (i) => i !== null && (cmds[i].t === "C" || cmds[i].t === "Q");
+  const alcaNoPonto = (i, lado) => {
+    const c = comoCubica(comecos[i], cmds[i]);
+    return igual(lado === "chega" ? { x: c.x2, y: c.y2 } : { x: c.x1, y: c.y1 }, p);
+  };
+  const mexe = [
+    curvo(chega) && !alcaNoPonto(chega, "chega") ? [chega, "chega"] : null,
+    curvo(sai) && !alcaNoPonto(sai, "sai") ? [sai, "sai"] : null,
+  ].filter(Boolean);
+  if (!mexe.length) return null;
+  for (const [i, lado] of mexe) {
+    const de = comecos[i];
+    const c = comoCubica(de, cmds[i]);
+    if (lado === "chega") Object.assign(c, { x2: p.x, y2: p.y });
+    else Object.assign(c, { x1: p.x, y1: p.y });
+    // Sem curva: as duas alças sobre a reta entre as pontas
+    const naReta = (q) => {
+      const dx = c.x - de.x;
+      const dy = c.y - de.y;
+      const l = Math.hypot(dx, dy);
+      if (!l) return igual(q, de);
+      const t = ((q.x - de.x) * dx + (q.y - de.y) * dy) / (l * l);
+      // Tolerância do arredondamento a 3 casas (fmt)
+      return Math.abs((q.x - de.x) * dy - (q.y - de.y) * dx) / l < 2e-3 && t >= -1e-3 && t <= 1 + 1e-3;
+    };
+    const reto = naReta({ x: c.x1, y: c.y1 }) && naReta({ x: c.x2, y: c.y2 });
+    cmds[i] = reto ? { t: "L", x: c.x, y: c.y } : c;
+  }
+  return { elemento: { ...elemento, attrs: { ...elemento.attrs, d: escreverPath(cmds) } }, id: `${k}:e` };
+}
+
+// Um ponto novo no meio do trecho seguinte, já com alças. Num trecho que já
+// é curva, a divisão mantém o desenho e o ponto já sai suave.
+export function adicionarPontoCurvo(elemento, id) {
+  const novo = adicionarPonto(elemento, id);
+  if (!novo) return null;
+  const pontos = pontosDoElemento(novo.elemento);
+  const temAlca = novo.elemento.tag === "path" && pontos.some((p) => p.tipo === "ctrl" && igual(p.de, pontos.find((q) => q.id === novo.id)));
+  if (temAlca) return novo;
+  return curvarPonto(novo.elemento, novo.id) ?? novo;
+}
+
 // Formas novas, centradas na área do ícone (viewBox { x, y, w, h })
+// Vértices de um polígono regular de n lados em volta de (cx, cy), com o
+// primeiro em cima; giro (radianos) desloca todos no sentido horário
+function regular(cx, cy, raio, lados, giro = 0) {
+  return Array.from({ length: lados }, (_, i) => {
+    const a = -Math.PI / 2 + giro + (2 * Math.PI * i) / lados;
+    return { x: cx + raio * Math.cos(a), y: cy + raio * Math.sin(a) };
+  });
+}
+
 export function novaForma(tag, { x, y, w, h }) {
   const cx = x + w / 2;
   const cy = y + h / 2;
@@ -788,6 +962,101 @@ export function novaForma(tag, { x, y, w, h }) {
           { x: cx - 6 * u, y: cy + 4 * u },
         ]) },
       };
+    // Polígonos regulares com uma ponta em cima (o octógono gira meio passo
+    // para ter o lado de cima reto)
+    case "pentagon":
+    case "hexagon":
+    case "octagon": {
+      const lados = { pentagon: 5, hexagon: 6, octagon: 8 }[tag];
+      const giro = tag === "octagon" ? Math.PI / lados : 0;
+      return { tag: "polygon", attrs: { points: escreverPontos(regular(cx, cy, 7 * u, lados, giro)) } };
+    }
+    case "diamond":
+      return {
+        tag: "polygon",
+        attrs: { points: escreverPontos([
+          { x: cx, y: cy - 7 * u },
+          { x: cx + 5.5 * u, y: cy },
+          { x: cx, y: cy + 7 * u },
+          { x: cx - 5.5 * u, y: cy },
+        ]) },
+      };
+    case "star": {
+      // Cinco pontas: vértices alternando o raio de fora e o de dentro
+      const fora = regular(cx, cy + 0.5 * u, 7.5 * u, 5);
+      const dentro = regular(cx, cy + 0.5 * u, 3 * u, 5, Math.PI / 5);
+      return { tag: "polygon", attrs: { points: escreverPontos(fora.flatMap((p, i) => [p, dentro[i]])) } };
+    }
+    case "arrow":
+      return {
+        tag: "polygon",
+        attrs: { points: escreverPontos([
+          { x: cx - 7 * u, y: cy - 2.5 * u },
+          { x: cx + 1 * u, y: cy - 2.5 * u },
+          { x: cx + 1 * u, y: cy - 6 * u },
+          { x: cx + 7 * u, y: cy },
+          { x: cx + 1 * u, y: cy + 6 * u },
+          { x: cx + 1 * u, y: cy + 2.5 * u },
+          { x: cx - 7 * u, y: cy + 2.5 * u },
+        ]) },
+      };
+    case "halfCircle":
+      // Meia-lua com a base reta embaixo
+      return {
+        tag: "path",
+        attrs: { d: escreverPath([
+          { t: "M", x: cx - 7 * u, y: cy + 3.5 * u },
+          { t: "A", rx: 7 * u, ry: 7 * u, rot: 0, large: 0, sweep: 1, x: cx + 7 * u, y: cy + 3.5 * u },
+          { t: "Z" },
+        ]) },
+      };
+    case "quarterCircle": {
+      // Fatia de um quarto, com o canto reto embaixo à esquerda
+      const ox = cx - 5 * u;
+      const oy = cy + 5 * u;
+      return {
+        tag: "path",
+        attrs: { d: escreverPath([
+          { t: "M", x: ox, y: oy },
+          { t: "L", x: ox, y: oy - 10 * u },
+          { t: "A", rx: 10 * u, ry: 10 * u, rot: 0, large: 0, sweep: 1, x: ox + 10 * u, y: oy },
+          { t: "Z" },
+        ]) },
+      };
+    }
+    case "heart":
+      return {
+        tag: "path",
+        attrs: { d: escreverPath([
+          { t: "M", x: cx, y: cy + 7 * u },
+          { t: "C", x1: cx - 9 * u, y1: cy + 0.5 * u, x2: cx - 7 * u, y2: cy - 8 * u, x: cx, y: cy - 3.5 * u },
+          { t: "C", x1: cx + 7 * u, y1: cy - 8 * u, x2: cx + 9 * u, y2: cy + 0.5 * u, x: cx, y: cy + 7 * u },
+          { t: "Z" },
+        ]) },
+      };
+    case "bubble": {
+      // Balão de fala: retângulo arredondado com a ponta embaixo à esquerda
+      const [x0, x1, y0, y1, r] = [cx - 7 * u, cx + 7 * u, cy - 6 * u, cy + 3 * u, 2 * u];
+      const canto = (x, y) => ({ t: "A", rx: r, ry: r, rot: 0, large: 0, sweep: 1, x, y });
+      return {
+        tag: "path",
+        attrs: { d: escreverPath([
+          { t: "M", x: x0 + r, y: y0 },
+          { t: "L", x: x1 - r, y: y0 },
+          canto(x1, y0 + r),
+          { t: "L", x: x1, y: y1 - r },
+          canto(x1 - r, y1),
+          { t: "L", x: cx - 1 * u, y: y1 },
+          { t: "L", x: cx - 4.5 * u, y: cy + 6.5 * u },
+          { t: "L", x: cx - 3.5 * u, y: y1 },
+          { t: "L", x: x0 + r, y: y1 },
+          canto(x0, y1 - r),
+          { t: "L", x: x0, y: y0 + r },
+          canto(x0 + r, y0),
+          { t: "Z" },
+        ]) },
+      };
+    }
     default:
       return {
         tag: "path",

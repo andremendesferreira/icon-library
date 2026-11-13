@@ -65,12 +65,20 @@
 <body>
   <!-- Cabeçalho enxuto: a marca, o Guia e as preferências -->
   <header class="topo">
-    <a class="topo__marca" href="./">
-      <img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="40" height="40" alt="" class="topo__logo" />
-      <span class="topo__nome">Icon Library</span>
+    <!-- Só o logo, com volume e um brilho que passa; o nome fica para leitores
+         de tela e na dica -->
+    <a class="topo__marca" href="./" aria-label="Icon Library" title="Icon Library">
+      <span class="topo__selo" aria-hidden="true">
+        <img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="48" height="48" alt="" class="topo__logo" />
+        <span class="topo__brilho"></span>
+      </span>
+      <span class="visually-hidden">Icon Library</span>
     </a>
     <nav class="topo__nav" aria-label="Site" data-i18n-attr="aria-label:nav.label">
       <a class="topo__link" href="guide.html" data-i18n-page="guide" data-i18n="footer.guide">Guide</a>
+      <a class="topo__link" href="about.html" data-i18n-page="about" data-i18n="footer.about">About</a>
+      <!-- Artigos só existem em inglês e português: nos outros idiomas, o inglês -->
+      <a class="topo__link" href="articles.html" data-i18n-page="articles" data-i18n-langs="en,pt-BR" data-i18n="nav.articles">Articles</a>
     <!-- "Pague um café": aparece só com o Stripe configurado no servidor -->
     <button type="button" id="coffee-open" class="coffee-button" data-coffee-open hidden>
       <span aria-hidden="true">☕</span>
@@ -105,11 +113,33 @@
   <main class="principal">
   <!-- O começo é a busca: grande, no centro, com o conjunto ao lado -->
   <section class="heroi" aria-labelledby="heroi-titulo">
-    <h1 id="heroi-titulo" class="heroi__titulo" data-i18n="hero.title">Find the right icon</h1>
+    <!-- Fundo vivo: cards de ícone (Feather, MIT) flutuando em 3D nas laterais;
+         só decoração (js/views/profundidade.js faz o parallax) -->
+    <div class="heroi__fundo" aria-hidden="true">
+      <span class="flutua flutua--marca"><span class="flutua__face"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span></span>
+      <span class="flutua"><span class="flutua__face"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span></span>
+      <span class="flutua"><span class="flutua__face"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg></span></span>
+      <span class="flutua"><span class="flutua__face"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span></span>
+      <span class="flutua"><span class="flutua__face"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span></span>
+      <span class="flutua"><span class="flutua__face"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span></span>
+      <span class="flutua"><span class="flutua__face"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span></span>
+      <span class="flutua"><span class="flutua__face"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span></span>
+    </div>
+    <!-- Lupa antes da primeira palavra e check depois da última, em qualquer
+         idioma: decorativos (aria-hidden), irmãos do texto traduzido -->
+    <h1 id="heroi-titulo" class="heroi__titulo"><span class="heroi__frase"><span class="heroi__lupa" aria-hidden="true"></span><span data-i18n="hero.title">Find the right icon</span><span class="heroi__check" aria-hidden="true"></span></span></h1>
     <p class="heroi__sub" data-i18n="hero.subtitle">Search Lucide, Feather, Bootstrap Icons and emoji. Click an icon to copy its SVG.</p>
   </section>
   <!-- Fora da seção do título: o sticky vale até o fim do <main> -->
   <div class="search-container">
+    <!-- Logo da busca presa: aparece com .search-container--presa (IconView) e
+         volta ao topo (js/views/profundidade.js); Ctrl+clique abre a home -->
+    <a class="topo__marca marca-presa" href="./" aria-label="Back to the top" title="Back to the top" data-i18n-attr="aria-label:goTop.label;title:goTop.label">
+      <span class="topo__selo" aria-hidden="true">
+        <img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="56" height="56" alt="" class="topo__logo" decoding="async" />
+        <span class="topo__brilho"></span>
+      </span>
+    </a>
     <div class="busca-principal">
       <div class="search">
         <svg
@@ -420,11 +450,21 @@
       <aside class="editor__side">
         <div class="editor__painel" data-painel="formas">
         <h3 class="editor__heading" data-i18n="editor.addShape">Add a shape</h3>
-        <div class="editor__buttons" aria-label="Add a shape" data-i18n-attr="aria-label:editor.addShape">
+        <div class="editor__buttons editor__buttons--formas" aria-label="Add a shape" data-i18n-attr="aria-label:editor.addShape">
           <button type="button" class="editor__shape" data-add="line" title="Add a line" aria-label="Add a line" data-i18n-attr="title:editor.addLine;aria-label:editor.addLine"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3.5 14.5L6.5 14.5"/><circle cx="3.5" cy="14.5" r="1.594" stroke-width="1"/><circle cx="20" cy="14.5" r="1.594" stroke-width="1"/><path d="M9.5 14.5L13 14.5"/><path d="M16.5 14.5L20 14.5"/><path d="M16 5h6"/><path d="M19 2v6"/></svg></button>
           <button type="button" class="editor__shape" data-add="circle" title="Add a circle" aria-label="Add a circle" data-i18n-attr="title:editor.addCircle;aria-label:editor.addCircle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.267 2.08A10 10 0 1 0 21.92 10.733"/><path d="M16 5h6"/><path d="M19 2v6"/></svg></button>
           <button type="button" class="editor__shape" data-add="rect" title="Add a rectangle" aria-label="Add a rectangle" data-i18n-attr="title:editor.addRect;aria-label:editor.addRect"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M22 10L22 18A2 2 0 0 1 20 20L4 20A2 2 0 0 1 2 18L2 8A2 2 0 0 1 4 6L12.536 6"/></svg></button>
           <button type="button" class="editor__shape" data-add="triangle" title="Add a triangle" aria-label="Add a triangle" data-i18n-attr="title:editor.addTriangle;aria-label:editor.addTriangle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.5 3.5A2 2 0 0 0 10.27 4L2.27 18A2 2 0 0 0 4 21L20 21A2 2 0 0 0 21.73 18L18 11.5"/><path d="M16 5h6"/><path d="M19 2v6"/></svg></button>
+          <button type="button" class="editor__shape" data-add="pentagon" title="Add a pentagon" aria-label="Add a pentagon" data-i18n-attr="title:editor.addPentagon;aria-label:editor.addPentagon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10.83 2.38a2 2 0 0 1 2.34 0l8 5.74a2 2 0 0 1 .73 2.25l-3.04 9.26a2 2 0 0 1-1.9 1.37H7.04a2 2 0 0 1-1.9-1.37L2.1 10.37a2 2 0 0 1 .73-2.25z"/></svg></button>
+          <button type="button" class="editor__shape" data-add="hexagon" title="Add a hexagon" aria-label="Add a hexagon" data-i18n-attr="title:editor.addHexagon;aria-label:editor.addHexagon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></button>
+          <button type="button" class="editor__shape" data-add="octagon" title="Add an octagon" aria-label="Add an octagon" data-i18n-attr="title:editor.addOctagon;aria-label:editor.addOctagon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z"/></svg></button>
+          <button type="button" class="editor__shape" data-add="diamond" title="Add a diamond" aria-label="Add a diamond" data-i18n-attr="title:editor.addDiamond;aria-label:editor.addDiamond"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0Z"/></svg></button>
+          <button type="button" class="editor__shape" data-add="star" title="Add a star" aria-label="Add a star" data-i18n-attr="title:editor.addStar;aria-label:editor.addStar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg></button>
+          <button type="button" class="editor__shape" data-add="halfCircle" title="Add a half circle" aria-label="Add a half circle" data-i18n-attr="title:editor.addHalfCircle;aria-label:editor.addHalfCircle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 17a9 9 0 0 1 18 0Z"/></svg></button>
+          <button type="button" class="editor__shape" data-add="quarterCircle" title="Add a quarter circle" aria-label="Add a quarter circle" data-i18n-attr="title:editor.addQuarterCircle;aria-label:editor.addQuarterCircle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 19V5a14 14 0 0 1 14 14Z"/></svg></button>
+          <button type="button" class="editor__shape" data-add="arrow" title="Add an arrow" aria-label="Add an arrow" data-i18n-attr="title:editor.addArrow;aria-label:editor.addArrow"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13.207 19.793a.707.707 0 0 1-1.207-.5V16a1 1 0 0 0-1-1H5a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h6a1 1 0 0 0 1-1V4.707a.707.707 0 0 1 1.207-.5l6.94 6.94a1.207 1.207 0 0 1 0 1.707z"/></svg></button>
+          <button type="button" class="editor__shape" data-add="heart" title="Add a heart" aria-label="Add a heart" data-i18n-attr="title:editor.addHeart;aria-label:editor.addHeart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg></button>
+          <button type="button" class="editor__shape" data-add="bubble" title="Add a speech bubble" aria-label="Add a speech bubble" data-i18n-attr="title:editor.addBubble;aria-label:editor.addBubble"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></svg></button>
           <button type="button" class="editor__shape" data-add="path" title="Add a curve" aria-label="Add a curve" data-i18n-attr="title:editor.addCurve;aria-label:editor.addCurve"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8.5 13A0.403 0.403 0 0 1 8.5 13L16 13A0.405 0.405 0 0 1 16 13L13 15.5A0.81 0.81 0 0 0 13 15.5L13 19.5A0.405 0.405 0 0 1 13 19.5Z" stroke-width="1.5"/><path d="M3.5 18A9.72 9.72 0 0 1 8 6.5"/><circle cx="10.5" cy="5.5" r="2"/><circle cx="4.5" cy="20" r="2"/><path d="M16 5L22 5"/><path d="M19 2L19 8"/></svg></button>
           <button type="button" class="editor__shape" id="editor-pen" aria-pressed="false" data-i18n-attr="title:editor.penTitle;aria-label:editor.pen"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z"/><path d="m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18"/><path d="m2.3 2.3 7.286 7.286"/><circle cx="11" cy="11" r="2"/></svg></button>
           <button
@@ -454,6 +494,20 @@
           />
           <div id="editor-picker-results" class="editor__picker-results"></div>
         </section>
+
+        <!-- Imagem de modelo: só na tela, embaixo da grade, para copiar o
+             desenho por cima. Nunca vai para o SVG, o .ile ou o servidor. -->
+        <h3 class="editor__heading" data-i18n="editor.reference">Reference image</h3>
+        <div class="editor__buttons editor__referencia">
+          <button type="button" id="editor-reference-pick" class="editor__com-icone" title="Put an image under the grid to trace over. It stays on this screen: it never goes into the SVG or leaves your browser." data-i18n-attr="title:editor.referencePickTitle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/></svg><span data-i18n="editor.referencePick">Choose image</span></button>
+          <button type="button" id="editor-reference-remove" class="editor__com-icone" hidden><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="2" x2="22" y1="2" y2="22"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><line x1="13.5" x2="6" y1="13.5" y2="21"/><line x1="18" x2="21" y1="12" y2="15"/><path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/></svg><span data-i18n="editor.referenceRemove">Remove image</span></button>
+          <input type="file" id="editor-reference-file" accept="image/*" hidden />
+          <label class="editor__referencia-opacidade" id="editor-reference-opacity-field" hidden>
+            <span data-i18n="editor.referenceOpacity">Opacity</span>
+            <input type="range" id="editor-reference-opacity" min="40" max="100" step="5" value="50" />
+            <output id="editor-reference-opacity-value" for="editor-reference-opacity">50%</output>
+          </label>
+        </div>
 
         </div>
         <div class="editor__painel" data-painel="editar">
@@ -519,6 +573,8 @@
               <span id="editor-gradient-colors-label" data-i18n="editor.gradientColors">Colors</span>
               <input type="color" id="editor-gradient-from" value="#ff7e5f" aria-label="First color" data-i18n-attr="aria-label:editor.gradientFrom" />
               <input type="color" id="editor-gradient-to" value="#feb47b" aria-label="Last color" data-i18n-attr="aria-label:editor.gradientTo" />
+              <!-- Inverte a primeira e a última cor (e reaplica, se a seleção já tem degradê) -->
+              <button type="button" id="editor-gradient-swap" class="editor__degrade-trocar" title="Swap the colors" aria-label="Swap the colors" data-i18n-attr="title:editor.gradientSwap;aria-label:editor.gradientSwap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></button>
             </div>
             <div class="editor__style-row">
               <label for="editor-gradient-type" data-i18n="editor.gradientType">Type</label>
@@ -544,7 +600,11 @@
           <div class="editor__buttons editor__points" id="editor-points" hidden>
             <button type="button" id="editor-point-add" title="Add a point in the middle of the next segment" data-i18n-attr="title:editor.pointAddTitle">+ <span data-i18n="editor.point">Point</span></button>
             <button type="button" id="editor-point-remove" title="Delete the selected point (Delete)" data-i18n-attr="title:editor.pointRemoveTitle">− <span data-i18n="editor.point">Point</span></button>
-            <p id="editor-points-hint" class="editor__note" data-i18n="editor.pointHint">Click a point of the shape to delete it or add another.</p>
+            <!-- Pontos com alças (vetores) para curvar -->
+            <button type="button" id="editor-point-add-curve" title="Add a point with handles in the middle of the next segment" data-i18n-attr="title:editor.pointCurveAddTitle">+ <span data-i18n="editor.pointCurved">Curved point</span></button>
+            <button type="button" id="editor-point-smooth" title="Give the selected point handles to curve it" data-i18n-attr="title:editor.pointSmoothTitle"><span data-i18n="editor.pointSmooth">Curve point</span></button>
+            <button type="button" id="editor-point-corner" title="Remove the handles of the selected point, making it a corner" data-i18n-attr="title:editor.pointCornerTitle"><span data-i18n="editor.pointCorner">Straighten point</span></button>
+            <p id="editor-points-hint" class="editor__note" data-i18n="editor.pointHint">Click a point of the shape to delete it, curve it or add another.</p>
           </div>
         </section>
 
@@ -605,7 +665,7 @@
           <button type="button" id="editor-pen-done" class="editor__ferramenta editor__ferramenta--primaria" data-i18n="editor.penDone" hidden>Done</button>
           <button type="button" id="editor-compare" class="editor__ferramenta" aria-pressed="false" data-i18n-attr="title:editor.compareTitle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg><span data-i18n="editor.compare">Original</span></button>
         </div>
-        <svg id="editor-canvas" class="editor__canvas" tabindex="0" role="img" aria-label="Icon being edited" data-i18n-attr="aria-label:editor.canvas"></svg>
+        <svg id="editor-canvas" class="editor__canvas" tabindex="0" role="img" data-clarity-mask="true" aria-label="Icon being edited" data-i18n-attr="aria-label:editor.canvas"></svg>
         <p id="editor-hint" class="editor__hint" role="status"></p>
         <p id="editor-announce" class="so-leitor" aria-live="polite"></p>
       </div>
@@ -691,6 +751,9 @@
             <li class="editor-help__toque"><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg></span></span><span data-i18n="help.touchDelete">Delete the selection, or the selected point</span></li>
             <li><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 7 6 2"/><path d="M18.992 12H2.041"/><path d="M21.145 18.38A3.34 3.34 0 0 1 20 16.5a3.3 3.3 0 0 1-1.145 1.88c-.575.46-.855 1.02-.855 1.595A2 2 0 0 0 20 22a2 2 0 0 0 2-2.025c0-.58-.285-1.13-.855-1.595"/><path d="m8.5 4.5 2.148-2.148a1.205 1.205 0 0 1 1.704 0l7.296 7.296a1.205 1.205 0 0 1 0 1.704l-7.592 7.592a3.615 3.615 0 0 1-5.112 0l-3.888-3.888a3.615 3.615 0 0 1 0-5.112L5.67 7.33"/></svg></span></span><span data-i18n="help.fill">Fill: paints the inside of a closed shape in the color of its line. Join can close an open line first</span></li>
             <li><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg></span></span><span data-i18n="help.layers">Show layers: paints each shape in its own color to show the order. The icon does not change</span></li>
+            <li><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 19C7 19 8 5 12 5s5 14 9 14"/><circle cx="12" cy="5" r="2"/><path d="M6 5h12" stroke-dasharray="2 2"/></svg></span></span><span data-i18n="help.curvePoint">Curved point / Curve point: give a point two handles to curve it; Straighten point makes it a corner again</span></li>
+            <li><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></span><span data-i18n="help.lock">Padlock in the list: locks a shape so no click can select, move or delete it</span></li>
+            <li><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 5h6"/><path d="M19 2v6"/><path d="M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/></svg></span></span><span data-i18n="help.reference">Reference image: a picture under the grid to trace over (40–100% opacity). It never goes into the SVG</span></li>
             <li class="editor-help__toque"><span class="editor-help__keys"><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></span><span class="editor-help__button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/></svg></span></span><span data-i18n="help.touchUndo">Undo and redo</span></li>
             <li class="editor-help__toque"><span class="editor-help__keys"></span><span data-i18n="help.touchTabs">The tabs under the drawing show the tools</span></li>
             <li><span class="editor-help__keys"><svg class="editor-help__mouse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 3a6 6 0 0 0-6 6v1h6z" fill="currentColor" stroke="none"/><rect x="3" y="3" width="12" height="18" rx="6"/><path d="M9 3v7"/><path d="M18 12h5"/><path d="m21 10 2 2-2 2"/></svg></span><span data-i18n="help.move">Drag a selected shape to move it</span></li>
@@ -864,11 +927,8 @@
   </dialog>
   <footer class="site-footer">
     <nav aria-label="Site" data-i18n-attr="aria-label:nav.label">
-      <a href="guide.html" data-i18n-page="guide" data-i18n="footer.guide">Guide</a>
-      <a href="about.html" data-i18n-page="about" data-i18n="footer.about">About &amp; guide</a>
       <a href="privacy.html" data-i18n-page="privacy" data-i18n="footer.privacy">Privacy</a>
       <a href="license.html" data-i18n-page="license" data-i18n="footer.license">Licenses</a>
-      <button type="button" class="site-footer__coffee" data-coffee-open hidden>☕ <span data-i18n="coffee.button">Buy me a coffee</span></button>
       <span class="site-footer__quebra"></span>
       <button type="button" class="site-footer__report" data-report-open><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A5 5 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A5 5 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623M4 7v4a4 4 0 0 0 3.5 3.97V7zm4.5 0v7.97A4 4 0 0 0 12 11V7zM12 6a4 4 0 0 0-1.334-2.982A3.98 3.98 0 0 0 8 2a3.98 3.98 0 0 0-2.667 1.018A4 4 0 0 0 4 6z"/></svg><span data-i18n="footer.report">Report a bug</span></button>
       <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg><span data-i18n="footer.ideas">Suggest an improvement</span></a>
@@ -884,5 +944,6 @@
   <div id="toast" role="status" aria-live="polite">Copied!</div>
   <script type="module" src="js/app.js"></script>
   <script src="js/views/goTop.js" defer></script>
+  <script src="js/views/profundidade.js" defer></script>
 </body>
 </html>
