@@ -37,7 +37,6 @@ export default {
   "style.color": "Color",
   "style.textColor": "color del texto",
   "style.reset": "Restablecer",
-  "filter.supported": "Solo los que tienen diseño en este equipo",
 
   "loading.icons": "Cargando iconos…",
   "loading.set": "Cargando {set}…",
@@ -48,7 +47,7 @@ export default {
   "summary.vectorHtml":
     "<strong>{total}</strong> iconos vectoriales: no dependen de la fuente del sistema y heredan el color del texto. Al hacer clic se copia el SVG, listo para pegar.",
   "summary.emojiMissingHtml":
-    "<strong>{total}</strong> emojis · <strong>{missing}</strong> sin diseño en este equipo (Emoji {versions}): ninguna fuente disponible hoy los cubre, ni siquiera Noto.",
+    "<strong>{total}</strong> emojis · <strong>{missing}</strong> ocultos porque este dispositivo no tiene diseño para ellos (Emoji {versions}): ninguna fuente disponible hoy los cubre, ni siquiera Noto.",
   "summary.emojiAllHtml": "<strong>{total}</strong> emojis, todos con diseño disponible.",
 
   "card.titleSvg": "Clic: copiar SVG\nClic derecho: copiar nombre",

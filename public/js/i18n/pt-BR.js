@@ -37,7 +37,6 @@ export default {
   "style.color": "Cor",
   "style.textColor": "cor do texto",
   "style.reset": "Restaurar",
-  "filter.supported": "Só os que têm desenho neste computador",
 
   "loading.icons": "Carregando ícones…",
   "loading.set": "Carregando {set}…",
@@ -48,7 +47,7 @@ export default {
   "summary.vectorHtml":
     "<strong>{total}</strong> ícones vetoriais — não dependem da fonte do sistema e herdam a cor do texto. Clicar copia o SVG, pronto para colar.",
   "summary.emojiMissingHtml":
-    "<strong>{total}</strong> emojis · <strong>{missing}</strong> sem desenho neste computador (Emoji {versions}) — nenhuma fonte disponível hoje os cobre, nem a Noto.",
+    "<strong>{total}</strong> emojis · <strong>{missing}</strong> escondidos porque este aparelho não tem desenho para eles (Emoji {versions}) — nenhuma fonte disponível hoje os cobre, nem a Noto.",
   "summary.emojiAllHtml": "<strong>{total}</strong> emojis, todos com desenho disponível.",
 
   "card.titleSvg": "Clique: copiar SVG\nBotão direito: copiar nome",

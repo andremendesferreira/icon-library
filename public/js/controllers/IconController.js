@@ -201,7 +201,6 @@ export class IconController {
       if (chave !== model.fonteAtual) return;
 
       model.exibir(chave, dados);
-      view.mostrarFiltroSuporte(model.detectaGlifo);
       view.mostrarFiltroVariante(model.temVariantes);
       view.habilitarEstilo(model.personalizavel);
       view.renderGrupos(model.contarGrupos());

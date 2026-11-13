@@ -33,9 +33,7 @@ export class IconView {
   painelGrupos = porId("groups-panel");
   gruposLista = porId("groups-list");
   gruposLimpar = porId("groups-clear");
-  filtroSup = porId("only-supported");
   filtroVariante = porId("variant-filter");
-  campoFiltro = porId("supported-filter-field");
   resumo = porId("summary");
   tamanho = porId("style-size");
   tamanhoValor = porId("style-size-value");
@@ -82,8 +80,10 @@ export class IconView {
     this.filtroVariante.hidden = !visivel;
   }
 
+  // Emojis que a fonte deste aparelho não desenha ficam sempre escondidos:
+  // num menu, quem visita veria um quadrado vazio
   get apenasSuportados() {
-    return this.filtroSup.checked;
+    return true;
   }
 
   // ── Ações do usuário ───────────────────────────────────────────────────────
@@ -94,7 +94,6 @@ export class IconView {
 
   aoFiltrar(acao) {
     this.searchBar.addEventListener("input", acao);
-    this.filtroSup.addEventListener("change", acao);
     this.filtroVariante.addEventListener("change", acao);
   }
 
@@ -209,7 +208,6 @@ export class IconView {
       .join("");
     this.botaoGrupos.disabled = true;
     this.searchBar.disabled = true;
-    this.campoFiltro.hidden = true;
     this.container.innerHTML =
       `<p class="empty">${escapar(t("grid.start"))}</p>`;
   }
@@ -274,10 +272,6 @@ export class IconView {
   }
 
   // ── Categorias ─────────────────────────────────────────────────────────────
-  mostrarFiltroSuporte(visivel) {
-    this.campoFiltro.hidden = !visivel;
-  }
-
   renderGrupos(contagem) {
     this.gruposLista.innerHTML = contagem
       .map(

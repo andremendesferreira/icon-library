@@ -1,5 +1,4 @@
-.emoji-card,
-.supported-filter {
+.emoji-card {
   user-select: none;
   cursor: pointer;
 }
@@ -304,20 +303,6 @@ p {
   border-color: var(--il-action);
   background: var(--il-action);
   color: #fff;
-}
-.supported-filter {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  margin-top: 12px;
-  font-size: 14px;
-  color: var(--il-muted);
-}
-.supported-filter input {
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
 }
 .summary {
   font-size: 13px;
@@ -1673,7 +1658,6 @@ body:has(.scratchpad--open) .back-to-top {
 [data-theme="dark"] .header__subtitle,
 [data-theme="dark"] .emoji-name,
 [data-theme="dark"] .customize,
-[data-theme="dark"] .supported-filter,
 [data-theme="dark"] .site-footer,
 [data-theme="dark"] .loading__text {
   color: var(--dk-muted);
@@ -4506,7 +4490,6 @@ body {
 }
 .customize,
 .customize__reset,
-.supported-filter,
 .variant-filter span,
 .summary,
 .groups-menu__item,
@@ -6135,6 +6118,14 @@ html.volta .flutua:nth-child(6) { top: 42%; }
 /* A busca tem 12 px de padding embaixo (é ela que fica presa no topo) */
 html.volta .ferramentas {
   margin-top: calc(var(--respiro) - 12px);
+}
+/* O resumo ("6.218 ícones e emojis…") vira só o respiro antes da grade */
+html.volta .summary {
+  visibility: hidden;
+  /* o título da categoria já fica ~10 px abaixo */
+  height: calc(var(--respiro) - 10px);
+  margin: 0;
+  overflow: hidden;
 }
 @media (max-width: 760px) {
   html.volta {

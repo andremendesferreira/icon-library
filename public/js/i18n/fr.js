@@ -37,7 +37,6 @@ export default {
   "style.color": "Couleur",
   "style.textColor": "couleur du texte",
   "style.reset": "Réinitialiser",
-  "filter.supported": "Seulement celles qui ont un dessin sur cet appareil",
 
   "loading.icons": "Chargement des icônes…",
   "loading.set": "Chargement de {set}…",
@@ -48,7 +47,7 @@ export default {
   "summary.vectorHtml":
     "<strong>{total}</strong> icônes vectorielles — elles ne dépendent pas de la police du système et héritent de la couleur du texte. Un clic copie le SVG, prêt à coller.",
   "summary.emojiMissingHtml":
-    "<strong>{total}</strong> emojis · <strong>{missing}</strong> sans dessin sur cet appareil (Emoji {versions}) — aucune police disponible aujourd’hui ne les couvre, pas même Noto.",
+    "<strong>{total}</strong> emojis · <strong>{missing}</strong> masqués, faute de dessin sur cet appareil (Emoji {versions}) — aucune police disponible aujourd’hui ne les couvre, pas même Noto.",
   "summary.emojiAllHtml": "<strong>{total}</strong> emojis, tous avec un dessin disponible.",
 
   "card.titleSvg": "Clic : copier le SVG\nClic droit : copier le nom",

@@ -37,7 +37,6 @@ export default {
   "style.color": "色",
   "style.textColor": "文字色",
   "style.reset": "リセット",
-  "filter.supported": "この端末で表示できるものだけ",
 
   "loading.icons": "アイコンを読み込み中…",
   "loading.set": "{set} を読み込み中…",
@@ -48,7 +47,7 @@ export default {
   "summary.vectorHtml":
     "ベクターアイコン <strong>{total}</strong> 個。システムフォントに依存せず、文字色を引き継ぎます。クリックで SVG をコピーしてそのまま貼り付けられます。",
   "summary.emojiMissingHtml":
-    "絵文字 <strong>{total}</strong> 個 · この端末でデザインがないもの <strong>{missing}</strong> 個（Emoji {versions}）。現在どのフォントも、Noto でさえも対応していません。",
+    "絵文字 <strong>{total}</strong> 個 · この端末にデザインがないため非表示 <strong>{missing}</strong> 個（Emoji {versions}）。現在どのフォントも、Noto でさえも対応していません。",
   "summary.emojiAllHtml": "絵文字 <strong>{total}</strong> 個。すべてデザインがあります。",
 
   "card.titleSvg": "クリック：SVG をコピー\n右クリック：名前をコピー",

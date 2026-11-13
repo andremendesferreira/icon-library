@@ -110,11 +110,11 @@ as camadas "Design minimalista" e "Arrojado (2026-11)" no fim de
   (`icon-library:set`) recebe o herói compacto (`html.volta`, marcado por
   `js/views/visita.js` no `<head>`, antes de a página aparecer): título de
   30–44 px, sem subtítulo, sem os passos e sem o link do Guia (ele já está
-  no cabeçalho), com seis ícones flutuando menores nas laterais do título e
-  um só respiro (`--respiro`, 40 px;
-  28 px no celular) entre cabeçalho, título, busca e ferramentas. A grade
-  aparece na primeira tela. A primeira visita e os robôs
-  veem a home completa.
+  no cabeçalho) e com seis ícones flutuando menores nas laterais do título.
+  Um só respiro (`--respiro`, 40 px; 28 px no celular) separa cabeçalho,
+  título, busca, ferramentas e grade: o resumo acima da grade ("6.218
+  ícones…") vira só esse espaço. A grade aparece na primeira tela. A primeira
+  visita e os robôs veem a home completa.
 
 ## Navegação
 

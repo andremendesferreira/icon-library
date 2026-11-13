@@ -37,7 +37,6 @@ export default {
   "style.color": "颜色",
   "style.textColor": "文字颜色",
   "style.reset": "重置",
-  "filter.supported": "只显示本机能显示的",
 
   "loading.icons": "正在加载图标…",
   "loading.set": "正在加载 {set}…",
@@ -48,7 +47,7 @@ export default {
   "summary.vectorHtml":
     "<strong>{total}</strong> 个矢量图标——不依赖系统字体，会继承文字颜色。单击即可复制 SVG，直接粘贴使用。",
   "summary.emojiMissingHtml":
-    "<strong>{total}</strong> 个表情符号 · <strong>{missing}</strong> 个在本机没有图形（Emoji {versions}）——目前没有任何字体支持它们，连 Noto 也不支持。",
+    "<strong>{total}</strong> 个表情符号 · <strong>{missing}</strong> 个因本设备没有图形而隐藏（Emoji {versions}）——目前没有任何字体支持它们，连 Noto 也不支持。",
   "summary.emojiAllHtml": "<strong>{total}</strong> 个表情符号，全部都有图形。",
 
   "card.titleSvg": "单击：复制 SVG\n右键：复制名称",

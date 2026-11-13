@@ -37,7 +37,6 @@ export default {
   "style.color": "Farbe",
   "style.textColor": "Textfarbe",
   "style.reset": "Zurücksetzen",
-  "filter.supported": "Nur solche mit Darstellung auf diesem Gerät",
 
   "loading.icons": "Icons werden geladen…",
   "loading.set": "{set} wird geladen…",
@@ -48,7 +47,7 @@ export default {
   "summary.vectorHtml":
     "<strong>{total}</strong> Vektor-Icons — sie hängen nicht von der Systemschrift ab und übernehmen die Textfarbe. Ein Klick kopiert das SVG, bereit zum Einfügen.",
   "summary.emojiMissingHtml":
-    "<strong>{total}</strong> Emojis · <strong>{missing}</strong> ohne Darstellung auf diesem Gerät (Emoji {versions}) — keine heute verfügbare Schrift deckt sie ab, nicht einmal Noto.",
+    "<strong>{total}</strong> Emojis · <strong>{missing}</strong> ausgeblendet, weil dieses Gerät sie nicht darstellen kann (Emoji {versions}) — keine heute verfügbare Schrift deckt sie ab, nicht einmal Noto.",
   "summary.emojiAllHtml": "<strong>{total}</strong> Emojis, alle mit verfügbarer Darstellung.",
 
   "card.titleSvg": "Klick: SVG kopieren\nRechtsklick: Namen kopieren",

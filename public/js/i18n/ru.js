@@ -42,7 +42,6 @@ export default {
   "style.color": "Цвет",
   "style.textColor": "цвет текста",
   "style.reset": "Сбросить",
-  "filter.supported": "Только те, что отображаются на этом устройстве",
 
   "loading.icons": "Загрузка иконок…",
   "loading.set": "Загрузка {set}…",
@@ -53,7 +52,7 @@ export default {
   "summary.vectorHtml":
     "Векторных иконок: <strong>{total}</strong>. Они не зависят от системного шрифта и наследуют цвет текста. Щелчок копирует SVG, готовый к вставке.",
   "summary.emojiMissingHtml":
-    "Эмодзи: <strong>{total}</strong> · без изображения на этом устройстве: <strong>{missing}</strong> (Emoji {versions}) — их пока не поддерживает ни один доступный шрифт, даже Noto.",
+    "Эмодзи: <strong>{total}</strong> · скрыто, потому что на этом устройстве нет их изображения: <strong>{missing}</strong> (Emoji {versions}) — их пока не поддерживает ни один доступный шрифт, даже Noto.",
   "summary.emojiAllHtml": "Эмодзи: <strong>{total}</strong>, у всех есть изображение.",
 
   "card.titleSvg": "Щелчок: копировать SVG\nПравый щелчок: копировать название",
