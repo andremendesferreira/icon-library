@@ -296,8 +296,9 @@ export class IconController {
     clearTimeout(this.esperaBuscaPerdida);
     const termo = this.view.busca.trim().toLowerCase();
     const conjunto = this.model.fonteAtual;
-    // Vários conjuntos juntos não vão: o servidor só conta um conjunto ou "all"
-    if (termo.length < 2 || !conjunto || conjunto.includes(SEPARADOR)) return;
+    // Vários conjuntos juntos vão como estão ("lucide,bootstrap"): o servidor
+    // conta essa combinação como um conjunto
+    if (termo.length < 2 || !conjunto) return;
     if (this.model.gruposEscolhidos.size || !this.model.itens.length) return;
     this.buscasEnviadas ??= new Set();
     const chave = `${conjunto}:${termo}`;

@@ -133,21 +133,29 @@
       },
       buscas: {
         nota:
-          "O que as pessoas buscaram e não acharam em nenhum ícone do conjunto escolhido, das mais buscadas para as menos. Serve para decidir que ícones desenhar ou que palavras-chave faltam. Excluir tira o termo da lista (ele volta se alguém buscar de novo). Uma vez por dia o agente do n8n tenta sinônimos em inglês para os termos buscados 3 vezes ou mais; os que acham ícones entram sozinhos na busca e aparecem em Sinônimos aprendidos, onde dá para excluir um que ficou ruim.",
+          "O que as pessoas buscaram e não acharam em nenhum ícone do conjunto escolhido, das mais buscadas para as menos. Serve para decidir que ícones desenhar ou que palavras-chave faltam. Excluir tira o termo da lista (ele volta se alguém buscar de novo). Uma vez por dia o agente do n8n tenta sinônimos em inglês para os termos buscados 3 vezes ou mais; os que acham ícones entram sozinhos na busca e aparecem em Sinônimos aprendidos. Lá dá para editar os termos, pedir uma nova análise com uma nota para o modelo ou excluir. Ensinar sinônimo, aqui na lista, ensina na hora, sem esperar 3 buscas.",
         abas: [["top", "Mais buscadas"], ["learned", "Sinônimos aprendidos"]],
         endereco: (situacao) => (situacao === "learned" ? "/api/admin/synonyms" : "/api/admin/search-misses?limit=300"),
         acao: () => (situacao === "learned" ? "/api/admin/synonyms/delete" : "/api/admin/search-misses/delete"),
         itens: (resposta) => resposta.synonyms ?? resposta.misses,
         cartao: (m, aba) => aba === "learned" ? `
-          <article class="relato" data-id="${texto(m.term)}" data-lang="${texto(m.lang)}">
+          <article class="relato" data-id="${texto(m.term)}" data-lang="${texto(m.lang)}" data-alvos="${texto((m.targets || []).join(", "))}">
             <blockquote><strong>${texto(m.term)}</strong> (${texto(m.lang)}) → ${texto((m.targets || []).join(", "))}</blockquote>
             <p>${m.icons} ícones no teste · aprendido ${data(m.createdAt)}${m.updatedAt && String(m.updatedAt) !== String(m.createdAt) ? ` · atualizado ${data(m.updatedAt)}` : ""}</p>
-            <div class="acoes"><button type="button" data-acao="delete">Excluir</button></div>
+            ${m.reviewRequestedAt ? `<p class="aviso">Nova análise pedida${m.hint ? `: ${texto(m.hint)}` : ""} — o agente refaz na próxima execução</p>` : ""}
+            <div class="acoes">
+              <button type="button" class="aprovar" data-acao="edit">Editar termos</button>
+              <button type="button" data-acao="review">Pedir nova análise</button>
+              <button type="button" data-acao="delete">Excluir</button>
+            </div>
           </article>` : `
-          <article class="relato" data-id="${texto(m.term)}" data-set="${texto(m.set)}">
+          <article class="relato" data-id="${texto(m.term)}" data-set="${texto(m.set)}" data-lang="${texto(Object.entries(m.langs || {}).sort((a, b) => b[1] - a[1])[0]?.[0] || "en")}">
             <blockquote><strong>${texto(m.term)}</strong> · ${texto(m.set)} · ${m.count}×</blockquote>
             <p>Idiomas: ${texto(Object.entries(m.langs || {}).map(([l, n]) => `${l} ${n}`).join(", "))} · primeira vez ${data(m.firstSeen)} · última ${data(m.lastSeen)}</p>
-            <div class="acoes"><button type="button" data-acao="delete">Excluir</button></div>
+            <div class="acoes">
+              <button type="button" class="aprovar" data-acao="edit">Ensinar sinônimo</button>
+              <button type="button" data-acao="delete">Excluir</button>
+            </div>
           </article>`,
       },
       bugs: {
@@ -225,6 +233,38 @@
       const cartao = botao.closest("[data-id]");
       const id = cartao.dataset.id;
       const acao = botao.dataset.acao;
+      // Sinônimos: editar os termos (também ensinar uma busca sem resultado)
+      // ou pedir nova análise ao agente, com uma nota para o modelo
+      if (area === "buscas" && (acao === "edit" || acao === "review")) {
+        const lang = cartao.dataset.lang;
+        const pedido = acao === "edit"
+          ? window.prompt(`Termos em inglês para "${id}" (${lang}), separados por vírgula. Substituem os atuais; só ficam os que acham ícones.`, cartao.dataset.alvos || "")
+          : window.prompt(`Nota para a nova análise de "${id}" (${lang}), por exemplo "filhote de galinha: chick". O agente refaz na próxima execução e troca os termos se achar ícones.`, "");
+        if (pedido === null) return;
+        botao.disabled = true;
+        const res = await fetch(api(`/api/admin/synonyms/${acao}`), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(acao === "edit" ? { lang, term: id, targets: pedido.split(",") } : { lang, term: id, hint: pedido }),
+        });
+        const resposta = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          alert(
+            resposta.error === "nothing_found"
+              ? `Nenhum termo achou ícones: ${(resposta.tested || []).map((c) => c.term).join(", ")}. Nada mudou.`
+              : `Erro: ${resposta.error || res.status}`,
+          );
+          botao.disabled = false;
+          return;
+        }
+        if (acao === "edit") {
+          const fora = (resposta.tested || []).filter((c) => !c.icons).map((c) => c.term);
+          alert(`Salvo: ${resposta.saved.join(", ")}${fora.length ? `
+Sem ícones, ficaram de fora: ${fora.join(", ")}` : ""}`);
+        }
+        carregar();
+        return;
+      }
       let note = null;
       if (acao === "reject") note = window.prompt("Motivo da recusa (opcional, só para você):") ?? null;
       if (acao === "delete" && !window.confirm("Excluir de vez?")) return;

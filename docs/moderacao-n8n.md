@@ -354,8 +354,22 @@ credencial do bot no nó **Telegram**. Ative o workflow: ele roda todo dia às 4
    acham algo, sem aprovação: entram na busca daquele idioma na hora
    (`/api/synonyms/<idioma>`, cache de 60 s) e o termo sai da lista de buscas
    sem resultado. Se nenhum acha nada, o termo fica marcado e volta em 30 dias.
-4. **Resumo** manda no Telegram o que entrou. Um sinônimo ruim se exclui no
-   `/admin` → Buscas sem resultado → **Sinônimos aprendidos**.
+4. **Resumo** manda no Telegram o que entrou.
+
+No `/admin` → Buscas sem resultado → **Sinônimos aprendidos**, um sinônimo
+ruim se corrige de três jeitos:
+
+- **Editar termos:** você digita os termos em inglês; o site testa cada um e
+  guarda só os que acham ícones, no lugar dos antigos, na hora.
+- **Pedir nova análise:** você escreve uma nota ("filhote de galinha: chick").
+  Na próxima execução, **Pendentes** traz esse termo primeiro, com `hint`; o
+  nó **Preparar pedido** põe a nota no pedido ao modelo, e os termos novos
+  substituem os antigos se acharem ícones (se não acharem, os antigos ficam).
+- **Excluir.**
+
+Na lista de buscas sem resultado, **Ensinar sinônimo** faz o mesmo que
+Editar termos para um termo que ainda não foi aprendido, sem esperar as 3
+buscas.
 
 O site não confia no modelo: só aceita termos que estão na lista (3 buscas ou
 mais, no idioma em que foram feitas), só palavras em inglês de até 4 partes, no

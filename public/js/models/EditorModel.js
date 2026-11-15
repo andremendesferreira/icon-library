@@ -89,6 +89,11 @@ function limparNos(no) {
 // Elementos fora de FORMAS (g, text, use…) são mantidos como estão, em
 // "html", e só podem ser mudados pelo código.
 export function lerSvg(texto) {
+  // Um SVG de ícone nunca precisa de DTD. Com <!DOCTYPE> vêm as entidades
+  // (<!ENTITY>), e entidades que se expandem umas nas outras ("billion
+  // laughs") podem travar a aba de quem abre um link #svg=
+  if (/<!DOCTYPE|<!ENTITY/i.test(texto))
+    throw erroCom("error.svgInvalid", "Invalid SVG: DOCTYPE is not allowed", { detail: "<!DOCTYPE>" });
   const doc = new DOMParser().parseFromString(texto, "image/svg+xml");
   const erro = doc.querySelector("parsererror");
   if (erro) {

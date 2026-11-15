@@ -1,7 +1,8 @@
 "use strict";
 /**
  * Searches with no results: when a search finds no icon in the chosen set, the
- * page sends the term, the set and the language. The server keeps one counter
+ * page sends the term, the set (or the sets combined in the selector) and the
+ * language. The server keeps one counter
  * per term and set, never the IP or anything else about the visitor, so the
  * owner can see in /admin which icons people look for and cannot find.
  *
@@ -34,14 +35,25 @@ function normalizeTerm(value) {
   return term;
 }
 
+// The set as it is stored: one key, "all", or several combined in the
+// selector ("lucide,bootstrap"), in SETS order; null when unknown
+function normalizeSet(value) {
+  const asked = String(value ?? "").split(",");
+  if (asked.length === 1) return SETS.includes(asked[0]) ? asked[0] : null;
+  if (asked.length > SETS.length) return null;
+  const keys = SETS.filter((s) => s !== "all" && asked.includes(s));
+  return keys.length === asked.length && keys.length > 1 ? keys.join(",") : null;
+}
+
 function createSearchMisses({ store, now = Date.now }) {
   return {
     // Fire and forget from the page: invalid input is ignored, not an error
     async record({ term, set, lang } = {}) {
       const t = normalizeTerm(term);
-      if (!t || !SETS.includes(set)) return { ok: true, stored: false };
+      const s = normalizeSet(set);
+      if (!t || !s) return { ok: true, stored: false };
       const l = LANGS.includes(lang) ? lang : "en";
-      const stored = await store.bump({ term: t, set, lang: l, at: new Date(now()), maxRows: MAX_ROWS });
+      const stored = await store.bump({ term: t, set: s, lang: l, at: new Date(now()), maxRows: MAX_ROWS });
       return { ok: true, stored };
     },
     // /admin: most searched first
@@ -114,4 +126,4 @@ function postgresStore(pool) {
   };
 }
 
-module.exports = { MAX_TERM, SETS, createSearchMisses, memoryStore, normalizeTerm, postgresStore };
+module.exports = { MAX_TERM, SETS, createSearchMisses, memoryStore, normalizeSet, normalizeTerm, postgresStore };

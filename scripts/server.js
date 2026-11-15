@@ -737,6 +737,8 @@ async function handleSearchMisses(req, res, url, ctx) {
 //   POST /api/moderation/synonyms/learn  { term, lang, candidates }
 //   GET  /api/admin/synonyms                       learned, newest first
 //   POST /api/admin/synonyms/delete      { lang, term }
+//   POST /api/admin/synonyms/edit        { lang, term, targets } (also a new word)
+//   POST /api/admin/synonyms/review      { lang, term, hint } → agent's next run
 // Without the database the public dictionary is the hand-written file only.
 function dropSynonymCache(ctx, res) {
   const drop = () => {
@@ -747,7 +749,7 @@ function dropSynonymCache(ctx, res) {
 }
 
 function synonymFail(req, res, err) {
-  if (err instanceof SynonymError || err instanceof CoffeeError) return sendJson(req, res, err.status, { error: err.code });
+  if (err instanceof SynonymError || err instanceof CoffeeError) return sendJson(req, res, err.status, { error: err.code, ...(err.extra || {}) });
   logError("[synonyms]", err);
   return sendJson(req, res, 500, { error: "server" });
 }
@@ -802,6 +804,13 @@ async function handleSynonymAdmin(req, res, url, ctx) {
       const body = await readJson(req);
       dropSynonymCache(ctx, res);
       return sendJson(req, res, 200, await synonyms.remove(body.lang, body.term));
+    }
+    if (url === "/api/admin/synonyms/edit" || url === "/api/admin/synonyms/review") {
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      const body = await readJson(req);
+      if (url.endsWith("/review")) return sendJson(req, res, 200, await synonyms.review(body));
+      dropSynonymCache(ctx, res);
+      return sendJson(req, res, 200, await synonyms.edit(body));
     }
     return sendJson(req, res, 404, { error: "not_found" });
   } catch (err) {

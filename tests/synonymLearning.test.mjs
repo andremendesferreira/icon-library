@@ -82,6 +82,36 @@ test("aprender: só termo que está na lista, buscado 3 vezes, no idioma em que 
   await assert.rejects(s.learn({ term: "muito", lang: "xx", candidates: ["trash"] }), { code: "invalid" });
 });
 
+test("editar: os termos do dono substituem, só os que acham ícones; serve também para ensinar", async () => {
+  const { store, s } = criar([falta("lixeira", 3, { "pt-BR": 3 }), falta("carrinho", 1, { "pt-BR": 1 })]);
+  await s.learn({ term: "lixeira", lang: "pt-BR", candidates: ["garbage", "trash"] });
+  const r = await s.edit({ lang: "pt-BR", term: "lixeira", targets: ["trash-2", "nada aqui", "Trash"] });
+  assert.deepEqual(r.saved, ["trash-2", "trash"]);
+  assert.deepEqual((await s.list())[0].targets, ["trash-2", "trash"], "substituiu, sem garbage");
+  await assert.rejects(s.edit({ lang: "pt-BR", term: "lixeira", targets: "nada, zzz" }), { code: "nothing_found" });
+  assert.deepEqual((await s.list())[0].targets, ["trash-2", "trash"], "nada mudou");
+  // Uma busca sem resultado com 1 só: o dono ensina na hora e ela sai da lista
+  assert.deepEqual((await s.edit({ lang: "pt-BR", term: "carrinho", targets: "cart" })).saved, ["cart"]);
+  assert.equal(store.rows.length, 0);
+});
+
+test("nova análise: volta primeiro para o agente, com a nota; os termos novos substituem", async () => {
+  const { s } = criar([falta("pintinho", 3, { "pt-BR": 3 }), falta("poubelle", 9, { fr: 9 })]);
+  await s.learn({ term: "pintinho", lang: "pt-BR", candidates: ["trash", "garbage"] });
+  await assert.rejects(s.review({ lang: "pt-BR", term: "outro" }), { code: "not_found" });
+  assert.deepEqual(await s.review({ lang: "pt-BR", term: "pintinho", hint: "  filhote\nde galinha: chick " }), { ok: true });
+  assert.deepEqual((await s.pending())[0], { term: "pintinho", count: 0, lang: "pt-BR", hint: "filhote de galinha: chick" });
+  assert.equal((await s.list())[0].hint, "filhote de galinha: chick");
+  // Nada achou: os termos antigos ficam e o pedido sai da fila
+  assert.deepEqual((await s.learn({ term: "pintinho", lang: "pt-BR", candidates: ["zzz"] })).learned, []);
+  assert.deepEqual((await s.list())[0].targets, ["trash", "garbage"]);
+  assert.equal((await s.pending()).some((p) => p.hint !== undefined), false);
+  await s.review({ lang: "pt-BR", term: "pintinho", hint: "chick" });
+  assert.deepEqual((await s.learn({ term: "pintinho", lang: "pt-BR", candidates: ["shopping-cart"] })).learned, ["shopping-cart"]);
+  const [linha] = await s.list();
+  assert.deepEqual([linha.targets, linha.reviewRequestedAt], [["shopping-cart"], null], "substituiu e saiu da fila");
+});
+
 const TOKEN = "s".repeat(40);
 const admin = { Authorization: "Basic " + Buffer.from("admin:senha-admin").toString("base64"), "Content-Type": "application/json" };
 const agente = { Authorization: `Bearer ${TOKEN}`, "Content-Type": "application/json" };
@@ -108,6 +138,14 @@ test("servidor: o agente lê e ensina com o token; o dicionário público muda n
   assert.ok(depois.lixeira, "o dicionário escrito à mão continua");
   const lista = await (await fetch(`${base}/api/admin/synonyms`, { headers: admin })).json();
   assert.deepEqual(lista.synonyms.map((x) => x.term), ["cesta"]);
+  const ed = await fetch(`${base}/api/admin/synonyms/edit`, { method: "POST", headers: admin, body: JSON.stringify({ lang: "pt-BR", term: "cesta", targets: ["zzz"] }) });
+  assert.deepEqual([ed.status, (await ed.json()).error], [422, "nothing_found"]);
+  const ed2 = await fetch(`${base}/api/admin/synonyms/edit`, { method: "POST", headers: admin, body: JSON.stringify({ lang: "pt-BR", term: "cesta", targets: ["shopping cart"] }) });
+  assert.deepEqual((await ed2.json()).saved, ["shopping cart"]);
+  assert.deepEqual((await (await fetch(`${base}/api/synonyms/pt-BR`)).json()).cesta, ["shopping cart"], "o dicionário público muda na hora");
+  const rev = await fetch(`${base}/api/admin/synonyms/review`, { method: "POST", headers: admin, body: JSON.stringify({ lang: "pt-BR", term: "cesta", hint: "basket" }) });
+  assert.deepEqual(await rev.json(), { ok: true });
+  assert.equal((await fetch(`${base}/api/admin/synonyms/review`, { method: "POST", body: "{}" })).status, 401);
   const del = await fetch(`${base}/api/admin/synonyms/delete`, { method: "POST", headers: admin, body: JSON.stringify({ lang: "pt-BR", term: "cesta" }) });
   assert.deepEqual(await del.json(), { ok: true, removed: true });
   assert.equal((await (await fetch(`${base}/api/synonyms/pt-BR`)).json()).cesta, undefined);

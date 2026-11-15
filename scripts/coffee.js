@@ -37,8 +37,8 @@ class CoffeeError extends Error {
 }
 
 function newCode() {
-  const bytes = crypto.randomBytes(8);
-  const chars = [...bytes].map((b) => ALPHABET[b % ALPHABET.length]).join("");
+  // randomInt, not a byte modulo 31: every character equally likely
+  const chars = Array.from({ length: 8 }, () => ALPHABET[crypto.randomInt(ALPHABET.length)]).join("");
   return `CAFE-${chars.slice(0, 4)}-${chars.slice(4)}`;
 }
 

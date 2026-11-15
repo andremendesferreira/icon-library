@@ -19,7 +19,7 @@ test("toda página gerada tem breadcrumb com JSON-LD BreadcrumbList válido", ()
     const dados = JSON.parse(ld[1]);
     assert.equal(dados["@type"], "BreadcrumbList", f);
     assert.equal(dados.itemListElement.length, 2, f);
-    assert.match(dados.itemListElement[1].item, new RegExp(`/${f.replace(/\./g, "\\.")}$`), f);
+    assert.match(dados.itemListElement[1].item, new RegExp(`/${f.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`), f);
     assert.match(html, /<nav class="page__trilha" aria-label="[^"]+">/, `${f}: sem breadcrumb na tela`);
     assert.match(html, /<li aria-current="page">[^<]+<\/li>/, f);
   }

@@ -31,6 +31,17 @@ test("registro: conta por termo e conjunto, com os idiomas; ignora conjunto desc
   assert.equal((await b.top()).length, 1);
 });
 
+test("conjuntos combinados no seletor contam como um conjunto, na ordem do seletor", async () => {
+  const n = buscas.normalizeSet;
+  assert.equal(n("lucide"), "lucide");
+  assert.equal(n("all"), "all");
+  assert.equal(n("bootstrap,lucide"), "lucide,bootstrap");
+  for (const ruim of ["outro", "lucide,outro", "lucide,lucide", "lucide,all", "", "lucide,"]) assert.equal(n(ruim), null, ruim);
+  const b = buscas.createSearchMisses({ store: buscas.memoryStore() });
+  assert.deepEqual(await b.record({ term: "cesta", set: "bootstrap,lucide", lang: "pt-BR" }), { ok: true, stored: true });
+  assert.equal((await b.top())[0].set, "lucide,bootstrap");
+});
+
 let base;
 let instancia;
 let b;

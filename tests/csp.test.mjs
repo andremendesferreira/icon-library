@@ -42,7 +42,7 @@ test("as páginas não têm JavaScript em linha nem atributos on*", () => {
   const pasta = new URL("../public/", import.meta.url);
   for (const f of readdirSync(pasta).filter((n) => n.endsWith(".html"))) {
     const html = readFileSync(new URL(f, pasta), "utf8");
-    for (const m of html.matchAll(/<script(\s[^>]*)?>([\s\S]*?)<\/script>/gi)) {
+    for (const m of html.matchAll(/<script(\s[^>]*)?>([\s\S]*?)<\/script\s*>/gi)) {
       const atributos = m[1] ?? "";
       if (/\ssrc=/.test(atributos)) continue;
       assert.match(atributos, /type="application\/(ld\+)?json"/, `${f}: script em linha que roda código`);
