@@ -1,11 +1,30 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
+# Dependabot: a pull request por semana quando sai versão nova (ou na hora,
+# para alertas de segurança). O CI (ci.yml) testa cada uma antes do merge.
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # package.json: pg, @resvg/resvg-js e o paper (dev)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    ignore:
+      # public/js/vendor/paper-core.min.js é uma cópia do pacote e
+      # tests/booleanas.test.mjs exige os dois iguais: atualizar à mão, os dois juntos
+      - dependency-name: "paper"
+    groups:
+      dependencias:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Imagem base do Dockerfile (node:24-slim)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # Versões das actions usadas em .github/workflows/
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
       interval: "weekly"
