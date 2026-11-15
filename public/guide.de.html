@@ -149,10 +149,10 @@
     <h2 id="start">So funktioniert es</h2>
     <ol class="page__steps">
       <li>
-        <strong>Wähle ein Set</strong> über die Schaltfläche <em>Auswählen</em>. Die Seite öffnet mit Lucide oder dem zuletzt gewählten Set, und jedes Set bleibt im Cache, solange die Seite offen ist.
+        <strong>Wähle ein Set</strong> über die Schaltfläche <em>Auswählen</em>. Die Seite öffnet mit Lucide oder dem zuletzt gewählten Set, und jedes Set bleibt im Cache, solange die Seite offen ist. Hake die Kästchen neben den Namen an, um mehrere Sets zu kombinieren (zum Beispiel Lucide und Bootstrap): Das Raster zeigt einen Abschnitt pro Set, die Suche bleibt in ihnen, und die Seite merkt sich die Kombination (<code>?set=lucide,bootstrap</code>).
       </li>
       <li>
-        <strong>Grenze ein</strong> mit <em>Alle Kategorien</em> (mehrere sind möglich) und dem Suchfeld – die Taste <kbd>/</kbd> springt direkt hinein. Gesucht wird in Namen und Schlagwörtern der Icons, „delete“ findet also auch den Papierkorb, und die besten Treffer stehen vorn. Namen und Schlagwörter sind englisch. Die Suche läuft in <em>Alle Sets</em> auf einmal, mit einem Abschnitt pro Set; wähle im Auswahlfeld ein Set, um nur darin zu suchen, und wer die Suche leert, landet wieder im vorherigen Set. Findet sich in einem einzelnen Set nichts, bietet die Seite an, Suche oder Kategorien zu leeren und dasselbe Wort in den anderen Sets zu suchen. Bei Bootstrap Icons zeigen <em>Kontur</em> und <em>Gefüllt</em> nur eine der zwei Versionen, die die meisten Icons haben (<code>?style=outline</code> oder <code>?style=filled</code> in der Adresse).
+        <strong>Grenze ein</strong> mit <em>Alle Kategorien</em> (mehrere sind möglich) und dem Suchfeld – die Taste <kbd>/</kbd> springt direkt hinein. Gesucht wird in Namen und Schlagwörtern der Icons, „delete“ findet also auch den Papierkorb, und die besten Treffer stehen vorn. Namen und Schlagwörter sind englisch. Und die Suche lernt: Ein Wort, das in irgendeiner Sprache weiter nichts findet, geht einmal am Tag an einen automatischen Vorgang, der englische Icon-Namen mit derselben Bedeutung sucht; die, die Icons finden, funktionieren ab dem nächsten Tag für alle. Die Suche läuft in <em>Alle Sets</em> auf einmal, mit einem Abschnitt pro Set; wähle im Auswahlfeld ein Set, um nur darin zu suchen, und wer die Suche leert, landet wieder im vorherigen Set. Findet sich in einem einzelnen Set nichts, bietet die Seite an, Suche oder Kategorien zu leeren und dasselbe Wort in den anderen Sets zu suchen. Bei Bootstrap Icons zeigen <em>Kontur</em> und <em>Gefüllt</em> nur eine der zwei Versionen, die die meisten Icons haben (<code>?style=outline</code> oder <code>?style=filled</code> in der Adresse).
       </li>
       <li>
         <strong>Lege den Stil fest</strong> mit Größe, Strich und Farbe. Sie
@@ -191,8 +191,8 @@
     <h2 id="editor">Der Icon-Editor</h2>
     <p>
       Der Stift auf einer Karte öffnet das Icon auf einem Raster, bereit zum
-      Ändern. Das Icon kommt mit der Größe, dem Strich und der Farbe, die du
-      gewählt hast.
+      Ändern. Das Icon kommt mit der Größe und dem Strich, die du gewählt hast,
+      in der Textfarbe: Farben wählst du im Editor, Form für Form.
     </p>
     <figure class="page__figure">
       <img src="img/guide/editor.webp" width="1000" height="695" alt="Der Editor: Formen links, Punkte auf dem Raster, Code und Vorschauen rechts." loading="lazy" />
@@ -208,7 +208,7 @@
       <li>
         <strong>Verschieben:</strong> Ziehe eine Form oder nutze die Pfeiltasten
         bzw. die Schaltflächen. Punkte rasten am Raster ein (1, ½ oder ¼ Einheit
-        oder frei).
+        oder frei). Die Rasterlinien der Zeichnung folgen dem gewählten Schritt; ohne Einrasten sind keine zu sehen.
       </li>
       <li>
         <strong>Transformieren:</strong> um 90° oder 45° drehen, spiegeln, vergrößern oder
@@ -238,7 +238,7 @@
         <strong>Verbinden, trennen und anordnen:</strong> <em>Verbinden</em> (Strg+J) macht aus zwei offenen Linien eine, über ihre nächsten Enden. Bei einer ausgewählten offenen Linie schließt es die Form; wählst du auch einen Punkt, verbindet es das nächste Ende damit. <em>Trennen</em> macht den Mauszeiger zur Zielscheibe: Klicke, wo die Linie geschnitten werden soll, oder drücke Esc zum Abbrechen. Die vier Reihenfolge-Tasten unter Transformieren schieben die Form nach hinten oder vorne, einen Schritt oder ganz ans Ende. Die Taste <em>?</em> zeigt alle Befehle mit Tasten und Mausaktionen.
       </li>
       <li>
-        <strong>Zoom:</strong> das Mausrad, die Lupen-Knöpfe über der Zeichnung oder die Tasten + und − zoomen um den Mauszeiger; auf dem Smartphone mit zwei Fingern ziehen. Leertaste halten und ziehen (oder mit der mittleren Maustaste ziehen) verschiebt die Ansicht; ein Klick auf die Prozentzahl oder die Taste 0 zeigt wieder die ganze Zeichnung.
+        <strong>Zoom:</strong> das Mausrad, die Lupen-Knöpfe über der Zeichnung oder die Tasten + und − zoomen um den Mauszeiger; auf dem Smartphone mit zwei Fingern ziehen. Leertaste halten und ziehen (oder mit der mittleren Maustaste ziehen) verschiebt die Ansicht. Die Taste − verkleinert bis 25 % und lässt Platz um die Zeichnung; ein Klick auf die Prozentzahl oder die Taste 0 geht zurück auf 100 %, zentriert.
       </li>
       <li>
         <strong>Größe und Drehung von Hand:</strong> die Auswahl bekommt einen Rahmen mit Griffen. Ziehe an einer Ecke, um die Größe zu ändern – die Proportionen bleiben, und die Größe rastet am Raster ein; ziehe den Punkt über dem Rahmen, um in 15-Grad-Schritten zu drehen. Mit gedrückter Umschalttaste geht es stufenlos. Für genaue Werte gib X, Y, B und H im Feld <em>Auswahl</em> ein.
@@ -351,7 +351,7 @@
           <tr><td><kbd>Strg+D</kbd></td><td>Editor: Auswahl duplizieren</td></tr>
           <tr><td><kbd>Umschalt + ← → ↑ ↓</kbd></td><td>Editor: um zehn Rasterschritte bewegen</td></tr>
           <tr><td><kbd>Tab</kbd></td><td>Editor, Zeichnung im Fokus: nächste Form wählen</td></tr>
-          <tr><td><kbd>+ / − / 0</kbd></td><td>Editor: vergrößern, verkleinern und einpassen (auch mit dem Mausrad)</td></tr>
+          <tr><td><kbd>+ / − / 0</kbd></td><td>Editor: vergrößern, verkleinern (bis 25 %) und zurück auf 100 %, zentriert (auch mit dem Mausrad)</td></tr>
           <tr><td><kbd>Leertaste + ziehen</kbd></td><td>Editor: Ansicht verschieben</td></tr>
           <tr><td><kbd>Alt + ziehen</kbd></td><td>Editor: ziehen, ohne an anderen Formen einzurasten</td></tr>
           <tr><td><kbd>Enter</kbd></td><td>Editor, mit dem Zeichenstift: Linie beenden</td></tr>

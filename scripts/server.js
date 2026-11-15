@@ -29,7 +29,10 @@
  *   MODERATION_TOKEN       enables /api/moderation/… for an automated
  *                          moderator (n8n): list pending icons, PNG previews,
  *                          approve or reject — nothing else. At least 32
- *                          characters (openssl rand -hex 32).
+ *                          characters (openssl rand -hex 32). The same token
+ *                          lets the daily synonym agent read the searches
+ *                          with no results and send candidates
+ *                          (scripts/synonymLearning.js).
  *   INDEXNOW_KEY           with SITE_URL, serves /<key>.txt and, a minute
  *                          after each start, sends the sitemap to IndexNow
  *                          (Bing, Yandex…). 8–128 letters, digits or dashes
@@ -54,6 +57,8 @@ const { ReviewError, createReviews, postgresStore: reviewsStore, avatarPng, MAX_
 const { configured: oauthConfigured, createOAuth } = require("./oauth");
 const { createResponseCache } = require("./cache");
 const { createSearchMisses, postgresStore: searchMissesStore } = require("./searchMisses");
+const { LANGS: SYNONYM_LANGS, SynonymError, createSynonymLearning, postgresStore: synonymsStore, readDictionary } = require("./synonymLearning");
+const { createIconIndex } = require("./iconIndex");
 const { ENFORCED: CSP_ENFORCED, PAGES_REPORT_ONLY: CSP_REPORT_ONLY, createCspReports, strictPolicyFor } = require("./csp");
 const { PreviewError, previewAvailable, previewSize, renderPngIsolated } = require("./preview");
 const { DEFAULT: DEFAULT_LANG, dictionary, homeLang, localizeHome } = require("./homeLang");
@@ -312,7 +317,7 @@ function guardAdmin(req, res, ctx, json) {
     else send(req, res, status, { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", ...headers }, body.error);
     return false;
   };
-  if (!ctx.adminPassword || !(ctx.iconlibrary || ctx.reports || ctx.reviews || ctx.searchMisses)) return fail(404, { error: "not_found" });
+  if (!ctx.adminPassword || !(ctx.iconlibrary || ctx.reports || ctx.reviews || ctx.searchMisses || ctx.synonyms)) return fail(404, { error: "not_found" });
   if (isAdmin(req, ctx)) return true;
   if (!ctx.limit(`admin ${clientIp(req)}`, LIMITS.admin)) return fail(429, { error: "too_many" });
   return fail(401, { error: "unauthorized" }, { "WWW-Authenticate": 'Basic realm="Icon Library admin", charset="UTF-8"' });
@@ -333,6 +338,7 @@ function isModerator(req, ctx) {
 }
 
 async function handleModeration(req, res, url, ctx) {
+  if (url.startsWith("/api/moderation/synonyms/")) return handleSynonymAgent(req, res, url, ctx);
   const { iconlibrary, reviews } = ctx;
   const deAvaliacao = url === "/api/moderation/reviews" || url.startsWith("/api/moderation/reviews/");
   if (!ctx.moderationToken || !(deAvaliacao ? reviews : iconlibrary)) return sendJson(req, res, 404, { error: "not_found" });
@@ -725,6 +731,84 @@ async function handleSearchMisses(req, res, url, ctx) {
   }
 }
 
+// The search that learns (scripts/synonymLearning.js):
+//   GET  /api/synonyms/<lang>                      public dictionary, cached
+//   GET  /api/moderation/synonyms/pending?limit=   Bearer MODERATION_TOKEN
+//   POST /api/moderation/synonyms/learn  { term, lang, candidates }
+//   GET  /api/admin/synonyms                       learned, newest first
+//   POST /api/admin/synonyms/delete      { lang, term }
+// Without the database the public dictionary is the hand-written file only.
+function dropSynonymCache(ctx, res) {
+  const drop = () => {
+    for (const lang of SYNONYM_LANGS) ctx.cache.drop(`synonyms:${lang}`);
+  };
+  drop();
+  res.on("finish", drop);
+}
+
+function synonymFail(req, res, err) {
+  if (err instanceof SynonymError || err instanceof CoffeeError) return sendJson(req, res, err.status, { error: err.code });
+  logError("[synonyms]", err);
+  return sendJson(req, res, 500, { error: "server" });
+}
+
+async function handleSynonyms(req, res, url, ctx) {
+  const lang = /^\/api\/synonyms\/([\w-]+)$/.exec(url)?.[1];
+  if (!SYNONYM_LANGS.includes(lang)) return sendJson(req, res, 404, { error: "not_found" });
+  if (req.method !== "GET" && req.method !== "HEAD") return sendJson(req, res, 405, { error: "method" });
+  try {
+    return sendCached(req, res, await ctx.cache.get(`synonyms:${lang}`, async () => (ctx.synonyms ? ctx.synonyms.dictionary(lang) : readDictionary(lang))));
+  } catch (err) {
+    return synonymFail(req, res, err);
+  }
+}
+
+async function handleSynonymAgent(req, res, url, ctx) {
+  const { synonyms } = ctx;
+  if (!ctx.moderationToken || !synonyms) return sendJson(req, res, 404, { error: "not_found" });
+  if (!isModerator(req, ctx)) {
+    if (!ctx.limit(`admin ${clientIp(req)}`, LIMITS.admin)) return sendJson(req, res, 429, { error: "too_many" });
+    res.setHeader("WWW-Authenticate", 'Bearer realm="Icon Library moderation"');
+    return sendJson(req, res, 401, { error: "unauthorized" });
+  }
+  try {
+    if (url === "/api/moderation/synonyms/pending") {
+      if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
+      return sendJson(req, res, 200, { terms: await synonyms.pending(new URL(req.url, "http://localhost").searchParams.get("limit")) });
+    }
+    if (url === "/api/moderation/synonyms/learn") {
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      const body = await readJson(req);
+      dropSynonymCache(ctx, res);
+      return sendJson(req, res, 200, await synonyms.learn(body));
+    }
+    return sendJson(req, res, 404, { error: "not_found" });
+  } catch (err) {
+    return synonymFail(req, res, err);
+  }
+}
+
+async function handleSynonymAdmin(req, res, url, ctx) {
+  if (!guardAdmin(req, res, ctx, true)) return;
+  const { synonyms } = ctx;
+  if (!synonyms) return sendJson(req, res, 404, { error: "not_found" });
+  try {
+    if (url === "/api/admin/synonyms") {
+      if (req.method !== "GET") return sendJson(req, res, 405, { error: "method" });
+      return sendJson(req, res, 200, { synonyms: await synonyms.list() });
+    }
+    if (url === "/api/admin/synonyms/delete") {
+      if (req.method !== "POST") return sendJson(req, res, 405, { error: "method" });
+      const body = await readJson(req);
+      dropSynonymCache(ctx, res);
+      return sendJson(req, res, 200, await synonyms.remove(body.lang, body.term));
+    }
+    return sendJson(req, res, 404, { error: "not_found" });
+  } catch (err) {
+    return synonymFail(req, res, err);
+  }
+}
+
 // CSP violation reports from browsers (report-only policy): logged once per
 // kind, nothing stored (scripts/csp.js)
 async function handleCspReport(req, res, ctx) {
@@ -762,6 +846,8 @@ async function handleApi(req, res, url, ctx) {
   }
   if (url.startsWith("/api/moderation/")) return handleModeration(req, res, url, ctx);
   if (url === "/api/search-misses" || url.startsWith("/api/admin/search-misses")) return handleSearchMisses(req, res, url, ctx);
+  if (url.startsWith("/api/synonyms/")) return handleSynonyms(req, res, url, ctx);
+  if (url === "/api/admin/synonyms" || url.startsWith("/api/admin/synonyms/")) return handleSynonymAdmin(req, res, url, ctx);
   if (url === "/api/reviews" || url.startsWith("/api/reviews/") || url === "/api/admin/reviews" || url.startsWith("/api/admin/reviews/"))
     return handleReviews(req, res, url, ctx);
   if (url === "/api/reports" || url.startsWith("/api/reports/") || url.startsWith("/api/admin/reports")) {
@@ -911,12 +997,12 @@ function handle(req, res, ctx) {
 // /admin; indexNowKey: serves /<key>.txt; reviews: scripts/reviews.js and
 // oauth: scripts/oauth.js (logins for reviews). Each null/empty = feature off.
 // health: the start-up checks, for /api/health (default: healthy, no database).
-function createServer({ coffee = null, iconlibrary = null, reports = null, reviews = null, oauth = null, searchMisses = null, adminPassword = "", moderationToken = "", indexNowKey = "", health = null } = {}) {
+function createServer({ coffee = null, iconlibrary = null, reports = null, reviews = null, oauth = null, searchMisses = null, synonyms = null, adminPassword = "", moderationToken = "", indexNowKey = "", health = null } = {}) {
   const ctx = {
-    coffee, iconlibrary, reports, reviews, oauth, searchMisses, adminPassword, moderationToken, indexNowKey, limit: createLimiter(),
+    coffee, iconlibrary, reports, reviews, oauth, searchMisses, synonyms, adminPassword, moderationToken, indexNowKey, limit: createLimiter(),
     cache: createResponseCache(),
     csp: createCspReports(),
-    health: { ok: true, database: "off", pendingMigrations: [], ...health, coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews), searchMisses: Boolean(searchMisses) },
+    health: { ok: true, database: "off", pendingMigrations: [], ...health, coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews), searchMisses: Boolean(searchMisses), synonyms: Boolean(synonyms) },
   };
   return http.createServer((req, res) => {
     try {
@@ -1010,7 +1096,16 @@ if (require.main === module) {
       : null;
     // Searches with no results: only the database, no other feature
     const searchMisses = (await usable("searchMisses", "searches with no results are off")) ? createSearchMisses({ store: searchMissesStore(pool) }) : null;
-    Object.assign(health, { coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews), searchMisses: Boolean(searchMisses) });
+    // Learned synonyms: on top of the searches with no results. The icon
+    // index is downloaded only when the agent first sends candidates
+    const synonymsOk = Boolean(searchMisses) && (await usable("synonyms", "learned synonyms are off"));
+    const synonyms = synonymsOk
+      ? createSynonymLearning({
+          store: synonymsStore(pool),
+          index: createIconIndex({ community: async () => (iconlibrary ? iconlibrary.list() : []) }),
+        })
+      : null;
+    Object.assign(health, { coffee: Boolean(coffee), iconlibrary: Boolean(iconlibrary), reports: Boolean(reports), reviews: Boolean(reviews), searchMisses: Boolean(searchMisses), synonyms: Boolean(synonyms) });
     const adminPassword = process.env.ADMIN_PASSWORD || "";
     // A short token would be easy to guess: below 32 characters it is ignored
     let moderationToken = process.env.MODERATION_TOKEN || "";
@@ -1023,7 +1118,7 @@ if (require.main === module) {
     if (process.env.INDEXNOW_KEY && !indexNow)
       console.error("[indexnow] INDEXNOW_KEY must have 8 to 128 letters, digits or dashes (openssl rand -hex 16) — IndexNow is off");
     const site = (process.env.SITE_URL || "").replace(/\/+$/, "");
-    createServer({ coffee, iconlibrary, reports, reviews, oauth, searchMisses, adminPassword, moderationToken, indexNowKey: indexNow, health }).listen(PORT, HOST, () => {
+    createServer({ coffee, iconlibrary, reports, reviews, oauth, searchMisses, synonyms, adminPassword, moderationToken, indexNowKey: indexNow, health }).listen(PORT, HOST, () => {
       console.log(`Icon Library running at http://localhost:${PORT}`);
       // Off because of a failed database check: point to the [db] line, not to the configuration
       const off = (reason) => (health.ok ? `off (${reason})` : "OFF (database check failed, see [db] above)");
@@ -1032,7 +1127,8 @@ if (require.main === module) {
       console.log(`Bug reports: ${reports ? "on" : off("needs the database")}`);
       console.log(`Supporter reviews: ${reviews ? `on, logins: ${oauth ? oauth.providers().join(", ") : "none (set *_OAUTH_ID/SECRET)"}` : off("needs the database and the coffee")}`);
       console.log(`Searches with no results: ${searchMisses ? "on" : off("needs the database")}`);
-      console.log(`Admin (/admin): ${(iconlibrary || reports || reviews || searchMisses) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
+      console.log(`Learned synonyms: ${synonyms ? (moderationToken ? "on" : "dictionary on, agent off (set MODERATION_TOKEN)") : off("needs the database and migration 008")}`);
+      console.log(`Admin (/admin): ${(iconlibrary || reports || reviews || searchMisses || synonyms) && adminPassword ? "on" : "off (set ADMIN_PASSWORD)"}`);
       console.log(`Version: ${VERSION.commit ? VERSION.commit.slice(0, 7) : "unknown commit"}${VERSION.built ? `, built ${VERSION.built}` : ""}`);
       console.log(`Moderation API: ${iconlibrary && moderationToken ? `on${previewAvailable() ? "" : " (no PNG previews: renderer missing)"}` : "off (set MODERATION_TOKEN)"}`);
       console.log(`IndexNow: ${indexNow && site ? "on, sitemap sent in a minute" : "off (set INDEXNOW_KEY and SITE_URL)"}`);

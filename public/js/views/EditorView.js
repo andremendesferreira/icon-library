@@ -36,6 +36,8 @@ const MOVIMENTO_MINIMO = 4;
 const PREVIAS = [16, 24, 32, 48];
 // Zoom da vista: de "cabe tudo" (1) até 16 vezes
 const ZOOM_MAXIMO = 16;
+// Afastar até 25%: dá espaço em volta para desenhar fora da área do ícone
+const ZOOM_MINIMO = 0.25;
 // Em pixels de tela: a que distância um ponto gruda em outra forma, e o
 // tamanho das alças da caixa de seleção
 const ENCAIXE_PX = 6;
@@ -1107,7 +1109,7 @@ export class EditorView {
     if (texto) porId("editor-draft-text").textContent = texto;
   }
 
-  desenharCanvas({ raiz, elementos, selecionados, pontos, pontoSelecionado, viewBox, fora, caixa, ligacao, blocos, caixaSelecao, guias, original }) {
+  desenharCanvas({ raiz, elementos, selecionados, pontos, pontoSelecionado, viewBox, fora, caixa, ligacao, blocos, caixaSelecao, guias, original, passo: encaixe = 0.5 }) {
     const { x, y, w, h } = viewBox;
     // A margem abre espaço para pontos de controle fora da área do ícone
     // (comuns em curvas), para todos poderem ser pegos. Durante um arraste
@@ -1131,7 +1133,9 @@ export class EditorView {
     this.escala = escala;
     this.canvas.replaceChildren();
 
-    // Grade: uma linha por unidade (ou por 1/24 da largura em ícones grandes)
+    // Grade: segue o encaixe escolhido (1, ½ ou ¼ de unidade; sem encaixe,
+    // sem linhas). A unidade é 1 (ou 1/24 da largura em ícones grandes); a
+    // cada unidade a linha é normal, a cada 4 mais forte, e as frações, finas
     const grade = criar("g", { class: "editor__grid" });
     grade.append(criar("rect", { x, y, width: w, height: h, class: "editor__grid-bg" }));
     // Imagem de modelo: na área do ícone, inteira e centralizada, embaixo das
@@ -1147,14 +1151,21 @@ export class EditorView {
         opacity: this.referencia.opacidade,
         class: "editor__referencia-imagem",
       }));
-    const passo = w <= 64 ? 1 : w / 24;
-    for (let k = 0; k <= w / passo + 1e-9; k++) {
-      const gx = x + k * passo;
-      grade.append(criar("line", { x1: gx, y1: y, x2: gx, y2: y + h, class: k % 4 ? "" : "editor__grid-major" }));
-    }
-    for (let k = 0; k <= h / passo + 1e-9; k++) {
-      const gy = y + k * passo;
-      grade.append(criar("line", { x1: x, y1: gy, x2: x + w, y2: gy, class: k % 4 ? "" : "editor__grid-major" }));
+    const unidade = w <= 64 ? 1 : w / 24;
+    if (encaixe > 0) {
+      // Linhas por unidade: 1, 2 ou 4
+      const porUnidade = Math.round(1 / Math.min(encaixe, 1));
+      const passo = unidade / porUnidade;
+      const classe = (k) =>
+        k % (4 * porUnidade) === 0 ? "editor__grid-major" : k % porUnidade === 0 ? "" : "editor__grid-fina";
+      for (let k = 0; k <= w / passo + 1e-9; k++) {
+        const gx = x + k * passo;
+        grade.append(criar("line", { x1: gx, y1: y, x2: gx, y2: y + h, class: classe(k) }));
+      }
+      for (let k = 0; k <= h / passo + 1e-9; k++) {
+        const gy = y + k * passo;
+        grade.append(criar("line", { x1: x, y1: gy, x2: x + w, y2: gy, class: classe(k) }));
+      }
     }
     this.canvas.append(grade);
 
@@ -1313,7 +1324,7 @@ export class EditorView {
   // fator > 1 aproxima; foco (em unidades do ícone) fica parado na tela
   ampliar(fator, foco = null) {
     if (!this.vistaBase) return;
-    const novo = Math.min(ZOOM_MAXIMO, Math.max(1, this.zoom * fator));
+    const novo = Math.min(ZOOM_MAXIMO, Math.max(ZOOM_MINIMO, this.zoom * fator));
     if (Math.abs(novo - this.zoom) < 1e-9) return;
     const v = this.vista();
     const centro = { x: v.x + v.w / 2, y: v.y + v.h / 2 };
@@ -1324,6 +1335,7 @@ export class EditorView {
     this.redesenhar();
   }
 
+  // O botão do meio (o "100%"): volta a 100% com o desenho centralizado
   ajustarVista() {
     this.zoom = 1;
     this.centroVista = null;

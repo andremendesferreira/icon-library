@@ -165,3 +165,31 @@ test("Todos os conjuntos: junta os já baixados, agrupa por conjunto e ordena pe
   vazio.carregar = async () => { throw new Error("offline"); };
   await assert.rejects(vazio.carregarTodos(), /offline/);
 });
+
+test("Vários conjuntos: escolha normalizada, seções por conjunto e resumo com os nomes", async () => {
+  const { TODOS } = await import("../public/js/models/IconModel.js");
+  const model = new IconModel();
+  // Ordem do seletor, sem repetidas nem desconhecidas; uma só vira a própria
+  // chave, todas viram "Todos", nenhuma válida vira null
+  assert.equal(model.escolha(["bootstrap", "lucide", "lucide", "nada"]), "lucide,bootstrap");
+  assert.equal(model.escolha(["feather"]), "feather");
+  assert.equal(model.escolha(Object.keys(FONTES)), TODOS);
+  assert.equal(model.escolha(["all"]), TODOS);
+  assert.equal(model.escolha([""]), null);
+  assert.ok(model.ehVarios("lucide,bootstrap"));
+  assert.ok(!model.ehVarios("lucide"));
+  assert.ok(!model.ehVarios(TODOS));
+  const com = (chave, itens) => itens.map((i) => ({ ...i, conjunto: chave }));
+  model.cache.set("lucide", { itens: com("lucide", [item("house", "home"), item("trash", "ui")]), usouAlternativa: false });
+  model.cache.set("bootstrap", { itens: com("bootstrap", [item("trash", "x")]), usouAlternativa: false });
+  const dados = await model.carregarVarias(model.chavesDe("lucide,bootstrap"));
+  model.exibir("lucide,bootstrap", dados);
+  assert.ok(model.modoTodos);
+  assert.deepEqual(model.fontesExibidas, ["lucide", "bootstrap"]);
+  assert.deepEqual(model.contarGrupos(), [["Bootstrap", 1], ["Lucide", 2]]);
+  assert.equal(model.rotuloTodos, "sets.sections");
+  // Traço e cor valem porque o Lucide os tem; o filtro de contorno/preenchido não
+  assert.deepEqual(model.personalizavel, { traco: true, cor: true });
+  assert.ok(!model.temVariantes);
+  assert.deepEqual(model.resumo(), { total: 3, conjuntos: ["Lucide", "Bootstrap"] });
+});

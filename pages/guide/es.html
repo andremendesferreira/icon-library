@@ -22,10 +22,10 @@
 <h2 id="start">Cómo se usa</h2>
 <ol class="page__steps">
   <li>
-    <strong>Elige un conjunto</strong> en el botón <em>Elegir</em>. La página se abre con Lucide, o con el último conjunto que elegiste, y cada conjunto queda en caché mientras la página esté abierta.
+    <strong>Elige un conjunto</strong> en el botón <em>Elegir</em>. La página se abre con Lucide, o con el último conjunto que elegiste, y cada conjunto queda en caché mientras la página esté abierta. Marca las casillas junto a los nombres para combinar varios conjuntos (Lucide y Bootstrap, por ejemplo): la cuadrícula muestra una sección para cada uno, la búsqueda se queda en ellos y la página recuerda la combinación (<code>?set=lucide,bootstrap</code>).
   </li>
   <li>
-    <strong>Acota</strong> con <em>Todas las categorías</em> (puedes marcar varias) y con el campo de búsqueda: la tecla <kbd>/</kbd> lleva directo a él. Busca en el nombre y en las palabras clave de los iconos, así que “delete” también encuentra la papelera, y los mejores resultados salen primero. Nombres y palabras clave están en inglés. La búsqueda mira en <em>Todos los conjuntos</em> a la vez, con una sección para cada uno; elige un conjunto en el selector para buscar solo en él, y al borrar la búsqueda vuelves al conjunto en el que estabas. Si no aparece nada en un solo conjunto, la página ofrece borrar la búsqueda o las categorías y probar la misma palabra en los otros conjuntos. En Bootstrap Icons, <em>Contorno</em> y <em>Relleno</em> muestran solo una de las dos versiones que tienen la mayoría de los iconos (<code>?style=outline</code> o <code>?style=filled</code> en la dirección).
+    <strong>Acota</strong> con <em>Todas las categorías</em> (puedes marcar varias) y con el campo de búsqueda: la tecla <kbd>/</kbd> lleva directo a él. Busca en el nombre y en las palabras clave de los iconos, así que “delete” también encuentra la papelera, y los mejores resultados salen primero. Nombres y palabras clave están en inglés. Y la búsqueda aprende: una palabra que sigue sin encontrar nada, en cualquier idioma, pasa una vez al día por un proceso automático que busca nombres de iconos en inglés con el mismo significado, y los que encuentran iconos empiezan a funcionar para todos al día siguiente. La búsqueda mira en <em>Todos los conjuntos</em> a la vez, con una sección para cada uno; elige un conjunto en el selector para buscar solo en él, y al borrar la búsqueda vuelves al conjunto en el que estabas. Si no aparece nada en un solo conjunto, la página ofrece borrar la búsqueda o las categorías y probar la misma palabra en los otros conjuntos. En Bootstrap Icons, <em>Contorno</em> y <em>Relleno</em> muestran solo una de las dos versiones que tienen la mayoría de los iconos (<code>?style=outline</code> o <code>?style=filled</code> en la dirección).
   </li>
   <li>
     <strong>Define el estilo</strong> en los controles Tamaño, Trazo y Color.
@@ -65,7 +65,7 @@
 <h2 id="editor">El editor de iconos</h2>
 <p>
   El lápiz de una tarjeta abre el icono sobre una cuadrícula, listo para
-  cambiarlo. El icono llega con el tamaño, el trazo y el color que elegiste.
+  cambiarlo. El icono llega con el tamaño y el trazo que elegiste, en el color del texto: los colores se eligen dentro del editor, forma por forma.
 </p>
 <figure class="page__figure">
   <img src="img/guide/editor.webp" width="1000" height="695" alt="El editor: formas a la izquierda, puntos en la cuadrícula, código y vistas previas a la derecha." loading="lazy" />
@@ -81,7 +81,7 @@
   <li>
     <strong>Mover:</strong> arrastra una forma, o usa las flechas del teclado o
     los botones. Los puntos se ajustan a la cuadrícula (1, ½ o ¼ de unidad, o
-    libre).
+    libre). Las líneas de la cuadrícula del dibujo siguen el paso elegido, y no aparecen con el ajuste desactivado.
   </li>
   <li>
     <strong>Transformar:</strong> girar 90° o 45°, voltear y ampliar o reducir — la
@@ -109,7 +109,7 @@
     <strong>Unir, separar y ordenar:</strong> <em>Unir</em> (Ctrl+J) convierte dos líneas abiertas en una, por sus extremos más cercanos. Con una línea abierta seleccionada, cierra la forma; si eliges también un punto, conecta el extremo más cercano a él. <em>Separar</em> cambia el cursor por una diana: haz clic donde cortar la línea o pulsa Esc para cancelar. Los cuatro botones de orden en Transformar llevan la forma atrás o adelante, un paso o hasta el extremo. El botón <em>?</em>, o la tecla ?, muestra todos los comandos con sus teclas y acciones del ratón.
   </li>
   <li>
-    <strong>Zoom:</strong> la rueda del ratón, los botones de lupa sobre el dibujo o las teclas + y − acercan alrededor del puntero; en el móvil, pellizca con dos dedos. Mantén Espacio y arrastra (o arrastra con el botón central) para mover la vista, y haz clic en el porcentaje, o pulsa 0, para ver otra vez el dibujo entero.
+    <strong>Zoom:</strong> la rueda del ratón, los botones de lupa sobre el dibujo o las teclas + y − acercan alrededor del puntero; en el móvil, pellizca con dos dedos. Mantén Espacio y arrastra (o arrastra con el botón central) para mover la vista. El botón − baja hasta el 25 %, dejando espacio alrededor del dibujo; haz clic en el porcentaje, o pulsa 0, para volver al 100 % con el dibujo centrado.
   </li>
   <li>
     <strong>Tamaño y giro a mano:</strong> la selección tiene una caja con tiradores. Arrastra una esquina para cambiar el tamaño, manteniendo las proporciones y deteniéndose en la cuadrícula; arrastra el punto sobre la caja para girar de 15 en 15 grados. Mantén Mayús para valores libres. Para números exactos, escribe X, Y, An y Al en el panel <em>Selección</em>.
@@ -222,7 +222,7 @@
       <tr><td><kbd>Ctrl+D</kbd></td><td>Editor: duplicar la selección</td></tr>
       <tr><td><kbd>Mayús + ← → ↑ ↓</kbd></td><td>Editor: mover diez pasos de la cuadrícula</td></tr>
       <tr><td><kbd>Tab</kbd></td><td>Editor, con el dibujo enfocado: elegir la forma siguiente</td></tr>
-      <tr><td><kbd>+ / − / 0</kbd></td><td>Editor: acercar, alejar y ajustar el dibujo (también la rueda del ratón)</td></tr>
+      <tr><td><kbd>+ / − / 0</kbd></td><td>Editor: acercar, alejar (hasta el 25 %) y volver al 100 % centrado (también la rueda del ratón)</td></tr>
       <tr><td><kbd>Espacio + arrastrar</kbd></td><td>Editor: mover la vista</td></tr>
       <tr><td><kbd>Alt + arrastrar</kbd></td><td>Editor: arrastrar sin pegarse a otras formas</td></tr>
       <tr><td><kbd>Enter</kbd></td><td>Editor, con la pluma: terminar la línea</td></tr>

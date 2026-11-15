@@ -22,10 +22,10 @@
 <h2 id="start">How to use it</h2>
 <ol class="page__steps">
   <li>
-    <strong>Choose a set</strong> in the <em>Select</em> button. The page opens with Lucide, or with the set you chose last time, and each set stays cached while the page is open.
+    <strong>Choose a set</strong> in the <em>Select</em> button. The page opens with Lucide, or with the set you chose last time, and each set stays cached while the page is open. Tick the boxes beside the names to combine several sets (Lucide and Bootstrap, for example): the grid shows one section per set, a search stays within them, and the page remembers the combination (<code>?set=lucide,bootstrap</code>).
   </li>
   <li>
-    <strong>Narrow it down</strong> with <em>All categories</em> (you can tick several) and the search field — press <kbd>/</kbd> to jump to it. It matches icon names and keywords, so “delete” also finds the trash can, and the best matches come first. Names and keywords are in English. A search looks in <em>All sets</em> at once, with one section per set; pick a set in the selector to search only in it, and clearing the search takes you back to the set you were in. When nothing matches in a single set, the page offers to clear the search or the categories and to try the same word in the other sets. In Bootstrap Icons, <em>Outline</em> and <em>Filled</em> show only one of the two versions most icons have (<code>?style=outline</code> or <code>?style=filled</code> in the address).
+    <strong>Narrow it down</strong> with <em>All categories</em> (you can tick several) and the search field — press <kbd>/</kbd> to jump to it. It matches icon names and keywords, so “delete” also finds the trash can, and the best matches come first. Names and keywords are in English. The search also learns: a word that keeps finding nothing in any language is handed, once a day, to an automated process that looks for English icon names with the same meaning, and the ones that find icons start working for everyone the next day. A search looks in <em>All sets</em> at once, with one section per set; pick a set in the selector to search only in it, and clearing the search takes you back to the set you were in. When nothing matches in a single set, the page offers to clear the search or the categories and to try the same word in the other sets. In Bootstrap Icons, <em>Outline</em> and <em>Filled</em> show only one of the two versions most icons have (<code>?style=outline</code> or <code>?style=filled</code> in the address).
   </li>
   <li>
     <strong>Set the style</strong> in the Size, Stroke and Color controls.
@@ -65,7 +65,7 @@
 <h2 id="editor">The icon editor</h2>
 <p>
   The pencil on a card opens the icon on a grid, ready to change. The icon
-  arrives with the size, stroke and color you chose.
+  arrives with the size and stroke you chose, in the text color: colors are picked inside the editor, shape by shape.
 </p>
 <figure class="page__figure">
   <img src="img/guide/editor.webp" width="1000" height="695" alt="The editor: shapes on the left, points on the grid, code and previews on the right." loading="lazy" />
@@ -79,7 +79,7 @@
   </li>
   <li>
     <strong>Move:</strong> drag a shape, or use the arrow keys or buttons.
-    Points snap to the grid (1, ½ or ¼ unit, or off).
+    Points snap to the grid (1, ½ or ¼ unit, or off). The grid lines on the drawing follow the step you choose, and none show with snapping off.
   </li>
   <li>
     <strong>Transform:</strong> rotate 90° or 45°, flip, and grow or shrink — the
@@ -107,7 +107,7 @@
     <strong>Join, split and order:</strong> <em>Join</em> (Ctrl+J) turns two open lines into one, through their nearest ends. With one open line selected, it closes the shape; if you also select a point, it connects the nearest end to that point. <em>Split</em> turns the cursor into a target: click where the line should be cut, or press Esc to cancel. The four order buttons in Transform send a shape backward or forward, or straight to the back or front. The <em>?</em> button, or the ? key, shows every command with its keys and mouse actions.
   </li>
   <li>
-    <strong>Zoom:</strong> the mouse wheel, the magnifier buttons above the drawing or the + and − keys zoom in around the pointer; on a phone, pinch with two fingers. Hold Space and drag (or drag with the middle button) to move the view, and click the percentage, or press 0, to see the whole drawing again.
+    <strong>Zoom:</strong> the mouse wheel, the magnifier buttons above the drawing or the + and − keys zoom in around the pointer; on a phone, pinch with two fingers. Hold Space and drag (or drag with the middle button) to move the view. The − button goes down to 25%, leaving room around the drawing; click the percentage, or press 0, to go back to 100% with the drawing centered.
   </li>
   <li>
     <strong>Resize and rotate by hand:</strong> the selection gets a box with handles. Drag a corner to resize, keeping the proportions and stopping on the grid; drag the dot above the box to rotate in 15° steps. Hold Shift for free values. For exact numbers, type X, Y, W and H in the <em>Selected</em> panel.
@@ -220,7 +220,7 @@
       <tr><td><kbd>Ctrl+D</kbd></td><td>Editor: duplicate the selection</td></tr>
       <tr><td><kbd>Shift + ← → ↑ ↓</kbd></td><td>Editor: move ten grid steps</td></tr>
       <tr><td><kbd>Tab</kbd></td><td>Editor, with the drawing focused: pick the next shape</td></tr>
-      <tr><td><kbd>+ / − / 0</kbd></td><td>Editor: zoom in, zoom out and fit the drawing (also the mouse wheel)</td></tr>
+      <tr><td><kbd>+ / − / 0</kbd></td><td>Editor: zoom in, zoom out (down to 25%) and back to 100% centered (also the mouse wheel)</td></tr>
       <tr><td><kbd>Space + drag</kbd></td><td>Editor: move the view</td></tr>
       <tr><td><kbd>Alt + drag</kbd></td><td>Editor: drag without snapping to other shapes</td></tr>
       <tr><td><kbd>Enter</kbd></td><td>Editor, with the pen: finish the line</td></tr>

@@ -43,6 +43,8 @@ Todas as chamadas levam o cabeçalho `Authorization: Bearer <MODERATION_TOKEN>`.
 | `GET /api/moderation/reviews` | avaliações esperando decisão: `{ reviews: [{ id, rating, comment, name, provider, verified, hasPhoto, lang, edit, current, submittedAt, avatar }] }` — `edit` marca a edição de uma avaliação já no ar (`current` traz a versão no ar); o código do apoiador não vem |
 | `GET /api/moderation/reviews/{id}/avatar.png` | a foto que espera decisão (PNG 96×96) |
 | `POST /api/moderation/reviews/{id}/approve`, `…/reject`, `…/delete` | as mesmas regras dos ícones: só o que espera, `submittedAt` opcional, excluir só o que nunca foi ao ar |
+| `GET /api/moderation/synonyms/pending?limit=20` | buscas sem resultado para o agente de sinônimos (seção 6): `{ terms: [{ term, count, lang }] }` |
+| `POST /api/moderation/synonyms/learn` com `{ term, lang, candidates }` | o site testa cada candidato nos ícones e guarda os que acham algo: `{ learned, tested }` |
 
 As três aceitam também `submittedAt` (a data do envio que você viu, em ISO ou
 milissegundos). Se o autor editou o ícone depois, a resposta é `409 changed` e
@@ -332,3 +334,29 @@ Antes de ligar o Schedule, rode o fluxo à mão com ícones conhecidos:
 - um ícone legítimo com o crédito "Sua mãe me ama" → **revisar** (crédito
   impróprio); com o crédito vazio → **aprovar**;
 - outros logotipos (Nike, X/Twitter, GitHub) → **recusar**.
+
+## 6. Busca que aprende (sinônimos, uma vez por dia)
+
+`docs/n8n-sinonimos.json` usa o mesmo token e a mesma credencial Header Auth.
+Importe, coloque a credencial nos nós **Pendentes** e **Ensinar o site** e,
+para receber o resumo, o `telegramChatId` no nó **Configuração** e a
+credencial do bot no nó **Telegram**. Ative o workflow: ele roda todo dia às 4h.
+
+1. **Pendentes** pede ao site até 20 buscas sem resultado que foram feitas 3
+   vezes ou mais (somando os conjuntos) e que não foram tentadas nos últimos 30
+   dias, cada uma com o idioma em que mais foi buscada.
+2. **Ollama: sinônimos** pede ao modelo até 6 termos em inglês com que um ícone
+   do mesmo significado seria nomeado ("lixeira" → trash, bin, garbage). Nome
+   de pessoa, marca, ofensa ou dado pessoal: lista vazia. Um termo por vez.
+3. **Ensinar o site** manda os candidatos. O site testa cada um nos nomes e
+   palavras-chave de todos os ícones, com a mesma regra da página para os
+   dicionários (palavra inteira do nome ou palavra-chave exata), e guarda os que
+   acham algo, sem aprovação: entram na busca daquele idioma na hora
+   (`/api/synonyms/<idioma>`, cache de 60 s) e o termo sai da lista de buscas
+   sem resultado. Se nenhum acha nada, o termo fica marcado e volta em 30 dias.
+4. **Resumo** manda no Telegram o que entrou. Um sinônimo ruim se exclui no
+   `/admin` → Buscas sem resultado → **Sinônimos aprendidos**.
+
+O site não confia no modelo: só aceita termos que estão na lista (3 buscas ou
+mais, no idioma em que foram feitas), só palavras em inglês de até 4 partes, no
+máximo 8 por termo, e só os que acham ícones de verdade.

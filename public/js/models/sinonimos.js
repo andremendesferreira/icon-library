@@ -3,9 +3,13 @@
 // (public/json/sinonimos/<idioma>.json: { "lixeira": ["trash", "delete"] })
 // diz que termos em inglês procurar também. Funções puras, sem DOM.
 
-// Idiomas com dicionário em public/json/sinonimos/. Os outros nem pedem o
-// arquivo (sem 404 no console); um dicionário novo entra aqui também.
+// Idiomas com dicionário escrito à mão em public/json/sinonimos/ (um
+// dicionário novo entra aqui também; tests/sinonimos.test.mjs confere)
 export const IDIOMAS_COM_SINONIMOS = ["pt-BR"];
+
+// Idiomas do site: todos pedem /api/synonyms/<idioma>, que soma o dicionário
+// escrito à mão ao que a busca aprendeu sozinha (pode vir vazio)
+export const IDIOMAS = ["en", "es", "fr", "de", "ru", "zh-CN", "pt-BR", "ja"];
 
 // "Configurações" e "configuracoes" são a mesma busca
 export function semAcento(texto) {

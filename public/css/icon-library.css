@@ -6166,3 +6166,52 @@ html.volta .summary {
     display: none;
   }
 }
+
+/* ── Seletor de conjunto com vários (caixa = juntar, nome = só ele) ──────────
+   O painel cresce até caber o nome mais longo com a caixa, alinhado à direita
+   do botão (que fica na ponta direita da busca). */
+.icon-set__panel {
+  min-width: 100%;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 32px));
+  left: auto;
+  right: 0;
+}
+.icon-set__linha {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 8px;
+}
+.icon-set__linha--todos {
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--cor-borda, #dfe6ee);
+}
+.icon-set__linha--todos .icon-set__option {
+  /* Sem caixa: o nome alinha com os outros nomes */
+  padding-left: calc(12px + 22px + 4px);
+}
+.icon-set__somar {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin: 0 0 0 10px;
+  accent-color: var(--il-action);
+  cursor: pointer;
+}
+.icon-set__linha .icon-set__option {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+.icon-set__option[aria-selected]::after {
+  content: none;
+}
+
+/* Frações da grade (encaixe de ½ e ¼): mais finas que as linhas de unidade */
+.editor__grid line.editor__grid-fina {
+  stroke: #f0f3f8;
+}
+[data-theme="dark"] .editor__grid line.editor__grid-fina {
+  stroke: #1c273b;
+}

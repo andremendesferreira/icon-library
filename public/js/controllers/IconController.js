@@ -1,8 +1,8 @@
 import { nomeDeArquivo, paraCss, paraDataUri, paraReact, paraSvelte, paraVue } from "../models/svgTools.js";
 import { copiarTexto } from "./clipboard.js";
-import { idiomaAtual, t, tErro } from "../i18n/i18n.js";
+import { idiomaAtual, lista, t, tErro } from "../i18n/i18n.js";
 import { baixarPngDeEmoji, baixarPngDeSvg, baixarSvg } from "./download.js";
-import { TODOS } from "../models/IconModel.js";
+import { SEPARADOR, TODOS } from "../models/IconModel.js";
 
 // Cor de "currentColor" num PNG solto, onde não há texto para herdar a cor
 const COR_PNG = "#2c3e50";
@@ -34,19 +34,17 @@ export class IconController {
       this.aplicarFiltros();
       this.salvarNoEndereco();
     });
-    view.aoEscolherFonte((chave) => {
-      // Escolha da pessoa: com busca, ela vale só nesse conjunto até a busca
-      // ser apagada
-      this.todosAutomatico = false;
-      this.origem = null;
-      this.escolherFonte(chave);
-      // "Todos" não vira o conjunto da próxima visita: ele baixa tudo
-      if (chave === TODOS) return;
-      try {
-        localStorage.setItem(CHAVE_CONJUNTO, chave);
-      } catch {
-        // Sem armazenamento: a próxima visita abre o padrão
+    view.aoEscolherFonte((chave) => this.escolhaDaPessoa(chave));
+    view.aoSomarFonte((chave, marcado) => {
+      // Junta ou tira um conjunto dos que estão na tela; tirar o último não
+      // vale (as caixas voltam ao que era)
+      const atuais = model.chavesDe(model.fonteAtual);
+      const nova = model.escolha(marcado ? [...atuais, chave] : atuais.filter((c) => c !== chave));
+      if (!nova) {
+        view.marcarFonte(atuais, this.rotuloCurto(model.fonteAtual), { fechar: false });
+        return;
       }
+      this.escolhaDaPessoa(nova, { fechar: false });
     });
     view.aoAlternarGrupo((grupo, marcado) => {
       model.alternarGrupo(grupo, marcado);
@@ -61,7 +59,7 @@ export class IconController {
       model.restaurarEstilo();
       view.mostrarEstilo(model.estilo);
     });
-    view.estadoInicial(this.opcoesDoSeletor());
+    view.estadoInicial(this.opcoesDoSeletor(), { todos: TODOS });
     view.mostrarEstilo(model.estilo);
     view.habilitarEstilo({ traco: false, cor: false });
     this.lerDoEndereco();
@@ -72,8 +70,33 @@ export class IconController {
     return { [TODOS]: { rotulo: t("sets.all") }, ...this.model.fontes };
   }
 
+  // Escolha da pessoa (um conjunto, vários ou "Todos"): com busca, ela vale
+  // nesses conjuntos até a busca ser apagada, e vira a da próxima visita
+  escolhaDaPessoa(chave, { fechar = true } = {}) {
+    this.todosAutomatico = false;
+    this.origem = null;
+    this.escolherFonte(chave, { fechar });
+    // "Todos" não vira o conjunto da próxima visita: ele baixa tudo
+    if (chave === TODOS) return;
+    try {
+      localStorage.setItem(CHAVE_CONJUNTO, chave);
+    } catch {
+      // Sem armazenamento: a próxima visita abre o padrão
+    }
+  }
+
+  // "Todos os conjuntos", "Lucide" ou "Lucide e Bootstrap"
   rotuloDe(chave) {
-    return chave === TODOS ? t("sets.all") : this.model.fontes[chave].rotulo;
+    if (chave === TODOS) return t("sets.all");
+    return lista(this.model.chavesDe(chave).map((c) => this.model.fontes[c].rotulo));
+  }
+
+  // O texto do botão, que é estreito: "Lucide", "Lucide +1"
+  rotuloCurto(chave) {
+    if (chave === TODOS) return t("sets.all");
+    const [primeira, ...outras] = this.model.chavesDe(chave);
+    const rotulo = this.model.fontes[primeira].rotulo;
+    return outras.length ? `${rotulo} +${outras.length}` : rotulo;
   }
 
   // Busca em todos os conjuntos: ao começar a digitar, a página troca sozinha
@@ -83,7 +106,8 @@ export class IconController {
   seguirBusca() {
     const temBusca = this.view.busca.trim() !== "";
     const atual = this.model.fonteAtual;
-    if (temBusca && atual !== TODOS && !this.fixado) {
+    // Vários conjuntos escolhidos de propósito: a busca fica neles
+    if (temBusca && atual !== TODOS && !this.fixado && !this.model.ehVarios(atual)) {
       this.origem = atual;
       // A home sem ?set= (conjunto implícito) volta a ficar sem ele
       this.origemImplicita = !new URLSearchParams(location.search).has("set");
@@ -115,7 +139,9 @@ export class IconController {
     } catch {
       // Sem armazenamento: vale o padrão
     }
-    return salvo && Object.hasOwn(this.model.fontes, salvo) ? salvo : CONJUNTO_PADRAO;
+    // Pode ser um ("lucide") ou vários ("lucide,bootstrap")
+    const escolha = salvo ? this.model.escolha(salvo.split(SEPARADOR)) : null;
+    return escolha && escolha !== TODOS ? escolha : CONJUNTO_PADRAO;
   }
 
   // ── Estado no endereço (?set=lucide&q=heart) ───────────────────────────────
@@ -124,12 +150,12 @@ export class IconController {
   // escrever ?set= no endereço: a home continua sendo "/" até a pessoa mexer
   lerDoEndereco() {
     const parametros = new URLSearchParams(location.search);
-    const pedido = parametros.get("set");
-    const valido = (chave) => chave && (chave === TODOS || Object.hasOwn(this.model.fontes, chave));
+    // ?set=lucide, ?set=lucide,bootstrap ou ?set=all
+    const pedido = this.model.escolha((parametros.get("set") ?? "").split(SEPARADOR));
     this.view.variante = { outline: "contorno", filled: "preenchido" }[parametros.get("style")] ?? "todos";
     const busca = parametros.get("q") || "";
     this.view.busca = busca;
-    if (valido(pedido)) {
+    if (pedido) {
       // Conjunto e busca no endereço: a busca fica nesse conjunto
       this.fixado = Boolean(busca) && pedido !== TODOS;
       this.escolherFonte(pedido, { focar: false });
@@ -170,7 +196,8 @@ export class IconController {
     const comVariantes = this.model.fontes[this.model.fonteAtual]?.temVariantes;
     const estilo = comVariantes ? { contorno: "outline", preenchido: "filled" }[this.view.variante] : null;
     if (estilo) parametros.set("style", estilo);
-    const consulta = parametros.toString();
+    // A vírgula de ?set=lucide,bootstrap fica legível no endereço
+    const consulta = parametros.toString().replace(/%2C/gi, SEPARADOR);
     // replaceState: digitar não enche o histórico do navegador. O "#…"
     // fica: pode ser um ícone aberto no editor por link (#svg=…)
     history.replaceState(
@@ -180,10 +207,10 @@ export class IconController {
     );
   }
 
-  escolherFonte(chave, { focar = true, implicito = false } = {}) {
+  escolherFonte(chave, { focar = true, implicito = false, fechar = true } = {}) {
     // Um conjunto escolhido com a busca já digitada fica fixo para ela
     if (!implicito && chave !== TODOS && this.view.busca.trim()) this.fixado = true;
-    this.view.marcarFonte(chave, this.rotuloDe(chave), { focar });
+    this.view.marcarFonte(this.model.chavesDe(chave), this.rotuloCurto(chave), { focar, fechar });
     if (chave !== this.model.fonteAtual) this.trocarFonte(chave, { implicito });
   }
 
@@ -194,9 +221,10 @@ export class IconController {
     if (!implicito) this.salvarNoEndereco();
     try {
       const todos = chave === TODOS;
-      if (todos ? !model.todosEmCache : !model.emCache(chave))
+      const chaves = model.chavesDe(chave);
+      if (!chaves.every((c) => model.emCache(c)))
         view.mostrarCarregando(this.rotuloDe(chave), { todos });
-      const dados = todos ? await model.carregarTodos() : await model.carregar(chave);
+      const dados = chaves.length > 1 ? await model.carregarVarias(chaves) : await model.carregar(chave);
       // O usuário trocou de conjunto enquanto este carregava
       if (chave !== model.fonteAtual) return;
 
@@ -232,7 +260,9 @@ export class IconController {
       aoClicarDireito: (item) => this.copiarAlternativa(item),
       aoAdicionar: (item) => this.aoAdicionar(item, this.model.svgFinal(item)),
       aoMenu: (acao, item) => this.executarMenu(acao, item),
-      aoEditar: (item) => this.aoEditar(item, this.model.svgFinal(item)),
+      // O editor abre com a cor do texto (currentColor), não com a cor
+      // escolhida na página: a cor se escolhe lá dentro, por forma
+      aoEditar: (item) => this.aoEditar(item, this.model.svgFinal(item, { semCor: true })),
       // Conjunto sem nenhum ícone (Iconlibrary no começo): mensagem própria
       vazio: this.model.itens.length ? null : this.model.fonteExibida?.vazio,
       semResultado: this.semResultado(),
@@ -257,7 +287,9 @@ export class IconController {
     clearTimeout(this.esperaBuscaPerdida);
     const termo = this.view.busca.trim().toLowerCase();
     const conjunto = this.model.fonteAtual;
-    if (termo.length < 2 || !conjunto || this.model.gruposEscolhidos.size || !this.model.itens.length) return;
+    // Vários conjuntos juntos não vão: o servidor só conta um conjunto ou "all"
+    if (termo.length < 2 || !conjunto || conjunto.includes(SEPARADOR)) return;
+    if (this.model.gruposEscolhidos.size || !this.model.itens.length) return;
     this.buscasEnviadas ??= new Set();
     const chave = `${conjunto}:${termo}`;
     if (this.buscasEnviadas.has(chave)) return;

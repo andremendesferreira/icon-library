@@ -133,12 +133,17 @@
       },
       buscas: {
         nota:
-          "O que as pessoas buscaram e não acharam em nenhum ícone do conjunto escolhido, das mais buscadas para as menos. Serve para decidir que ícones desenhar ou que palavras-chave faltam. Excluir tira o termo da lista (ele volta se alguém buscar de novo).",
-        abas: [["top", "Mais buscadas"]],
-        endereco: () => "/api/admin/search-misses?limit=300",
-        acao: () => "/api/admin/search-misses/delete",
-        itens: (resposta) => resposta.misses,
-        cartao: (m) => `
+          "O que as pessoas buscaram e não acharam em nenhum ícone do conjunto escolhido, das mais buscadas para as menos. Serve para decidir que ícones desenhar ou que palavras-chave faltam. Excluir tira o termo da lista (ele volta se alguém buscar de novo). Uma vez por dia o agente do n8n tenta sinônimos em inglês para os termos buscados 3 vezes ou mais; os que acham ícones entram sozinhos na busca e aparecem em Sinônimos aprendidos, onde dá para excluir um que ficou ruim.",
+        abas: [["top", "Mais buscadas"], ["learned", "Sinônimos aprendidos"]],
+        endereco: (situacao) => (situacao === "learned" ? "/api/admin/synonyms" : "/api/admin/search-misses?limit=300"),
+        acao: () => (situacao === "learned" ? "/api/admin/synonyms/delete" : "/api/admin/search-misses/delete"),
+        itens: (resposta) => resposta.synonyms ?? resposta.misses,
+        cartao: (m, aba) => aba === "learned" ? `
+          <article class="relato" data-id="${texto(m.term)}" data-lang="${texto(m.lang)}">
+            <blockquote><strong>${texto(m.term)}</strong> (${texto(m.lang)}) → ${texto((m.targets || []).join(", "))}</blockquote>
+            <p>${m.icons} ícones no teste · aprendido ${data(m.createdAt)}${m.updatedAt && String(m.updatedAt) !== String(m.createdAt) ? ` · atualizado ${data(m.updatedAt)}` : ""}</p>
+            <div class="acoes"><button type="button" data-acao="delete">Excluir</button></div>
+          </article>` : `
           <article class="relato" data-id="${texto(m.term)}" data-set="${texto(m.set)}">
             <blockquote><strong>${texto(m.term)}</strong> · ${texto(m.set)} · ${m.count}×</blockquote>
             <p>Idiomas: ${texto(Object.entries(m.langs || {}).map(([l, n]) => `${l} ${n}`).join(", "))} · primeira vez ${data(m.firstSeen)} · última ${data(m.lastSeen)}</p>
@@ -231,7 +236,7 @@
         // buscas: o termo e o conjunto
         body: JSON.stringify(
           area === "buscas"
-            ? { term: id, set: cartao.dataset.set }
+            ? situacao === "learned" ? { term: id, lang: cartao.dataset.lang } : { term: id, set: cartao.dataset.set }
             : { note, submittedAt: cartao.dataset.versao || undefined },
         ),
       });

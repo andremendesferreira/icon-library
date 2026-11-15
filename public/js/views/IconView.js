@@ -97,10 +97,19 @@ export class IconView {
     this.filtroVariante.addEventListener("change", acao);
   }
 
+  // O nome escolhe só aquele conjunto (e fecha o painel)
   aoEscolherFonte(acao) {
     this.painelFontes.addEventListener("click", (evento) => {
       const opcao = evento.target.closest("[data-icon-set]");
       if (opcao) acao(opcao.dataset.iconSet);
+    });
+  }
+
+  // A caixa ao lado do nome junta (ou tira) o conjunto dos já escolhidos
+  aoSomarFonte(acao) {
+    this.painelFontes.addEventListener("change", (evento) => {
+      const caixa = evento.target.closest("[data-somar]");
+      if (caixa) acao(caixa.dataset.somar, caixa.checked);
     });
   }
 
@@ -148,11 +157,11 @@ export class IconView {
     this.painelFontes.addEventListener("click", (evento) =>
       evento.stopPropagation(),
     );
-    // Setas percorrem as opções, como num <select>
+    // Setas percorrem os nomes e as caixas, na ordem do painel
     this.painelFontes.addEventListener("keydown", (evento) => {
       if (evento.key !== "ArrowDown" && evento.key !== "ArrowUp") return;
       evento.preventDefault();
-      const opcoes = [...this.painelFontes.querySelectorAll("[data-icon-set]")];
+      const opcoes = [...this.painelFontes.querySelectorAll("[data-icon-set], [data-somar]")];
       const atual = opcoes.indexOf(document.activeElement);
       const passo = evento.key === "ArrowDown" ? 1 : -1;
       opcoes[(atual + passo + opcoes.length) % opcoes.length].focus();
@@ -190,8 +199,10 @@ export class IconView {
     this.painelFontes.hidden = !aberto;
     this.seletor.setAttribute("aria-expanded", String(aberto));
     if (aberto) {
+      // O primeiro escolhido (ou "Todos os conjuntos")
+      const marcada = this.painelFontes.querySelector("[data-somar]:checked");
       const opcao =
-        this.painelFontes.querySelector('[aria-selected="true"]') ||
+        marcada?.closest(".icon-set__linha")?.querySelector("[data-icon-set]") ||
         this.painelFontes.querySelector("[data-icon-set]");
       opcao?.focus();
     }
@@ -199,12 +210,16 @@ export class IconView {
 
   // ── Seletor de conjunto ────────────────────────────────────────────────────
   // Botão + painel, no lugar do antigo <select>. Nada é carregado até a escolha.
-  estadoInicial(fontes) {
+  // Cada conjunto tem o nome (escolhe só ele) e uma caixa (junta aos já
+  // escolhidos); "Todos os conjuntos" (todos: a chave dele) vem só com o nome.
+  estadoInicial(fontes, { todos } = {}) {
     this.painelFontes.innerHTML = Object.entries(fontes)
-      .map(
-        ([chave, fonte]) =>
-          `<button type="button" role="option" class="icon-set__option" data-icon-set="${chave}" aria-selected="false">${fonte.rotulo}</button>`,
-      )
+      .map(([chave, fonte]) => {
+        const nome = `<button type="button" class="icon-set__option" data-icon-set="${chave}">${escapar(fonte.rotulo)}</button>`;
+        if (chave === todos) return `<div class="icon-set__linha icon-set__linha--todos">${nome}</div>`;
+        const rotulo = escapar(t("sets.combine", { set: fonte.rotulo }));
+        return `<div class="icon-set__linha"><input type="checkbox" class="icon-set__somar" data-somar="${chave}" aria-label="${rotulo}" title="${rotulo}" />${nome}</div>`;
+      })
       .join("");
     this.botaoGrupos.disabled = true;
     this.searchBar.disabled = true;
@@ -212,18 +227,18 @@ export class IconView {
       `<p class="empty">${escapar(t("grid.start"))}</p>`;
   }
 
-  // focar: false quando a escolha vem do endereço da página, não de um clique
-  marcarFonte(chave, rotulo, { focar = true } = {}) {
-    this.painelFontes.querySelectorAll("[data-icon-set]").forEach((opcao) => {
-      opcao.setAttribute(
-        "aria-selected",
-        String(opcao.dataset.iconSet === chave),
-      );
+  // escolhidas: as chaves marcadas (todas em "Todos"). focar: false quando a
+  // escolha vem do endereço da página, não de um clique. fechar: false quando
+  // a pessoa está marcando caixas (o painel fica aberto)
+  marcarFonte(escolhidas, rotulo, { focar = true, fechar = true } = {}) {
+    this.painelFontes.querySelectorAll("[data-somar]").forEach((caixa) => {
+      caixa.checked = escolhidas.includes(caixa.dataset.somar);
     });
     this.seletorTexto.textContent = rotulo;
     this.seletor.classList.add("icon-set__button--active");
     this.botaoGrupos.disabled = false;
     this.searchBar.disabled = false;
+    if (!fechar) return;
     this.abrirPainelFontes(false);
     if (focar) this.seletor.focus();
   }
@@ -306,7 +321,11 @@ export class IconView {
   }
 
   // ── Resumo ─────────────────────────────────────────────────────────────────
-  renderResumo({ total, emoji, semDesenho, versoes, todos }) {
+  renderResumo({ total, emoji, semDesenho, versoes, todos, conjuntos }) {
+    if (conjuntos) {
+      this.resumo.innerHTML = t("summary.setsHtml", { total: numero(total), sets: escapar(lista(conjuntos)) });
+      return;
+    }
     if (todos) {
       this.resumo.innerHTML = t("summary.allHtml", { total: numero(total) });
       return;

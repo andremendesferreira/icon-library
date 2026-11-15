@@ -101,6 +101,7 @@ const FEATURE_TABLES = {
   reports: { bug_reports: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
   reviews: { reviews: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
   searchMisses: { search_misses: ["SELECT", "INSERT", "UPDATE", "DELETE"] },
+  synonyms: { learned_synonyms: ["SELECT", "INSERT", "UPDATE", "DELETE"], search_misses: ["SELECT", "UPDATE", "DELETE"] },
 };
 
 // With the application's user: connects (a wrong password fails here) and

@@ -1,7 +1,7 @@
 import { FONTES } from "./iconSets.js";
 import { criarDetector } from "./glyphDetector.js";
 import { ESTILO_PADRAO, aplicarEstilo } from "./svgTools.js";
-import { IDIOMAS_COM_SINONIMOS, expandir, prepararSinonimos } from "./sinonimos.js";
+import { IDIOMAS, expandir, prepararSinonimos } from "./sinonimos.js";
 
 const CHAVE_ESTILO = "icon-library:style";
 
@@ -20,8 +20,11 @@ const OUTROS = "others";
 // fonte de verdade: junta os itens das outras, cada um com o seu conjunto
 // (item.conjunto), e os grupos da grade passam a ser os conjuntos.
 export const TODOS = "all";
+// Vários conjuntos escolhidos juntos: as chaves separadas por vírgula, na
+// ordem do seletor ("lucide,bootstrap"). Funciona como "Todos", só com eles.
+export const SEPARADOR = ",";
 const FONTE_TODAS = {
-  rotuloGrupo: "sets.all",
+  rotuloGrupo: "sets.sections",
   // Os controles valem para os itens a que se aplicam: traço no Lucide e no
   // Feather, cor nos vetoriais, "só com desenho" nos emojis
   temTraco: true,
@@ -158,8 +161,9 @@ export class IconModel {
 
   // SVG do item com o estilo escolhido: o que vai para a cópia, o download
   // e o scratchpad
-  svgFinal(item) {
-    return aplicarEstilo(svgDoItem(item), this.estilo);
+  // semCor: mantém currentColor (o que vai para o editor)
+  svgFinal(item, { semCor = false } = {}) {
+    return aplicarEstilo(svgDoItem(item), semCor ? { ...this.estilo, cor: null } : this.estilo);
   }
 
   emCache(chave) {
@@ -196,19 +200,53 @@ export class IconModel {
   // Todos os conjuntos, na ordem do seletor. Um que falhe (a Iconlibrary
   // sem servidor, a rede) fica de fora; só dá erro se nenhum vier.
   async carregarTodos() {
-    const chaves = Object.keys(this.fontes);
-    const resultados = await Promise.allSettled(chaves.map((chave) => this.carregar(chave)));
-    const certos = resultados.filter((r) => r.status === "fulfilled");
-    if (!certos.length) throw resultados[0].reason;
-    return { itens: certos.flatMap((r) => r.value.itens), usouAlternativa: false };
+    return this.carregarVarias(Object.keys(this.fontes));
   }
 
   get todosEmCache() {
     return Object.keys(this.fontes).every((chave) => this.cache.has(chave));
   }
 
+  // As fontes de uma escolha: "all" é todas; "lucide,bootstrap" é cada uma,
+  // na ordem do seletor (chaves desconhecidas ficam de fora)
+  chavesDe(chave) {
+    if (chave === TODOS) return Object.keys(this.fontes);
+    const pedidas = String(chave ?? "").split(SEPARADOR);
+    return Object.keys(this.fontes).filter((c) => pedidas.includes(c));
+  }
+
+  // Uma escolha com várias fontes (não "Todos"): a grade em seções, como em
+  // "Todos", mas só com elas
+  ehVarios(chave) {
+    return chave !== TODOS && this.chavesDe(chave).length > 1;
+  }
+
+  // Normaliza uma escolha: ordem do seletor, sem repetidas; uma só vira a
+  // própria chave e todas viram "Todos". null se nenhuma é válida.
+  escolha(chaves) {
+    const validas = this.chavesDe([].concat(chaves).join(SEPARADOR));
+    if (!validas.length) return null;
+    if (validas.length === Object.keys(this.fontes).length) return TODOS;
+    return validas.join(SEPARADOR);
+  }
+
+  // Várias fontes ao mesmo tempo (as escolhidas). Uma que falhe fica de
+  // fora; só dá erro se nenhuma vier.
+  async carregarVarias(chaves) {
+    const resultados = await Promise.allSettled(chaves.map((chave) => this.carregar(chave)));
+    const certos = resultados.filter((r) => r.status === "fulfilled");
+    if (!certos.length) throw resultados[0].reason;
+    return { itens: certos.flatMap((r) => r.value.itens), usouAlternativa: false };
+  }
+
   get modoTodos() {
     return Boolean(this.fonteExibida?.todas);
+  }
+
+  // As fontes escolhidas juntas, quando a grade mostra várias (null em
+  // "Todos" e num conjunto só)
+  get fontesExibidas() {
+    return this.fonteExibida?.chaves ?? null;
   }
 
   // O grupo de um item na grade: a categoria, ou o conjunto em "Todos"
@@ -217,10 +255,26 @@ export class IconModel {
   }
 
   exibir(chave, { itens, usouAlternativa }) {
-    this.fonteExibida = chave === TODOS ? FONTE_TODAS : this.fontes[chave];
+    this.fonteExibida = chave === TODOS
+      ? FONTE_TODAS
+      : this.ehVarios(chave) ? this.fonteDeVarias(this.chavesDe(chave)) : this.fontes[chave];
     this.itens = itens;
     this.usouAlternativa = usouAlternativa;
     this.gruposEscolhidos.clear();
+  }
+
+  // Várias fontes juntas: seções por conjunto, como "Todos"; os controles
+  // valem se alguma delas os tiver (cada item só usa o que lhe cabe)
+  fonteDeVarias(chaves) {
+    const fontes = chaves.map((chave) => this.fontes[chave]);
+    return {
+      rotuloGrupo: "sets.sections",
+      temTraco: fontes.some((f) => f.temTraco),
+      temCor: fontes.some((f) => f.temCor),
+      detectaGlifo: fontes.some((f) => f.detectaGlifo),
+      todas: true,
+      chaves,
+    };
   }
 
   // O que o conjunto exibido permite personalizar
@@ -308,17 +362,23 @@ export class IconModel {
     return dados.itens.filter((item) => acertoComSinonimos(item, termo, extras) !== null).length;
   }
 
-  // Dicionário de sinônimos do idioma (public/json/sinonimos/<idioma>.json).
-  // Em inglês não há; se o arquivo faltar, a busca segue só em inglês.
+  // Dicionário de sinônimos do idioma: o escrito à mão
+  // (public/json/sinonimos/<idioma>.json) somado ao que a busca aprendeu
+  // sozinha (scripts/synonymLearning.js), servido junto por /api/synonyms.
+  // Vale até para o inglês ("garbage" → trash). Se não chegar, a busca segue
+  // só pelos nomes e palavras-chave.
   async carregarSinonimos(idioma) {
-    if (!IDIOMAS_COM_SINONIMOS.includes(idioma)) return false;
-    const dados = await baixar({ endereco: `json/sinonimos/${idioma}.json`, opcional: true });
+    if (!IDIOMAS.includes(idioma)) return false;
+    const dados = await baixar({ endereco: `api/synonyms/${idioma}`, opcional: true });
     this.sinonimos = dados ? prepararSinonimos(dados) : null;
     return Boolean(this.sinonimos?.size);
   }
 
   resumo() {
     const semDesenho = this.itens.filter((item) => !item.suportado);
+    if (this.fontesExibidas) {
+      return { total: this.itens.length, conjuntos: this.fontesExibidas.map((chave) => this.fontes[chave].rotulo) };
+    }
     if (this.modoTodos) return { total: this.itens.length, todos: true };
     return {
       total: this.itens.length,

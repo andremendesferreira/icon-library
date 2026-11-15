@@ -149,10 +149,10 @@
     <h2 id="start">Como usar</h2>
     <ol class="page__steps">
       <li>
-        <strong>Escolha um conjunto</strong> no botão <em>Escolher</em>. A página abre com o Lucide, ou com o último conjunto que você escolheu, e cada conjunto fica em cache enquanto a página estiver aberta.
+        <strong>Escolha um conjunto</strong> no botão <em>Escolher</em>. A página abre com o Lucide, ou com o último conjunto que você escolheu, e cada conjunto fica em cache enquanto a página estiver aberta. Marque as caixas ao lado dos nomes para juntar vários conjuntos (Lucide e Bootstrap, por exemplo): a grade mostra uma seção para cada um, a busca fica neles e a página lembra a combinação (<code>?set=lucide,bootstrap</code>).
       </li>
       <li>
-        <strong>Refine</strong> com <em>Todas as categorias</em> (dá para marcar várias) e com o campo de busca — a tecla <kbd>/</kbd> leva direto a ele. A busca procura no nome e nas palavras-chave dos ícones, então “delete” também acha a lixeira, e os melhores acertos vêm primeiro. Nomes e palavras-chave estão em inglês, mas dá para buscar em português: os termos mais comuns (“lixeira”, “configurações”, “seta para direita”, “carrinho”) são traduzidos na hora, com ou sem acento, e os acertos em inglês continuam na frente. A busca procura em <em>Todos os conjuntos</em> de uma vez, numa seção para cada um; escolha um conjunto no seletor para buscar só nele, e apagar a busca volta ao conjunto em que você estava. Quando nada aparece num conjunto só, a página oferece limpar a busca ou as categorias e tentar a mesma palavra nos outros conjuntos. No Bootstrap Icons, <em>Contorno</em> e <em>Preenchido</em> mostram só uma das duas versões que a maioria dos ícones tem (<code>?style=outline</code> ou <code>?style=filled</code> no endereço).
+        <strong>Refine</strong> com <em>Todas as categorias</em> (dá para marcar várias) e com o campo de busca — a tecla <kbd>/</kbd> leva direto a ele. A busca procura no nome e nas palavras-chave dos ícones, então “delete” também acha a lixeira, e os melhores acertos vêm primeiro. Nomes e palavras-chave estão em inglês, mas dá para buscar em português: os termos mais comuns (“lixeira”, “configurações”, “seta para direita”, “carrinho”) são traduzidos na hora, com ou sem acento, e os acertos em inglês continuam na frente. E a busca aprende: uma palavra que continua sem achar nada, em qualquer idioma, passa uma vez por dia por um processo automático que procura nomes de ícones em inglês com o mesmo sentido, e os que acham ícones passam a funcionar para todo mundo no dia seguinte. A busca procura em <em>Todos os conjuntos</em> de uma vez, numa seção para cada um; escolha um conjunto no seletor para buscar só nele, e apagar a busca volta ao conjunto em que você estava. Quando nada aparece num conjunto só, a página oferece limpar a busca ou as categorias e tentar a mesma palavra nos outros conjuntos. No Bootstrap Icons, <em>Contorno</em> e <em>Preenchido</em> mostram só uma das duas versões que a maioria dos ícones tem (<code>?style=outline</code> ou <code>?style=filled</code> no endereço).
       </li>
       <li>
         <strong>Defina o estilo</strong> nos controles Tamanho, Traço e Cor. Eles
@@ -192,7 +192,7 @@
     <h2 id="editor">O editor de ícones</h2>
     <p>
       O lápis de um card abre o ícone numa grade, pronto para mudar. O ícone chega
-      com o tamanho, o traço e a cor que você escolheu.
+      com o tamanho e o traço que você escolheu, na cor do texto: as cores se escolhem dentro do editor, forma por forma.
     </p>
     <figure class="page__figure">
       <img src="img/guide/editor.webp" width="1000" height="695" alt="O editor: formas à esquerda, pontos na grade, código e prévias à direita." loading="lazy" />
@@ -206,7 +206,7 @@
       </li>
       <li>
         <strong>Mover:</strong> arraste uma forma, ou use as setas do teclado ou os
-        botões. Os pontos encaixam na grade (1, ½ ou ¼ de unidade, ou livre).
+        botões. Os pontos encaixam na grade (1, ½ ou ¼ de unidade, ou livre). As linhas da grade no desenho seguem o passo escolhido, e somem com o encaixe desligado.
       </li>
       <li>
         <strong>Transformar:</strong> girar 90° ou 45°, espelhar e aumentar ou diminuir —
@@ -234,7 +234,7 @@
         <strong>Unir, separar e ordenar:</strong> <em>Unir</em> (Ctrl+J) transforma duas linhas abertas em uma, pelas pontas mais próximas. Com uma linha aberta selecionada, fecha a forma; se você escolher também um ponto, liga a ponta mais próxima a ele. <em>Separar</em> troca o cursor por um alvo: clique onde a linha deve ser cortada, ou aperte Esc para cancelar. Os quatro botões de ordem em Transformar levam a forma para trás ou para frente, um passo ou até a ponta. O botão <em>?</em>, ou a tecla ?, mostra todos os comandos com as teclas e as ações do mouse.
       </li>
       <li>
-        <strong>Zoom:</strong> a roda do mouse, os botões de lupa em cima do desenho ou as teclas + e − aproximam em volta do ponteiro; no celular, faça a pinça com dois dedos. Segure Espaço e arraste (ou arraste com o botão do meio) para mover a vista, e clique na porcentagem, ou aperte 0, para ver o desenho inteiro de novo.
+        <strong>Zoom:</strong> a roda do mouse, os botões de lupa em cima do desenho ou as teclas + e − aproximam em volta do ponteiro; no celular, faça a pinça com dois dedos. Segure Espaço e arraste (ou arraste com o botão do meio) para mover a vista. O botão − vai até 25%, deixando espaço em volta do desenho; clique na porcentagem, ou aperte 0, para voltar a 100% com o desenho centralizado.
       </li>
       <li>
         <strong>Tamanho e giro na mão:</strong> a seleção ganha uma caixa com alças. Arraste um canto para mudar o tamanho, mantendo as proporções e parando na grade; arraste a bolinha em cima da caixa para girar de 15 em 15 graus. Segure Shift para valores livres. Para números exatos, digite X, Y, L e A no painel <em>Seleção</em>.
@@ -347,7 +347,7 @@
           <tr><td><kbd>Ctrl+D</kbd></td><td>Editor: duplicar a seleção</td></tr>
           <tr><td><kbd>Shift + ← → ↑ ↓</kbd></td><td>Editor: mover dez passos da grade</td></tr>
           <tr><td><kbd>Tab</kbd></td><td>Editor, com o desenho em foco: escolher a forma seguinte</td></tr>
-          <tr><td><kbd>+ / − / 0</kbd></td><td>Editor: aproximar, afastar e ajustar o desenho (a roda do mouse também)</td></tr>
+          <tr><td><kbd>+ / − / 0</kbd></td><td>Editor: aproximar, afastar (até 25%) e voltar a 100% centralizado (a roda do mouse também)</td></tr>
           <tr><td><kbd>Espaço + arrastar</kbd></td><td>Editor: mover a vista</td></tr>
           <tr><td><kbd>Alt + arrastar</kbd></td><td>Editor: arrastar sem grudar nas outras formas</td></tr>
           <tr><td><kbd>Enter</kbd></td><td>Editor, com a caneta: terminar a linha</td></tr>
