@@ -10,6 +10,8 @@ import csp from "../scripts/csp.js";
 import servidor from "../scripts/server.js";
 import relatos from "../scripts/reports.js";
 
+const SCRIPT_TAG = /<script(\s[^>]*)?>([\s\S]*?)<\/script(?:\s[^>]*)?>/gi;
+
 let base;
 let instancia;
 before(async () => {
@@ -42,13 +44,19 @@ test("as páginas não têm JavaScript em linha nem atributos on*", () => {
   const pasta = new URL("../public/", import.meta.url);
   for (const f of readdirSync(pasta).filter((n) => n.endsWith(".html"))) {
     const html = readFileSync(new URL(f, pasta), "utf8");
-    for (const m of html.matchAll(/<script(\s[^>]*)?>([\s\S]*?)<\/script\s*>/gi)) {
+    for (const m of html.matchAll(SCRIPT_TAG)) {
       const atributos = m[1] ?? "";
       if (/\ssrc=/.test(atributos)) continue;
       assert.match(atributos, /type="application\/(ld\+)?json"/, `${f}: script em linha que roda código`);
     }
     assert.doesNotMatch(html, /\son[a-z]+="/i, `${f}: atributo on*`);
   }
+});
+
+test("reconhece fechamento de script com atributos tolerados pelo HTML", () => {
+  const [script] = '<script>ok</script\t\n bar>'.matchAll(SCRIPT_TAG);
+  assert.ok(script);
+  assert.equal(script[2], "ok");
 });
 
 test("/admin: CSP estrita, com o hash exato do script e do estilo da página", async () => {
