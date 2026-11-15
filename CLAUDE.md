@@ -92,6 +92,10 @@ Text must reach 4.5:1 (WCAG AA) in both themes. Secondary text uses `var(--il-mu
 
 `public/js/views/clarity.js` loads in both heads (`public/index.html` and `scripts/build-pages.mjs`), never on localhost or in `/admin`. Any new field or area that shows a supporter code, a form the visitor fills or SVG code needs `data-clarity-mask="true"` (`tests/clarity.test.mjs`). No consent signal is sent, so Clarity runs cookieless in the EEA, UK and Switzerland; the privacy policy says so in all 8 languages.
 
+## Emoji glyph detection
+
+`models/glyphDetector.js` draws every emoji in one grid per batch and reads the canvas once (a read per emoji took ~10 s). It runs in a module Web Worker (`js/workers/glifos.worker.js`, `OffscreenCanvas`; falls back to the page), so the grid never waits: `IconModel.carregar` shows every emoji, `dados.deteccao` resolves later and `IconController.trocarFonte` redraws only if something was hidden. The list of emojis without a design is kept in `icon-library:emoji-glyphs` per user agent and emoji version, so the next visit applies it at once.
+
 ## Footer
 
 Links use the same color and SVG icons (`.site-footer__icon`, Bootstrap Icons), in `public/index.html` and `scripts/build-pages.mjs`. The footer has only Privacy and Licenses (plus "Icons" on text pages) and the community links; `.site-footer__quebra` splits the two. Guide, About, Articles and the coffee live in the header.

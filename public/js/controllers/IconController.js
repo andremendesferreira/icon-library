@@ -235,6 +235,15 @@ export class IconController {
       view.renderResumo(model.resumo());
       view.esconderCarregando();
       this.atualizarGrupos();
+      // Emojis sem desenho neste aparelho: a detecção chega depois da grade
+      // e só a refaz se escondeu algum (e o conjunto ainda é o mesmo)
+      dados.deteccao?.then((escondeu) => {
+        if (!escondeu || chave !== model.fonteAtual) return;
+        model.exibir(chave, dados);
+        view.renderGrupos(model.contarGrupos());
+        view.renderResumo(model.resumo());
+        this.atualizarGrupos();
+      });
     } catch (erro) {
       if (chave !== model.fonteAtual) return;
       view.mostrarErro(tErro(erro));

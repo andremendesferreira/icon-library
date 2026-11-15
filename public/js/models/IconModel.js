@@ -1,5 +1,5 @@
-import { FONTES } from "./iconSets.js";
-import { criarDetector } from "./glyphDetector.js";
+import { FONTES, VERSOES } from "./iconSets.js";
+import { detectarGlifos, glifosGuardados } from "./glyphDetector.js";
 import { ESTILO_PADRAO, aplicarEstilo } from "./svgTools.js";
 import { IDIOMAS, expandir, prepararSinonimos } from "./sinonimos.js";
 
@@ -181,14 +181,27 @@ export class IconModel {
     );
     const itens = fonte.montar(varias ? respostas : respostas[0]);
 
+    // Emojis: a grade não espera a detecção dos que o aparelho não desenha.
+    // Com o resultado de uma visita anterior, ele vale na hora; senão, todos
+    // aparecem e a detecção (num worker) chega depois em dados.deteccao, que
+    // resolve true quando escondeu algum.
+    for (const item of itens) item.suportado = true;
+    let deteccao = null;
     if (fonte.detectaGlifo) {
-      const temGlifo = criarDetector();
-      for (const item of itens) item.suportado = temGlifo(item.char);
-    } else for (const item of itens) item.suportado = true;
+      const versao = `${chave}@${VERSOES[chave] ?? ""}`;
+      const aplicar = (faltam) => {
+        for (const item of itens) item.suportado = !faltam.has(item.char);
+        return faltam.size > 0;
+      };
+      const guardados = glifosGuardados(versao);
+      if (guardados) aplicar(guardados);
+      else deteccao = detectarGlifos(itens.map((item) => item.char), versao).then(aplicar, () => false);
+    }
     for (const item of itens) item.conjunto = chave;
 
     const dados = {
       itens,
+      deteccao,
       // Alguma fonte opcional que muda a tela (as categorias) falhou; as
       // "extra" (tags da busca) não contam
       usouAlternativa: varias && respostas.some((r, i) => r === undefined && !urls[i]?.extra),
@@ -236,7 +249,12 @@ export class IconModel {
     const resultados = await Promise.allSettled(chaves.map((chave) => this.carregar(chave)));
     const certos = resultados.filter((r) => r.status === "fulfilled");
     if (!certos.length) throw resultados[0].reason;
-    return { itens: certos.flatMap((r) => r.value.itens), usouAlternativa: false };
+    const deteccoes = certos.map((r) => r.value.deteccao).filter(Boolean);
+    return {
+      itens: certos.flatMap((r) => r.value.itens),
+      usouAlternativa: false,
+      deteccao: deteccoes.length ? Promise.all(deteccoes).then((r) => r.some(Boolean)) : null,
+    };
   }
 
   get modoTodos() {

@@ -62,7 +62,7 @@ No framework, no build step and two runtime dependencies on the server (the Post
 - **Links that open the editor** — made by people (*Share link* in the editor) or by AI assistants: see [For AI assistants](#for-ai-assistants).
 - **Light and dark themes:** follows the system, with a toggle in the header.
 - **8 languages** — English, Español, Français, Deutsch, Русский, 中文（简体）, Português (Brasil), 日本語 — detected from the browser, with a selector in the header (see [Languages](#languages)).
-- **Emoji glyph detection:** emojis your system font cannot draw are flagged and can be hidden.
+- **Emoji glyph detection:** emojis your system font cannot draw are hidden. The check draws every emoji once in a Web Worker (`js/workers/glifos.worker.js`, one canvas read per batch), so the grid shows at once; the result is kept per browser version (`icon-library:emoji-glyphs`) and the next visit skips it.
 - **Fast with large sets:** only categories near the screen are drawn; the rest are drawn as you scroll.
 - **Guide**, **About** and **Privacy** pages, linked in the footer — the Guide explains every feature step by step, with screenshots and a table of keyboard shortcuts.
 - **Responsive** from 360 px phones to wide desktops; keyboard support (arrows in the set list, `Esc` closes panels).
@@ -414,7 +414,7 @@ Sem framework, sem build e com duas dependências no servidor (o driver do Postg
 - **Links que abrem o editor** — feitos por pessoas (*Share link* no editor) ou por assistentes de IA: veja [Para assistentes de IA](#para-assistentes-de-ia).
 - **Tema claro e escuro:** segue o sistema, com um botão no cabeçalho.
 - **8 idiomas** — inglês, espanhol, francês, alemão, russo, chinês simplificado, português do Brasil e japonês — detectados pelo navegador, com um seletor no cabeçalho (veja [Idiomas](#idiomas)).
-- **Detecção de glifo nos emojis:** emojis que a fonte do sistema não desenha são sinalizados e podem ser ocultados.
+- **Detecção de glifo nos emojis:** emojis que a fonte do sistema não desenha ficam escondidos. A verificação desenha cada emoji uma vez num Web Worker (`js/workers/glifos.worker.js`, uma leitura do canvas por lote), então a grade aparece na hora; o resultado fica guardado por versão do navegador (`icon-library:emoji-glyphs`) e a próxima visita pula a verificação.
 - **Rápida com conjuntos grandes:** só as categorias perto da tela são desenhadas; as demais, conforme a rolagem.
 - Páginas **Guia**, **Sobre** e **Privacidade**, com links no rodapé — o Guia explica cada recurso passo a passo, com capturas de tela e uma tabela de atalhos de teclado.
 - **Responsiva** de celulares de 360 px a monitores largos; teclado (setas na lista de conjuntos, `Esc` fecha painéis).
