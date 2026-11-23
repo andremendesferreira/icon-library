@@ -11,7 +11,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="google-adsense-account" content="ca-pub-1124520097523749" />
-  <meta name="description" content="Guia prático do Bootstrap Icons: licença, SVG ou fonte de ícones, versões de contorno e preenchidas. Veja, ajuste e copie mais de 2.000 ícones SVG." />
+  <meta name="description" content="Guia prático do Bootstrap Icons: o link do CDN, os nomes mais usados, SVG ou fonte de ícones, contorno e preenchido, licença. Copie mais de 2.000 ícones." />
   <title>Bootstrap Icons: mais de 2.000 ícones SVG grátis | Icon Library</title>
   <meta name="theme-color" content="#f5f7fb" />
   <link rel="canonical" href="https://iconlibrary.io/bootstrap-icons.pt-BR.html" />
@@ -22,7 +22,7 @@
   <meta property="og:site_name" content="Icon Library" />
   <meta property="og:url" content="https://iconlibrary.io/bootstrap-icons.pt-BR.html" />
   <meta property="og:title" content="Bootstrap Icons: mais de 2.000 ícones SVG grátis | Icon Library" />
-  <meta property="og:description" content="Guia prático do Bootstrap Icons: licença, SVG ou fonte de ícones, versões de contorno e preenchidas. Veja, ajuste e copie mais de 2.000 ícones SVG." />
+  <meta property="og:description" content="Guia prático do Bootstrap Icons: o link do CDN, os nomes mais usados, SVG ou fonte de ícones, contorno e preenchido, licença. Copie mais de 2.000 ícones." />
   <meta property="og:image" content="https://iconlibrary.io/img/og-card.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -157,16 +157,53 @@
     </p>
 
     <h2>SVG ou fonte de ícones?</h2>
-    <p>O conjunto oferece os dois. A fonte é rápida de configurar:</p>
+    <p>O conjunto oferece os dois. A fonte é o jeito mais rápido de começar: uma linha vinda de um CDN, sem instalar nada.</p>
+    <pre><code>&lt;link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css"&gt;
+
+    &lt;i class="bi bi-search" aria-hidden="true"&gt;&lt;/i&gt;</code></pre>
+    <p>Num projeto com bundler, instale o pacote e importe o mesmo arquivo:</p>
     <pre><code>npm install bootstrap-icons
 
-    &lt;link rel="stylesheet" href="bootstrap-icons/font/bootstrap-icons.min.css"&gt;
-    &lt;i class="bi bi-search" aria-hidden="true"&gt;&lt;/i&gt;</code></pre>
+    import "bootstrap-icons/font/bootstrap-icons.min.css";</code></pre>
+    <p>
+      O ícone é um caractere da fonte, então <code>font-size</code> define o tamanho e
+      <code>color</code> a cor, como num texto: <code>&lt;i class="bi bi-heart-fill"
+      style="font-size: 2rem; color: crimson"&gt;&lt;/i&gt;</code>. Fixe a versão no
+      endereço do CDN, como acima, para uma atualização nunca mudar os seus ícones de
+      surpresa.
+    </p>
     <p>
       Em troca, a fonte carrega todos os ícones, mesmo que você use dez. Se precisa de
       poucos, colar o SVG não carrega nada a mais. Também evita o instante em que a
       fonte ainda não carregou e o ícone não aparece.
     </p>
+
+    <h2>Nomes de ícones mais procurados</h2>
+    <p>
+      Com a fonte, um ícone é <code>bi bi-</code> mais o nome. Estes são os que as
+      pessoas mais procuram; os outros estão na grade da ferramenta, onde o botão
+      direito num cartão copia o nome.
+    </p>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Para</th><th>Classe</th></tr></thead>
+        <tbody>
+        <tr><td>Início</td><td><code>bi-house</code>, <code>bi-house-fill</code></td></tr>
+        <tr><td>Busca</td><td><code>bi-search</code></td></tr>
+        <tr><td>Menu</td><td><code>bi-list</code>, <code>bi-three-dots</code></td></tr>
+        <tr><td>Fechar e confirmar</td><td><code>bi-x-lg</code>, <code>bi-check-lg</code></td></tr>
+        <tr><td>Usuário e configurações</td><td><code>bi-person</code>, <code>bi-gear</code></td></tr>
+        <tr><td>Favorito</td><td><code>bi-heart</code> / <code>bi-heart-fill</code>, <code>bi-star</code> / <code>bi-star-fill</code></td></tr>
+        <tr><td>Loja</td><td><code>bi-cart</code></td></tr>
+        <tr><td>Editar e excluir</td><td><code>bi-pencil</code>, <code>bi-trash</code></td></tr>
+        <tr><td>E-mail e avisos</td><td><code>bi-envelope</code>, <code>bi-bell</code></td></tr>
+        <tr><td>Baixar e sair</td><td><code>bi-download</code>, <code>bi-box-arrow-right</code></td></tr>
+        <tr><td>Setas</td><td><code>bi-arrow-right</code>, <code>bi-chevron-down</code></td></tr>
+        <tr><td>Marcas</td><td><code>bi-github</code>, <code>bi-whatsapp</code>, <code>bi-instagram</code></td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h2>Quando escolher</h2>
     <ul>

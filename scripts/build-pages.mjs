@@ -61,6 +61,28 @@ for (const idioma of IDIOMAS)
   dicionarios[idioma] = (await import(new URL(`public/js/i18n/${idioma}.js`, raiz))).default;
 const t = (idioma, chave) => dicionarios[idioma][chave] ?? dicionarios.en[chave];
 
+// Emojis para copiar e colar, por categoria (pages/emoji-icons/categorias.json):
+// cada um é um botão que js/views/copiarEmoji.js copia com um clique. Sem
+// JavaScript, o emoji continua lá para selecionar e copiar à mão.
+const EMOJI_TEXTOS = {
+  en: { copiar: "Copy", copiado: "Copied:", erro: "Your browser blocked the copy: select the emoji and press Ctrl+C." },
+  "pt-BR": { copiar: "Copiar", copiado: "Copiado:", erro: "O navegador bloqueou a cópia: selecione o emoji e aperte Ctrl+C." },
+};
+function emojisPorCategoria(idioma) {
+  const categorias = JSON.parse(readFileSync(new URL("pages/emoji-icons/categorias.json", raiz), "utf8"));
+  const textos = EMOJI_TEXTOS[idioma] ?? EMOJI_TEXTOS.en;
+  const segmentos = new Intl.Segmenter();
+  const blocos = categorias.map((c) => {
+    const botoes = [...segmentos.segment(c.emojis)].map(
+      ({ segment: e }) => `<li><button type="button" data-emoji="${e}" aria-label="${escapar(textos.copiar)} ${e}">${e}</button></li>`,
+    );
+    return `<h3>${escapar(c[idioma] ?? c.en)}</h3>\n<ul class="emoji-copiar">${botoes.join("")}</ul>`;
+  });
+  return `${blocos.join("\n")}
+<p class="emoji-copiar__aviso" role="status" aria-live="polite" data-copiado="${escapar(textos.copiado)}" data-erro="${escapar(textos.erro)}"></p>
+<script src="js/views/copiarEmoji.js" defer></script>`;
+}
+
 // Ícones escolhidos do conjunto, já no HTML: aparecem mesmo sem JavaScript
 function grade(pagina) {
   const icones = JSON.parse(readFileSync(new URL(`pages/${pagina}/icones.json`, raiz), "utf8"));
@@ -222,6 +244,7 @@ function montar(pagina, idioma) {
       `<p class="page__coffee"><a class="site-footer__coffee" href="${icones}#coffee">☕ ${escapar(t(idioma, "coffee.button"))}</a></p>`,
     )
     .replace("<!--grade-->", () => (CONJUNTOS.includes(pagina) ? grade(pagina) : ""))
+    .replace("<!--emojis-->", () => emojisPorCategoria(idioma))
     .replace("<!--avaliacoes-->", () => avaliacoes(idioma))
     .replace("<!--passos-->", () => passos(idioma))
     .replace("<!--artigos-->", () => listaDeArtigos(idioma))

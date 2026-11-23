@@ -6215,3 +6215,53 @@ html.volta .summary {
 [data-theme="dark"] .editor__grid line.editor__grid-fina {
   stroke: #1c273b;
 }
+
+/* ── Emojis para copiar e colar (guia dos emojis, 2026-11) ─────────────── */
+.emoji-copiar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 20px;
+  padding: 0;
+  list-style: none;
+}
+.emoji-copiar button {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  line-height: 1;
+  border: 1px solid var(--cor-borda);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.emoji-copiar button:hover {
+  border-color: var(--cor-borda-forte);
+}
+.emoji-copiar button:focus-visible {
+  outline: 3px solid var(--il-action);
+  outline-offset: 2px;
+}
+.emoji-copiar button.emoji-copiar--feito {
+  border-color: var(--il-action);
+}
+.emoji-copiar__aviso {
+  position: sticky;
+  bottom: 12px;
+  width: fit-content;
+  margin: 0;
+  font-weight: 600;
+  color: var(--il-blue-dark);
+  background: var(--cor-superficie);
+  border-radius: 999px;
+}
+/* Só aparece com texto: uma pílula sobre a grade */
+.emoji-copiar__aviso:not(:empty) {
+  padding: 6px 14px;
+  border: 1px solid var(--cor-borda-forte);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+.emoji-copiar button {
+  background: var(--cor-superficie);
+}

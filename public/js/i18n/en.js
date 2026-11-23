@@ -3,9 +3,9 @@
 // the code; keys ending in "Html" may contain <strong>/<em>/<code>.
 // An object { one, other } is a plural, chosen by Intl.PluralRules.
 export default {
-  "meta.title": "Free SVG Icons & Emojis: Copy, Edit & Export | Icon Library",
+  "meta.title": "Free SVG Icons & Emojis to Copy, Paste & Edit | Icon Library",
   "meta.description":
-    "Free icon toolkit: search Lucide, Tabler, Feather, Bootstrap Icons and all emojis. Copy clean SVG, export PNG or React, and edit icons in your browser.",
+    "Free icons: search Lucide, Tabler, Feather, Bootstrap Icons and all emojis. Click to copy and paste clean SVG, export PNG or React, and edit in your browser.",
   "lang.label": "Language",
   "theme.label": "Dark theme",
   "theme.toDark": "Switch to dark theme",

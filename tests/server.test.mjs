@@ -285,7 +285,7 @@ test("páginas: título e descrição dentro de <head>, conteúdo dentro de <bod
 
 test("SEO: a página principal traz título escapado e dados estruturados válidos", async () => {
   const html = (await pedir("/")).corpo.toString();
-  assert.match(html, /<title>Free SVG Icons &amp; Emojis: Copy, Edit &amp; Export \| Icon Library<\/title>/);
+  assert.match(html, /<title>Free SVG Icons &amp; Emojis to Copy, Paste &amp; Edit \| Icon Library<\/title>/);
   const blocos = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
   // WebSite dá o nome do site nos resultados do Google; WebApplication diz o que ele é
   const site = blocos.find((d) => d["@type"] === "WebSite");
@@ -321,7 +321,8 @@ test("guias dos conjuntos: ícones no HTML, só os idiomas que existem, no sitem
       const res = await pedir(caminho);
       assert.equal(res.status, 200, caminho);
       const html = res.corpo.toString();
-      assert.ok((html.match(/<li>(<svg|<span class="set-grid__emoji")/g) ?? []).length >= 30, caminho);
+      // Os ícones na grade; nos emojis, os botões de copiar e colar por categoria
+      assert.ok((html.match(/<li>(<svg|<span class="set-grid__emoji"|<button type="button" data-emoji=)/g) ?? []).length >= 30, caminho);
       assert.match(html, /data-languages="en,pt-BR"/);
       // Uma forma sem tamanho não aparece: o ícone sairia incompleto
       assert.doesNotMatch(html, /<rect(?![^>]*width=)/);

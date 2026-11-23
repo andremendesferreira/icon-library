@@ -1,4 +1,4 @@
-<!-- {"title":"Bootstrap Icons: 2,000+ Free SVG Icons, Copy or Edit | Icon Library","description":"A practical guide to Bootstrap Icons: license, SVG or icon font, outline and fill variants. Browse, restyle and copy over 2,000 SVG icons."} -->
+<!-- {"title":"Bootstrap Icons: 2,000+ Free SVG Icons, Copy or Edit | Icon Library","description":"A practical guide to Bootstrap Icons: the CDN link, popular icon names, SVG or icon font, outline and fill variants, license. Copy over 2,000 SVG icons."} -->
 <h1 class="page__title">Bootstrap Icons</h1>
 <p class="page__lead">
   Bootstrap Icons is an open-source set of over 2,000 icons from the Bootstrap
@@ -31,16 +31,52 @@
 </p>
 
 <h2>SVG or icon font?</h2>
-<p>The set offers both. The font is quick to set up:</p>
+<p>The set offers both. The font is the quickest way to start: one line from a CDN, with no install.</p>
+<pre><code>&lt;link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css"&gt;
+
+&lt;i class="bi bi-search" aria-hidden="true"&gt;&lt;/i&gt;</code></pre>
+<p>In a project with a bundler, install the package and import the same file:</p>
 <pre><code>npm install bootstrap-icons
 
-&lt;link rel="stylesheet" href="bootstrap-icons/font/bootstrap-icons.min.css"&gt;
-&lt;i class="bi bi-search" aria-hidden="true"&gt;&lt;/i&gt;</code></pre>
+import "bootstrap-icons/font/bootstrap-icons.min.css";</code></pre>
+<p>
+  The icon is a character of the font, so <code>font-size</code> sets its size and
+  <code>color</code> its color, like text: <code>&lt;i class="bi bi-heart-fill"
+  style="font-size: 2rem; color: crimson"&gt;&lt;/i&gt;</code>. Pin the version in
+  the CDN address, as above, so an update never changes your icons by surprise.
+</p>
 <p>
   The trade-off is that the font carries every icon, even if you use ten of them.
   If you only need a few, pasting the SVG loads nothing extra. It also avoids the
   moment when a font hasn't loaded yet and the icon is missing.
 </p>
+
+<h2>Popular icon names</h2>
+<p>
+  With the font, an icon is <code>bi bi-</code> plus its name. These are the ones
+  people look for most; the rest are in the grid of the tool, where a right click
+  on a card copies the name.
+</p>
+<div class="page__table">
+  <table>
+    <thead><tr><th>For</th><th>Class</th></tr></thead>
+    <tbody>
+    <tr><td>Home</td><td><code>bi-house</code>, <code>bi-house-fill</code></td></tr>
+    <tr><td>Search</td><td><code>bi-search</code></td></tr>
+    <tr><td>Menu</td><td><code>bi-list</code>, <code>bi-three-dots</code></td></tr>
+    <tr><td>Close and confirm</td><td><code>bi-x-lg</code>, <code>bi-check-lg</code></td></tr>
+    <tr><td>User and settings</td><td><code>bi-person</code>, <code>bi-gear</code></td></tr>
+    <tr><td>Favorite</td><td><code>bi-heart</code> / <code>bi-heart-fill</code>, <code>bi-star</code> / <code>bi-star-fill</code></td></tr>
+    <tr><td>Shop</td><td><code>bi-cart</code></td></tr>
+    <tr><td>Edit and delete</td><td><code>bi-pencil</code>, <code>bi-trash</code></td></tr>
+    <tr><td>Mail and alerts</td><td><code>bi-envelope</code>, <code>bi-bell</code></td></tr>
+    <tr><td>Download and sign out</td><td><code>bi-download</code>, <code>bi-box-arrow-right</code></td></tr>
+    <tr><td>Arrows</td><td><code>bi-arrow-right</code>, <code>bi-chevron-down</code></td></tr>
+    <tr><td>Brands</td><td><code>bi-github</code>, <code>bi-whatsapp</code>, <code>bi-instagram</code></td></tr>
+    </tbody>
+  </table>
+</div>
 
 <h2>When to choose it</h2>
 <ul>

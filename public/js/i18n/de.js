@@ -1,8 +1,8 @@
 // Deutsch
 export default {
-  "meta.title": "Kostenlose SVG-Icons und Emojis kopieren | Icon Library",
+  "meta.title": "Kostenlose Icons und Emojis zum Kopieren | Icon Library",
   "meta.description":
-    "Kostenlose Icons: Durchsuche Lucide, Tabler, Feather, Bootstrap Icons und alle Emojis. Kopiere sauberes SVG, exportiere PNG oder React, bearbeite im Browser.",
+    "Kostenlose Icons zum Kopieren: Lucide, Tabler, Feather, Bootstrap Icons und alle Emojis. Klicken und SVG einfügen, PNG oder React, im Browser bearbeiten.",
   "lang.label": "Sprache",
   "theme.label": "Dunkles Design",
   "theme.toDark": "Zum dunklen Design wechseln",
