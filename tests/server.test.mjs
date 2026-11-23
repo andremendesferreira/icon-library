@@ -117,7 +117,7 @@ test("robots.txt e sitemap.xml com o endereço do site", async () => {
     assert.match(sitemap, /<loc>https:\/\/icons\.example\.com\/license\.de\.html<\/loc>/);
     // Home em 8 idiomas, guia/sobre/privacidade/licenças em 8, guias dos
     // conjuntos (4) e o artigo em inglês e português
-    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 32 + 8 + 2 + 2 + 2);
+    assert.equal((sitemap.match(/<loc>/g) || []).length, 1 + 7 + 32 + 10 + 2 + 2 + 2 + 2);
   } finally {
     delete process.env.SITE_URL;
   }
@@ -286,9 +286,12 @@ test("páginas: título e descrição dentro de <head>, conteúdo dentro de <bod
 test("SEO: a página principal traz título escapado e dados estruturados válidos", async () => {
   const html = (await pedir("/")).corpo.toString();
   assert.match(html, /<title>Free SVG Icons &amp; Emojis: Copy, Edit &amp; Export \| Icon Library<\/title>/);
-  const dados = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(html)[1]);
-  assert.equal(dados["@type"], "WebApplication");
-  assert.equal(dados.url, "https://iconlibrary.io/");
+  const blocos = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  // WebSite dá o nome do site nos resultados do Google; WebApplication diz o que ele é
+  const site = blocos.find((d) => d["@type"] === "WebSite");
+  const app = blocos.find((d) => d["@type"] === "WebApplication");
+  assert.equal(site?.name, "Icon Library");
+  assert.equal(app?.url, "https://iconlibrary.io/");
   // Nos outros idiomas, o título continua escapado e os dados continuam lá
   const pt = (await pedir("/?lang=pt-BR")).corpo.toString();
   assert.match(pt, /application\/ld\+json/);
@@ -313,7 +316,7 @@ test("artigo: inglês e português, ícones no HTML, links válidos, no sitemap"
 });
 
 test("guias dos conjuntos: ícones no HTML, só os idiomas que existem, no sitemap", async () => {
-  for (const pagina of ["lucide-icons", "feather-icons", "bootstrap-icons", "emoji-icons"]) {
+  for (const pagina of ["lucide-icons", "tabler-icons", "feather-icons", "bootstrap-icons", "emoji-icons"]) {
     for (const caminho of [`/${pagina}.html`, `/${pagina}.pt-BR.html`]) {
       const res = await pedir(caminho);
       assert.equal(res.status, 200, caminho);

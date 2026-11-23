@@ -1,0 +1,133 @@
+<!-- {"title":"Editor de SVG online grátis para ícones | Icon Library","description":"Crie e edite ícones SVG no navegador, sem conta e sem enviar nada: comece de um dos 10 mil ícones ou do zero, combine, desenhe e exporte em SVG ou PNG."} -->
+<h1 class="page__title">Editor de SVG online para ícones</h1>
+<p class="page__lead">
+  O editor da Icon Library cria e ajusta ícones SVG direto no navegador. Não
+  pede conta, não instala nada e não envia o seu desenho a servidor nenhum: o
+  trabalho acontece na sua máquina. Ele foi feito para ícones, numa grade de 24
+  unidades, e não para ilustrações: é isso que o deixa simples.
+</p>
+<p class="page__cta">
+  <a class="page__open" href="./?lang=pt-BR#name=novo-icone&amp;svg=%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3C%2Fsvg%3E">Abrir o editor em branco</a>
+</p>
+<figure class="page__figure">
+  <img src="img/guide/editor.webp" width="1000" height="695" alt="O editor: formas à esquerda, pontos na grade, código e prévias à direita." loading="lazy" />
+  <figcaption>As formas ficam à esquerda, o desenho na grade e, à direita, o código e as prévias em quatro tamanhos.</figcaption>
+</figure>
+
+<h2>Para que ele serve</h2>
+<h3>Ajustar um ícone que quase serve</h3>
+<p>
+  Quase sempre existe um ícone parecido com o que você precisa. Busque na
+  página principal entre os mais de 10 mil do Lucide, do Tabler, do Feather, do Bootstrap
+  Icons e da comunidade, e clique no lápis do cartão. O ícone abre no editor
+  com o tamanho e o traço que você escolheu, e cada forma pode ser movida,
+  curvada, apagada ou recolorida.
+</p>
+<h3>Juntar dois ícones num só</h3>
+<p>
+  <em>Ícone por cima</em> traz um segundo ícone para a mesma grade: uma estrela
+  dentro de um coração, um cadeado num banco de dados, um selo num documento.
+  Cada ícone vira um grupo que se move e se redimensiona inteiro. Com
+  <em>Unir</em>, <em>Subtrair</em>, <em>Interseção</em> e <em>Excluir</em>, duas
+  formas fechadas viram um desenho só, como um recorte.
+</p>
+<figure class="page__figure">
+  <img src="img/guide/overlay.webp" width="1000" height="695" alt="Uma estrela preenchida do Bootstrap sobre um coração de contorno do Lucide, com a sua própria cor." loading="lazy" />
+  <figcaption>Uma estrela do Bootstrap Icons sobre um coração do Lucide, cada um com o seu estilo.</figcaption>
+</figure>
+<h3>Desenhar do zero ou a partir de um esboço</h3>
+<p>
+  No editor em branco, as formas prontas (linha, círculo, retângulo, polígonos,
+  estrela, seta, balão de fala) e a caneta, que faz curvas ao arrastar, dão a
+  base. Para redesenhar um logotipo ou um rascunho, carregue a imagem em
+  <em>Imagem de referência</em>: ela aparece embaixo da grade, só na sua tela,
+  e não entra no SVG.
+</p>
+<h3>Consertar um SVG que veio de outro lugar</h3>
+<p>
+  Cole o código de um SVG no campo de código e ele vira formas editáveis. Isso
+  vale para um ícone que um assistente de IA desenhou, um arquivo de outro
+  designer ou um SVG antigo do seu projeto. O editor descarta scripts e tudo o
+  que um ícone não precisa, e <em>Otimizar</em> tira o que não muda o desenho.
+  Um assistente de IA também pode mandar o ícone como um link que abre direto
+  aqui, como explica o <a href="llms.txt">llms.txt</a>.
+</p>
+
+<h2>Como funciona, em quatro passos</h2>
+<ol>
+  <li><strong>Abra:</strong> em branco, pelo botão acima, ou a partir de um ícone da <a href="./?lang=pt-BR">página principal</a>.</li>
+  <li><strong>Edite:</strong> arraste pontos e formas, que se encaixam na grade e umas nas outras, com guias. Selecione várias para alinhar, agrupar ou girar juntas.</li>
+  <li><strong>Confira:</strong> as prévias mostram o ícone em 16, 24, 32 e 48 pixels, em fundo claro e escuro. <em>Original</em> mostra como ele era antes.</li>
+  <li><strong>Leve:</strong> copie o SVG, baixe o arquivo SVG ou um PNG do tamanho que quiser, mande para o rascunho ou salve um arquivo <code>.ile</code> para continuar depois.</li>
+</ol>
+
+<h2>Por que um editor só para ícones</h2>
+<p>
+  Ferramentas como Figma, Illustrator e Inkscape fazem muito mais, e para uma
+  ilustração são a escolha certa. Para um ícone de interface, elas costumam
+  atrapalhar: exportam o SVG com grupos, transformações e atributos sobrando, e
+  um ícone de traço perde a cor do texto. Aqui o resultado sai limpo, com
+  <code>currentColor</code> quando você não escolhe uma cor, então o ícone
+  herda a cor do texto onde for colado. A grade de 24 unidades, a mesma do
+  Lucide, do Tabler e do Feather, mantém o traço nítido nos tamanhos pequenos.
+</p>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Você quer</th><th>No editor</th></tr></thead>
+    <tbody>
+    <tr><td>Mudar a espessura ou a cor de uma parte</td><td>Painel <em>Selecionado</em>, forma por forma</td></tr>
+    <tr><td>Preencher uma forma ou aplicar um degradê</td><td><em>Preencher</em> e <em>Degradê</em>, linear ou radial</td></tr>
+    <tr><td>Recortar uma forma de outra</td><td><em>Subtrair</em>, com as duas formas fechadas selecionadas</td></tr>
+    <tr><td>Deixar uma forma parada enquanto mexe nas outras</td><td>O cadeado na lista de elementos</td></tr>
+    <tr><td>Ver a ordem das camadas</td><td><em>Ver camadas</em>, que pinta cada forma de uma cor</td></tr>
+    <tr><td>Editar no celular</td><td>O desenho fica no alto e as ferramentas em abas embaixo</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  A lista completa de comandos e atalhos está no
+  <a href="guide.pt-BR.html#editor">Guia, na parte do editor</a>.
+</p>
+
+<h2>Perguntas frequentes</h2>
+<h3>É grátis? Preciso de conta?</h3>
+<p>
+  É grátis e não pede conta. O editor é JavaScript que roda no seu navegador, e
+  a edição em andamento fica guardada nele, para não se perder se a aba fechar.
+</p>
+<h3>O meu SVG vai para algum servidor?</h3>
+<p>
+  Não. O que você cola, desenha ou abre de um arquivo fica no navegador. Num
+  link de ícone, o desenho vai depois do <code>#</code>, uma parte do endereço
+  que o navegador não envia. Só sai daqui o que você decidir publicar na
+  Iconlibrary, o conjunto da comunidade.
+</p>
+<h3>Posso usar o ícone num projeto comercial?</h3>
+<p>
+  Depende de onde ele começou. Um desenho seu é seu. Um ícone editado a partir
+  do Lucide, do Tabler, do Feather ou do Bootstrap Icons continua sob a licença do conjunto
+  de origem (ISC ou MIT), que permite uso comercial; veja as
+  <a href="license.pt-BR.html">licenças</a>.
+</p>
+<h3>Que tipo de SVG ele abre?</h3>
+<p>
+  Qualquer SVG, mas pensando em ícones. Linhas, círculos, elipses, retângulos,
+  polígonos e paths viram formas editáveis, com traço, preenchimento e
+  degradês. Texto, máscaras e outros elementos de SVG continuam no desenho como
+  estão e só mudam pelo código. Imagens embutidas, filtros e scripts são
+  descartados.
+</p>
+<h3>Funciona no celular?</h3>
+<p>
+  Funciona. No celular o desenho fica à vista e as ferramentas ficam em abas
+  embaixo dele; uma forma é selecionada com um toque e arrastada depois.
+</p>
+<p class="page__cta">
+  <a class="page__open" href="./?lang=pt-BR#name=novo-icone&amp;svg=%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3C%2Fsvg%3E">Abrir o editor em branco</a>
+</p>
+<p class="page__meta">
+  Veja também o artigo <a href="lgpd-icon.pt-BR.html">como criar um ícone quando
+  nenhum serve</a>, um caso real feito neste editor, e os guias do
+  <a href="lucide-icons.pt-BR.html">Lucide</a> e do
+  <a href="bootstrap-icons.pt-BR.html">Bootstrap Icons</a>.
+</p>

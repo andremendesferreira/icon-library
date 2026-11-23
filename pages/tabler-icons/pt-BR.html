@@ -1,0 +1,101 @@
+<!-- {"title":"Ícones Tabler: 5.500 ícones SVG grátis para copiar ou editar | Icon Library","description":"Um guia prático do Tabler Icons: versões de contorno e preenchidas, licença MIT, uso no React e comparação com o Lucide. Navegue, ajuste e copie o SVG."} -->
+<h1 class="page__title">Ícones Tabler</h1>
+<p class="page__lead">
+  O Tabler Icons é um conjunto de código aberto com quase 5.500 ícones de
+  contorno, criado por Paweł Kuna como parte do projeto Tabler. É um dos maiores
+  conjuntos gratuitos com um estilo único e coerente, e cerca de mil dos seus
+  ícones também têm uma versão preenchida.
+</p>
+<!--ferramenta:tabler-->
+
+<h2>Uma amostra do conjunto</h2>
+<!--grade-->
+
+<h2>O que o estilo oferece</h2>
+<p>
+  Os ícones são desenhados numa grade de 24×24, com traço de 2 unidades, pontas
+  arredondadas e sem preenchimento, as mesmas regras do Lucide e do Feather. Por
+  isso os três se misturam bem: um ícone do Tabler ao lado de um do Lucide tem o
+  mesmo peso e os mesmos cantos. Como as formas são linhas,
+  <code>stroke-width</code> deixa o ícone mais leve ou mais pesado sem outro
+  arquivo, e <code>currentColor</code> faz ele acompanhar a cor do texto.
+</p>
+<p>
+  O tamanho do conjunto é o principal motivo para escolhê-lo. O Tabler cobre
+  áreas que os conjuntos menores deixam de fora: várias versões do mesmo objeto
+  (<code>battery</code>, de <code>battery-1</code> a <code>battery-4</code>,
+  <code>battery-charging</code>), versões “off” para estados desligados e famílias
+  inteiras de gráficos, aparelhos, moedas, clima e esportes.
+</p>
+
+<h2>Contorno e preenchido</h2>
+<p>
+  Cerca de mil ícones têm um gêmeo preenchido. Use o preenchido para mostrar um
+  estado ligado: uma estrela selecionada, um coração curtido, uma aba ativa. Na
+  Icon Library as versões preenchidas terminam em <em>filled</em>, e os botões
+  <em>Contorno</em> e <em>Preenchido</em> mostram só um tipo. Misturar os dois
+  como simples decoração na mesma linha fica desigual, porque a forma cheia pesa
+  mais.
+</p>
+
+<h2>Licença</h2>
+<p>
+  O Tabler Icons usa a licença MIT: você pode usar os ícones em projetos
+  pessoais e comerciais e modificá-los. Mantenha o aviso de licença ao
+  redistribuir o próprio pacote. O conjunto inclui alguns logotipos de empresas
+  e produtos (os ícones <code>brand-</code>); a licença cobre o desenho, não a
+  marca, então um logotipo segue as regras do dono.
+</p>
+
+<h2>Usando num projeto</h2>
+<p>Para um ou dois ícones, colar o SVG basta e não acrescenta nenhuma dependência:</p>
+<pre><code>&lt;button aria-label="Configurações"&gt;
+  &lt;svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24" fill="none"
+       stroke="currentColor" stroke-width="2"&gt;…&lt;/svg&gt;
+&lt;/button&gt;</code></pre>
+<p>No React, o pacote oficial exporta cada ícone como um componente cujo nome começa com <code>Icon</code>:</p>
+<pre><code>npm install @tabler/icons-react
+
+import { IconSettings } from "@tabler/icons-react";
+
+&lt;IconSettings size={20} stroke={1.5} /&gt;</code></pre>
+<p>
+  Repare que a propriedade do traço se chama <code>stroke</code>, e não
+  <code>strokeWidth</code> como no Lucide. Há pacotes para Vue, Svelte, Solid e
+  Preact também, e uma fonte de ícones; veja
+  <a href="https://tabler.io/icons" rel="noopener">tabler.io/icons</a> para a
+  lista atual.
+</p>
+
+<h2>Tabler ou Lucide?</h2>
+<p>
+  Os dois seguem a mesma grade e o mesmo traço, então a escolha é de cobertura e
+  de hábito. O <a href="lucide-icons.pt-BR.html">Lucide</a> tem menos ícones,
+  escolhidos com cuidado, e os nomes seguem os do Feather. O Tabler tem quase
+  três vezes mais e as versões preenchidas, então é mais provável que tenha um
+  objeto específico ou um estado. Muitos projetos usam o Lucide como base e
+  pegam do Tabler os poucos ícones que faltam, o que funciona porque os estilos
+  combinam.
+</p>
+
+<h2>Erros comuns</h2>
+<ul>
+  <li>
+    <strong>Importar o conjunto inteiro.</strong> Com milhares de ícones,
+    importar tudo deixa o pacote do site pesado. Importe cada ícone pelo nome,
+    como acima, para o build manter só o que você usa.
+  </li>
+  <li>
+    <strong>Um botão só com ícone e sem nome.</strong> Um leitor de tela não tem
+    o que anunciar. Coloque <code>aria-label</code> no botão e
+    <code>aria-hidden="true"</code> no SVG.
+  </li>
+  <li>
+    <strong>Misturar contorno e preenchido sem motivo.</strong> Deixe o
+    preenchido para um estado ativo ou selecionado, e o contorno para o resto.
+  </li>
+</ul>
+<p>
+  Para mudar um ícone do Tabler, ou juntá-lo a um ícone de outro conjunto, abra
+  com o lápis no <a href="svg-editor.pt-BR.html">editor de SVG online</a>.
+</p>

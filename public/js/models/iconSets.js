@@ -8,6 +8,7 @@
 export const VERSOES = {
   emoji: "0.9.0", // unicode-emoji-json
   lucide: "1.59.0", // lucide-static
+  tabler: "3.52.0", // @tabler/icons
   feather: "4.29.2", // feather-icons
   bootstrap: "1.13.2", // bootstrap-icons
 };
@@ -76,6 +77,50 @@ export const FONTES = {
             .join(""),
         ),
       })),
+  },
+  // Tabler Icons (MIT): contorno na mesma grade e traço do Lucide, e uma parte
+  // também preenchida. icons.json traz a categoria e as palavras-chave
+  tabler: {
+    rotulo: "Tabler",
+    temTraco: true,
+    temCor: true,
+    // Uns mil ícones têm também a versão preenchida: filtro contorno/preenchido
+    temVariantes: true,
+    rotuloGrupo: "categories.all",
+    rotuloGrupoAlternativo: "letters.all",
+    url: [
+      `https://unpkg.com/@tabler/icons@${VERSOES.tabler}/tabler-nodes-outline.json`,
+      `https://unpkg.com/@tabler/icons@${VERSOES.tabler}/tabler-nodes-filled.json`,
+      { endereco: `https://unpkg.com/@tabler/icons@${VERSOES.tabler}/icons.json`, opcional: true },
+    ],
+    montar: ([contornos, preenchidos, dados]) => {
+      const nos = (lista) =>
+        lista.map(([tag, atributos]) => `<${tag} ${Object.entries(atributos).map(([k, v]) => `${k}="${v}"`).join(" ")}/>`).join("");
+      const comum = (nome) => ({
+        tipo: "svg",
+        // Algumas palavras-chave vêm como número ("3d", 404): tudo vira texto
+        tags: (dados?.[nome]?.tags ?? []).map(String),
+        // As categorias do Tabler vêm com maiúscula ("Buildings"); as do
+        // Lucide, em minúsculas: ficam iguais na lista de categorias
+        grupo: dados ? (dados[nome]?.category || "others").toLowerCase() : porLetra(nome),
+      });
+      return [
+        ...Object.entries(contornos).map(([nome, lista]) => ({
+          ...comum(nome),
+          nome: nome.replace(/-/g, " "),
+          // "editavel" só abre o Lucide Studio (Lucide e Feather); o editor
+          // da página abre qualquer conjunto vetorial
+          variante: "contorno",
+          svg: envelopeTraco(nos(lista)),
+        })),
+        ...Object.entries(preenchidos).map(([nome, lista]) => ({
+          ...comum(nome),
+          nome: `${nome.replace(/-/g, " ")} filled`,
+          variante: "preenchido",
+          svg: envelopePreenchido(nos(lista), "0 0 24 24"),
+        })),
+      ];
+    },
   },
   feather: {
     rotulo: "Feather",

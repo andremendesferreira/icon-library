@@ -2,7 +2,7 @@
 export default {
   "meta.title": "Iconos SVG y Emojis Gratis: Copia y Edita | Icon Library",
   "meta.description":
-    "Iconos gratis: busca en Lucide, Feather, Bootstrap Icons y todos los emojis. Copia SVG limpio, exporta PNG o React y edita en el navegador.",
+    "Iconos gratis: busca en Lucide, Tabler, Feather, Bootstrap Icons y todos los emojis. Copia SVG limpio, exporta PNG o React y edita en el navegador.",
   "lang.label": "Idioma",
   "theme.label": "Tema oscuro",
   "theme.toDark": "Cambiar al tema oscuro",
@@ -379,7 +379,7 @@ export default {
   "report.disabled": "El formulario no está disponible ahora — abre un issue en GitHub.",
   "header.editHtml": "El <strong>lápiz</strong> abre el editor: cambia la forma, el color y combina iconos.",
   "home.title": "Iconos gratuitos para diseñadores y desarrolladores",
-  "home.p1": "Icon Library reúne miles de iconos de código abierto en una sola página con búsqueda: Lucide, Feather, Bootstrap Icons y todos los emojis Unicode. Elige un conjunto, filtra por categoría o nombre y ajusta el tamaño, el grosor del trazo y el color antes de copiar, para que cada icono llegue a tu proyecto con el estilo listo.",
+  "home.p1": "Icon Library reúne miles de iconos de código abierto en una sola página con búsqueda: Lucide, Tabler, Feather, Bootstrap Icons y todos los emojis Unicode. Elige un conjunto, filtra por categoría o nombre y ajusta el tamaño, el grosor del trazo y el color antes de copiar, para que cada icono llegue a tu proyecto con el estilo listo.",
   "home.p2": "Es una herramienta de trabajo, no solo un catálogo. Un clic copia el SVG, y el menú de cada tarjeta exporta en SVG, PNG o componente React. El editor integrado permite arrastrar puntos, girar, voltear y redimensionar formas, dar un color a cada parte y superponer dos iconos para crear uno nuevo. Los proyectos se guardan en archivos .ile para abrirlos más tarde, y el scratchpad reúne varios iconos para copiarlos de una vez.",
   "home.p3": "El SVG funciona en cualquier lugar: pégalo en HTML, úsalo en componentes de React, Vue o Angular, o llévalo a Figma y otras herramientas de diseño. Los iconos vectoriales usan currentColor, así que siguen el color del texto y el tema, y cada icono conserva la licencia de su proyecto original (ISC o MIT).",
   "home.howTitle": "Cómo funciona",
@@ -439,7 +439,7 @@ export default {
   "footer.about": "Acerca de",
   "footer.privacy": "Privacidad",
   "footer.credits":
-    "Los iconos pertenecen a sus autores: Lucide (ISC), Feather (MIT), Bootstrap Icons (MIT), datos de emoji de unicode-emoji-json (MIT).",
+    "Los iconos pertenecen a sus autores: Lucide (ISC), Tabler Icons (MIT), Feather (MIT), Bootstrap Icons (MIT), datos de emoji de unicode-emoji-json (MIT).",
   "page.back": "← Volver a los iconos",
   "editor.align": "Alinear",
   "editor.alignLeft": "Alinear a la izquierda",
@@ -537,7 +537,7 @@ export default {
   "filter.outline": "Contorno",
   "filter.filled": "Relleno",
   "hero.title": "Encuentra el icono adecuado",
-  "hero.subtitle": "Busca en Lucide, Feather, Bootstrap Icons y emoji. Haz clic en un icono para copiar su SVG.",
+  "hero.subtitle": "Busca en Lucide, Tabler, Feather, Bootstrap Icons y emoji. Haz clic en un icono para copiar su SVG.",
   "steps.label": "Cómo usarlo en tres pasos",
   "steps.searchTitle": "Busca",
   "steps.searchText": "Escribe un nombre o una palabra clave en inglés: “trash” también encuentra “delete”.",

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta
     name="description"
-    content="Free icon toolkit: search Lucide, Feather, Bootstrap Icons and all emojis. Copy clean SVG, export PNG or React, and edit icons in your browser."
+    content="Free icon toolkit: search Lucide, Tabler, Feather, Bootstrap Icons and all emojis. Copy clean SVG, export PNG or React, and edit icons in your browser."
   />
   <title>Free SVG Icons &amp; Emojis: Copy, Edit &amp; Export | Icon Library</title>
   <meta name="google-adsense-account" content="ca-pub-1124520097523749" />
@@ -19,12 +19,12 @@
   <meta property="og:title" content="Free SVG Icons &amp; Emojis: Copy, Edit &amp; Export | Icon Library" />
   <meta
     property="og:description"
-    content="Free icon toolkit: search Lucide, Feather, Bootstrap Icons and all emojis. Copy clean SVG, export PNG or React, and edit icons in your browser."
+    content="Free icon toolkit: search Lucide, Tabler, Feather, Bootstrap Icons and all emojis. Copy clean SVG, export PNG or React, and edit icons in your browser."
   />
   <meta property="og:image" content="https://iconlibrary.io/img/og-card.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Icon Library: free SVG icons and emojis from Lucide, Feather, Bootstrap Icons and Emoji" />
+  <meta property="og:image:alt" content="Icon Library: free SVG icons and emojis from Lucide, Tabler, Feather, Bootstrap Icons and Emoji" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="favicon.ico" sizes="48x48" />
   <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
@@ -40,13 +40,24 @@
   <link rel="alternate" hreflang="ja" href="https://iconlibrary.io/?lang=ja" />
   <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/" />
   <!-- Dados estruturados: dizem aos buscadores o que é o site -->
+  <!-- Nome do site nos resultados do Google ("Icon Library", não o domínio) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Icon Library",
+    "alternateName": ["iconlibrary.io", "Icon Library io"],
+    "url": "https://iconlibrary.io/"
+  }
+  </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Icon Library",
+    "alternateName": "iconlibrary.io",
     "url": "https://iconlibrary.io/",
-    "description": "Free icon toolkit to search, edit, copy and export SVG icons and emojis from Lucide, Feather and Bootstrap Icons.",
+    "description": "Free icon toolkit to search, edit, copy and export SVG icons and emojis from Lucide, Tabler, Feather and Bootstrap Icons.",
     "applicationCategory": "DesignApplication",
     "operatingSystem": "Any",
     "isAccessibleForFree": true,
@@ -130,7 +141,7 @@
     <!-- Lupa antes da primeira palavra e check depois da última, em qualquer
          idioma: decorativos (aria-hidden), irmãos do texto traduzido -->
     <h1 id="heroi-titulo" class="heroi__titulo"><span class="heroi__frase"><span class="heroi__lupa" aria-hidden="true"></span><span data-i18n="hero.title">Find the right icon</span><span class="heroi__check" aria-hidden="true"></span></span></h1>
-    <p class="heroi__sub" data-i18n="hero.subtitle">Search Lucide, Feather, Bootstrap Icons and emoji. Click an icon to copy its SVG.</p>
+    <p class="heroi__sub" data-i18n="hero.subtitle">Search Lucide, Tabler, Feather, Bootstrap Icons and emoji. Click an icon to copy its SVG.</p>
   </section>
   <!-- Fora da seção do título: o sticky vale até o fim do <main> -->
   <div class="search-container">
@@ -339,7 +350,7 @@
       yet have designs in any of them and appear flagged.
     </p>
     <h2 id="site-about-title" data-i18n="home.title">A free icon toolkit for designers and developers</h2>
-    <p data-i18n="home.p1">Icon Library brings thousands of open-source icons together on one searchable page: Lucide, Feather, Bootstrap Icons and the full Unicode emoji set. Pick a set, filter by category or name, and set the size, stroke width and color before copying, so each icon arrives in your project already styled.</p>
+    <p data-i18n="home.p1">Icon Library brings thousands of open-source icons together on one searchable page: Lucide, Tabler, Feather, Bootstrap Icons and the full Unicode emoji set. Pick a set, filter by category or name, and set the size, stroke width and color before copying, so each icon arrives in your project already styled.</p>
     <p data-i18n="home.p2">It is a working tool, not just a catalog. One click copies clean SVG, and the card menu exports SVG, PNG or a React component. The built-in editor lets you drag points, rotate, flip and resize shapes, give each part its own color and stack two icons into a new one. Projects can be saved as .ile files and reopened later, and the scratchpad collects several icons to copy at once.</p>
     <p data-i18n="home.p3">The SVG works anywhere: paste it into HTML, use it in React, Vue or Angular components, or bring it into Figma and other design tools. Vector icons use currentColor, so they follow your text color and theme, and every icon keeps the license of its original project (ISC or MIT).</p>
     <h3 data-i18n="home.howTitle">How it works</h3>
@@ -350,6 +361,7 @@
     </ol>
     <p><span data-i18n="sets.guides">Guides to each set:</span>
       <a href="lucide-icons.html">Lucide</a> ·
+      <a href="tabler-icons.html">Tabler Icons</a> ·
       <a href="feather-icons.html">Feather</a> ·
       <a href="bootstrap-icons.html">Bootstrap Icons</a> ·
       <a href="emoji-icons.html">Emoji</a></p>
@@ -933,7 +945,7 @@
       <a href="https://github.com/andremendesferreira/icon-library" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg><span data-i18n="footer.github">Open source on GitHub</span></a>
     </nav>
     <p data-i18n="footer.credits">
-      Icons belong to their authors: Lucide (ISC), Feather (MIT), Bootstrap
+      Icons belong to their authors: Lucide (ISC), Tabler Icons (MIT), Feather (MIT), Bootstrap
       Icons (MIT), emoji data from unicode-emoji-json (MIT).
     </p>
     <p class="site-footer__owner">© 2026 André M. Ferreira<span class="site-footer__version"><!--version--></span></p>

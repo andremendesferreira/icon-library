@@ -131,9 +131,26 @@ test("filtrar: contorno ou preenchido só nos conjuntos com as duas versões", (
   assert.equal(model.filtrar({ busca: "", apenasSuportados: false, variante: "preenchido" }).flatMap(([, i]) => i).length, 3);
 });
 
-test("só o Bootstrap tem contorno e preenchido para filtrar", () => {
-  // A leitura do sprite (montar) usa o DOMParser do navegador: conferida no navegador
-  assert.deepEqual(Object.keys(FONTES).filter((chave) => FONTES[chave].temVariantes), ["bootstrap"]);
+test("Bootstrap e Tabler têm contorno e preenchido para filtrar", () => {
+  // A leitura do sprite do Bootstrap (montar) usa o DOMParser do navegador: conferida no navegador
+  assert.deepEqual(Object.keys(FONTES).filter((chave) => FONTES[chave].temVariantes), ["tabler", "bootstrap"]);
+});
+
+test("Tabler: contorno, preenchido com sufixo, categoria em minúsculas e palavras-chave", () => {
+  const no = [["path", { d: "M5 12l-2 0l9 -9l9 9l-2 0" }]];
+  const itens = FONTES.tabler.montar([
+    { home: no, "arrow-left": no },
+    { home: [["path", { d: "M12 2l9 9z" }]] },
+    { home: { category: "Buildings", tags: ["house"] } },
+  ]);
+  const [casa, seta, cheia] = itens;
+  assert.deepEqual([casa.nome, casa.variante, casa.editavel, casa.grupo, casa.tags], ["home", "contorno", undefined, "buildings", ["house"]]);
+  assert.match(casa.svg, /stroke="currentColor"[^>]*><path d="M5 12l-2 0l9 -9l9 9l-2 0"\/><\/svg>$/);
+  assert.equal(seta.grupo, "others", "sem categoria no icons.json");
+  assert.deepEqual([cheia.nome, cheia.variante, cheia.editavel], ["home filled", "preenchido", undefined]);
+  assert.match(cheia.svg, /fill="currentColor"/);
+  // Sem o icons.json (opcional): busca só pelo nome, grupos pela letra
+  assert.equal(FONTES.tabler.montar([{ home: no }, {}, undefined])[0].grupo, "H");
 });
 
 test("Todos os conjuntos: junta os já baixados, agrupa por conjunto e ordena pelo melhor acerto", async () => {

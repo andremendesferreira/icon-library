@@ -2,7 +2,7 @@
 export default {
   "meta.title": "Ícones SVG e Emojis Grátis: Copie e Edite | Icon Library",
   "meta.description":
-    "Ícones grátis: busque no Lucide, Feather, Bootstrap Icons e em todos os emojis. Copie SVG limpo, exporte PNG ou React e edite no navegador.",
+    "Ícones grátis: busque no Lucide, Tabler, Feather, Bootstrap Icons e em todos os emojis. Copie SVG limpo, exporte PNG ou React e edite no navegador.",
   "lang.label": "Idioma",
   "theme.label": "Tema escuro",
   "theme.toDark": "Mudar para o tema escuro",
@@ -379,7 +379,7 @@ export default {
   "report.disabled": "O formulário não está disponível agora — abra um issue no GitHub.",
   "header.editHtml": "<strong>Lápis</strong> abre o editor: mude o desenho, a cor e combine ícones.",
   "home.title": "Ícones gratuitos para designers e desenvolvedores",
-  "home.p1": "O Icon Library reúne milhares de ícones de código aberto numa só página com busca: Lucide, Feather, Bootstrap Icons e todos os emojis Unicode. Escolha um conjunto, filtre por categoria ou nome e ajuste tamanho, espessura do traço e cor antes de copiar, para o ícone já chegar estilizado no seu projeto.",
+  "home.p1": "O Icon Library reúne milhares de ícones de código aberto numa só página com busca: Lucide, Tabler, Feather, Bootstrap Icons e todos os emojis Unicode. Escolha um conjunto, filtre por categoria ou nome e ajuste tamanho, espessura do traço e cor antes de copiar, para o ícone já chegar estilizado no seu projeto.",
   "home.p2": "É uma ferramenta de trabalho, não só um catálogo. Um clique copia o SVG, e o menu do card exporta em SVG, PNG ou componente React. O editor permite arrastar pontos, girar, espelhar e redimensionar formas, dar uma cor a cada parte e sobrepor dois ícones para criar um novo. Os projetos podem ser salvos em arquivos .ile e reabertos depois, e o scratchpad junta vários ícones para copiar de uma vez.",
   "home.p3": "O SVG funciona em qualquer lugar: cole no HTML, use em componentes React, Vue ou Angular, ou leve para o Figma e outras ferramentas de design. Os ícones vetoriais usam currentColor, então acompanham a cor do texto e o tema, e cada ícone mantém a licença do projeto original (ISC ou MIT).",
   "home.howTitle": "Como funciona",
@@ -439,7 +439,7 @@ export default {
   "footer.about": "Sobre",
   "footer.privacy": "Privacidade",
   "footer.credits":
-    "Os ícones pertencem aos seus autores: Lucide (ISC), Feather (MIT), Bootstrap Icons (MIT), dados de emoji do unicode-emoji-json (MIT).",
+    "Os ícones pertencem aos seus autores: Lucide (ISC), Tabler Icons (MIT), Feather (MIT), Bootstrap Icons (MIT), dados de emoji do unicode-emoji-json (MIT).",
   "page.back": "← Voltar aos ícones",
   "editor.align": "Alinhar",
   "editor.alignLeft": "Alinhar à esquerda",
@@ -537,7 +537,7 @@ export default {
   "filter.outline": "Contorno",
   "filter.filled": "Preenchido",
   "hero.title": "Encontre o ícone certo",
-  "hero.subtitle": "Busque no Lucide, Feather, Bootstrap Icons e emojis. Clique num ícone para copiar o SVG.",
+  "hero.subtitle": "Busque no Lucide, Tabler, Feather, Bootstrap Icons e emojis. Clique num ícone para copiar o SVG.",
   "steps.label": "Como usar em três passos",
   "steps.searchTitle": "Busque",
   "steps.searchText": "Digite um nome ou palavra-chave, em português ou inglês: “lixeira” acha “trash”.",

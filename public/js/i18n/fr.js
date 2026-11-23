@@ -2,7 +2,7 @@
 export default {
   "meta.title": "Icônes SVG et emojis gratuits à copier | Icon Library",
   "meta.description":
-    "Icônes gratuites : cherchez dans Lucide, Feather, Bootstrap Icons et tous les emojis. Copiez du SVG propre, exportez en PNG ou React, modifiez en ligne.",
+    "Icônes gratuites : cherchez dans Lucide, Tabler, Feather, Bootstrap Icons et tous les emojis. Copiez du SVG propre, exportez en PNG ou React, modifiez en ligne.",
   "lang.label": "Langue",
   "theme.label": "Thème sombre",
   "theme.toDark": "Passer au thème sombre",
@@ -379,7 +379,7 @@ export default {
   "report.disabled": "Le formulaire n’est pas disponible pour le moment — ouvrez une issue sur GitHub.",
   "header.editHtml": "Le <strong>crayon</strong> ouvre l’éditeur : modifiez la forme, la couleur et combinez des icônes.",
   "home.title": "Des icônes gratuites pour les designers et les développeurs",
-  "home.p1": "Icon Library rassemble des milliers d’icônes open source sur une seule page avec recherche : Lucide, Feather, Bootstrap Icons et tous les emojis Unicode. Choisissez un jeu, filtrez par catégorie ou par nom, et réglez la taille, l’épaisseur du trait et la couleur avant de copier : l’icône arrive dans votre projet déjà stylée.",
+  "home.p1": "Icon Library rassemble des milliers d’icônes open source sur une seule page avec recherche : Lucide, Tabler, Feather, Bootstrap Icons et tous les emojis Unicode. Choisissez un jeu, filtrez par catégorie ou par nom, et réglez la taille, l’épaisseur du trait et la couleur avant de copier : l’icône arrive dans votre projet déjà stylée.",
   "home.p2": "C’est un véritable outil, pas seulement un catalogue. Un clic copie le SVG, et le menu de chaque carte exporte en SVG, PNG ou composant React. L’éditeur intégré permet de déplacer les points, de faire pivoter, retourner et redimensionner les formes, de donner une couleur à chaque partie et de superposer deux icônes pour en créer une nouvelle. Les projets s’enregistrent en fichiers .ile à rouvrir plus tard, et le scratchpad regroupe plusieurs icônes à copier d’un coup.",
   "home.p3": "Le SVG fonctionne partout : collez-le dans du HTML, utilisez-le dans des composants React, Vue ou Angular, ou importez-le dans Figma et d’autres outils de design. Les icônes vectorielles utilisent currentColor : elles suivent la couleur du texte et le thème, et chaque icône garde la licence de son projet d’origine (ISC ou MIT).",
   "home.howTitle": "Comment ça marche",
@@ -439,7 +439,7 @@ export default {
   "footer.about": "À propos",
   "footer.privacy": "Confidentialité",
   "footer.credits":
-    "Les icônes appartiennent à leurs auteurs : Lucide (ISC), Feather (MIT), Bootstrap Icons (MIT), données emoji d’unicode-emoji-json (MIT).",
+    "Les icônes appartiennent à leurs auteurs : Lucide (ISC), Tabler Icons (MIT), Feather (MIT), Bootstrap Icons (MIT), données emoji d’unicode-emoji-json (MIT).",
   "page.back": "← Retour aux icônes",
   "editor.align": "Aligner",
   "editor.alignLeft": "Aligner à gauche",
@@ -537,7 +537,7 @@ export default {
   "filter.outline": "Contour",
   "filter.filled": "Plein",
   "hero.title": "Trouvez la bonne icône",
-  "hero.subtitle": "Cherchez dans Lucide, Feather, Bootstrap Icons et les emoji. Cliquez sur une icône pour copier son SVG.",
+  "hero.subtitle": "Cherchez dans Lucide, Tabler, Feather, Bootstrap Icons et les emoji. Cliquez sur une icône pour copier son SVG.",
   "steps.label": "Comment l’utiliser en trois étapes",
   "steps.searchTitle": "Cherchez",
   "steps.searchText": "Tapez un nom ou un mot-clé en anglais : « trash » trouve aussi « delete ».",

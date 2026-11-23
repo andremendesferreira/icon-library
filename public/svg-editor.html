@@ -1,0 +1,225 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de pages/svg-editor/en.html — edite lá e rode npm run pages -->
+<html
+  lang="en"
+  data-page="svg-editor"
+  data-languages="en,pt-BR"
+  data-label-to-dark="Switch to dark theme"
+  data-label-to-light="Switch to light theme"
+>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="google-adsense-account" content="ca-pub-1124520097523749" />
+  <meta name="description" content="Create and edit SVG icons in your browser, with no account and no upload: start from one of 10,000 icons or a blank grid, combine, draw and export SVG or PNG." />
+  <title>Free Online SVG Icon Editor | Icon Library</title>
+  <meta name="theme-color" content="#f5f7fb" />
+  <link rel="canonical" href="https://iconlibrary.io/svg-editor.html" />
+  <link rel="alternate" hreflang="en" href="https://iconlibrary.io/svg-editor.html" />
+  <link rel="alternate" hreflang="pt-BR" href="https://iconlibrary.io/svg-editor.pt-BR.html" />
+  <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/svg-editor.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Icon Library" />
+  <meta property="og:url" content="https://iconlibrary.io/svg-editor.html" />
+  <meta property="og:title" content="Free Online SVG Icon Editor | Icon Library" />
+  <meta property="og:description" content="Create and edit SVG icons in your browser, with no account and no upload: start from one of 10,000 icons or a blank grid, combine, draw and export SVG or PNG." />
+  <meta property="og:image" content="https://iconlibrary.io/img/og-card.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Free Online SVG Icon Editor" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="stylesheet" href="css/icon-library.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Icon Library","item":"https://iconlibrary.io/"},{"@type":"ListItem","position":2,"name":"Free Online SVG Icon Editor","item":"https://iconlibrary.io/svg-editor.html"}]}</script>
+  <script src="js/i18n/detect.js"></script>
+  <script src="js/views/theme.js"></script>
+  <script src="js/views/clarity.js" async></script>
+  <script src="js/views/pageSearch.js" defer></script>
+  <script src="js/views/profundidade.js" defer></script>
+</head>
+<body>
+  <!-- O mesmo cabeçalho da home: logo, Guia, Sobre, Artigos, café, idioma, tema -->
+  <header class="topo topo--fixo">
+    <a class="topo__marca" href="./" aria-label="Icon Library" title="Icon Library">
+      <span class="topo__selo" aria-hidden="true"><img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="48" height="48" alt="" class="topo__logo" /><span class="topo__brilho"></span></span>
+      <span class="topo__nome">Icon Library</span>
+    </a>
+    <nav class="topo__nav" aria-label="Site">
+        <a class="topo__link" href="guide.html">Guide</a>
+        <a class="topo__link" href="about.html">About</a>
+        <a class="topo__link" href="articles.html">Articles</a>
+      <a class="coffee-button" href="./#coffee"><span aria-hidden="true">☕</span><span class="coffee-button__text">Buy me a coffee</span></a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="Language"></select>
+      </label>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Dark theme" aria-pressed="false">
+        <svg class="theme-toggle__moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
+        <svg class="theme-toggle__sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" /></svg>
+      </button>
+    </nav>
+  </header>
+  <main class="page">
+    <div class="page__top">
+      <form class="page__busca" action="./" role="search">
+        
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+        <input type="search" id="page-search" name="q" required aria-keyshortcuts="/" placeholder="Search icons…" aria-label="Search icons by name or keyword (press /)" />
+      </form>
+    </div>
+    <nav class="page__trilha" aria-label="You are here">
+      <ol>
+        <li><a href="./">Icon Library</a></li>
+        <li aria-current="page">Free Online SVG Icon Editor</li>
+      </ol>
+    </nav>
+    <h1 class="page__title">Online SVG icon editor</h1>
+    <p class="page__lead">
+      The Icon Library editor creates and adjusts SVG icons right in your browser.
+      It needs no account, installs nothing and sends your drawing to no server: the
+      work happens on your machine. It is made for icons, on a 24-unit grid, not for
+      illustrations, and that is what keeps it simple.
+    </p>
+    <p class="page__cta">
+      <a class="page__open" href="./#name=new-icon&amp;svg=%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3C%2Fsvg%3E">Open a blank editor</a>
+    </p>
+    <figure class="page__figure">
+      <img src="img/guide/editor.webp" width="1000" height="695" alt="The editor: shapes on the left, points on the grid, code and previews on the right." loading="lazy" />
+      <figcaption>Shapes on the left, the drawing on the grid and, on the right, the code and previews at four sizes.</figcaption>
+    </figure>
+
+    <h2>What it is for</h2>
+    <h3>Adjusting an icon that almost fits</h3>
+    <p>
+      There is almost always an icon close to what you need. Search the main page
+      among more than 10,000 icons from Lucide, Tabler, Feather, Bootstrap Icons and the
+      community, and click the pencil on the card. The icon opens in the editor with
+      the size and stroke you chose, and every shape can be moved, curved, deleted or
+      recolored.
+    </p>
+    <h3>Merging two icons into one</h3>
+    <p>
+      <em>Icon on top</em> brings a second icon onto the same grid: a star inside a
+      heart, a lock on a database, a badge on a document. Each icon becomes a group
+      that moves and resizes as a whole. With <em>Unite</em>, <em>Subtract</em>,
+      <em>Intersect</em> and <em>Exclude</em>, two closed shapes become a single
+      drawing, like a cut-out.
+    </p>
+    <figure class="page__figure">
+      <img src="img/guide/overlay.webp" width="1000" height="695" alt="A filled Bootstrap star placed over an outline Lucide heart, with its own color." loading="lazy" />
+      <figcaption>A Bootstrap Icons star over a Lucide heart, each keeping its own style.</figcaption>
+    </figure>
+    <h3>Drawing from scratch or from a sketch</h3>
+    <p>
+      In a blank editor, the ready-made shapes (line, circle, rectangle, polygons,
+      star, arrow, speech bubble) and the pen, which makes curves as you drag, give
+      you the base. To redraw a logo or a sketch, load the picture under
+      <em>Reference image</em>: it shows under the grid, on your screen only, and
+      never goes into the SVG.
+    </p>
+    <h3>Fixing an SVG that came from elsewhere</h3>
+    <p>
+      Paste SVG code into the code field and it turns into editable shapes. That
+      works for an icon an AI assistant drew, a file from another designer or an old
+      SVG from your project. The editor drops scripts and anything an icon does not
+      need, and <em>Optimize</em> removes what does not change the drawing. An AI
+      assistant can also hand you the icon as a link that opens right here, as
+      <a href="llms.txt">llms.txt</a> explains.
+    </p>
+
+    <h2>How it works, in four steps</h2>
+    <ol>
+      <li><strong>Open:</strong> blank, with the button above, or from an icon on the <a href="./">main page</a>.</li>
+      <li><strong>Edit:</strong> drag points and shapes, which snap to the grid and to each other, with guides. Select several to align, group or rotate them together.</li>
+      <li><strong>Check:</strong> the previews show the icon at 16, 24, 32 and 48 pixels, on light and dark backgrounds. <em>Original</em> shows how it looked before.</li>
+      <li><strong>Take it:</strong> copy the SVG, download the SVG file or a PNG at any size, send it to the scratchpad, or save an <code>.ile</code> file to continue later.</li>
+    </ol>
+
+    <h2>Why an editor just for icons</h2>
+    <p>
+      Tools like Figma, Illustrator and Inkscape do much more, and for an
+      illustration they are the right choice. For an interface icon they tend to get
+      in the way: they export SVG with leftover groups, transforms and attributes,
+      and a stroke icon loses the text color. Here the result comes out clean, with
+      <code>currentColor</code> when you do not pick a color, so the icon takes the
+      color of the text wherever it is pasted. The 24-unit grid, the same as Lucide,
+      Tabler and Feather, keeps strokes sharp at small sizes.
+    </p>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>You want to</th><th>In the editor</th></tr></thead>
+        <tbody>
+        <tr><td>Change the stroke width or color of one part</td><td>The <em>Selected</em> panel, shape by shape</td></tr>
+        <tr><td>Fill a shape or apply a gradient</td><td><em>Fill</em> and <em>Gradient</em>, linear or radial</td></tr>
+        <tr><td>Cut one shape out of another</td><td><em>Subtract</em>, with both closed shapes selected</td></tr>
+        <tr><td>Keep a shape still while you work on the others</td><td>The padlock in the element list</td></tr>
+        <tr><td>See the layer order</td><td><em>Show layers</em>, which paints each shape a different color</td></tr>
+        <tr><td>Edit on a phone</td><td>The drawing stays on top and the tools sit in tabs below</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      The full list of commands and shortcuts is in the
+      <a href="guide.html#editor">Guide, under the editor</a>.
+    </p>
+
+    <h2>Questions</h2>
+    <h3>Is it free? Do I need an account?</h3>
+    <p>
+      It is free and needs no account. The editor is JavaScript that runs in your
+      browser, and the edit in progress is kept there, so it is not lost if the tab
+      closes.
+    </p>
+    <h3>Does my SVG go to a server?</h3>
+    <p>
+      No. What you paste, draw or open from a file stays in the browser. In an icon
+      link, the drawing comes after the <code>#</code>, a part of the address the
+      browser does not send. Only what you choose to publish to Iconlibrary, the
+      community set, leaves your machine.
+    </p>
+    <h3>Can I use the icon in a commercial project?</h3>
+    <p>
+      It depends on where it started. A drawing of your own is yours. An icon edited
+      from Lucide, Tabler, Feather or Bootstrap Icons stays under the license of its set (ISC
+      or MIT), which allows commercial use; see the
+      <a href="license.html">licenses</a>.
+    </p>
+    <h3>What kind of SVG does it open?</h3>
+    <p>
+      Any SVG, with icons in mind. Lines, circles, ellipses, rectangles, polygons and
+      paths become editable shapes, with stroke, fill and gradients. Text, masks and
+      other SVG elements stay in the drawing as they are and change only through the
+      code. Embedded images, filters and scripts are dropped.
+    </p>
+    <h3>Does it work on a phone?</h3>
+    <p>
+      Yes. On a phone the drawing stays in view and the tools sit in tabs below it;
+      a tap selects a shape, and you drag it once it is selected.
+    </p>
+    <p class="page__cta">
+      <a class="page__open" href="./#name=new-icon&amp;svg=%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3C%2Fsvg%3E">Open a blank editor</a>
+    </p>
+    <p class="page__meta">
+      See also the article on <a href="lgpd-icon.html">designing an icon when none
+      fits</a>, a real case made in this editor, and the guides to
+      <a href="lucide-icons.html">Lucide</a> and
+      <a href="bootstrap-icons.html">Bootstrap Icons</a>.
+    </p>
+  </main>
+  <footer class="site-footer">
+    <nav aria-label="Site">
+      <a href="./">Icons</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="license.html">Licenses</a>
+      <span class="site-footer__quebra"></span>
+      <a href="./#report"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A5 5 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A5 5 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623M4 7v4a4 4 0 0 0 3.5 3.97V7zm4.5 0v7.97A4 4 0 0 0 12 11V7zM12 6a4 4 0 0 0-1.334-2.982A3.98 3.98 0 0 0 8 2a3.98 3.98 0 0 0-2.667 1.018A4 4 0 0 0 4 6z"/></svg>Report a bug</a>
+      <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg>Suggest an improvement</a>
+      <a href="https://t.me/iconlibraryio" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.287 5.906q-1.168.486-4.666 2.01-.567.225-.595.442c-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294q.39.01.868-.32 3.269-2.206 3.374-2.23c.05-.012.12-.026.166.016s.042.12.037.141c-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8 8 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629q.14.092.27.187c.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.4 1.4 0 0 0-.013-.315.34.34 0 0 0-.114-.217.53.53 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09"/></svg>Telegram channel</a>
+      <a href="https://github.com/andremendesferreira/icon-library" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg>Open source on GitHub</a>
+    </nav>
+    <p class="site-footer__owner">© 2026 André M. Ferreira<span class="site-footer__version"><!--version--></span></p>
+  </footer>
+</body>
+</html>

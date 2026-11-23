@@ -5,7 +5,7 @@
 export default {
   "meta.title": "Free SVG Icons & Emojis: Copy, Edit & Export | Icon Library",
   "meta.description":
-    "Free icon toolkit: search Lucide, Feather, Bootstrap Icons and all emojis. Copy clean SVG, export PNG or React, and edit icons in your browser.",
+    "Free icon toolkit: search Lucide, Tabler, Feather, Bootstrap Icons and all emojis. Copy clean SVG, export PNG or React, and edit icons in your browser.",
   "lang.label": "Language",
   "theme.label": "Dark theme",
   "theme.toDark": "Switch to dark theme",
@@ -382,7 +382,7 @@ export default {
   "report.disabled": "The form is unavailable right now — please open an issue on GitHub.",
   "header.editHtml": "<strong>Pencil</strong> opens the editor: reshape, recolor and combine icons.",
   "home.title": "A free icon toolkit for designers and developers",
-  "home.p1": "Icon Library brings thousands of open-source icons together on one searchable page: Lucide, Feather, Bootstrap Icons and the full Unicode emoji set. Pick a set, filter by category or name, and set the size, stroke width and color before copying, so each icon arrives in your project already styled.",
+  "home.p1": "Icon Library brings thousands of open-source icons together on one searchable page: Lucide, Tabler, Feather, Bootstrap Icons and the full Unicode emoji set. Pick a set, filter by category or name, and set the size, stroke width and color before copying, so each icon arrives in your project already styled.",
   "home.p2": "It is a working tool, not just a catalog. One click copies clean SVG, and the card menu exports SVG, PNG or a React component. The built-in editor lets you drag points, rotate, flip and resize shapes, give each part its own color and stack two icons into a new one. Projects can be saved as .ile files and reopened later, and the scratchpad collects several icons to copy at once.",
   "home.p3": "The SVG works anywhere: paste it into HTML, use it in React, Vue or Angular components, or bring it into Figma and other design tools. Vector icons use currentColor, so they follow your text color and theme, and every icon keeps the license of its original project (ISC or MIT).",
   "home.howTitle": "How it works",
@@ -442,7 +442,7 @@ export default {
   "footer.about": "About",
   "footer.privacy": "Privacy",
   "footer.credits":
-    "Icons belong to their authors: Lucide (ISC), Feather (MIT), Bootstrap Icons (MIT), emoji data from unicode-emoji-json (MIT).",
+    "Icons belong to their authors: Lucide (ISC), Tabler Icons (MIT), Feather (MIT), Bootstrap Icons (MIT), emoji data from unicode-emoji-json (MIT).",
   "page.back": "← Back to the icons",
   "editor.align": "Align",
   "editor.alignLeft": "Align left",
@@ -540,7 +540,7 @@ export default {
   "filter.outline": "Outline",
   "filter.filled": "Filled",
   "hero.title": "Find the right icon",
-  "hero.subtitle": "Search Lucide, Feather, Bootstrap Icons and emoji. Click an icon to copy its SVG.",
+  "hero.subtitle": "Search Lucide, Tabler, Feather, Bootstrap Icons and emoji. Click an icon to copy its SVG.",
   "steps.label": "How to use it in three steps",
   "steps.searchTitle": "Search",
   "steps.searchText": "Type a name or a keyword in English: “trash” also finds “delete”.",

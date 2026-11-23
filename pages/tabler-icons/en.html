@@ -1,0 +1,99 @@
+<!-- {"title":"Tabler Icons: 5,500 Free SVG Icons, Copy or Edit | Icon Library","description":"A practical guide to Tabler Icons: outline and filled versions, MIT license, using them in React, and how they compare to Lucide. Browse, restyle and copy the SVG."} -->
+<h1 class="page__title">Tabler Icons</h1>
+<p class="page__lead">
+  Tabler Icons is an open-source set of nearly 5,500 outline icons, made by Paweł
+  Kuna as part of the Tabler project. It is one of the largest free sets with a
+  single consistent style, and about a thousand of its icons also come in a
+  filled version.
+</p>
+<!--ferramenta:tabler-->
+
+<h2>A sample of the set</h2>
+<!--grade-->
+
+<h2>What the style gives you</h2>
+<p>
+  The icons are drawn on a 24×24 grid with a 2-unit stroke, rounded ends and no
+  fill, the same rules as Lucide and Feather. That makes the three easy to mix:
+  a Tabler icon next to a Lucide one has the same weight and the same corners.
+  Because the shapes are lines, <code>stroke-width</code> makes an icon lighter
+  or heavier without a second file, and <code>currentColor</code> lets it follow
+  the color of the text.
+</p>
+<p>
+  The size of the set is the main reason to choose it. Tabler covers areas that
+  smaller sets skip: many variations of the same object (<code>battery</code>,
+  <code>battery-1</code> to <code>battery-4</code>, <code>battery-charging</code>),
+  “off” versions for disabled states, and whole families for charts, devices,
+  currencies, weather and sports.
+</p>
+
+<h2>Outline and filled</h2>
+<p>
+  Around a thousand icons have a filled twin. Use the filled one to show a state
+  that is on: a selected star, a liked heart, an active tab. In Icon Library the
+  filled versions end in <em>filled</em>, and the <em>Outline</em> and
+  <em>Filled</em> buttons show only one kind. Mixing the two kinds as plain
+  decoration in the same row looks uneven, because a filled shape weighs more.
+</p>
+
+<h2>License</h2>
+<p>
+  Tabler Icons uses the MIT license: you can use the icons in personal and
+  commercial projects and modify them. Keep the license notice when you
+  redistribute the package itself. The set includes some company and product
+  logos (the <code>brand-</code> icons); the license covers the drawing, not the
+  brand, so a logo follows its owner’s rules.
+</p>
+
+<h2>Using it in a project</h2>
+<p>For one or two icons, pasting the SVG is enough and adds no dependency:</p>
+<pre><code>&lt;button aria-label="Settings"&gt;
+  &lt;svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24" fill="none"
+       stroke="currentColor" stroke-width="2"&gt;…&lt;/svg&gt;
+&lt;/button&gt;</code></pre>
+<p>In React, the official package exports each icon as a component whose name starts with <code>Icon</code>:</p>
+<pre><code>npm install @tabler/icons-react
+
+import { IconSettings } from "@tabler/icons-react";
+
+&lt;IconSettings size={20} stroke={1.5} /&gt;</code></pre>
+<p>
+  Note that the stroke property is called <code>stroke</code>, not
+  <code>strokeWidth</code> as in Lucide. There are packages for Vue, Svelte,
+  Solid and Preact too, and a webfont; see
+  <a href="https://tabler.io/icons" rel="noopener">tabler.io/icons</a> for the
+  current list.
+</p>
+
+<h2>Tabler or Lucide?</h2>
+<p>
+  Both follow the same grid and stroke, so the choice is about coverage and
+  habit. <a href="lucide-icons.html">Lucide</a> has fewer icons, chosen with care,
+  and its names follow Feather’s. Tabler has almost three times as many and the
+  filled versions, so it is more likely to have a specific object or a state.
+  Many projects use Lucide as the base and take the few missing icons from
+  Tabler, which works because the styles match.
+</p>
+
+<h2>Common mistakes</h2>
+<ul>
+  <li>
+    <strong>Importing the whole set.</strong> With thousands of icons, an import
+    of everything makes the bundle heavy. Import each icon by name, as above, so
+    the build keeps only what you use.
+  </li>
+  <li>
+    <strong>A button with only an icon and no name.</strong> A screen reader has
+    nothing to announce. Put <code>aria-label</code> on the button and
+    <code>aria-hidden="true"</code> on the SVG.
+  </li>
+  <li>
+    <strong>Mixing outline and filled without a reason.</strong> Keep filled for
+    an active or selected state, and outline for everything else.
+  </li>
+</ul>
+<p>
+  To change a Tabler icon, or combine it with an icon from another set, open it
+  with the pencil in the <a href="svg-editor.html">online SVG editor</a>.
+</p>

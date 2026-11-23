@@ -2,7 +2,7 @@
 export default {
   "meta.title": "無料の SVG アイコンと絵文字：コピー・編集 | Icon Library",
   "meta.description":
-    "無料のアイコンツール：Lucide、Feather、Bootstrap Icons とすべての絵文字を検索。きれいな SVG をコピーし、PNG や React で書き出し、ブラウザで編集できます。",
+    "無料のアイコンツール：Lucide、Tabler、Feather、Bootstrap Icons とすべての絵文字を検索。きれいな SVG をコピーし、PNG や React で書き出し、ブラウザで編集できます。",
   "lang.label": "言語",
   "theme.label": "ダークテーマ",
   "theme.toDark": "ダークテーマに切り替え",
@@ -373,7 +373,7 @@ export default {
   "report.disabled": "現在フォームは利用できません。GitHub で issue を作成してください。",
   "header.editHtml": "<strong>鉛筆</strong>でエディターを開き、形や色を変えたりアイコンを組み合わせたりできます。",
   "home.title": "デザイナーと開発者のための無料アイコンツール",
-  "home.p1": "Icon Library は、数千のオープンソースアイコンを検索できる 1 ページにまとめています。Lucide、Feather、Bootstrap Icons、そしてすべての Unicode 絵文字です。セットを選び、カテゴリーや名前で絞り込み、コピーする前にサイズ・線の太さ・色を設定すれば、アイコンはスタイル済みの状態でプロジェクトに届きます。",
+  "home.p1": "Icon Library は、数千のオープンソースアイコンを検索できる 1 ページにまとめています。Lucide、Tabler、Feather、Bootstrap Icons、そしてすべての Unicode 絵文字です。セットを選び、カテゴリーや名前で絞り込み、コピーする前にサイズ・線の太さ・色を設定すれば、アイコンはスタイル済みの状態でプロジェクトに届きます。",
   "home.p2": "単なるカタログではなく、実際に使えるツールです。クリック 1 回でクリーンな SVG をコピーでき、カードのメニューからは SVG・PNG・React コンポーネントとして書き出せます。内蔵エディターでは点をドラッグし、図形を回転・反転・拡大縮小し、パーツごとに色を付け、2 つのアイコンを重ねて新しいアイコンを作れます。プロジェクトは .ile ファイルに保存して後で開き直せ、scratchpad には複数のアイコンを集めてまとめてコピーできます。",
   "home.p3": "SVG はどこでも使えます。HTML に貼り付けたり、React・Vue・Angular のコンポーネントで使ったり、Figma などのデザインツールに取り込んだりできます。ベクターアイコンは currentColor を使うので文字色やテーマに追従し、各アイコンは元のプロジェクトのライセンス（ISC または MIT）を引き継ぎます。",
   "home.howTitle": "使い方",
@@ -433,7 +433,7 @@ export default {
   "footer.about": "概要",
   "footer.privacy": "プライバシー",
   "footer.credits":
-    "アイコンの権利は各作者に帰属します：Lucide（ISC）、Feather（MIT）、Bootstrap Icons（MIT）、絵文字データは unicode-emoji-json（MIT）。",
+    "アイコンの権利は各作者に帰属します：Lucide（ISC）、Tabler Icons（MIT）、Feather（MIT）、Bootstrap Icons（MIT）、絵文字データは unicode-emoji-json（MIT）。",
   "page.back": "← アイコン一覧へ戻る",
   "editor.align": "整列",
   "editor.alignLeft": "左揃え",
@@ -531,7 +531,7 @@ export default {
   "filter.outline": "線",
   "filter.filled": "塗り",
   "hero.title": "ぴったりのアイコンを見つけよう",
-  "hero.subtitle": "Lucide、Feather、Bootstrap Icons、絵文字から探せます。アイコンをクリックすると SVG をコピーします。",
+  "hero.subtitle": "Lucide、Tabler、Feather、Bootstrap Icons、絵文字から探せます。アイコンをクリックすると SVG をコピーします。",
   "steps.label": "3 ステップの使い方",
   "steps.searchTitle": "探す",
   "steps.searchText": "名前やキーワードを英語で入力します。「trash」で「delete」も見つかります。",

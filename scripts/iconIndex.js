@@ -6,6 +6,7 @@
  *
  *   Lucide     tags.json from unpkg (every icon has an entry), at the version
  *              pinned in public/js/models/iconSets.js
+ *   Tabler     icons.json from unpkg (names, keywords; outline and filled)
  *   Emoji      data-by-emoji.json from unpkg (slug names, no keywords)
  *   Feather,   public/json/icons-categories.json (names) and
  *   Bootstrap  public/json/icons-tags.json (keywords)
@@ -23,7 +24,7 @@ const DAY = 24 * 60 * 60 * 1000;
 function pinnedVersions(file = path.join(PUBLIC, "js", "models", "iconSets.js")) {
   const text = fs.readFileSync(file, "utf8");
   const version = (key) => new RegExp(`${key}:\\s*"([\\d.]+)"`).exec(text)?.[1];
-  return { lucide: version("lucide"), emoji: version("emoji") };
+  return { lucide: version("lucide"), tabler: version("tabler"), emoji: version("emoji") };
 }
 
 async function defaultFetchJson(url) {
@@ -55,6 +56,13 @@ async function buildIndex({ fetchJson = defaultFetchJson, community = async () =
   for (const set of ["feather", "bootstrap"])
     for (const name of Object.keys(categories[set] || {})) items.push(entry(name, tags[set]?.[name]));
 
+  try {
+    if (!versions.tabler) throw new Error("Tabler version not found in iconSets.js");
+    const tabler = await fetchJson(`https://unpkg.com/@tabler/icons@${versions.tabler}/icons.json`);
+    for (const [name, info] of Object.entries(tabler)) items.push(entry(name, info?.tags));
+  } catch (err) {
+    console.warn("[icon-index] Tabler names unavailable:", err.message);
+  }
   try {
     const emoji = await fetchJson(`https://unpkg.com/unicode-emoji-json@${versions.emoji}/data-by-emoji.json`);
     for (const info of Object.values(emoji)) if (info?.slug) items.push(entry(info.slug));

@@ -6,7 +6,7 @@ import { readdirSync, readFileSync } from "node:fs";
 
 const pasta = new URL("../public/", import.meta.url);
 const geradas = readdirSync(pasta).filter((f) =>
-  /^(guide|about|privacy|license|lucide-icons|feather-icons|bootstrap-icons|emoji-icons|lgpd-icon)(\.[\w-]+)?\.html$/.test(f),
+  /^(guide|about|privacy|license|lucide-icons|tabler-icons|feather-icons|bootstrap-icons|emoji-icons|lgpd-icon|local-llm-coding|svg-editor)(\.[\w-]+)?\.html$/.test(f),
 );
 const ler = (f) => readFileSync(new URL(f, pasta), "utf8");
 

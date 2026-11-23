@@ -1,6 +1,6 @@
 # Icon Library
 
-> Free tool to browse, customize and edit SVG icons from Lucide, Feather, Bootstrap Icons and Emoji, with a visual icon editor. AI assistants can create an icon and hand it to the user as a link that opens it in the editor, ready to adjust, copy or download. Everything runs in the user's browser; nothing you put in the link is sent to the server.
+> Free tool to browse, customize and edit SVG icons from Lucide, Tabler, Feather, Bootstrap Icons and Emoji, with a visual icon editor. AI assistants can create an icon and hand it to the user as a link that opens it in the editor, ready to adjust, copy or download. Everything runs in the user's browser; nothing you put in the link is sent to the server. A page describing the editor for people: https://iconlibrary.io/svg-editor.html
 
 Site: https://iconlibrary.io — guide: https://iconlibrary.io/about.html — project format schema: https://iconlibrary.io/schema/ile.schema.json
 
@@ -67,12 +67,13 @@ Bootstrap Icons use a different style: `viewBox="0 0 16 16"`, `fill="currentColo
 Icon packages, pinned to the versions the site uses (one SVG per icon, named in kebab-case):
 
 - Lucide (ISC): https://unpkg.com/lucide-static@1.59.0/icons/<name>.svg — e.g. heart, arrow-right, settings
+- Tabler Icons (MIT): https://unpkg.com/@tabler/icons@3.52.0/icons/outline/<name>.svg (also /icons/filled/<name>.svg for about a thousand) — e.g. home, trash
 - Feather (MIT): https://unpkg.com/feather-icons@4.29.2/dist/icons/<name>.svg
 - Bootstrap Icons (MIT): https://unpkg.com/bootstrap-icons@1.13.2/icons/<name>.svg — e.g. heart-fill
 
-To let the user browse, link a search: `https://iconlibrary.io/?q=<words>` searches every set at once, and `https://iconlibrary.io/?set=lucide&q=<words>` only one (sets: `lucide`, `feather`, `bootstrap`, `emoji`, `iconlibrary`, or `all`).
+To let the user browse, link a search: `https://iconlibrary.io/?q=<words>` searches every set at once, and `https://iconlibrary.io/?set=lucide&q=<words>` only one (sets: `lucide`, `tabler`, `feather`, `bootstrap`, `emoji`, `iconlibrary`, or `all`).
 
-When you base an icon on one of these, keep the license notice of its set (Lucide: ISC; Feather and Bootstrap Icons: MIT).
+When you base an icon on one of these, keep the license notice of its set (Lucide: ISC; Tabler Icons, Feather and Bootstrap Icons: MIT).
 
 ## What the user can do with the link
 

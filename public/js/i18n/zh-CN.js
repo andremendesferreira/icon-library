@@ -2,7 +2,7 @@
 export default {
   "meta.title": "免费 SVG 图标和表情符号：复制、编辑、导出 | Icon Library",
   "meta.description":
-    "免费图标工具：搜索 Lucide、Feather、Bootstrap Icons 和所有表情符号。复制干净的 SVG，导出 PNG 或 React，并在浏览器中编辑图标。",
+    "免费图标工具：搜索 Lucide、Tabler、Feather、Bootstrap Icons 和所有表情符号。复制干净的 SVG，导出 PNG 或 React，并在浏览器中编辑图标。",
   "lang.label": "语言",
   "theme.label": "深色主题",
   "theme.toDark": "切换到深色主题",
@@ -373,7 +373,7 @@ export default {
   "report.disabled": "表单暂时不可用——请在 GitHub 上提交 issue。",
   "header.editHtml": "<strong>铅笔</strong>打开编辑器：修改形状和颜色，组合图标。",
   "home.title": "面向设计师和开发者的免费图标工具",
-  "home.p1": "Icon Library 把数千个开源图标集中在一个可搜索的页面上：Lucide、Feather、Bootstrap Icons 以及全部 Unicode 表情符号。选择图标集，按分类或名称筛选，并在复制前设置大小、线条粗细和颜色，图标进入项目时就已是你要的样式。",
+  "home.p1": "Icon Library 把数千个开源图标集中在一个可搜索的页面上：Lucide、Tabler、Feather、Bootstrap Icons 以及全部 Unicode 表情符号。选择图标集，按分类或名称筛选，并在复制前设置大小、线条粗细和颜色，图标进入项目时就已是你要的样式。",
   "home.p2": "它是一个真正的工具，而不只是目录。单击即可复制简洁的 SVG，卡片菜单还能导出为 SVG、PNG 或 React 组件。内置编辑器可以拖动节点，旋转、翻转和缩放形状，为每个部分设置颜色，并把两个图标叠加成一个新图标。项目可保存为 .ile 文件以便日后打开，scratchpad 则能收集多个图标一次性复制。",
   "home.p3": "SVG 可用于任何地方：粘贴到 HTML 中，用在 React、Vue 或 Angular 组件里，或导入 Figma 等设计工具。矢量图标使用 currentColor，会跟随文字颜色和主题，每个图标都保留其原始项目的许可证（ISC 或 MIT）。",
   "home.howTitle": "使用方法",
@@ -433,7 +433,7 @@ export default {
   "footer.about": "关于",
   "footer.privacy": "隐私",
   "footer.credits":
-    "图标归其作者所有：Lucide（ISC）、Feather（MIT）、Bootstrap Icons（MIT），表情数据来自 unicode-emoji-json（MIT）。",
+    "图标归其作者所有：Lucide（ISC）、Tabler Icons（MIT）、Feather（MIT）、Bootstrap Icons（MIT），表情数据来自 unicode-emoji-json（MIT）。",
   "page.back": "← 返回图标",
   "editor.align": "对齐",
   "editor.alignLeft": "左对齐",
@@ -531,7 +531,7 @@ export default {
   "filter.outline": "线框",
   "filter.filled": "填充",
   "hero.title": "找到合适的图标",
-  "hero.subtitle": "搜索 Lucide、Feather、Bootstrap Icons 和表情符号。点击图标即可复制 SVG。",
+  "hero.subtitle": "搜索 Lucide、Tabler、Feather、Bootstrap Icons 和表情符号。点击图标即可复制 SVG。",
   "steps.label": "三步上手",
   "steps.searchTitle": "搜索",
   "steps.searchText": "输入英文名称或关键词：“trash”也能找到“delete”。",

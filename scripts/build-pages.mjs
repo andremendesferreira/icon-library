@@ -33,15 +33,20 @@ const ROTULO = { guide: "footer.guide", about: "footer.about", privacy: "footer.
 const NO_TOPO = ["guide", "about", "articles"];
 // Um guia para cada conjunto de ícones, por enquanto só nos idiomas que o autor
 // consegue revisar. O nome do conjunto também é o de pages/<pagina>/.
-const CONJUNTOS = ["lucide-icons", "feather-icons", "bootstrap-icons", "emoji-icons"];
+const CONJUNTOS = ["lucide-icons", "tabler-icons", "feather-icons", "bootstrap-icons", "emoji-icons"];
 const IDIOMAS_CONJUNTOS = ["en", "pt-BR"];
-const NOME_CONJUNTO = { "lucide-icons": "Lucide", "feather-icons": "Feather", "bootstrap-icons": "Bootstrap Icons", "emoji-icons": "Emoji" };
+const NOME_CONJUNTO = { "lucide-icons": "Lucide", "tabler-icons": "Tabler Icons", "feather-icons": "Feather", "bootstrap-icons": "Bootstrap Icons", "emoji-icons": "Emoji" };
 // Artigos: textos com a experiência do autor, nos mesmos idiomas dos guias
 const ARTIGOS = ["lgpd-icon", "local-llm-coding"];
 // A página que reúne os artigos (tipo blog), nos mesmos idiomas deles
 const INDICE_ARTIGOS = "articles";
+// Páginas das ferramentas do site (o editor de SVG), para quem chega pela
+// busca: texto escrito à mão, nos idiomas dos guias dos conjuntos
+const FERRAMENTAS = ["svg-editor"];
 const idiomasDe = (pagina) =>
-  CONJUNTOS.includes(pagina) || ARTIGOS.includes(pagina) || pagina === INDICE_ARTIGOS ? IDIOMAS_CONJUNTOS : IDIOMAS;
+  CONJUNTOS.includes(pagina) || ARTIGOS.includes(pagina) || FERRAMENTAS.includes(pagina) || pagina === INDICE_ARTIGOS
+    ? IDIOMAS_CONJUNTOS
+    : IDIOMAS;
 // Endereço de uma página no idioma, ou na versão em inglês quando ela não
 // existe nele (Artigos, guias dos conjuntos)
 const enderecoNo = (pagina, idioma) => arquivo(pagina, idiomasDe(pagina).includes(idioma) ? idioma : "en");
@@ -88,7 +93,8 @@ function passos(idioma) {
 function nomeCurto(pagina, idioma, title) {
   if (ROTULO[pagina]) return t(idioma, ROTULO[pagina]);
   if (NOME_CONJUNTO[pagina]) return NOME_CONJUNTO[pagina];
-  return title.split(" — ")[0];
+  // "Título | Icon Library" ou "Título — Icon Library": só o título
+  return title.split(/ [—|] /)[0];
 }
 
 // Avaliações dos apoiadores (página Sobre): a seção começa escondida e
@@ -186,8 +192,14 @@ function ferramenta(chave, idioma, pagina) {
     .map((c) => `<a href="${arquivo(c, idioma)}">${NOME_CONJUNTO[c]}</a>`)
     .join(" · ");
   return `<p class="page__cta"><a class="page__open" href="./${separador}set=${chave}">${escapar(t(idioma, "sets.open"))}</a></p>
-<p class="page__meta">${escapar(t(idioma, "sets.others"))} ${outros}</p>`;
+<p class="page__meta">${escapar(t(idioma, "sets.others"))} ${outros}</p>
+<p class="page__meta">${EDITOR_NO_GUIA[idioma].replace("{link}", `<a href="${arquivo("svg-editor", idioma)}">`).replace("{/link}", "</a>")}</p>`;
 }
+// Os guias dos conjuntos só existem em inglês e português
+const EDITOR_NO_GUIA = {
+  en: "To change any of these icons, or draw your own, use the {link}online SVG editor{/link}.",
+  "pt-BR": "Para mudar qualquer um destes ícones, ou desenhar o seu, use o {link}editor de SVG online{/link}.",
+};
 
 function montar(pagina, idioma) {
   const fonte = readFileSync(new URL(`pages/${pagina}/${idioma}.html`, raiz), "utf8").replace(/\r\n/g, "\n");
@@ -347,7 +359,7 @@ ${PAGINAS.filter((p) => p !== pagina && !NO_TOPO.includes(p))
 
 const conferir = process.argv.includes("--check");
 const desatualizados = [];
-for (const pagina of [...PAGINAS, ...CONJUNTOS, ...ARTIGOS, INDICE_ARTIGOS])
+for (const pagina of [...PAGINAS, ...CONJUNTOS, ...ARTIGOS, ...FERRAMENTAS, INDICE_ARTIGOS])
   for (const idioma of idiomasDe(pagina)) {
     const destino = new URL(`public/${arquivo(pagina, idioma)}`, raiz);
     const html = montar(pagina, idioma);

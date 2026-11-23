@@ -1,5 +1,5 @@
 // Checks the search synonyms (public/json/sinonimos/<lang>.json): every entry
-// must find at least one icon in Lucide, Feather or Bootstrap, by name or
+// must find at least one icon in Lucide, Tabler, Feather or Bootstrap, by name or
 // keyword, the same way the page searches. A dead entry is listed.
 //
 //   node scripts/check-synonyms.mjs            all languages
@@ -19,6 +19,11 @@ if (!versao) throw new Error("Lucide version not found in iconSets.js");
 const itens = [];
 const tagsLucide = await (await fetch(`https://unpkg.com/lucide-static@${versao}/tags.json`)).json();
 for (const [nome, tags] of Object.entries(tagsLucide)) itens.push({ nome, tags });
+const versaoTabler = /tabler:\s*"([\d.]+)"/.exec(conjuntos)?.[1];
+if (versaoTabler) {
+  const tabler = await (await fetch(`https://unpkg.com/@tabler/icons@${versaoTabler}/icons.json`)).json();
+  for (const [nome, info] of Object.entries(tabler)) itens.push({ nome, tags: info.tags ?? [] });
+}
 const categorias = ler("public/json/icons-categories.json");
 const tagsLocais = ler("public/json/icons-tags.json");
 for (const conjunto of ["feather", "bootstrap"])
