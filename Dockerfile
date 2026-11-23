@@ -3,7 +3,7 @@
 # Static site + small API (buy me a coffee) served by Node.js
 # =============================================================================
 
-FROM node:24-slim
+FROM node:26-slim
 
 # Apply Debian security updates
 RUN apt-get update \
