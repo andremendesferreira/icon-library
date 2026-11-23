@@ -15,6 +15,9 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
 const SITE = "https://iconlibrary.io";
+// Imagem de compartilhamento (Facebook, LinkedIn, WhatsApp, X): 1200 × 630,
+// o tamanho da prévia grande. Um artigo pode ter a sua ("image" no comentário)
+const IMAGEM_SITE = "img/og-card.png";
 const IDIOMAS = ["en", "es", "fr", "de", "ru", "zh-CN", "pt-BR", "ja"];
 const PAGINAS = ["guide", "about", "privacy", "license"];
 // Ícones do rodapé (Bootstrap Icons, MIT): mesmo traço e cor dos links
@@ -190,7 +193,13 @@ function montar(pagina, idioma) {
   const fonte = readFileSync(new URL(`pages/${pagina}/${idioma}.html`, raiz), "utf8").replace(/\r\n/g, "\n");
   const cabecalho = /^<!--\s*(\{.*?\})\s*-->\n/s.exec(fonte);
   if (!cabecalho) throw new Error(`pages/${pagina}/${idioma}.html: falta o comentário JSON com title/description`);
-  const { title, description } = JSON.parse(cabecalho[1]);
+  const { title, description, date, image } = JSON.parse(cabecalho[1]);
+  // Artigos: data de publicação (AAAA-MM-DD) no comentário, para og:type
+  // article e o JSON-LD Article
+  const ehArtigo = ARTIGOS.includes(pagina);
+  if (ehArtigo && !/^\d{4}-\d{2}-\d{2}$/.test(date ?? ""))
+    throw new Error(`pages/${pagina}/${idioma}.html: artigo sem "date" (AAAA-MM-DD) no comentário JSON`);
+  const imagem = `${SITE}/${image ?? IMAGEM_SITE}`;
   const icones = idioma === "en" ? "./" : `./?lang=${idioma}`;
   // <!--cafe--> no texto vira o botão do café
   const conteudo = fonte
@@ -220,6 +229,21 @@ function montar(pagina, idioma) {
       { "@type": "ListItem", position: 2, name: atual, item: endereco },
     ],
   }).replace(/</g, "\\u003c");
+  // Artigo para os buscadores: título, data, autor e imagem
+  const artigoLd = ehArtigo
+    ? JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: title.split(" | ")[0],
+        description,
+        datePublished: date,
+        inLanguage: idioma,
+        image: imagem,
+        mainEntityOfPage: endereco,
+        author: { "@type": "Person", name: "André M. Ferreira" },
+        publisher: { "@type": "Organization", name: "Icon Library", url: `${SITE}/` },
+      }).replace(/</g, "\\u003c")
+    : null;
   const versoes = idiomasDe(pagina).map(
     (l) => `  <link rel="alternate" hreflang="${l}" href="${SITE}/${arquivo(pagina, l)}" />`,
   ).join("\n");
@@ -243,20 +267,23 @@ function montar(pagina, idioma) {
   <link rel="canonical" href="${endereco}" />
 ${versoes}
   <link rel="alternate" hreflang="x-default" href="${SITE}/${arquivo(pagina, "en")}" />
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content="${ehArtigo ? "article" : "website"}" />${ehArtigo ? `
+  <meta property="article:published_time" content="${date}" />` : ""}
   <meta property="og:site_name" content="Icon Library" />
   <meta property="og:url" content="${endereco}" />
   <meta property="og:title" content="${escapar(title)}" />
   <meta property="og:description" content="${escapar(description)}" />
-  <meta property="og:image" content="${SITE}/img/og-image.png" />
-  <meta property="og:image:width" content="512" />
-  <meta property="og:image:height" content="512" />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:image" content="${imagem}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="${escapar(title.split(" | ")[0])}" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="favicon.ico" sizes="48x48" />
   <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
   <link rel="stylesheet" href="css/icon-library.css" />
-  <script type="application/ld+json">${trilhaLd}</script>
+  <script type="application/ld+json">${trilhaLd}</script>${artigoLd ? `
+  <script type="application/ld+json">${artigoLd}</script>` : ""}
   <script src="js/i18n/detect.js"></script>
   <script src="js/views/theme.js"></script>
   <script src="js/views/clarity.js" async></script>

@@ -34,3 +34,22 @@ test("o Guia começa com os três passos ilustrados, traduzidos", () => {
   assert.match(ler("guide.pt-BR.html"), /<h2 id="quick-start">Comece em 30 segundos<\/h2>/);
   assert.match(ler("guide.ja.html"), /鉛筆で編集/);
 });
+
+test("prévia de compartilhamento grande (1200 × 630) e artigos com JSON-LD Article", () => {
+  const todas = readdirSync(pasta).filter((f) => f.endsWith(".html"));
+  for (const f of todas) {
+    const html = ler(f);
+    if (!html.includes('property="og:image"')) continue;
+    assert.match(html, /<meta property="og:image:width" content="1200" \/>/, f);
+    assert.match(html, /<meta name="twitter:card" content="summary_large_image" \/>/, f);
+    const imagem = /<meta property="og:image" content="https:\/\/iconlibrary\.io\/([^"]+)"/.exec(html)[1];
+    assert.ok(readdirSync(new URL(imagem.replace(/[^/]+$/, ""), pasta)).includes(imagem.split("/").pop()), `${f}: falta ${imagem}`);
+  }
+  for (const f of todas.filter((g) => /^(lgpd-icon|local-llm-coding)(\.pt-BR)?\.html$/.test(g))) {
+    const html = ler(f);
+    assert.match(html, /<meta property="og:type" content="article" \/>/, f);
+    const ld = [...html.matchAll(/<script type="application\/ld\+json">([^<]*)<\/script>/g)].map((m) => JSON.parse(m[1]));
+    const artigo = ld.find((d) => d["@type"] === "Article");
+    assert.ok(artigo?.headline && /^\d{4}-\d{2}-\d{2}$/.test(artigo.datePublished), f);
+  }
+});
