@@ -1,0 +1,383 @@
+<!doctype html>
+<!-- Gerado por scripts/build-pages.mjs a partir de pages/local-llm-coding/pt-BR.html — edite lá e rode npm run pages -->
+<html
+  lang="pt-BR"
+  data-page="local-llm-coding"
+  data-languages="en,pt-BR"
+  data-label-to-dark="Mudar para o tema escuro"
+  data-label-to-light="Mudar para o tema claro"
+>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="google-adsense-account" content="ca-pub-1124520097523749" />
+  <meta name="description" content="Três modelos abertos num assistente de código sem nuvem: velocidade, acerto em 12 tarefas e uma API inteira feita em modo agente. O limite é a memória de vídeo." />
+  <title>LLM local para programar: medições numa RTX 4000 Ada | Icon Library</title>
+  <meta name="theme-color" content="#f5f7fb" />
+  <link rel="canonical" href="https://iconlibrary.io/local-llm-coding.pt-BR.html" />
+  <link rel="alternate" hreflang="en" href="https://iconlibrary.io/local-llm-coding.html" />
+  <link rel="alternate" hreflang="pt-BR" href="https://iconlibrary.io/local-llm-coding.pt-BR.html" />
+  <link rel="alternate" hreflang="x-default" href="https://iconlibrary.io/local-llm-coding.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Icon Library" />
+  <meta property="og:url" content="https://iconlibrary.io/local-llm-coding.pt-BR.html" />
+  <meta property="og:title" content="LLM local para programar: medições numa RTX 4000 Ada | Icon Library" />
+  <meta property="og:description" content="Três modelos abertos num assistente de código sem nuvem: velocidade, acerto em 12 tarefas e uma API inteira feita em modo agente. O limite é a memória de vídeo." />
+  <meta property="og:image" content="https://iconlibrary.io/img/og-image.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" href="favicon.ico" sizes="48x48" />
+  <link rel="icon" type="image/png" href="img/favicon-32.png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
+  <link rel="stylesheet" href="css/icon-library.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Icon Library","item":"https://iconlibrary.io/?lang=pt-BR"},{"@type":"ListItem","position":2,"name":"LLM local para programar: medições numa RTX 4000 Ada | Icon Library","item":"https://iconlibrary.io/local-llm-coding.pt-BR.html"}]}</script>
+  <script src="js/i18n/detect.js"></script>
+  <script src="js/views/theme.js"></script>
+  <script src="js/views/clarity.js" async></script>
+  <script src="js/views/pageSearch.js" defer></script>
+  <script src="js/views/profundidade.js" defer></script>
+</head>
+<body>
+  <!-- O mesmo cabeçalho da home: logo, Guia, Sobre, Artigos, café, idioma, tema -->
+  <header class="topo topo--fixo">
+    <a class="topo__marca" href="./?lang=pt-BR" aria-label="Icon Library" title="Icon Library">
+      <span class="topo__selo" aria-hidden="true"><img src="img/logo-180.webp" srcset="img/logo-180.webp 1x, img/logo-360.webp 2x" width="48" height="48" alt="" class="topo__logo" /><span class="topo__brilho"></span></span>
+      <span class="topo__nome">Icon Library</span>
+    </a>
+    <nav class="topo__nav" aria-label="Site">
+        <a class="topo__link" href="guide.pt-BR.html">Guia</a>
+        <a class="topo__link" href="about.pt-BR.html">Sobre</a>
+        <a class="topo__link" href="articles.pt-BR.html">Artigos</a>
+      <a class="coffee-button" href="./?lang=pt-BR#coffee"><span aria-hidden="true">☕</span><span class="coffee-button__text">Me pague um café</span></a>
+      <label class="lang-select">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" /></svg>
+        <select id="lang-select" aria-label="Idioma"></select>
+      </label>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Tema escuro" aria-pressed="false">
+        <svg class="theme-toggle__moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
+        <svg class="theme-toggle__sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4" /></svg>
+      </button>
+    </nav>
+  </header>
+  <main class="page">
+    <div class="page__top">
+      <form class="page__busca" action="./" role="search">
+        <input type="hidden" name="lang" value="pt-BR" />
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+        <input type="search" id="page-search" name="q" required aria-keyshortcuts="/" placeholder="Buscar ícones…" aria-label="Buscar ícones pelo nome ou palavra-chave (tecla /)" />
+      </form>
+    </div>
+    <nav class="page__trilha" aria-label="Você está aqui">
+      <ol>
+        <li><a href="./?lang=pt-BR">Icon Library</a></li>
+        <li aria-current="page">LLM local para programar: medições numa RTX 4000 Ada | Icon Library</li>
+      </ol>
+    </nav>
+    <h1 class="page__title">LLM local para programar numa GPU de 20 GB</h1>
+    <p class="page__meta">Por André M. Ferreira · 23 de novembro de 2026</p>
+    <p class="page__lead">
+      Ferramentas como Claude Code, GitHub Copilot e Cline mudaram a forma de
+      programar, mas todas mandam o seu código para um servidor de terceiros. Para
+      quem trabalha com bases sensíveis, a pergunta é óbvia: dá para ter algo
+      parecido dentro de casa, numa máquina que já existe? Montei, ajustei e medi um
+      assistente de código rodando inteiro numa workstation, sem nuvem.
+    </p>
+    <p>
+      A própria Icon Library já roda um modelo pequeno num servidor meu, o Gemma 3
+      de 4 bilhões de parâmetros, para duas tarefas: descrever os ícones enviados
+      para a comunidade antes de eu moderar e, uma vez por dia, transformar as
+      buscas sem resultado em sinônimos, para que quem procura “lixeira” encontre
+      os ícones chamados <em>trash</em>. São tarefas curtas, e um modelo pequeno
+      basta. Programar é outra escala, e este teste mede até onde um modelo local
+      chega quando o trabalho é escrever código.
+    </p>
+
+    <h2>Em resumo</h2>
+    <ul>
+      <li><strong>114 tokens por segundo</strong> com o Qwen3-Coder 30B inteiro na GPU: ótimo para autocomplete e perguntas rápidas.</li>
+      <li><strong>12 de 12 tarefas de código corretas</strong> com os dois modelos que raciocinam antes de responder.</li>
+      <li><strong>15 de 15 testes de aceite</strong> numa API feita do zero em modo agente, em 18 minutos e sem nenhuma intervenção.</li>
+      <li><strong>O gargalo é um só: memória de vídeo.</strong> O que cabe na GPU voa; o que transborda passa a depender da RAM.</li>
+    </ul>
+
+    <h2>Como medi</h2>
+    <p>
+      Tratei o teste como prova de conceito, com o sistema montado do zero só para
+      isso e apagado depois. Medi três coisas:
+    </p>
+    <ul>
+      <li><strong>Velocidade:</strong> tokens por segundo na geração e tempo até o primeiro token, com prompts de mil a 56 mil tokens.</li>
+      <li><strong>Qualidade de código:</strong> 12 tarefas com testes automáticos, executados de verdade, sem julgamento subjetivo.</li>
+      <li><strong>Modo agente:</strong> o VS Code com Cline recebe uma especificação e precisa criar a aplicação, instalar dependências, escrever testes e corrigir até passar.</li>
+    </ul>
+
+    <h2>A máquina</h2>
+    <p>
+      Uma HP Z4 G5, workstation de escritório, longe de ser um servidor de IA. Para
+      um LLM, o que importa é a GPU: uma NVIDIA RTX 4000 Ada com 20 GB e cerca de
+      360 GB/s de banda de memória. O resto só ajuda quando o modelo não cabe na
+      placa.
+    </p>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Peça</th><th>Especificação</th><th>Papel no teste</th></tr></thead>
+        <tbody>
+        <tr><td>GPU</td><td>RTX 4000 Ada · 20 GB GDDR6 · ~360 GB/s</td><td>Onde o modelo precisa morar</td></tr>
+        <tr><td>CPU</td><td>Xeon w5-2555X · 14 núcleos</td><td>Experts do MoE quando o modelo não cabe</td></tr>
+        <tr><td>RAM</td><td>128 GB DDR5 ECC a 4800 MT/s</td><td>Reserva para os pesos que transbordam</td></tr>
+        <tr><td>Disco</td><td>NVMe de 2 TB</td><td>Modelos de até 89 GB</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      O sistema é o Ubuntu 26.04 LTS em modo texto: sem interface gráfica, a GPU
+      fica livre para o modelo, e o acesso é por SSH. Usei o driver NVIDIA 595 com
+      CUDA 13.1 e o llama.cpp compilado para a arquitetura Ada. O
+      <code>llama-server</code> expõe uma API compatível com a da OpenAI na rede
+      local, e o VS Code com Cline, no meu PC, conversa com ela.
+    </p>
+
+    <h2>Os modelos</h2>
+    <p>
+      A regra de ouro do LLM local é o modelo caber inteiro na memória de vídeo,
+      junto com o cache de contexto. Escolhi três modelos de pesos abertos, com
+      perfis bem diferentes:
+    </p>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Modelo</th><th>Arquitetura</th><th>Onde roda</th></tr></thead>
+        <tbody>
+        <tr><td>Qwen3-Coder 30B-A3B, especializado em código</td><td>MoE, ~3 bilhões de parâmetros ativos por token</td><td>100% na GPU</td></tr>
+        <tr><td>Qwen3.8 27B, generalista com raciocínio</td><td>Denso</td><td>100% na GPU</td></tr>
+        <tr><td>Qwen3.8 Flash-Next, generalista grande com raciocínio</td><td>MoE grande, ~89 GB</td><td>GPU, com os experts na RAM</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      O Flash-Next quebra a regra de ouro de propósito: não cabe em 20 GB de jeito
+      nenhum. A parte comum do modelo e o cache ficam na GPU; os experts vão para a
+      RAM, com 8 GB de cache na placa para os mais usados. Ele responde à pergunta:
+      vale esperar mais em troca de um modelo muito maior?
+    </p>
+
+    <h2>Velocidade: quem manda é a banda de memória</h2>
+    <p>
+      As medições usam a API com o cache de prompt desligado, para que o tempo até o
+      primeiro token inclua a leitura do contexto inteiro. As tabelas mostram o que
+      acontece quando o prompt cresce, que é exatamente o que um agente faz ao ler
+      os arquivos do projeto.
+    </p>
+    <h3>Velocidade de geração</h3>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Modelo</th><th>Prompt curto</th><th>7 mil tokens</th><th>28 mil tokens</th><th>56 mil tokens</th></tr></thead>
+        <tbody>
+        <tr><td>Coder IQ4, cache KV f16</td><td>114,1 t/s</td><td>83,5 t/s</td><td>58,7 t/s</td><td>—</td></tr>
+        <tr><td>Coder Q3, cache KV q8 (configuração inicial)</td><td>108,5 t/s</td><td>81,7 t/s</td><td>40,2 t/s</td><td>25,2 t/s</td></tr>
+        <tr><td>Qwen3.8 27B</td><td>21,8 t/s</td><td>21,2 t/s</td><td>19,3 t/s</td><td>—</td></tr>
+        <tr><td>Qwen3.8 Flash-Next</td><td>17,0 t/s</td><td>17,4 t/s</td><td>18,2 t/s</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Tempo até o primeiro token</h3>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Modelo</th><th>Prompt curto</th><th>7 mil tokens</th><th>28 mil tokens</th><th>56 mil tokens</th></tr></thead>
+        <tbody>
+        <tr><td>Coder IQ4, cache KV f16</td><td>0,2 s</td><td>1,6 s</td><td>10,0 s</td><td>—</td></tr>
+        <tr><td>Coder Q3, cache KV q8 (configuração inicial)</td><td>0,3 s</td><td>2,3 s</td><td>13,8 s</td><td>37,2 s</td></tr>
+        <tr><td>Qwen3.8 27B</td><td>1,1 s</td><td>6,9 s</td><td>29,0 s</td><td>—</td></tr>
+        <tr><td>Qwen3.8 Flash-Next, lote de 2048</td><td>5,6 s</td><td>21,0 s</td><td>73,2 s</td><td>—</td></tr>
+        <tr><td>Qwen3.8 Flash-Next, lote de 8192</td><td>—</td><td>10,0 s</td><td>37,5 s</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="page__meta">Um traço é uma medição que não fiz. A coluna de 28 mil inclui a medição com 29,8 mil tokens do Coder Q3.</p>
+    <p>
+      O Qwen3-Coder ativa só uns 3 bilhões de parâmetros por token e cabe inteiro na
+      GPU: passa de 100 tokens por segundo com prompt curto e lê o contexto a 3 a 4
+      mil tokens por segundo. O 27B denso precisa ler todos os pesos a cada token e
+      fica estável em uns 20. O Flash-Next busca experts na RAM a cada token e gera
+      uns 17, qualquer que seja o tamanho do prompt, porque ali o limite é a banda da
+      DDR5, não a GPU.
+    </p>
+    <h3>Ajustes que valeram a pena</h3>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Ajuste</th><th>Modelo</th><th>Antes</th><th>Depois</th></tr></thead>
+        <tbody>
+        <tr><td>Micro-lote <code>-ub 2048</code> (leitura de 7 mil tokens)</td><td>Coder Q3</td><td>3.344 t/s</td><td>3.854 t/s</td></tr>
+        <tr><td>Cache KV em f16 em vez de q8 (geração com 28 mil tokens)</td><td>Coder Q3</td><td>43,2 t/s</td><td>58,1 t/s</td></tr>
+        <tr><td>Quantização IQ4_XS em vez de Q3 (prompt curto)</td><td>Coder</td><td>108,5 t/s</td><td>114,1 t/s</td></tr>
+        <tr><td>Lote <code>-ub 8192</code> (primeiro token com 28 mil)</td><td>Flash-Next</td><td>73,2 s</td><td>37,5 s</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      O último é o mais interessante. Com os experts na RAM, cada lote do prompt
+      obriga a copiar pesos pela PCIe. Lotes maiores fazem uma cópia servir a mais
+      tokens, e a leitura do prompt dobrou, de ~370 para ~740 tokens por segundo.
+      Com lote de 16.384 a leitura subiu para 877, mas a geração caiu de 17 para 13.
+      Não compensou.
+    </p>
+
+    <h2>Qualidade: velocidade não é tudo</h2>
+    <p>
+      Escrevi 12 tarefas do dia a dia de quem programa: implementar funções (parser
+      de duração, intervalos, cache LRU, Dijkstra), validar CPF, corrigir bugs,
+      refatorar, escrever SQL com funções de janela e prever a saída de um trecho de
+      código. Cada resposta é executada contra asserções: passou ou não passou.
+    </p>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Modelo</th><th>Acerto</th><th>Tempo por tarefa</th><th>Onde errou</th></tr></thead>
+        <tbody>
+        <tr><td>Coder 30B Q3</td><td>69% (25 de 36)</td><td>1,5 s</td><td>Parser de duração, prever saída, LRU, Dijkstra</td></tr>
+        <tr><td>Coder 30B IQ4</td><td>83% (30 de 36)</td><td>1,6 s</td><td>Parser de duração, prever saída</td></tr>
+        <tr><td>Qwen3.8 27B</td><td>100% (12 de 12)</td><td>36 s</td><td>—</td></tr>
+        <tr><td>Qwen3.8 Flash-Next</td><td>100% (20 de 20)</td><td>41 s</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      O Coder rodou cada tarefa 3 vezes; o 27B, uma; o Flash-Next, de uma a três.
+      O Coder é rápido e bom, mas erra de forma consistente em dois pontos: casos de
+      borda do parser e prever a saída de código, que exige “executar de cabeça”. A
+      versão IQ4, mais precisa, corrigiu o LRU e o Dijkstra que a Q3 errava. Os dois
+      Qwen3.8 acertaram tudo, mas pensam antes de responder: uns 40 segundos por
+      tarefa, contra 1,5 do Coder.
+    </p>
+    <p>
+      Para autocomplete e perguntas rápidas, o Coder na GPU é imbatível. Para um
+      trabalho que precisa estar certo, o raciocínio faz diferença.
+    </p>
+
+    <h2>Modo agente: o teste que importa</h2>
+    <p>
+      Acertar uma função isolada não diz se a ferramenta trabalha sozinha. Para isso
+      escrevi um <code>SPEC.md</code> de uma API de tarefas em FastAPI e SQLite, com
+      sete endpoints, validações, paginação e estatísticas. O pedido ao Cline foi uma
+      frase: leia o SPEC.md, implemente, crie o ambiente virtual, rode os testes com
+      pytest e corrija até passar. Além dos testes que o próprio agente escreve, uma
+      bateria independente de 15 testes de aceite confere a aplicação contra a
+      especificação.
+    </p>
+    <div class="page__table">
+      <table>
+        <thead><tr><th>Rodada</th><th>Tempo</th><th>Testes de aceite</th><th>pytest do agente</th></tr></thead>
+        <tbody>
+        <tr><td>Qwen3-Coder, rodada 1, sem regras</td><td>4,5 min</td><td>0 de 15</td><td>4 de 13</td></tr>
+        <tr><td>Qwen3-Coder, rodada 2</td><td>~30 min</td><td>1 de 15</td><td>8 de 13</td></tr>
+        <tr><td>Qwen3-Coder, rodada 3, com regras e revisão</td><td>~15 min</td><td>9 de 15</td><td>9 de 13</td></tr>
+        <tr><td>Flash-Next, rodada única, sem intervenção</td><td>18 min</td><td><strong>15 de 15</strong></td><td>13 de 13</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Qwen3-Coder: rápido, mas sem fôlego</h3>
+    <p>
+      A primeira entrega veio em 4,5 minutos, e estava quebrada: Pydantic v1 num
+      projeto v2, tabelas que não eram criadas, pacote sem <code>__init__.py</code>
+      e o endpoint de estatísticas ausente. Nas rodadas seguintes, o modelo passou a
+      ler o mesmo arquivo em loop, com caminhos do Windows corrompidos (as barras
+      invertidas sumiam nas chamadas de ferramenta), até o Cline interromper a
+      tarefa. Com regras explícitas num <code>.clinerules</code> e uma revisão
+      apontando as falhas, chegou a 9 de 15, depois de quase uma hora.
+    </p>
+    <h3>Flash-Next: devagar e sempre</h3>
+    <p>
+      Com raciocínio em esforço médio e 64 mil tokens de contexto, o Flash-Next leu a
+      especificação, planejou em três etapas, criou todos os arquivos, instalou as
+      dependências e rodou os testes. Em 18 minutos: 13 de 13 testes do pytest
+      passando, mostrando a saída real em vez de afirmar que passou, e 15 de 15 nos
+      testes de aceite. Usou 24,5 mil dos 65,5 mil tokens de contexto e não precisou
+      de nenhuma intervenção minha.
+    </p>
+    <figure class="page__figure">
+      <img src="img/articles/llm-flash-next-plan.webp" width="1091" height="874" loading="lazy" alt="Cline com o Flash-Next apresentando um plano em três etapas e criando os arquivos do projeto" />
+      <figcaption>Flash-Next: o plano em três etapas antes do primeiro arquivo.</figcaption>
+    </figure>
+    <figure class="page__figure page__figure--narrow">
+      <img src="img/articles/llm-coder-loop.webp" width="473" height="884" loading="lazy" alt="Cline interrompido depois de cinco leituras idênticas de um arquivo com o caminho corrompido" />
+      <figcaption>Coder 30B: cinco leituras iguais de um caminho corrompido, e a tarefa interrompida.</figcaption>
+    </figure>
+    <p>
+      A 17 tokens por segundo cada resposta demora, e ler o contexto custa de 10 a
+      37 segundos. É o ritmo de um colega cuidadoso: você entrega a tarefa, vai fazer
+      outra coisa e volta para revisar. Somando as três rodadas, o Coder gastou uns
+      50 minutos e precisou de ajuda; o Flash-Next gerava tokens seis vezes mais
+      devagar e terminou em 18. <strong>O modelo grande não foi mais rápido. Foi mais
+      confiável, e por isso terminou primeiro.</strong>
+    </p>
+
+    <h2>O que aprendi</h2>
+    <ul>
+      <li><strong>A memória de vídeo é o orçamento.</strong> O que cabe na GPU voa; o que transborda passa a depender da banda da DDR5 e da PCIe. Mais RAM ou CPU não muda isso.</li>
+      <li><strong>MoE é o atalho para placas médias.</strong> Com uns 3 bilhões de parâmetros ativos por token, um modelo de 30B passa de 100 tokens por segundo numa GPU de 20 GB.</li>
+      <li><strong>Cache KV em f16 vale a memória que custa.</strong> Com contexto longo, gerou 35% mais rápido que em q8. Compensa reduzir a janela para caber.</li>
+      <li><strong>Agente precisa de contexto.</strong> Com 32 mil tokens o Coder entrava em loop; 64 mil foi o mínimo confortável para um projeto pequeno.</li>
+      <li><strong>Regras escritas resolvem problemas de ambiente.</strong> Um <code>.clinerules</code> com caminhos relativos, o Python do <code>.venv</code> e “mostre a saída real dos testes” eliminou os erros do Windows.</li>
+      <li><strong>Meça com teste executável.</strong> “Parece certo” enganou várias vezes; a bateria de aceite independente mostrou a diferença real entre os modelos.</li>
+    </ul>
+
+    <h2>Veredito</h2>
+    <p>A máquina serve, com uma divisão clara de papéis:</p>
+    <ul>
+      <li><strong>Interativo, com o Qwen3-Coder 30B na GPU:</strong> autocomplete, explicações e trechos de código com resposta imediata. Qualidade boa, mas eu não o deixaria sozinho num projeto.</li>
+      <li><strong>Tarefas delegadas, com o Qwen3.8 Flash-Next:</strong> entrega completa e correta em modo agente, no ritmo de quem trabalha em segundo plano.</li>
+    </ul>
+    <p>
+      Para o Flash-Next responder como ferramenta interativa, o que muda o jogo é a
+      GPU. Uma placa de 96 GB, como a RTX PRO 6000 Blackwell Max-Q (300 W, ~1,8
+      TB/s), cabe na mesma Z4 G5 e manteria o modelo inteiro na memória de vídeo,
+      com umas cinco vezes a banda atual. Pela proporção de banda, a estimativa fica
+      entre 80 e 110 tokens por segundo, com o primeiro token em poucos segundos. É
+      uma projeção, ainda não medida.
+    </p>
+
+    <h2>Para reproduzir</h2>
+    <p>A linha de comando final do Flash-Next:</p>
+    <pre><code>llama-server -m Qwen3.8-Flash-Next-UD-IQ4_XS-00001-of-00004.gguf \
+      -c 65536 -ctk f16 -ctv f16 \
+      -ngl 999 -fa on --jinja \
+      -b 8192 -ub 8192 \
+      --cpu-moe --moe-cache-mib 8000 \
+      -ot per_layer_token_embd.weight=CPU \
+      -t 14 -np 1 --temp 1.0 --top-p 0.95 --top-k 20 --min-p 0.0 \
+      --chat-template-kwargs '{"reasoning_effort":"medium"}'</code></pre>
+    <ul>
+      <li><code>-c 65536 -ctk f16 -ctv f16</code>: 64 mil tokens de contexto, cache KV em f16.</li>
+      <li><code>-ngl 999 -fa on</code>: tudo que couber na GPU, com flash attention.</li>
+      <li><code>-b 8192 -ub 8192</code>: lotes grandes, a leitura do prompt fica duas vezes mais rápida.</li>
+      <li><code>--cpu-moe --moe-cache-mib 8000</code>: experts na RAM, com 8 GB de cache na GPU.</li>
+    </ul>
+    <p>
+      Para o Coder 30B IQ4: <code>-c 32768</code> com cache em f16 no uso
+      interativo, ou <code>-c 65536</code> com cache em q8 no modo agente,
+      <code>-b 4096 -ub 2048</code> e temperatura 0,7.
+    </p>
+    <p class="page__meta">
+      Ambiente: HP Z4 G5 · RTX 4000 Ada 20 GB · Ubuntu 26.04 LTS · NVIDIA 595 / CUDA
+      13.1 · llama.cpp compilado em 18 de novembro de 2026 · VS Code + Cline. Os
+      números mudam com novas versões do motor e dos modelos.
+    </p>
+    <p class="page__meta">
+      Veja também o outro artigo:
+      <a href="lgpd-icon.pt-BR.html">como criar um ícone quando nenhum serve</a>.
+    </p>
+  </main>
+  <footer class="site-footer">
+    <nav aria-label="Site">
+      <a href="./?lang=pt-BR">Ícones</a>
+      <a href="privacy.pt-BR.html">Privacidade</a>
+      <a href="license.pt-BR.html">Licenças</a>
+      <span class="site-footer__quebra"></span>
+      <a href="./?lang=pt-BR#report"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M4.355.522a.5.5 0 0 1 .623.333l.291.956A5 5 0 0 1 8 1c1.007 0 1.946.298 2.731.811l.29-.956a.5.5 0 1 1 .957.29l-.41 1.352A5 5 0 0 1 13 6h.5a.5.5 0 0 0 .5-.5V5a.5.5 0 0 1 1 0v.5A1.5 1.5 0 0 1 13.5 7H13v1h1.5a.5.5 0 0 1 0 1H13v1h.5a1.5 1.5 0 0 1 1.5 1.5v.5a.5.5 0 1 1-1 0v-.5a.5.5 0 0 0-.5-.5H13a5 5 0 0 1-10 0h-.5a.5.5 0 0 0-.5.5v.5a.5.5 0 1 1-1 0v-.5A1.5 1.5 0 0 1 2.5 10H3V9H1.5a.5.5 0 0 1 0-1H3V7h-.5A1.5 1.5 0 0 1 1 5.5V5a.5.5 0 0 1 1 0v.5a.5.5 0 0 0 .5.5H3c0-1.364.547-2.601 1.432-3.503l-.41-1.352a.5.5 0 0 1 .333-.623M4 7v4a4 4 0 0 0 3.5 3.97V7zm4.5 0v7.97A4 4 0 0 0 12 11V7zM12 6a4 4 0 0 0-1.334-2.982A3.98 3.98 0 0 0 8 2a3.98 3.98 0 0 0-2.667 1.018A4 4 0 0 0 4 6z"/></svg>Reportar bug</a>
+      <a href="https://github.com/andremendesferreira/icon-library/discussions" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a2 2 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1"/></svg>Sugerir melhoria</a>
+      <a href="https://t.me/iconlibraryio" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.287 5.906q-1.168.486-4.666 2.01-.567.225-.595.442c-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294q.39.01.868-.32 3.269-2.206 3.374-2.23c.05-.012.12-.026.166.016s.042.12.037.141c-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8 8 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629q.14.092.27.187c.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.4 1.4 0 0 0-.013-.315.34.34 0 0 0-.114-.217.53.53 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09"/></svg>Canal no Telegram</a>
+      <a href="https://github.com/andremendesferreira/icon-library" target="_blank" rel="noopener"><svg class="site-footer__icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg>Código aberto no GitHub</a>
+    </nav>
+    <p class="site-footer__owner">© 2026 André M. Ferreira<span class="site-footer__version"><!--version--></span></p>
+  </footer>
+</body>
+</html>

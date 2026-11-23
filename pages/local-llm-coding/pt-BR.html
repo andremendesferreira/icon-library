@@ -1,0 +1,292 @@
+<!-- {"title":"LLM local para programar: medições numa RTX 4000 Ada | Icon Library","description":"Três modelos abertos num assistente de código sem nuvem: velocidade, acerto em 12 tarefas e uma API inteira feita em modo agente. O limite é a memória de vídeo."} -->
+<h1 class="page__title">LLM local para programar numa GPU de 20 GB</h1>
+<p class="page__meta">Por André M. Ferreira · 23 de novembro de 2026</p>
+<p class="page__lead">
+  Ferramentas como Claude Code, GitHub Copilot e Cline mudaram a forma de
+  programar, mas todas mandam o seu código para um servidor de terceiros. Para
+  quem trabalha com bases sensíveis, a pergunta é óbvia: dá para ter algo
+  parecido dentro de casa, numa máquina que já existe? Montei, ajustei e medi um
+  assistente de código rodando inteiro numa workstation, sem nuvem.
+</p>
+<p>
+  A própria Icon Library já roda um modelo pequeno num servidor meu, o Gemma 3
+  de 4 bilhões de parâmetros, para duas tarefas: descrever os ícones enviados
+  para a comunidade antes de eu moderar e, uma vez por dia, transformar as
+  buscas sem resultado em sinônimos, para que quem procura “lixeira” encontre
+  os ícones chamados <em>trash</em>. São tarefas curtas, e um modelo pequeno
+  basta. Programar é outra escala, e este teste mede até onde um modelo local
+  chega quando o trabalho é escrever código.
+</p>
+
+<h2>Em resumo</h2>
+<ul>
+  <li><strong>114 tokens por segundo</strong> com o Qwen3-Coder 30B inteiro na GPU: ótimo para autocomplete e perguntas rápidas.</li>
+  <li><strong>12 de 12 tarefas de código corretas</strong> com os dois modelos que raciocinam antes de responder.</li>
+  <li><strong>15 de 15 testes de aceite</strong> numa API feita do zero em modo agente, em 18 minutos e sem nenhuma intervenção.</li>
+  <li><strong>O gargalo é um só: memória de vídeo.</strong> O que cabe na GPU voa; o que transborda passa a depender da RAM.</li>
+</ul>
+
+<h2>Como medi</h2>
+<p>
+  Tratei o teste como prova de conceito, com o sistema montado do zero só para
+  isso e apagado depois. Medi três coisas:
+</p>
+<ul>
+  <li><strong>Velocidade:</strong> tokens por segundo na geração e tempo até o primeiro token, com prompts de mil a 56 mil tokens.</li>
+  <li><strong>Qualidade de código:</strong> 12 tarefas com testes automáticos, executados de verdade, sem julgamento subjetivo.</li>
+  <li><strong>Modo agente:</strong> o VS Code com Cline recebe uma especificação e precisa criar a aplicação, instalar dependências, escrever testes e corrigir até passar.</li>
+</ul>
+
+<h2>A máquina</h2>
+<p>
+  Uma HP Z4 G5, workstation de escritório, longe de ser um servidor de IA. Para
+  um LLM, o que importa é a GPU: uma NVIDIA RTX 4000 Ada com 20 GB e cerca de
+  360 GB/s de banda de memória. O resto só ajuda quando o modelo não cabe na
+  placa.
+</p>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Peça</th><th>Especificação</th><th>Papel no teste</th></tr></thead>
+    <tbody>
+    <tr><td>GPU</td><td>RTX 4000 Ada · 20 GB GDDR6 · ~360 GB/s</td><td>Onde o modelo precisa morar</td></tr>
+    <tr><td>CPU</td><td>Xeon w5-2555X · 14 núcleos</td><td>Experts do MoE quando o modelo não cabe</td></tr>
+    <tr><td>RAM</td><td>128 GB DDR5 ECC a 4800 MT/s</td><td>Reserva para os pesos que transbordam</td></tr>
+    <tr><td>Disco</td><td>NVMe de 2 TB</td><td>Modelos de até 89 GB</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  O sistema é o Ubuntu 26.04 LTS em modo texto: sem interface gráfica, a GPU
+  fica livre para o modelo, e o acesso é por SSH. Usei o driver NVIDIA 595 com
+  CUDA 13.1 e o llama.cpp compilado para a arquitetura Ada. O
+  <code>llama-server</code> expõe uma API compatível com a da OpenAI na rede
+  local, e o VS Code com Cline, no meu PC, conversa com ela.
+</p>
+
+<h2>Os modelos</h2>
+<p>
+  A regra de ouro do LLM local é o modelo caber inteiro na memória de vídeo,
+  junto com o cache de contexto. Escolhi três modelos de pesos abertos, com
+  perfis bem diferentes:
+</p>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Modelo</th><th>Arquitetura</th><th>Onde roda</th></tr></thead>
+    <tbody>
+    <tr><td>Qwen3-Coder 30B-A3B, especializado em código</td><td>MoE, ~3 bilhões de parâmetros ativos por token</td><td>100% na GPU</td></tr>
+    <tr><td>Qwen3.8 27B, generalista com raciocínio</td><td>Denso</td><td>100% na GPU</td></tr>
+    <tr><td>Qwen3.8 Flash-Next, generalista grande com raciocínio</td><td>MoE grande, ~89 GB</td><td>GPU, com os experts na RAM</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  O Flash-Next quebra a regra de ouro de propósito: não cabe em 20 GB de jeito
+  nenhum. A parte comum do modelo e o cache ficam na GPU; os experts vão para a
+  RAM, com 8 GB de cache na placa para os mais usados. Ele responde à pergunta:
+  vale esperar mais em troca de um modelo muito maior?
+</p>
+
+<h2>Velocidade: quem manda é a banda de memória</h2>
+<p>
+  As medições usam a API com o cache de prompt desligado, para que o tempo até o
+  primeiro token inclua a leitura do contexto inteiro. As tabelas mostram o que
+  acontece quando o prompt cresce, que é exatamente o que um agente faz ao ler
+  os arquivos do projeto.
+</p>
+<h3>Velocidade de geração</h3>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Modelo</th><th>Prompt curto</th><th>7 mil tokens</th><th>28 mil tokens</th><th>56 mil tokens</th></tr></thead>
+    <tbody>
+    <tr><td>Coder IQ4, cache KV f16</td><td>114,1 t/s</td><td>83,5 t/s</td><td>58,7 t/s</td><td>—</td></tr>
+    <tr><td>Coder Q3, cache KV q8 (configuração inicial)</td><td>108,5 t/s</td><td>81,7 t/s</td><td>40,2 t/s</td><td>25,2 t/s</td></tr>
+    <tr><td>Qwen3.8 27B</td><td>21,8 t/s</td><td>21,2 t/s</td><td>19,3 t/s</td><td>—</td></tr>
+    <tr><td>Qwen3.8 Flash-Next</td><td>17,0 t/s</td><td>17,4 t/s</td><td>18,2 t/s</td><td>—</td></tr>
+    </tbody>
+  </table>
+</div>
+<h3>Tempo até o primeiro token</h3>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Modelo</th><th>Prompt curto</th><th>7 mil tokens</th><th>28 mil tokens</th><th>56 mil tokens</th></tr></thead>
+    <tbody>
+    <tr><td>Coder IQ4, cache KV f16</td><td>0,2 s</td><td>1,6 s</td><td>10,0 s</td><td>—</td></tr>
+    <tr><td>Coder Q3, cache KV q8 (configuração inicial)</td><td>0,3 s</td><td>2,3 s</td><td>13,8 s</td><td>37,2 s</td></tr>
+    <tr><td>Qwen3.8 27B</td><td>1,1 s</td><td>6,9 s</td><td>29,0 s</td><td>—</td></tr>
+    <tr><td>Qwen3.8 Flash-Next, lote de 2048</td><td>5,6 s</td><td>21,0 s</td><td>73,2 s</td><td>—</td></tr>
+    <tr><td>Qwen3.8 Flash-Next, lote de 8192</td><td>—</td><td>10,0 s</td><td>37,5 s</td><td>—</td></tr>
+    </tbody>
+  </table>
+</div>
+<p class="page__meta">Um traço é uma medição que não fiz. A coluna de 28 mil inclui a medição com 29,8 mil tokens do Coder Q3.</p>
+<p>
+  O Qwen3-Coder ativa só uns 3 bilhões de parâmetros por token e cabe inteiro na
+  GPU: passa de 100 tokens por segundo com prompt curto e lê o contexto a 3 a 4
+  mil tokens por segundo. O 27B denso precisa ler todos os pesos a cada token e
+  fica estável em uns 20. O Flash-Next busca experts na RAM a cada token e gera
+  uns 17, qualquer que seja o tamanho do prompt, porque ali o limite é a banda da
+  DDR5, não a GPU.
+</p>
+<h3>Ajustes que valeram a pena</h3>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Ajuste</th><th>Modelo</th><th>Antes</th><th>Depois</th></tr></thead>
+    <tbody>
+    <tr><td>Micro-lote <code>-ub 2048</code> (leitura de 7 mil tokens)</td><td>Coder Q3</td><td>3.344 t/s</td><td>3.854 t/s</td></tr>
+    <tr><td>Cache KV em f16 em vez de q8 (geração com 28 mil tokens)</td><td>Coder Q3</td><td>43,2 t/s</td><td>58,1 t/s</td></tr>
+    <tr><td>Quantização IQ4_XS em vez de Q3 (prompt curto)</td><td>Coder</td><td>108,5 t/s</td><td>114,1 t/s</td></tr>
+    <tr><td>Lote <code>-ub 8192</code> (primeiro token com 28 mil)</td><td>Flash-Next</td><td>73,2 s</td><td>37,5 s</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  O último é o mais interessante. Com os experts na RAM, cada lote do prompt
+  obriga a copiar pesos pela PCIe. Lotes maiores fazem uma cópia servir a mais
+  tokens, e a leitura do prompt dobrou, de ~370 para ~740 tokens por segundo.
+  Com lote de 16.384 a leitura subiu para 877, mas a geração caiu de 17 para 13.
+  Não compensou.
+</p>
+
+<h2>Qualidade: velocidade não é tudo</h2>
+<p>
+  Escrevi 12 tarefas do dia a dia de quem programa: implementar funções (parser
+  de duração, intervalos, cache LRU, Dijkstra), validar CPF, corrigir bugs,
+  refatorar, escrever SQL com funções de janela e prever a saída de um trecho de
+  código. Cada resposta é executada contra asserções: passou ou não passou.
+</p>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Modelo</th><th>Acerto</th><th>Tempo por tarefa</th><th>Onde errou</th></tr></thead>
+    <tbody>
+    <tr><td>Coder 30B Q3</td><td>69% (25 de 36)</td><td>1,5 s</td><td>Parser de duração, prever saída, LRU, Dijkstra</td></tr>
+    <tr><td>Coder 30B IQ4</td><td>83% (30 de 36)</td><td>1,6 s</td><td>Parser de duração, prever saída</td></tr>
+    <tr><td>Qwen3.8 27B</td><td>100% (12 de 12)</td><td>36 s</td><td>—</td></tr>
+    <tr><td>Qwen3.8 Flash-Next</td><td>100% (20 de 20)</td><td>41 s</td><td>—</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  O Coder rodou cada tarefa 3 vezes; o 27B, uma; o Flash-Next, de uma a três.
+  O Coder é rápido e bom, mas erra de forma consistente em dois pontos: casos de
+  borda do parser e prever a saída de código, que exige “executar de cabeça”. A
+  versão IQ4, mais precisa, corrigiu o LRU e o Dijkstra que a Q3 errava. Os dois
+  Qwen3.8 acertaram tudo, mas pensam antes de responder: uns 40 segundos por
+  tarefa, contra 1,5 do Coder.
+</p>
+<p>
+  Para autocomplete e perguntas rápidas, o Coder na GPU é imbatível. Para um
+  trabalho que precisa estar certo, o raciocínio faz diferença.
+</p>
+
+<h2>Modo agente: o teste que importa</h2>
+<p>
+  Acertar uma função isolada não diz se a ferramenta trabalha sozinha. Para isso
+  escrevi um <code>SPEC.md</code> de uma API de tarefas em FastAPI e SQLite, com
+  sete endpoints, validações, paginação e estatísticas. O pedido ao Cline foi uma
+  frase: leia o SPEC.md, implemente, crie o ambiente virtual, rode os testes com
+  pytest e corrija até passar. Além dos testes que o próprio agente escreve, uma
+  bateria independente de 15 testes de aceite confere a aplicação contra a
+  especificação.
+</p>
+<div class="page__table">
+  <table>
+    <thead><tr><th>Rodada</th><th>Tempo</th><th>Testes de aceite</th><th>pytest do agente</th></tr></thead>
+    <tbody>
+    <tr><td>Qwen3-Coder, rodada 1, sem regras</td><td>4,5 min</td><td>0 de 15</td><td>4 de 13</td></tr>
+    <tr><td>Qwen3-Coder, rodada 2</td><td>~30 min</td><td>1 de 15</td><td>8 de 13</td></tr>
+    <tr><td>Qwen3-Coder, rodada 3, com regras e revisão</td><td>~15 min</td><td>9 de 15</td><td>9 de 13</td></tr>
+    <tr><td>Flash-Next, rodada única, sem intervenção</td><td>18 min</td><td><strong>15 de 15</strong></td><td>13 de 13</td></tr>
+    </tbody>
+  </table>
+</div>
+<h3>Qwen3-Coder: rápido, mas sem fôlego</h3>
+<p>
+  A primeira entrega veio em 4,5 minutos, e estava quebrada: Pydantic v1 num
+  projeto v2, tabelas que não eram criadas, pacote sem <code>__init__.py</code>
+  e o endpoint de estatísticas ausente. Nas rodadas seguintes, o modelo passou a
+  ler o mesmo arquivo em loop, com caminhos do Windows corrompidos (as barras
+  invertidas sumiam nas chamadas de ferramenta), até o Cline interromper a
+  tarefa. Com regras explícitas num <code>.clinerules</code> e uma revisão
+  apontando as falhas, chegou a 9 de 15, depois de quase uma hora.
+</p>
+<h3>Flash-Next: devagar e sempre</h3>
+<p>
+  Com raciocínio em esforço médio e 64 mil tokens de contexto, o Flash-Next leu a
+  especificação, planejou em três etapas, criou todos os arquivos, instalou as
+  dependências e rodou os testes. Em 18 minutos: 13 de 13 testes do pytest
+  passando, mostrando a saída real em vez de afirmar que passou, e 15 de 15 nos
+  testes de aceite. Usou 24,5 mil dos 65,5 mil tokens de contexto e não precisou
+  de nenhuma intervenção minha.
+</p>
+<figure class="page__figure">
+  <img src="img/articles/llm-flash-next-plan.webp" width="1091" height="874" loading="lazy" alt="Cline com o Flash-Next apresentando um plano em três etapas e criando os arquivos do projeto" />
+  <figcaption>Flash-Next: o plano em três etapas antes do primeiro arquivo.</figcaption>
+</figure>
+<figure class="page__figure page__figure--narrow">
+  <img src="img/articles/llm-coder-loop.webp" width="473" height="884" loading="lazy" alt="Cline interrompido depois de cinco leituras idênticas de um arquivo com o caminho corrompido" />
+  <figcaption>Coder 30B: cinco leituras iguais de um caminho corrompido, e a tarefa interrompida.</figcaption>
+</figure>
+<p>
+  A 17 tokens por segundo cada resposta demora, e ler o contexto custa de 10 a
+  37 segundos. É o ritmo de um colega cuidadoso: você entrega a tarefa, vai fazer
+  outra coisa e volta para revisar. Somando as três rodadas, o Coder gastou uns
+  50 minutos e precisou de ajuda; o Flash-Next gerava tokens seis vezes mais
+  devagar e terminou em 18. <strong>O modelo grande não foi mais rápido. Foi mais
+  confiável, e por isso terminou primeiro.</strong>
+</p>
+
+<h2>O que aprendi</h2>
+<ul>
+  <li><strong>A memória de vídeo é o orçamento.</strong> O que cabe na GPU voa; o que transborda passa a depender da banda da DDR5 e da PCIe. Mais RAM ou CPU não muda isso.</li>
+  <li><strong>MoE é o atalho para placas médias.</strong> Com uns 3 bilhões de parâmetros ativos por token, um modelo de 30B passa de 100 tokens por segundo numa GPU de 20 GB.</li>
+  <li><strong>Cache KV em f16 vale a memória que custa.</strong> Com contexto longo, gerou 35% mais rápido que em q8. Compensa reduzir a janela para caber.</li>
+  <li><strong>Agente precisa de contexto.</strong> Com 32 mil tokens o Coder entrava em loop; 64 mil foi o mínimo confortável para um projeto pequeno.</li>
+  <li><strong>Regras escritas resolvem problemas de ambiente.</strong> Um <code>.clinerules</code> com caminhos relativos, o Python do <code>.venv</code> e “mostre a saída real dos testes” eliminou os erros do Windows.</li>
+  <li><strong>Meça com teste executável.</strong> “Parece certo” enganou várias vezes; a bateria de aceite independente mostrou a diferença real entre os modelos.</li>
+</ul>
+
+<h2>Veredito</h2>
+<p>A máquina serve, com uma divisão clara de papéis:</p>
+<ul>
+  <li><strong>Interativo, com o Qwen3-Coder 30B na GPU:</strong> autocomplete, explicações e trechos de código com resposta imediata. Qualidade boa, mas eu não o deixaria sozinho num projeto.</li>
+  <li><strong>Tarefas delegadas, com o Qwen3.8 Flash-Next:</strong> entrega completa e correta em modo agente, no ritmo de quem trabalha em segundo plano.</li>
+</ul>
+<p>
+  Para o Flash-Next responder como ferramenta interativa, o que muda o jogo é a
+  GPU. Uma placa de 96 GB, como a RTX PRO 6000 Blackwell Max-Q (300 W, ~1,8
+  TB/s), cabe na mesma Z4 G5 e manteria o modelo inteiro na memória de vídeo,
+  com umas cinco vezes a banda atual. Pela proporção de banda, a estimativa fica
+  entre 80 e 110 tokens por segundo, com o primeiro token em poucos segundos. É
+  uma projeção, ainda não medida.
+</p>
+
+<h2>Para reproduzir</h2>
+<p>A linha de comando final do Flash-Next:</p>
+<pre><code>llama-server -m Qwen3.8-Flash-Next-UD-IQ4_XS-00001-of-00004.gguf \
+  -c 65536 -ctk f16 -ctv f16 \
+  -ngl 999 -fa on --jinja \
+  -b 8192 -ub 8192 \
+  --cpu-moe --moe-cache-mib 8000 \
+  -ot per_layer_token_embd.weight=CPU \
+  -t 14 -np 1 --temp 1.0 --top-p 0.95 --top-k 20 --min-p 0.0 \
+  --chat-template-kwargs '{"reasoning_effort":"medium"}'</code></pre>
+<ul>
+  <li><code>-c 65536 -ctk f16 -ctv f16</code>: 64 mil tokens de contexto, cache KV em f16.</li>
+  <li><code>-ngl 999 -fa on</code>: tudo que couber na GPU, com flash attention.</li>
+  <li><code>-b 8192 -ub 8192</code>: lotes grandes, a leitura do prompt fica duas vezes mais rápida.</li>
+  <li><code>--cpu-moe --moe-cache-mib 8000</code>: experts na RAM, com 8 GB de cache na GPU.</li>
+</ul>
+<p>
+  Para o Coder 30B IQ4: <code>-c 32768</code> com cache em f16 no uso
+  interativo, ou <code>-c 65536</code> com cache em q8 no modo agente,
+  <code>-b 4096 -ub 2048</code> e temperatura 0,7.
+</p>
+<p class="page__meta">
+  Ambiente: HP Z4 G5 · RTX 4000 Ada 20 GB · Ubuntu 26.04 LTS · NVIDIA 595 / CUDA
+  13.1 · llama.cpp compilado em 18 de novembro de 2026 · VS Code + Cline. Os
+  números mudam com novas versões do motor e dos modelos.
+</p>
+<p class="page__meta">
+  Veja também o outro artigo:
+  <a href="lgpd-icon.pt-BR.html">como criar um ícone quando nenhum serve</a>.
+</p>

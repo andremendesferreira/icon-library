@@ -7,6 +7,8 @@ desktop.ini
 stack.env
 
 # Textos e imagens para divulgação (LinkedIn), fora do repositório
+# Rascunhos e originais dos artigos (o artigo publicado fica em pages/)
+docs/articles/
 linkedin/
 divulgacao/
 tests/mobile/video/

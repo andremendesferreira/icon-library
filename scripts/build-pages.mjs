@@ -34,7 +34,7 @@ const CONJUNTOS = ["lucide-icons", "feather-icons", "bootstrap-icons", "emoji-ic
 const IDIOMAS_CONJUNTOS = ["en", "pt-BR"];
 const NOME_CONJUNTO = { "lucide-icons": "Lucide", "feather-icons": "Feather", "bootstrap-icons": "Bootstrap Icons", "emoji-icons": "Emoji" };
 // Artigos: textos com a experiência do autor, nos mesmos idiomas dos guias
-const ARTIGOS = ["lgpd-icon"];
+const ARTIGOS = ["lgpd-icon", "local-llm-coding"];
 // A página que reúne os artigos (tipo blog), nos mesmos idiomas deles
 const INDICE_ARTIGOS = "articles";
 const idiomasDe = (pagina) =>
