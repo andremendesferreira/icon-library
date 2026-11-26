@@ -4525,28 +4525,41 @@ body {
   height: var(--icon-size, 24px);
 }
 /* O nome continua para leitores de tela; na tela, aparece ao passar o mouse
-   ou focar, maior e por cima do card */
+   ou focar, maior e por cima do card. Fica na largura do card (8px a mais de
+   cada lado) e quebra em linhas: centrado e mais largo, um nome comprido
+   passava da borda da grade no card da primeira coluna e era cortado */
 .emoji-name {
   position: absolute;
-  left: 50%;
-  bottom: -14px;
+  left: -8px;
+  right: -8px;
+  /* Começa na borda de baixo e cresce para baixo: um nome de duas ou três
+     linhas não cobre o ícone */
+  top: calc(100% - 14px);
   z-index: 5;
-  max-width: 220px;
-  padding: 4px 10px;
+  padding: 4px 8px;
   border-radius: 8px;
   background: var(--cor-texto);
   color: var(--cor-superficie);
   font-size: var(--fs-texto);
   line-height: 1.3;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
   opacity: 0;
   pointer-events: none;
-  transform: translate(-50%, 4px);
+  transform: translateY(4px);
   transition: opacity 0.12s, transform 0.12s;
 }
 .emoji-card:hover .emoji-name,
 .emoji-card:focus-within .emoji-name {
   opacity: 1;
-  transform: translate(-50%, 0);
+  transform: translateY(0);
+}
+/* No escuro, uma regra antiga deixava o nome em cinza claro sobre o fundo
+   claro do rótulo (contraste de ~2:1): a cor volta a ser a da superfície */
+[data-theme="dark"] .emoji-name {
+  color: var(--cor-superficie);
 }
 /* Rolagem infinita: o marcador no fim da grade pede o próximo lote */
 .grade-fim {
