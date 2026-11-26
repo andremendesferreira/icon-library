@@ -5640,7 +5640,10 @@ body {
   pointer-events: none;
 }
 :root .emoji-card:hover { box-shadow: none; }
-.emoji-card:hover { z-index: 3; }
+/* Acima do título do grupo seguinte (sticky, z-index 50), para o nome que
+   desce abaixo do card não ficar atrás dele; abaixo da busca fixa (100) */
+.emoji-card:hover,
+.emoji-card:focus-within { z-index: 51; }
 .emoji-card:hover::after { opacity: 1; }
 .emoji-card--copiado::before {
   content: "";
